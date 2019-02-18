@@ -1,0 +1,28 @@
+{
+  "name": "innpv",
+  "main": "./lib/perfvis",
+  "version": "0.0.0",
+  "description": "",
+  "keywords": [],
+  "activationCommands": {
+    "atom-workspace": [
+      "perfvis:start",
+      "perfvis:stop"
+    ]
+  },
+  "repository": "https://github.com/geoffxy/perfvis",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "atom": "^1.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.17.0",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
+    "eslint-plugin-import": "^2.8.0",
+    "eslint-plugin-promise": "^3.6.0",
+    "eslint-plugin-standard": "^3.0.1"
+  }
+}
