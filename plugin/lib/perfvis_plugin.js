@@ -1,6 +1,7 @@
 'use babel';
 
 import { CompositeDisposable } from 'atom';
+import Connection from './connection';
 
 export default class PerfvisPlugin {
   constructor() {
@@ -18,7 +19,6 @@ export default class PerfvisPlugin {
   }
 
   _contentsChanged(event) {
-    console.log(event);
   }
 
   _getTextEditor(newEditor) {
@@ -48,6 +48,7 @@ export default class PerfvisPlugin {
     this._isActive = true;
     this._getTextEditor().then(editor => {
       this._initialize(editor, this._getPanel());
+      this._connection = new Connection();
     });
   }
 
@@ -56,6 +57,7 @@ export default class PerfvisPlugin {
       return;
     }
     this._isActive = false;
+    this._connection.close();
     this._subscriptions.dispose();
     this._panel.destroy();
     this._panel = null;

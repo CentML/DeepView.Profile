@@ -12,7 +12,7 @@ ENCODED_NEWLINE = "\n".encode(ENCODING)
 
 class Connection:
     """
-    Manages an open connection to another agent.
+    Manages an open connection to a client.
 
     This class must be constructed with an already-connected
     socket. Upon receipt of a message on the socket, the
@@ -23,11 +23,12 @@ class Connection:
 
     The stop function must be called to close the connection.
     """
-    def __init__(self, socket, address, handler_function):
+    def __init__(self, socket, address, handler_function, closed_handler):
         self.address = address
         self._socket = socket
         self._reader = Thread(target=self._socket_read)
         self._handler_function = handler_function
+        self._closed_handler = closed_handler
         self._sentinel = Sentinel()
 
     def start(self):
@@ -36,8 +37,8 @@ class Connection:
 
     def stop(self):
         self._sentinel.signal_exit()
-        self._socket.close()
         self._reader.join()
+        self._socket.close()
         self._sentinel.stop()
 
     def write_string_message(self, string_message):
@@ -50,14 +51,25 @@ class Connection:
             while True:
                 read_ready, _, _ = select.select([
                     self._socket, self._sentinel.read_pipe], [], [])
-
                 if self._sentinel.should_exit(read_ready):
+                    logger.debug(
+                        "Connection (%s:%d) is being closed.",
+                        *self.address,
+                    )
                     break
 
                 data = self._socket.recv(4096)
+                if len(data) == 0:
+                    logger.debug(
+                        "Connection (%s:%d) has been closed by the client.",
+                        *self.address,
+                    )
+                    self._closed_handler(self.address)
+                    break
+
                 buffer += data.decode(ENCODING)
                 while buffer.find("\n") != -1:
                     line, buffer = buffer.split("\n", 1)
                     self._handler_function(line, self.address)
         except:
-            logger.warn("Connection unexpectedly stopping...")
+            logger.exception("Connection unexpectedly stopping...")

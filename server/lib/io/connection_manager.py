@@ -1,22 +1,37 @@
+import logging
 import socket
+
 from lib.io.connection import Connection
+
+logger = logging.getLogger(__name__)
 
 
 class ConnectionManager:
-    def __init__(self, connection_message_handler):
+    def __init__(self, message_handler, closed_handler):
         self._connections = {}
-        self._connection_message_handler = connection_message_handler
+        self._message_handler = message_handler
+        self._closed_handler = closed_handler
 
     def register_connection(self, opened_socket, address):
         self._connections[address] = Connection(
-            opened_socket, address, self._connection_message_handler)
+            opened_socket,
+            address,
+            self._message_handler,
+            self._closed_handler,
+        )
         self._connections[address].start()
+
+    def remove_connection(self, address):
+        connection = self.get_connection(address)
+        connection.stop()
+        del self._connections[address]
+        logger.debug("Removed connection to (%s:%d).", *address)
 
     def get_connection(self, address):
         if address not in self._connections:
             host, port = address
             raise ValueError(
-                "Connection to {}:{} does not exist.".format(host, port))
+                "Connection to ({}:{}) does not exist.".format(host, port))
         return self._connections[address]
 
     def broadcast(self, string_message):
@@ -31,3 +46,4 @@ class ConnectionManager:
     def stop(self):
         for _, connection in self._connections.items():
             connection.stop()
+        self._connections.clear()

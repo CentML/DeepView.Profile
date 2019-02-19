@@ -19,6 +19,7 @@ class INNPVServer:
         )
         self._connection_manager = ConnectionManager(
             self._on_message,
+            self._on_connection_closed,
         )
         self._main_executor = ThreadPoolExecutor(max_workers=1)
 
@@ -34,8 +35,10 @@ class INNPVServer:
         logger.info("INNPV server has started.")
 
     def stop(self):
-        self._connection_acceptor.stop()
-        self._connection_manager.stop()
+        def shutdown():
+            self._connection_acceptor.stop()
+            self._connection_manager.stop()
+        self._main_executor.submit(shutdown).result()
         self._main_executor.shutdown()
         logger.info("INNPV server has shut down.")
 
@@ -55,8 +58,17 @@ class INNPVServer:
             address,
         )
 
+    def _on_connection_closed(self, address):
+        # Do not call directly - called by a connection when it is closed
+        self._main_executor.submit(
+            self._connection_manager.remove_connection,
+            address,
+        )
+
     def _handle_message(self, data, address):
         try:
-            logger.info("From %s:%d received message: %s", *address, data)
+            logger.debug("From (%s:%d) received message: %s", *address, data)
+            connection = self._connection_manager.get_connection(address)
+            connection.write_string_message("Message received!")
         except:
             logger.exception("Exception occurred when handling message.")

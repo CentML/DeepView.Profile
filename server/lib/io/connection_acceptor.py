@@ -28,13 +28,6 @@ class ConnectionAcceptor:
         self._acceptor = Thread(target=self._accept_connections)
         self._sentinel = Sentinel()
 
-    def __enter__(self):
-        self.start()
-        return self
-
-    def __exit__(self):
-        self.stop()
-
     def start(self):
         self._server_socket.bind((self._host, self._port))
         self._port = self._server_socket.getsockname()[1]
@@ -42,15 +35,21 @@ class ConnectionAcceptor:
         self._sentinel.start()
         self._acceptor.start()
         logger.info(
-            "INNPV is listening for connections on {}:{}."
-            .format(self._host, self._port),
+            "INNPV is listening for connections on (%s:%d).",
+            self._host,
+            self._port,
         )
 
     def stop(self):
         self._sentinel.signal_exit()
-        self._server_socket.close()
         self._acceptor.join()
+        self._server_socket.close()
         self._sentinel.stop()
+        logging.info(
+            "INNPV has stopped listening for connections on (%s:%d).",
+            self._host,
+            self._port,
+        )
 
     def _accept_connections(self):
         try:
@@ -63,10 +62,8 @@ class ConnectionAcceptor:
 
                 socket, address = self._server_socket.accept()
                 host, port = address
-                logger.info(
-                    "Accepted a connection to {}:{}."
-                    .format(host, port),
-                )
+                logger.debug("Accepted a connection to (%s:%d).", host, port)
                 self._handler_function(socket, address)
         except:
-            logging.info("INNPV has stopped accepting connections.")
+            logging.exception(
+                "INNPV has unexpectedly stopped accepting connections.")
