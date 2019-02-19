@@ -1,0 +1,9 @@
+syntax = 'proto3';
+
+message AnalyzeRequest {
+  string source_code = 1;
+}
+
+message AnalyzeResponse {
+  string response = 1;
+}
