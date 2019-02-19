@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from lib.io.connection_acceptor import ConnectionAcceptor
 from lib.io.connection_manager import ConnectionManager
+from lib.message_handler import MessageHandler
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ class INNPVServer:
             self._on_message,
             self._on_connection_closed,
         )
+        self._message_handler = MessageHandler(self._connection_manager)
         self._main_executor = ThreadPoolExecutor(max_workers=1)
 
     def __enter__(self):
@@ -45,7 +47,7 @@ class INNPVServer:
     def _on_message(self, data, address):
         # Do not call directly - called by a connection
         self._main_executor.submit(
-            self._handle_message,
+            self._message_handler.handle_message,
             data,
             address,
         )
@@ -64,11 +66,3 @@ class INNPVServer:
             self._connection_manager.remove_connection,
             address,
         )
-
-    def _handle_message(self, data, address):
-        try:
-            logger.debug("From (%s:%d) received message: %s", *address, data)
-            connection = self._connection_manager.get_connection(address)
-            connection.write_string_message("Message received!")
-        except:
-            logger.exception("Exception occurred when handling message.")

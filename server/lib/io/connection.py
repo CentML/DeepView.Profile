@@ -1,13 +1,11 @@
 import logging
 import select
+import struct
 from threading import Thread
 
 from lib.io.sentinel import Sentinel
 
 logger = logging.getLogger(__name__)
-
-ENCODING = "utf-8"
-ENCODED_NEWLINE = "\n".encode(ENCODING)
 
 
 class Connection:
@@ -18,8 +16,8 @@ class Connection:
     socket. Upon receipt of a message on the socket, the
     handler_function will be called with the raw message.
 
-    Socket communication is in UTF-8 encoded strings with
-    messages separated by newline characters.
+    Socket communication is performed using length-prefixed
+    binary protobuf messages.
 
     The stop function must be called to close the connection.
     """
@@ -41,12 +39,14 @@ class Connection:
         self._socket.close()
         self._sentinel.stop()
 
-    def write_string_message(self, string_message):
-        self._socket.sendall(string_message.encode(ENCODING))
-        self._socket.sendall(ENCODED_NEWLINE)
+    def write_serialized_message(self, raw_bytes):
+        self._socket.sendall(struct.pack('!I', len(raw_bytes)))
+        self._socket.sendall(raw_bytes)
 
     def _socket_read(self):
-        buffer = ""
+        buffer = b''
+        message_length = -1
+
         try:
             while True:
                 read_ready, _, _ = select.select([
@@ -67,9 +67,21 @@ class Connection:
                     self._closed_handler(self.address)
                     break
 
-                buffer += data.decode(ENCODING)
-                while buffer.find("\n") != -1:
-                    line, buffer = buffer.split("\n", 1)
-                    self._handler_function(line, self.address)
+                buffer += data
+
+                if message_length <= 0:
+                    if len(buffer) < 4:
+                        continue
+                    # Network byte order 32-bit unsigned integer
+                    message_length = struct.unpack('!I', buffer[:4])[0]
+                    buffer = buffer[4:]
+
+                if len(buffer) < message_length:
+                    continue
+
+                self._handler_function(buffer[:message_length], self.address)
+                buffer = buffer[message_length:]
+                message_length = -1
+
         except:
             logger.exception("Connection unexpectedly stopping...")
