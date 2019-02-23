@@ -1,5 +1,17 @@
 syntax = 'proto3';
 
+message PluginMessage {
+  oneof payload {
+    AnalyzeRequest analyze_request = 1;
+  }
+}
+
+message ServerMessage {
+  oneof payload {
+    AnalyzeResponse analyze_response = 1;
+  }
+}
+
 message AnalyzeRequest {
   string source_code = 1;
 }

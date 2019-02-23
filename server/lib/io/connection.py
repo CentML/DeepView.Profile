@@ -39,7 +39,7 @@ class Connection:
         self._socket.close()
         self._sentinel.stop()
 
-    def write_serialized_message(self, raw_bytes):
+    def send_bytes(self, raw_bytes):
         self._socket.sendall(struct.pack('!I', len(raw_bytes)))
         self._socket.sendall(raw_bytes)
 

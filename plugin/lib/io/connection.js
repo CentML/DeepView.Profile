@@ -2,16 +2,11 @@
 
 import net from 'net';
 import { CompositeDisposable } from 'atom';
-import m from './models_gen/messages_pb';
 
 export default class Connection {
-  constructor() {
-    this._socket = net.createConnection(6060, 'localhost', () => {
-      console.log('Connected!');
-      const msg = new m.AnalyzeRequest();
-      msg.setSourceCode('Hello world!');
-      this._sendMessage(msg);
-    });
+  constructor(dataHandler) {
+    this._connected = false;
+    this._socket = new net.Socket();
 
     // Used for the incoming message
     this._incomingBuffers = [];
@@ -24,26 +19,36 @@ export default class Connection {
       console.log('Connection closed by the server!');
       this.close();
     });
+
+    this._dataHandler = dataHandler
+  }
+
+  connect(callback) {
+    if (this._connected) {
+      return;
+    }
+    this._socket.connect({port: 6060, host: 'localhost'}, callback);
+    this._connected = true;
   }
 
   close() {
-    if (this._socket == null) {
+    if (!this._connected) {
       return;
     }
     this._socket.removeListener('data', this._handleData);
     this._socket.end();
     this._socket = null;
+    this._connected = false;
     console.log('Connection closed.');
   }
 
-  _sendMessage(message) {
-    const messageBuffer = message.serializeBinary();
+  sendBytes(byteArray) {
     // 32-bit unsigned integer for the message length
     // NOTE: Use big endian to respect network byte order
     const lengthBuffer = Buffer.alloc(4);
-    lengthBuffer.writeUInt32BE(messageBuffer.length, 0);
+    lengthBuffer.writeUInt32BE(byteArray.length, 0);
     this._socket.write(lengthBuffer);
-    this._socket.write(Buffer.from(messageBuffer));
+    this._socket.write(Buffer.from(byteArray));
   }
 
   _handleData(chunk) {
@@ -63,10 +68,9 @@ export default class Connection {
       return;
     }
 
-    const message = m.AnalyzeResponse.deserializeBinary(messageResult);
     this._nextMessageLength = -1;
 
-    this._handleMessage(message);
+    this._dataHandler(messageResult);
   }
 
   _readIntoBuffer(size) {
@@ -108,9 +112,5 @@ export default class Connection {
     // NOTE: We should never reach here!
     console.error('Reached invalid spot in Connection._readIntoBuffer()');
     return null;
-  }
-
-  _handleMessage(message) {
-    console.log('Received response:', message.getResponse());
   }
 }

@@ -3,7 +3,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from lib.io.connection_acceptor import ConnectionAcceptor
 from lib.io.connection_manager import ConnectionManager
-from lib.message_handler import MessageHandler
+from lib.protocol.message_handler import MessageHandler
+from lib.protocol.message_sender import MessageSender
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,8 @@ class INNPVServer:
             self._on_message,
             self._on_connection_closed,
         )
-        self._message_handler = MessageHandler(self._connection_manager)
+        self._message_sender = MessageSender(self._connection_manager)
+        self._message_handler = MessageHandler(self._message_sender)
         self._main_executor = ThreadPoolExecutor(max_workers=1)
 
     def __enter__(self):
