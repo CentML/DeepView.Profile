@@ -8,7 +8,8 @@ message PluginMessage {
 
 message ServerMessage {
   oneof payload {
-    AnalyzeResponse analyze_response = 1;
+    AnalyzeSuccess analyze_success = 1;
+    AnalyzeError analyze_error = 2;
   }
 }
 
@@ -16,6 +17,8 @@ message AnalyzeRequest {
   string source_code = 1;
 }
 
-message AnalyzeResponse {
-  string response = 1;
+message AnalyzeSuccess {}
+
+message AnalyzeError {
+  string error_message = 1;
 }
