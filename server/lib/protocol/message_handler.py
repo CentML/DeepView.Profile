@@ -1,5 +1,7 @@
 import logging
 
+from lib.analysis.parser import analyze_source_code
+from lib.exceptions import AnalysisError
 import lib.models_gen.messages_pb2 as m
 
 logger = logging.getLogger(__name__)
@@ -10,9 +12,12 @@ class MessageHandler:
         self._message_sender = message_sender
 
     def _handle_analyze_request(self, message, address):
-        logger.info('From (%s:%d) received: %s', *address, message.source_code)
-        self._message_sender.send_analyze_response(
-            'Hello world back!', address)
+        try:
+            _, model_operations = analyze_source_code(message.source_code)
+            self._message_sender.send_analyze_response(
+                model_operations, address)
+        except AnalysisError as ex:
+            self._message_sender.send_analyze_error(str(ex), address)
 
     def handle_message(self, raw_data, address):
         try:

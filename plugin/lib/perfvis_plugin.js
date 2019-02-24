@@ -16,6 +16,7 @@ export default class PerfvisPlugin {
 
     this._contentsChanged = this._contentsChanged.bind(this);
     this._handleMessage = this._handleMessage.bind(this);
+    this._requestAnalysis = this._requestAnalysis.bind(this);
 
     this._subscriptions = new CompositeDisposable();
     this._subscriptions.add(this._editor.getBuffer().onDidChange(this._contentsChanged));
@@ -26,15 +27,26 @@ export default class PerfvisPlugin {
 
     this._connection.connect(() => {
       console.log('Connected!');
-      this._messageSender.sendAnalyzeRequest('Hello world!');
+      this._requestAnalysis();
     });
+
+    this._editorDebounce = null;
   }
 
   _contentsChanged(event) {
+    if (this._editorDebounce != null) {
+      clearTimeout(this._editorDebounce);
+    }
+    this._editorDebounce = setTimeout(this._requestAnalysis, 1000);
   }
 
   _handleMessage(message) {
     this._messageHandler.handleMessage(message);
+  }
+
+  _requestAnalysis() {
+    console.log('Sending analysis request...');
+    this._messageSender.sendAnalyzeRequest(this._editor.getBuffer().getText());
   }
 
   _getTextEditor(newEditor) {
@@ -70,6 +82,10 @@ export default class PerfvisPlugin {
   stop() {
     if (!this._isActive) {
       return;
+    }
+    if (this._editorDebounce != null) {
+      clearTimeout(this._editorDebounce);
+      this._editorDebounce = null;
     }
     this._isActive = false;
     this._connection.close();

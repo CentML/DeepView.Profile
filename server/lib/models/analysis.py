@@ -1,3 +1,4 @@
+import lib.models_gen.messages_pb2 as m
 
 
 class OperationSourceMap:
@@ -7,3 +8,9 @@ class OperationSourceMap:
         self.ast_node = ast_node
         self.line = line
         self.column = column
+
+    def fill_protobuf(self, info_pb):
+        info_pb.bound_name = self.bound_name
+        info_pb.op_name = self.op_name
+        info_pb.line = self.line
+        info_pb.column = self.column

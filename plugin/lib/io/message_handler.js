@@ -8,7 +8,12 @@ export default class MessageHandler {
   }
 
   _handleAnalyzeResponse(message) {
-    console.log('Received:', message.getResponse());
+    const operationInfos = message.getResultsList();
+    console.log('Received', operationInfos.length, 'messages.');
+  }
+
+  _handleAnalyzeError(message) {
+    console.log('Received error message:', message.getErrorMessage());
   }
 
   handleMessage(byteArray) {
@@ -22,6 +27,10 @@ export default class MessageHandler {
 
       case m.ServerMessage.PayloadCase.ANALYZE_RESPONSE:
         this._handleAnalyzeResponse(enclosingMessage.getAnalyzeResponse());
+        break;
+
+      case m.ServerMessage.PayloadCase.ANALYZE_ERROR:
+        this._handleAnalyzeError(enclosingMessage.getAnalyzeError());
         break;
     }
   }
