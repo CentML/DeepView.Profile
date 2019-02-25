@@ -1,6 +1,10 @@
 'use babel';
 
 import { CompositeDisposable } from 'atom';
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+import PerfVis from './components/PerfVis';
 import Connection from './io/connection';
 import MessageHandler from './io/message_handler';
 import MessageSender from './io/message_sender';
@@ -10,9 +14,10 @@ export default class PerfvisPlugin {
     this._isActive = false;
   }
 
-  _initialize(editor, panel) {
+  _initialize(editor) {
     this._editor = editor;
-    this._panel = panel;
+    this._panel = atom.workspace.addRightPanel({item: document.createElement('div')});
+    ReactDOM.render(<PerfVis/>, this._panel.getItem());
 
     this._contentsChanged = this._contentsChanged.bind(this);
     this._handleMessage = this._handleMessage.bind(this);
@@ -63,19 +68,13 @@ export default class PerfvisPlugin {
     });
   }
 
-  _getPanel() {
-    const el = document.createElement('div');
-    el.innerHTML = 'Hello world!';
-    return atom.workspace.addRightPanel({item: el});
-  }
-
   start() {
     if (this._isActive) {
       return;
     }
     this._isActive = true;
     this._getTextEditor().then(editor => {
-      this._initialize(editor, this._getPanel());
+      this._initialize(editor);
     });
   }
 
@@ -83,6 +82,7 @@ export default class PerfvisPlugin {
     if (!this._isActive) {
       return;
     }
+
     if (this._editorDebounce != null) {
       clearTimeout(this._editorDebounce);
       this._editorDebounce = null;
@@ -92,6 +92,8 @@ export default class PerfvisPlugin {
     this._messageHandler = null;
     this._messageSender = null;
     this._subscriptions.dispose();
+
+    ReactDOM.unmountComponentAtNode(this._panel.getItem());
     this._panel.destroy();
     this._panel = null;
   }

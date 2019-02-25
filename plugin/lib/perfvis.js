@@ -4,7 +4,6 @@ import { CompositeDisposable } from 'atom';
 import PerfvisPlugin from './perfvis_plugin';
 
 export default {
-
   _plugin: null,
   _subscriptions: null,
 
@@ -21,6 +20,7 @@ export default {
   },
 
   deactivate() {
+    this._stop();
     this._subscriptions.dispose();
   },
 
