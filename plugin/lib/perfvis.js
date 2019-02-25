@@ -12,23 +12,15 @@ export default {
 
     this._subscriptions = new CompositeDisposable();
     this._subscriptions.add(atom.commands.add('atom-workspace', {
-      'perfvis:start': () => this._start(),
+      'perfvis:start': () => this._plugin.open(),
     }));
     this._subscriptions.add(atom.commands.add('atom-workspace', {
-      'perfvis:stop': () => this._stop(),
+      'perfvis:stop': () => this._plugin.close(),
     }));
   },
 
   deactivate() {
-    this._stop();
+    this._plugin.close();
     this._subscriptions.dispose();
-  },
-
-  _start() {
-    this._plugin.start();
-  },
-
-  _stop() {
-    this._plugin.stop();
   },
 };

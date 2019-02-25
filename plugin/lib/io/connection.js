@@ -16,19 +16,26 @@ export default class Connection {
     this._handleData = this._handleData.bind(this);
     this._socket.on('data', this._handleData);
     this._socket.once('end', () => {
-      console.log('Connection closed by the server!');
+      console.log('Connection closed by the server.');
       this.close();
     });
 
     this._dataHandler = dataHandler
   }
 
-  connect(callback) {
+  connect(host, port) {
     if (this._connected) {
-      return;
+      return Promise.resolve();
     }
-    this._socket.connect({port: 6060, host: 'localhost'}, callback);
     this._connected = true;
+
+    return new Promise((resolve, reject) => {
+      this._socket.once('error', reject);
+      this._socket.connect({host, port}, () => {
+        this._socket.removeListener('error', reject);
+        resolve();
+      });
+    });
   }
 
   close() {

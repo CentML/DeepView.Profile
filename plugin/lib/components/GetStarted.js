@@ -3,15 +3,6 @@
 import React from 'react';
 
 export default class GetStarted extends React.Component {
-  constructor(props) {
-    super(props);
-    this._onClick = this._onClick.bind(this);
-  }
-
-  _onClick(event) {
-    console.log('Get started button clicked.');
-  }
-
   render() {
     return (
       <div className="innpv-get-started">
@@ -19,7 +10,7 @@ export default class GetStarted extends React.Component {
         <p>Visualize the training performance of your PyTorch deep neural networks.</p>
         <button
           className="btn btn-primary inline-block-tight icon icon-playback-play"
-          onClick={this._onClick}
+          onClick={this.props.handleClick}
         >
           Get Started
         </button>
@@ -27,3 +18,7 @@ export default class GetStarted extends React.Component {
     );
   }
 }
+
+GetStarted.prototype.defaultProps = {
+  onClick: () => {},
+};
