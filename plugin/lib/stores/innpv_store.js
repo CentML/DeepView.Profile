@@ -9,6 +9,7 @@ const UPDATE_EVENT = 'updated';
 class INNPVStore {
   constructor() {
     this._appState = AppState.ACTIVATED;
+    this._operationInfos = [];
 
     this._emitter = new EventEmitter();
   }
@@ -19,6 +20,15 @@ class INNPVStore {
 
   setAppState(state) {
     this._appState = state;
+    this._notifyChanged();
+  }
+
+  getOperationInfos() {
+    return this._operationInfos;
+  }
+
+  setOperationInfos(operationInfos) {
+    this._operationInfos = operationInfos;
     this._notifyChanged();
   }
 

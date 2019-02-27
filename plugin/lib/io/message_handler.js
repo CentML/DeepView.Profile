@@ -1,6 +1,7 @@
 'use babel';
 
 import m from '../models_gen/messages_pb';
+import INNPVStore from '../stores/innpv_store';
 
 export default class MessageHandler {
   constructor(messageSender) {
@@ -10,6 +11,7 @@ export default class MessageHandler {
   _handleAnalyzeResponse(message) {
     const operationInfos = message.getResultsList();
     console.log('Received', operationInfos.length, 'messages.');
+    INNPVStore.setOperationInfos(operationInfos);
   }
 
   _handleAnalyzeError(message) {

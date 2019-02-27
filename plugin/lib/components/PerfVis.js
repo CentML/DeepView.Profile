@@ -3,6 +3,8 @@
 import React from 'react';
 
 import GetStarted from './GetStarted';
+import PerfVisMainView from './PerfVisMainView';
+
 import AppState from '../models/AppState';
 import INNPVStore from '../stores/innpv_store';
 
@@ -11,6 +13,7 @@ export default class PerfVis extends React.Component {
     super(props);
     this.state = {
       appState: INNPVStore.getAppState(),
+      operationInfos: INNPVStore.getOperationInfos(),
     };
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
   }
@@ -24,15 +27,27 @@ export default class PerfVis extends React.Component {
   }
 
   _onStoreUpdate() {
-    this.setState({appState: INNPVStore.getAppState()});
+    this.setState({
+      appState: INNPVStore.getAppState(),
+      operationInfos: INNPVStore.getOperationInfos(),
+    });
+  }
+
+  _renderContents() {
+    switch (this.state.appState) {
+      case AppState.OPENED:
+      case AppState.CONNECTING:
+        return <GetStarted handleClick={this.props.handleGetStartedClick} />;
+
+      case AppState.READY:
+        return <PerfVisMainView operationInfos={this.state.operationInfos} />;
+
+      default:
+        return null;
+    }
   }
 
   render() {
-    return (
-      <div className="innpv-main">
-        {this.state.appState === AppState.OPENED ?
-            <GetStarted handleClick={this.props.handleGetStartedClick} /> : null}
-      </div>
-    );
+    return <div className="innpv-wrap">{this._renderContents()}</div>;
   }
 }
