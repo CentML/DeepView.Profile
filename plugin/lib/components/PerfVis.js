@@ -14,6 +14,7 @@ export default class PerfVis extends React.Component {
     this.state = {
       appState: INNPVStore.getAppState(),
       operationInfos: INNPVStore.getOperationInfos(),
+      editor: INNPVStore.getEditor(),
     };
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
   }
@@ -30,6 +31,7 @@ export default class PerfVis extends React.Component {
     this.setState({
       appState: INNPVStore.getAppState(),
       operationInfos: INNPVStore.getOperationInfos(),
+      editor: INNPVStore.getEditor(),
     });
   }
 
@@ -40,7 +42,12 @@ export default class PerfVis extends React.Component {
         return <GetStarted handleClick={this.props.handleGetStartedClick} />;
 
       case AppState.READY:
-        return <PerfVisMainView operationInfos={this.state.operationInfos} />;
+        return (
+          <PerfVisMainView
+            operationInfos={this.state.operationInfos}
+            editor={this.state.editor}
+          />
+        );
 
       default:
         return null;

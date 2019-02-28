@@ -10,6 +10,7 @@ class INNPVStore {
   constructor() {
     this._appState = AppState.ACTIVATED;
     this._operationInfos = [];
+    this._editor = null;
 
     this._emitter = new EventEmitter();
   }
@@ -29,6 +30,15 @@ class INNPVStore {
 
   setOperationInfos(operationInfos) {
     this._operationInfos = operationInfos;
+    this._notifyChanged();
+  }
+
+  getEditor() {
+    return this._editor;
+  }
+
+  setEditor(editor) {
+    this._editor = editor;
     this._notifyChanged();
   }
 

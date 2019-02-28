@@ -27,7 +27,10 @@ export default class PerfvisPlugin {
     INNPVStore.setAppState(AppState.OPENED);
 
     this._panel = atom.workspace.addRightPanel({item: document.createElement('div')});
-    ReactDOM.render(<PerfVis handleGetStartedClick={this._getStartedClicked} />, this._panel.getItem());
+    ReactDOM.render(
+      <PerfVis handleGetStartedClick={this._getStartedClicked} />,
+      this._panel.getItem(),
+    );
 
     this._subscriptions = new CompositeDisposable();
     this._connection = new Connection(this._handleMessage);
@@ -68,6 +71,7 @@ export default class PerfvisPlugin {
 
       this._editor = values[0];
       this._subscriptions.add(this._editor.getBuffer().onDidChange(this._contentsChanged));
+      INNPVStore.setEditor(this._editor);
 
       console.log('Connected!');
       this._requestAnalysis();

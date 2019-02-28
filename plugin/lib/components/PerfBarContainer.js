@@ -23,6 +23,7 @@ class PerfBarContainer extends React.Component {
           (operationInfo, index) =>
             <PerfBar
               key={operationInfo.getBoundName()}
+              editor={this.props.editor}
               operationInfo={operationInfo}
               percentage={operationInfo.getRuntimeUs() / totalTimeMicro * 100}
               colorClass={COLOR_CLASSES[index % COLOR_CLASSES.length]}

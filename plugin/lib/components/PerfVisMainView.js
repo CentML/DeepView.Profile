@@ -18,7 +18,10 @@ export default class PerfVisMainView extends React.Component {
       <div className="innpv-main">
         {this._renderHeader()}
         <div className="innpv-contents">
-          <PerfBarContainer operationInfos={this.props.operationInfos} />
+          <PerfBarContainer
+            operationInfos={this.props.operationInfos}
+            editor={this.props.editor}
+          />
         </div>
       </div>
     );
