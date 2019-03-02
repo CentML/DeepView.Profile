@@ -67,7 +67,7 @@ export default class PerfvisPlugin {
 
     INNPVStore.setAppState(AppState.CONNECTING);
     Promise.all([getTextEditor(), this._connection.connect('localhost', 6060)]).then((values) => {
-      INNPVStore.setAppState(AppState.READY);
+      INNPVStore.setAppState(AppState.CONNECTED);
 
       this._editor = values[0];
       this._subscriptions.add(this._editor.getBuffer().onDidChange(this._contentsChanged));

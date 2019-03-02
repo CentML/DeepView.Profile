@@ -14,5 +14,5 @@ export default {
   CONNECTING: 'connecting',
 
   // When the plugin is operating normally.
-  READY: 'ready',
+  CONNECTED: 'connected',
 };

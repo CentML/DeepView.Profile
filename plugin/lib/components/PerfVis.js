@@ -41,7 +41,7 @@ export default class PerfVis extends React.Component {
       case AppState.CONNECTING:
         return <GetStarted handleClick={this.props.handleGetStartedClick} />;
 
-      case AppState.READY:
+      case AppState.CONNECTED:
         return (
           <PerfVisMainView
             operationInfos={this.state.operationInfos}
