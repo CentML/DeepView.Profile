@@ -3,8 +3,10 @@
 import React from 'react';
 
 import ErrorMessage from './ErrorMessage';
+import Memory from './Memory';
 import PerfBarContainer from './PerfBarContainer';
 import PerfVisStatusBar from './PerfVisStatusBar';
+import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
 
 function PerfVisHeader() {
@@ -31,7 +33,15 @@ export default class PerfVisMainView extends React.Component {
     if (this.props.errorMessage !== '') {
       return <ErrorMessage message={this.props.errorMessage} />;
     } else {
-      return <PerfBarContainer editor={this.props.editor} />;
+      return (
+        <div className="innpv-contents-columns">
+          <PerfBarContainer editor={this.props.editor} />
+          <div className="innpv-contents-subrows">
+            <Throughput />
+            <Memory />
+          </div>
+        </div>
+      );
     }
   }
 

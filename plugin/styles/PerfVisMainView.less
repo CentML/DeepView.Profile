@@ -12,6 +12,7 @@
   text-align: center;
   line-height: 2.5em;
   color: @text-color-highlight;
+  border-bottom: 1px solid @inset-panel-border-color;
 
   .icon::before {
     font-size: 12px;
@@ -21,12 +22,30 @@
 .innpv-contents {
   height: 100%;
   width: 100%;
-  padding: @component-padding;
   transition-property: opacity;
   transition-duration: 0.3s;
 
   &.innpv-no-events {
     pointer-events: none;
     opacity: 0.5;
+  }
+}
+
+.innpv-contents-columns {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: row;
+}
+
+.innpv-contents-subrows {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  flex-direction: column;
+  border-left: 1px solid @inset-panel-border-color;
+
+  .innpv-subpanel:first-child {
+    border-bottom: 1px solid @inset-panel-border-color;
   }
 }

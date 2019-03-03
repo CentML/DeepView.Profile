@@ -43,17 +43,19 @@ export default class PerfBarContainer extends React.Component {
       this.state.operationInfos.reduce((acc, info) => acc + info.getRuntimeUs(), 0);
 
     return (
-      <div className="innpv-perfbarcontainer">
-        {this.state.operationInfos.map(
-          (operationInfo, index) =>
-            <PerfBar
-              key={operationInfo.getBoundName()}
-              editor={this.props.editor}
-              operationInfo={operationInfo}
-              percentage={operationInfo.getRuntimeUs() / totalTimeMicro * 100}
-              colorClass={COLOR_CLASSES[index % COLOR_CLASSES.length]}
-            />
-        )}
+      <div className="innpv-perfbarcontainer-wrap">
+        <div className="innpv-perfbarcontainer">
+          {this.state.operationInfos.map(
+            (operationInfo, index) =>
+              <PerfBar
+                key={operationInfo.getBoundName()}
+                editor={this.props.editor}
+                operationInfo={operationInfo}
+                percentage={operationInfo.getRuntimeUs() / totalTimeMicro * 100}
+                colorClass={COLOR_CLASSES[index % COLOR_CLASSES.length]}
+              />
+          )}
+        </div>
       </div>
     );
   }
