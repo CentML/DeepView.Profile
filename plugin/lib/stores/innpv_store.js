@@ -9,6 +9,7 @@ class INNPVStore extends BaseStore {
     super();
     this._appState = AppState.ACTIVATED;
     this._perfVisState = PerfVisState.READY;
+    this._errorMessage = '';
     this._editor = null;
   }
 
@@ -40,6 +41,22 @@ class INNPVStore extends BaseStore {
   setEditor(editor) {
     this._editor = editor;
     this.notifyChanged();
+  }
+
+  getErrorMessage() {
+    return this._errorMessage;
+  }
+
+  setErrorMessage(message) {
+    if (this._errorMessage === message) {
+      return;
+    }
+    this._errorMessage = message;
+    this.notifyChanged();
+  }
+
+  clearErrorMessage() {
+    this.setErrorMessage('');
   }
 }
 

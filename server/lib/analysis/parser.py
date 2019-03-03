@@ -20,8 +20,8 @@ def analyze_source_code(source_code):
         tree = ast.parse(source_code)
     except SyntaxError as ex:
         raise AnalysisError(
-            'Syntax error on line {} column {}: {}'
-            .format(ex.lineno, ex.offset, ex.text)
+            'Syntax error on line {} column {}.'
+            .format(ex.lineno, ex.offset)
         ) from ex
 
     # 2. Find the class definition for the PyTorch module

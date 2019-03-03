@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import ErrorMessage from './ErrorMessage';
 import PerfBarContainer from './PerfBarContainer';
 import PerfVisStatusBar from './PerfVisStatusBar';
 import PerfVisState from '../models/PerfVisState';
@@ -26,13 +27,19 @@ export default class PerfVisMainView extends React.Component {
     }
   }
 
+  _renderBody() {
+    if (this.props.errorMessage !== '') {
+      return <ErrorMessage message={this.props.errorMessage} />;
+    } else {
+      return <PerfBarContainer editor={this.props.editor} />;
+    }
+  }
+
   render() {
     return (
       <div className="innpv-main">
         <PerfVisHeader />
-        <div className={this._classes()}>
-          <PerfBarContainer editor={this.props.editor} />
-        </div>
+        <div className={this._classes()}>{this._renderBody()}</div>
         <PerfVisStatusBar perfVisState={this.props.perfVisState} />
       </div>
     );

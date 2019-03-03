@@ -16,6 +16,7 @@ export default class MessageHandler {
     const artificalDelay = () => {
       OperationInfoStore.setOperationInfos(operationInfos);
       INNPVStore.setPerfVisState(PerfVisState.READY);
+      INNPVStore.clearErrorMessage();
     };
     setTimeout(artificalDelay, 1500);
   }
@@ -23,6 +24,7 @@ export default class MessageHandler {
   _handleAnalyzeError(message) {
     console.log('Received error message:', message.getErrorMessage());
     const artificalDelay = () => {
+      INNPVStore.setErrorMessage(message.getErrorMessage());
       INNPVStore.setPerfVisState(PerfVisState.ERROR);
     };
     setTimeout(artificalDelay, 1500);
