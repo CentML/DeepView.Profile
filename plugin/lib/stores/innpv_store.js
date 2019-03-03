@@ -3,12 +3,14 @@
 import EventEmitter from 'events';
 
 import AppState from '../models/AppState';
+import PerfVisState from '../models/PerfVisState';
 
 const UPDATE_EVENT = 'updated';
 
 class INNPVStore {
   constructor() {
     this._appState = AppState.ACTIVATED;
+    this._perfVisState = PerfVisState.READY;
     this._operationInfos = [];
     this._editor = null;
 
@@ -21,6 +23,18 @@ class INNPVStore {
 
   setAppState(state) {
     this._appState = state;
+    this._notifyChanged();
+  }
+
+  getPerfVisState() {
+    return this._perfVisState;
+  }
+
+  setPerfVisState(state) {
+    if (this._perfVisState === state) {
+      return;
+    }
+    this._perfVisState = state;
     this._notifyChanged();
   }
 

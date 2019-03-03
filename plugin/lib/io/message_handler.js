@@ -1,6 +1,7 @@
 'use babel';
 
 import m from '../models_gen/messages_pb';
+import PerfVisState from '../models/PerfVisState';
 import INNPVStore from '../stores/innpv_store';
 
 export default class MessageHandler {
@@ -11,11 +12,19 @@ export default class MessageHandler {
   _handleAnalyzeResponse(message) {
     const operationInfos = message.getResultsList();
     console.log('Received', operationInfos.length, 'messages.');
-    INNPVStore.setOperationInfos(operationInfos);
+    const artificalDelay = () => {
+      INNPVStore.setOperationInfos(operationInfos);
+      INNPVStore.setPerfVisState(PerfVisState.READY);
+    };
+    setTimeout(artificalDelay, 1500);
   }
 
   _handleAnalyzeError(message) {
     console.log('Received error message:', message.getErrorMessage());
+    const artificalDelay = () => {
+      INNPVStore.setPerfVisState(PerfVisState.ERROR);
+    };
+    setTimeout(artificalDelay, 1500);
   }
 
   handleMessage(byteArray) {

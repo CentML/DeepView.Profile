@@ -22,4 +22,11 @@
   height: 100%;
   width: 100%;
   padding: @component-padding;
+  transition-property: opacity;
+  transition-duration: 0.3s;
+
+  &.innpv-no-events {
+    pointer-events: none;
+    opacity: 0.5;
+  }
 }

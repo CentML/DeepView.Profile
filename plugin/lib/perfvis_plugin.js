@@ -9,6 +9,7 @@ import Connection from './io/connection';
 import MessageHandler from './io/message_handler';
 import MessageSender from './io/message_sender';
 import AppState from './models/AppState';
+import PerfVisState from './models/PerfVisState';
 import INNPVStore from './stores/innpv_store';
 import { getTextEditor } from './utils';
 
@@ -83,6 +84,7 @@ export default class PerfvisPlugin {
       clearTimeout(this._editorDebounce);
     }
     this._editorDebounce = setTimeout(this._requestAnalysis, 1000);
+    INNPVStore.setPerfVisState(PerfVisState.DEBOUNCING);
   }
 
   _handleMessage(message) {
@@ -91,6 +93,7 @@ export default class PerfvisPlugin {
 
   _requestAnalysis() {
     console.log('Sending analysis request...');
+    INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
     this._messageSender.sendAnalyzeRequest(this._editor.getBuffer().getText());
   }
 }
