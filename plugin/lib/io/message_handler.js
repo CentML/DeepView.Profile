@@ -3,6 +3,7 @@
 import m from '../models_gen/messages_pb';
 import PerfVisState from '../models/PerfVisState';
 import INNPVStore from '../stores/innpv_store';
+import OperationInfoStore from '../stores/operationinfo_store';
 
 export default class MessageHandler {
   constructor(messageSender) {
@@ -13,7 +14,7 @@ export default class MessageHandler {
     const operationInfos = message.getResultsList();
     console.log('Received', operationInfos.length, 'messages.');
     const artificalDelay = () => {
-      INNPVStore.setOperationInfos(operationInfos);
+      OperationInfoStore.setOperationInfos(operationInfos);
       INNPVStore.setPerfVisState(PerfVisState.READY);
     };
     setTimeout(artificalDelay, 1500);

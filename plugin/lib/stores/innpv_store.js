@@ -1,20 +1,15 @@
 'use babel';
 
-import EventEmitter from 'events';
-
+import BaseStore from './base_store';
 import AppState from '../models/AppState';
 import PerfVisState from '../models/PerfVisState';
 
-const UPDATE_EVENT = 'updated';
-
-class INNPVStore {
+class INNPVStore extends BaseStore {
   constructor() {
+    super();
     this._appState = AppState.ACTIVATED;
     this._perfVisState = PerfVisState.READY;
-    this._operationInfos = [];
     this._editor = null;
-
-    this._emitter = new EventEmitter();
   }
 
   getAppState() {
@@ -23,7 +18,7 @@ class INNPVStore {
 
   setAppState(state) {
     this._appState = state;
-    this._notifyChanged();
+    this.notifyChanged();
   }
 
   getPerfVisState() {
@@ -35,16 +30,7 @@ class INNPVStore {
       return;
     }
     this._perfVisState = state;
-    this._notifyChanged();
-  }
-
-  getOperationInfos() {
-    return this._operationInfos;
-  }
-
-  setOperationInfos(operationInfos) {
-    this._operationInfos = operationInfos;
-    this._notifyChanged();
+    this.notifyChanged();
   }
 
   getEditor() {
@@ -53,19 +39,7 @@ class INNPVStore {
 
   setEditor(editor) {
     this._editor = editor;
-    this._notifyChanged();
-  }
-
-  addListener(callback) {
-    this._emitter.on(UPDATE_EVENT, callback);
-  }
-
-  removeListener(callback) {
-    this._emitter.removeListener(UPDATE_EVENT, callback);
-  }
-
-  _notifyChanged() {
-    this._emitter.emit(UPDATE_EVENT);
+    this.notifyChanged();
   }
 }
 

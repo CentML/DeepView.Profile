@@ -3,6 +3,7 @@
 import React from 'react';
 
 import PerfBar from './PerfBar';
+import OperationInfoStore from '../stores/operationinfo_store';
 
 const COLOR_CLASSES = [
   'ui-site-1',
@@ -12,14 +13,38 @@ const COLOR_CLASSES = [
   'ui-site-5',
 ];
 
-class PerfBarContainer extends React.Component {
+export default class PerfBarContainer extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      operationInfos: OperationInfoStore.getOperationInfos(),
+    };
+
+    this._onStoreChange = this._onStoreChange.bind(this);
+  }
+
+  componentDidMount() {
+    OperationInfoStore.addListener(this._onStoreChange);
+  }
+
+  componentWillUnmount() {
+    OperationInfoStore.removeListener(this._onStoreChange);
+  }
+
+  _onStoreChange() {
+    this.setState({
+      operationInfos: OperationInfoStore.getOperationInfos(),
+    });
+  }
+
   render() {
     const totalTimeMicro =
-      this.props.operationInfos.reduce((acc, info) => acc + info.getRuntimeUs(), 0);
+      this.state.operationInfos.reduce((acc, info) => acc + info.getRuntimeUs(), 0);
 
     return (
       <div className="innpv-perfbarcontainer">
-        {this.props.operationInfos.map(
+        {this.state.operationInfos.map(
           (operationInfo, index) =>
             <PerfBar
               key={operationInfo.getBoundName()}
@@ -33,9 +58,3 @@ class PerfBarContainer extends React.Component {
     );
   }
 }
-
-PerfBarContainer.defaultProps = {
-  operationInfos: [],
-}
-
-export default PerfBarContainer;
