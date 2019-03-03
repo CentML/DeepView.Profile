@@ -49,3 +49,28 @@
     border-bottom: 1px solid @inset-panel-border-color;
   }
 }
+
+.innpv-subpanel {
+  display: flex;
+  flex-direction: column;
+}
+
+.innpv-subpanel-content {
+  display: flex;
+  flex-grow: 1;
+}
+
+.innpv-subpanel-sidecontent {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.innpv-separator {
+  height: 1px;
+  width: 70%;
+  background-color: @text-color-subtle;
+  opacity: 0.2;
+}

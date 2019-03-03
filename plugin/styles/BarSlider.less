@@ -1,0 +1,30 @@
+@import "ui-variables";
+
+.innpv-barslider {
+  width: 80px;
+  margin: 20px 0 20px 10px;
+  border-bottom: 1px solid @background-color-selected;
+}
+
+.innpv-barslider-barwrap {
+  height: 100%;
+  width: 35px;
+  margin: 0 auto;
+  background-color: @input-background-color;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-direction: column-reverse;
+}
+
+.innpv-barslider-bar {
+  width: 100%;
+  background-color: @background-color-info;
+  opacity: 0.4;
+}
+
+.innpv-barslider-limit {
+  width: 100%;
+  background-color: @background-color-error;
+}
