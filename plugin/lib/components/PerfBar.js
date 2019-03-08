@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import Elastic from './Elastic';
+
 export default class PerfBar extends React.Component {
   constructor(props) {
     super(props);
@@ -9,6 +11,8 @@ export default class PerfBar extends React.Component {
     this._decoration = null;
     this._tooltip = null;
     this._barRef = React.createRef();
+
+    this._mouseDown = false;
 
     this._handleHoverEnter = this._handleHoverEnter.bind(this);
     this._handleHoverExit = this._handleHoverExit.bind(this);
@@ -111,13 +115,18 @@ export default class PerfBar extends React.Component {
 
   render() {
     return (
-      <div
-        ref={this._barRef}
-        className={`innpv-perfbar ${this.props.colorClass}`}
-        style={{height: `${this.props.percentage}%`}}
-        onMouseEnter={this._handleHoverEnter}
-        onMouseLeave={this._handleHoverExit}
-      />
+      <Elastic
+        className="innpv-perfbar-wrap"
+        heightPct={this.props.percentage}
+        updateMarginTop={this.props.updateMarginTop}
+      >
+        <div
+          ref={this._barRef}
+          className={`innpv-perfbar ${this.props.colorClass}`}
+          onMouseEnter={this._handleHoverEnter}
+          onMouseLeave={this._handleHoverExit}
+        />
+      </Elastic>
     );
   }
 }
