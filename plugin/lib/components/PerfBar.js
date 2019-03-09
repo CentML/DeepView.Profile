@@ -16,6 +16,10 @@ export default class PerfBar extends React.Component {
 
     this._handleHoverEnter = this._handleHoverEnter.bind(this);
     this._handleHoverExit = this._handleHoverExit.bind(this);
+
+    this._handleIncrease = this._handleIncrease.bind(this);
+    this._handleDecrease = this._handleDecrease.bind(this);
+    this._handleRestore = this._handleRestore.bind(this);
   }
 
   componentDidMount() {
@@ -113,12 +117,24 @@ export default class PerfBar extends React.Component {
     this._decoration = null;
   }
 
+  _handleIncrease() {
+  }
+
+  _handleDecrease() {
+  }
+
+  _handleRestore() {
+  }
+
   render() {
     return (
       <Elastic
         className="innpv-perfbar-wrap"
         heightPct={this.props.percentage}
         updateMarginTop={this.props.updateMarginTop}
+        handleShrink={this._handleDecrease}
+        handleGrow={this._handleIncrease}
+        handleSnapBack={this._handleRestore}
       >
         <div
           ref={this._barRef}

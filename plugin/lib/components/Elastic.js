@@ -3,7 +3,7 @@
 import React from 'react';
 
 const DRAG_MAX_PCT = 0.2;
-const GAIN = 0.5;
+const GAIN = 0.8;
 
 function easing(x) {
   // y = 1 - (1 - x)^3

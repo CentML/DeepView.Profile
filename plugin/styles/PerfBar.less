@@ -1,7 +1,10 @@
+@import "innpv-animation";
+
 .innpv-perfbar-wrap {
   opacity: 0.4;
-  transition-property: opacity;
-  transition-duration: 0.2s;
+  transition-property: opacity, height;
+  transition-duration: @perfbar-duration;
+  transition-timing-function: @perfbar-easing;
   cursor: row-resize;
 
   &:hover {

@@ -1,4 +1,5 @@
 @import "ui-variables";
+@import "innpv-animation";
 
 .innpv-perfbarcontainer-wrap {
   padding: @component-padding;
@@ -13,4 +14,7 @@
 
 .innpv-perfbarcontainer-inner {
   height: 100%;
+  transition-property: margin-top;
+  transition-duration: @perfbar-duration;
+  transition-timing-function: @perfbar-easing;
 }
