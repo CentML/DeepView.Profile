@@ -2,6 +2,7 @@
 
 import BaseStore from './base_store';
 import Throughput from '../models/Throughput';
+import Memory from '../models/Memory';
 
 class BatchSizeStore extends BaseStore {
   constructor() {
@@ -28,6 +29,18 @@ class BatchSizeStore extends BaseStore {
       return Throughput.fromInfo(this._throughputInfo);
     } else {
       return Throughput.fromPrediction(this._throughputInfo, this._predictedBatchSize);
+    }
+  }
+
+  getMemoryModel() {
+    if (this._memoryInfo == null) {
+      return null;
+    }
+
+    if (this._predictedBatchSize == null) {
+      return Memory.fromInfo(this._memoryInfo);
+    } else {
+      return Memory.fromPrediction(this._memoryInfo, this._predictedBatchSize);
     }
   }
 }

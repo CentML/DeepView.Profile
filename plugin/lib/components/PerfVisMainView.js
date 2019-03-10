@@ -23,6 +23,7 @@ export default class PerfVisMainView extends React.Component {
     super(props);
     this.state = {
       throughput: BatchSizeStore.getThroughputModel(),
+      memory: BatchSizeStore.getMemoryModel(),
     };
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
   }
@@ -38,6 +39,7 @@ export default class PerfVisMainView extends React.Component {
   _onStoreUpdate() {
     this.setState({
       throughput: BatchSizeStore.getThroughputModel(),
+      memory: BatchSizeStore.getMemoryModel(),
     });
   }
 
@@ -61,7 +63,7 @@ export default class PerfVisMainView extends React.Component {
           <PerfBarContainer editor={this.props.editor} />
           <div className="innpv-contents-subrows">
             <Throughput model={this.state.throughput} />
-            <Memory />
+            <Memory model={this.state.memory} />
           </div>
         </div>
       );

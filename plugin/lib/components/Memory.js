@@ -8,21 +8,24 @@ import NumericDisplay from './NumericDisplay';
 
 export default class Memory extends React.Component {
   render() {
+    const {model} = this.props;
+    const notReady = model == null;
+
     return (
       <div className="innpv-memory innpv-subpanel">
         <Subheader icon="database">Peak Memory Usage</Subheader>
         <div className="innpv-subpanel-content">
-          <BarSlider percentage={50} />
+          <BarSlider percentage={notReady ? 0 : model.displayPct} />
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay
               top="Peak Usage"
-              number={1313}
+              number={notReady ? '---' : model.usage}
               bottom="Megabytes"
             />
             <div className="innpv-separator" />
             <NumericDisplay
               top="Maximum Capacity"
-              number={2048}
+              number={notReady ? '---' : model.maxCapacity}
               bottom="Megabytes"
             />
           </div>

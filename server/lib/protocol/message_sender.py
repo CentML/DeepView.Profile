@@ -10,17 +10,25 @@ class MessageSender:
     def send_analyze_response(self, batch_size, model_operations, address):
         message = m.AnalyzeResponse()
         message.batch_size = batch_size
+
         for operation in model_operations:
             pb = message.results.add()
             operation.fill_protobuf(pb)
             # Fake the runtime - use a random value between 100 us and 200 us
             pb.runtime_us = random() * 100 + 100
+
         # Use mock data for the throughput & memory
         throughput_info = m.ThroughputInfo()
         throughput_info.throughput = 1337
         throughput_info.max_throughput = 2000
         throughput_info.throughput_limit = 1890
         message.throughput.CopyFrom(throughput_info)
+
+        memory_info = m.MemoryInfo()
+        memory_info.usage = 2048
+        memory_info.max_capacity = 8192
+        message.memory.CopyFrom(memory_info)
+
         self._send_message(message, 'analyze_response', address)
 
     def send_analyze_error(self, error_message, address):
