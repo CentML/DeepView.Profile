@@ -17,7 +17,22 @@ class BatchSizeStore extends BaseStore {
     this._throughputInfo = throughputInfo;
     this._memoryInfo = memoryInfo;
     this._batchSize = batchSize;
+    this._predictedBatchSize = null;
     this.notifyChanged();
+  }
+
+  updateMemoryUsage(deltaPct, basePct) {
+    // Map the delta to a usage value
+    // NOTE: We clamp the values (upper bound for usage, lower bound for batch size)
+    const updatedPct = basePct + deltaPct;
+    const updatedUsage = Math.min(
+      updatedPct / 100 * this._memoryInfo.getMaxCapacityMb(),
+      this._memoryInfo.getMaxCapacityMb(),
+    );
+    const model = this._memoryInfo.getUsageModelMb();
+    this._predictedBatchSize = Math.max((updatedUsage - model.getBias()) / model.getCoefficient(), 1);
+    this.notifyChanged();
+    return this._predictedBatchSize;
   }
 
   getThroughputModel() {

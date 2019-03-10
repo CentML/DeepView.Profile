@@ -19,6 +19,7 @@ class Resizable extends React.Component {
     const {height} = event.currentTarget.getBoundingClientRect();
     this._clickClientY = event.clientY;
     this._sliderHeight = height / (this.props.heightPct / 100);
+    this._initialHeightPct = this.props.heightPct;
   }
 
   _handleMouseUp(event) {
@@ -34,7 +35,7 @@ class Resizable extends React.Component {
       return;
     }
     const diff = this._clickClientY - event.clientY;
-    this.props.handleResize(diff / this._sliderHeight);
+    this.props.handleResize(diff / this._sliderHeight * 100, this._initialHeightPct);
   }
 
   render() {

@@ -34,7 +34,8 @@ export default class Throughput {
   static fromPrediction(infoProtobuf, batchSize) {
     const runtimeModel = infoProtobuf.getRuntimeModelMs();
     const predRuntime = runtimeModel.getCoefficient() * batchSize + runtimeModel.getBias();
-    const predThroughput = batchSize / predRuntime;
+    // Runtime is in milliseconds, so multiply throughput by 1000 to get units in seconds
+    const predThroughput = batchSize / predRuntime * 1000;
     return new Throughput(
       predThroughput,
       infoProtobuf.getMaxThroughput(),

@@ -5,14 +5,6 @@ import React from 'react';
 import Resizable from './resizable';
 
 class BarSlider extends React.Component {
-  constructor(props) {
-    super(props);
-    this._handleResize = this._handleResize.bind(this);
-  }
-
-  _handleResize(diff) {
-  }
-
   render() {
     const {percentage, limitPercentage} = this.props;
     const limitBarHeight = 100 - limitPercentage;
@@ -22,7 +14,7 @@ class BarSlider extends React.Component {
           <Resizable
             className="innpv-resizable-barslider"
             heightPct={percentage}
-            handleResize={this._handleResize}
+            handleResize={this.props.handleResize}
           >
             <div className="innpv-barslider-bar" />
           </Resizable>
@@ -36,6 +28,7 @@ class BarSlider extends React.Component {
 
 BarSlider.defaultProps = {
   limitPercentage: 100,
+  handleResize: () => {},
 };
 
 export default BarSlider;
