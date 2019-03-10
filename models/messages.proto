@@ -19,6 +19,13 @@ message AnalyzeRequest {
 
 message AnalyzeResponse {
   repeated OperationInfo results = 1;
+  ThroughputInfo throughput = 2;
+  MemoryInfo memory = 3;
+  uint32 batch_size = 4;
+}
+
+message AnalyzeError {
+  string error_message = 1;
 }
 
 message OperationInfo {
@@ -28,10 +35,24 @@ message OperationInfo {
 
   // Source mapping information
   string bound_name = 3;
-  int32 line = 4;
-  int32 column = 5;
+  uint32 line = 4;
+  uint32 column = 5;
 }
 
-message AnalyzeError {
-  string error_message = 1;
+message ThroughputInfo {
+  LinearModel runtime_model = 1;
+  float throughput = 2;
+  float max_throughput = 3;
+  float throughput_limit = 4;
+}
+
+message MemoryInfo {
+  LinearModel capacity_model = 1;
+  float usage = 2;
+  float max_capacity = 3;
+}
+
+message LinearModel {
+  float coefficient = 1;
+  float bias = 2;
 }
