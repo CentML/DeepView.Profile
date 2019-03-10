@@ -32,7 +32,7 @@ export default class Throughput {
   }
 
   static fromPrediction(infoProtobuf, batchSize) {
-    const runtimeModel = infoProtobuf.getRuntimeModel();
+    const runtimeModel = infoProtobuf.getRuntimeModelMs();
     const predRuntime = runtimeModel.getCoefficient() * batchSize + runtimeModel.getBias();
     const predThroughput = batchSize / predRuntime;
     return new Throughput(

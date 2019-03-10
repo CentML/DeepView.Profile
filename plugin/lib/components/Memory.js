@@ -19,13 +19,13 @@ export default class Memory extends React.Component {
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay
               top="Peak Usage"
-              number={notReady ? '---' : model.usage}
+              number={notReady ? '---' : model.usageMb}
               bottom="Megabytes"
             />
             <div className="innpv-separator" />
             <NumericDisplay
               top="Maximum Capacity"
-              number={notReady ? '---' : model.maxCapacity}
+              number={notReady ? '---' : model.maxCapacityMb}
               bottom="Megabytes"
             />
           </div>

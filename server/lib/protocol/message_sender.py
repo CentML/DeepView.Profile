@@ -18,16 +18,16 @@ class MessageSender:
             pb.runtime_us = random() * 100 + 100
 
         # Use mock data for the throughput & memory
-        throughput_info = m.ThroughputInfo()
-        throughput_info.throughput = 1337
-        throughput_info.max_throughput = 2000
-        throughput_info.throughput_limit = 1890
-        message.throughput.CopyFrom(throughput_info)
+        message.throughput.throughput = 1000
+        message.throughput.max_throughput = 1250
+        message.throughput.throughput_limit = 1250
+        message.throughput.runtime_model_ms.coefficient = 0.80320687
+        message.throughput.runtime_model_ms.bias = 9.16780518
 
-        memory_info = m.MemoryInfo()
-        memory_info.usage = 2048
-        memory_info.max_capacity = 8192
-        message.memory.CopyFrom(memory_info)
+        message.memory.usage_mb = 1828
+        message.memory.max_capacity_mb = 8192
+        message.memory.usage_model_mb.coefficient = 10.8583003
+        message.memory.usage_model_mb.bias = 1132.56299
 
         self._send_message(message, 'analyze_response', address)
 

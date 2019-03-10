@@ -40,16 +40,18 @@ message OperationInfo {
 }
 
 message ThroughputInfo {
-  LinearModel runtime_model = 1;
+  // Batch Size -> Run time (in milliseconds)
+  LinearModel runtime_model_ms = 1;
   float throughput = 2;
   float max_throughput = 3;
   float throughput_limit = 4;
 }
 
 message MemoryInfo {
-  LinearModel capacity_model = 1;
-  float usage = 2;
-  float max_capacity = 3;
+  // Batch Size -> Usage (in megabytes)
+  LinearModel usage_model_mb = 1;
+  float usage_mb = 2;
+  float max_capacity_mb = 3;
 }
 
 message LinearModel {

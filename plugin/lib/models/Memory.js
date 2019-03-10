@@ -1,36 +1,36 @@
 'use babel';
 
 export default class Memory {
-  constructor(usage, maxCapacity) {
-    this._usage = usage;
-    this._maxCapacity = maxCapacity;
+  constructor(usageMb, maxCapacityMb) {
+    this._usageMb = usageMb;
+    this._maxCapacityMb = maxCapacityMb;
   }
 
-  get usage() {
-    return this._usage;
+  get usageMb() {
+    return this._usageMb;
   }
 
-  get maxCapacity() {
-    return this._maxCapacity;
+  get maxCapacityMb() {
+    return this._maxCapacityMb;
   }
 
   get displayPct() {
-    return this._usage / this._maxCapacity * 100;
+    return this._usageMb / this._maxCapacityMb * 100;
   }
 
   static fromInfo(infoProtobuf) {
     return new Memory(
-      infoProtobuf.getUsage(),
-      infoProtobuf.getMaxCapacity(),
+      infoProtobuf.getUsageMb(),
+      infoProtobuf.getMaxCapacityMb(),
     );
   }
 
   static fromPrediction(infoProtobuf, batchSize) {
-    const capacityModel = infoProtobuf.getCapacityModel();
-    const predUsage = capacityModel.getCoefficient() * batchSize + capacityModel.getBias();
+    const usageModel = infoProtobuf.getUsageModelMb();
+    const predUsageMb = usageModel.getCoefficient() * batchSize + usageModel.getBias();
     return new Memory(
-      predUsage,
-      infoProtobuf.getMaxCapacity(),
+      predUsageMb,
+      infoProtobuf.getMaxCapacityMb(),
     );
   }
 }
