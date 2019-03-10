@@ -4,6 +4,7 @@ import m from '../models_gen/messages_pb';
 import PerfVisState from '../models/PerfVisState';
 import INNPVStore from '../stores/innpv_store';
 import OperationInfoStore from '../stores/operationinfo_store';
+import BatchSizeStore from '../stores/batchsize_store';
 
 export default class MessageHandler {
   constructor(messageSender) {
@@ -15,6 +16,7 @@ export default class MessageHandler {
     console.log('Received', operationInfos.length, 'messages.');
     const artificalDelay = () => {
       OperationInfoStore.setOperationInfos(operationInfos);
+      BatchSizeStore.setInfos(message.getThroughput(), null, message.getBatchSize());
       INNPVStore.setPerfVisState(PerfVisState.READY);
       INNPVStore.clearErrorMessage();
     };

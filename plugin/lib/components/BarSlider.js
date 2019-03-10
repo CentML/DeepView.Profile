@@ -14,7 +14,8 @@ class BarSlider extends React.Component {
   }
 
   render() {
-    const {percentage, limit} = this.props;
+    const {percentage, limitPercentage} = this.props;
+    const limitBarHeight = 100 - limitPercentage;
     return (
       <div className="innpv-barslider">
         <div className="innpv-barslider-barwrap">
@@ -25,7 +26,8 @@ class BarSlider extends React.Component {
           >
             <div className="innpv-barslider-bar" />
           </Resizable>
-          {limit > 0 ? <div className="innpv-barslider-limit" style={{height: `${limit}%`}} /> : null}
+          {limitBarHeight > 1e-3 ?
+            <div className="innpv-barslider-limit" style={{height: `${limitBarHeight}%`}} /> : null}
         </div>
       </div>
     );
@@ -33,7 +35,7 @@ class BarSlider extends React.Component {
 }
 
 BarSlider.defaultProps = {
-  limit: 0,
+  limitPercentage: 100,
 };
 
 export default BarSlider;

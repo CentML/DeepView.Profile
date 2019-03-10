@@ -8,6 +8,7 @@ import PerfBarContainer from './PerfBarContainer';
 import PerfVisStatusBar from './PerfVisStatusBar';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
+import BatchSizeStore from '../stores/batchsize_store';
 
 function PerfVisHeader() {
   return (
@@ -18,6 +19,28 @@ function PerfVisHeader() {
 }
 
 export default class PerfVisMainView extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      throughput: BatchSizeStore.getThroughputModel(),
+    };
+    this._onStoreUpdate = this._onStoreUpdate.bind(this);
+  }
+
+  componentDidMount() {
+    BatchSizeStore.addListener(this._onStoreUpdate);
+  }
+
+  componentWillUnmount() {
+    BatchSizeStore.removeListener(this._onStoreUpdate);
+  }
+
+  _onStoreUpdate() {
+    this.setState({
+      throughput: BatchSizeStore.getThroughputModel(),
+    });
+  }
+
   _classes() {
     switch (this.props.perfVisState) {
       case PerfVisState.ANALYZING:
@@ -37,7 +60,7 @@ export default class PerfVisMainView extends React.Component {
         <div className="innpv-contents-columns">
           <PerfBarContainer editor={this.props.editor} />
           <div className="innpv-contents-subrows">
-            <Throughput />
+            <Throughput model={this.state.throughput} />
             <Memory />
           </div>
         </div>
