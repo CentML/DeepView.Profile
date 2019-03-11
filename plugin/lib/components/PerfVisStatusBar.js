@@ -20,7 +20,15 @@ function ErrorIcon() {
   );
 }
 
-export default class PerfVisStatusBar extends React.Component {
+function SyncButton(props) {
+  return (
+    <div onClick={props.handleClick} className="innpv-statusbar-icon innpv-clickable">
+      <span className="icon icon-x" />
+    </div>
+  );
+}
+
+class PerfVisStatusBar extends React.Component {
   _getMessage() {
     switch (this.props.perfVisState) {
       case PerfVisState.READY:
@@ -48,6 +56,9 @@ export default class PerfVisStatusBar extends React.Component {
       case PerfVisState.ANALYZING:
         return <LoadingIcon />;
 
+      case PerfVisState.SHOWING_PREDICTIONS:
+        return <SyncButton handleClick={this.props.handleClick} />;
+
       default:
         return null;
     }
@@ -62,3 +73,9 @@ export default class PerfVisStatusBar extends React.Component {
     );
   }
 }
+
+PerfVisStatusBar.defaultProps = {
+  handleClick: () => {},
+};
+
+export default PerfVisStatusBar;

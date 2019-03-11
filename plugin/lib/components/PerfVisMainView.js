@@ -9,6 +9,7 @@ import PerfVisStatusBar from './PerfVisStatusBar';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
 import BatchSizeStore from '../stores/batchsize_store';
+import INNPVStore from '../stores/innpv_store';
 
 function PerfVisHeader() {
   return (
@@ -26,6 +27,7 @@ export default class PerfVisMainView extends React.Component {
       memory: BatchSizeStore.getMemoryModel(),
     };
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
+    this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
   }
 
   componentDidMount() {
@@ -41,6 +43,14 @@ export default class PerfVisMainView extends React.Component {
       throughput: BatchSizeStore.getThroughputModel(),
       memory: BatchSizeStore.getMemoryModel(),
     });
+  }
+
+  _handleStatusBarClick() {
+    if (this.props.perfVisState !== PerfVisState.SHOWING_PREDICTIONS) {
+      return;
+    }
+    BatchSizeStore.clearPredictions();
+    INNPVStore.setPerfVisState(PerfVisState.READY);
   }
 
   _classes() {
@@ -75,7 +85,10 @@ export default class PerfVisMainView extends React.Component {
       <div className="innpv-main">
         <PerfVisHeader />
         <div className={this._classes()}>{this._renderBody()}</div>
-        <PerfVisStatusBar perfVisState={this.props.perfVisState} />
+        <PerfVisStatusBar
+          handleClick={this._handleStatusBarClick}
+          perfVisState={this.props.perfVisState}
+        />
       </div>
     );
   }

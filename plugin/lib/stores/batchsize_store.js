@@ -71,6 +71,11 @@ class BatchSizeStore extends BaseStore {
     return this._predictedBatchSize;
   }
 
+  clearPredictions() {
+    this._predictedBatchSize = null;
+    this.notifyChanged();
+  }
+
   getThroughputModel() {
     if (this._throughputInfo == null) {
       return null;
