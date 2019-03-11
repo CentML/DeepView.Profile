@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import Resizable from './resizable';
+import Resizable from './Resizable';
 
 class BarSlider extends React.Component {
   render() {
