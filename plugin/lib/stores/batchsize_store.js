@@ -3,6 +3,11 @@
 import BaseStore from './base_store';
 import Throughput from '../models/Throughput';
 import Memory from '../models/Memory';
+import {
+  evaluateLinearModel,
+  getBatchSizeFromUsage,
+  getBatchSizeFromThroughput,
+} from '../utils';
 
 class BatchSizeStore extends BaseStore {
   constructor() {
@@ -11,6 +16,7 @@ class BatchSizeStore extends BaseStore {
     this._memoryInfo = null;
     this._batchSize = null;
     this._predictedBatchSize = null;
+    this._maxBatchSize = null;
   }
 
   setInfos(throughputInfo, memoryInfo, batchSize) {
@@ -18,6 +24,10 @@ class BatchSizeStore extends BaseStore {
     this._memoryInfo = memoryInfo;
     this._batchSize = batchSize;
     this._predictedBatchSize = null;
+    this._maxBatchSize = getBatchSizeFromUsage(
+      this._memoryInfo.getUsageModelMb(),
+      this._memoryInfo.getMaxCapacityMb(),
+    );
     this.notifyChanged();
   }
 
@@ -29,8 +39,34 @@ class BatchSizeStore extends BaseStore {
       updatedPct / 100 * this._memoryInfo.getMaxCapacityMb(),
       this._memoryInfo.getMaxCapacityMb(),
     );
-    const model = this._memoryInfo.getUsageModelMb();
-    this._predictedBatchSize = Math.max((updatedUsage - model.getBias()) / model.getCoefficient(), 1);
+    this._predictedBatchSize = Math.max(
+      getBatchSizeFromUsage(this._memoryInfo.getUsageModelMb(), updatedUsage),
+      1,
+    );
+    this.notifyChanged();
+    return this._predictedBatchSize;
+  }
+
+  updateThroughput(deltaPct, basePct) {
+    // Map the delta to a throughput value
+    // NOTE: We clamp the values (upper bound for throughput, lower bound for batch size)
+    const updatedPct = basePct + deltaPct;
+    const updatedThroughput = Math.max(Math.min(
+      updatedPct / 100 * this._throughputInfo.getMaxThroughput(),
+      this._throughputInfo.getThroughputLimit(),
+    ), 0);
+    const throughputBatchSize = getBatchSizeFromThroughput(
+      this._throughputInfo.getRuntimeModelMs(),
+      updatedThroughput,
+    );
+
+    if (throughputBatchSize < 0) {
+      // NOTE: The throughput batch size may be so large that it overflows
+      this._predictedBatchSize = this._maxBatchSize;
+    } else {
+      this._predictedBatchSize = Math.max(Math.min(throughputBatchSize, this._maxBatchSize), 1);
+    }
+
     this.notifyChanged();
     return this._predictedBatchSize;
   }
