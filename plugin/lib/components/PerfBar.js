@@ -3,16 +3,14 @@
 import React from 'react';
 
 import Elastic from './Elastic';
+import SourceMarker from '../marker';
 
 export default class PerfBar extends React.Component {
   constructor(props) {
     super(props);
-    this._marker = null;
-    this._decoration = null;
+    this._op_marker = new SourceMarker(this.props.editor);
     this._tooltip = null;
     this._barRef = React.createRef();
-
-    this._mouseDown = false;
 
     this._handleHoverEnter = this._handleHoverEnter.bind(this);
     this._handleHoverExit = this._handleHoverExit.bind(this);
@@ -23,17 +21,20 @@ export default class PerfBar extends React.Component {
   }
 
   componentDidMount() {
-    this._registerCodeMarker();
+    this._op_marker.register(this.props.operationInfo.getLocation());
     this._registerTooltip();
   }
 
   componentDidUpdate(prevProps) {
-    this._updateMarker(prevProps);
+    this._op_marker.reconcileLocation(
+      prevProps.operationInfo.getLocation(),
+      this.props.operationInfo.getLocation(),
+    );
     this._updateTooltip(prevProps);
   }
 
   componentWillUnmount() {
-    this._clearCodeMarker();
+    this._op_marker.remove();
     this._clearTooltip();
   }
 
@@ -75,49 +76,12 @@ export default class PerfBar extends React.Component {
       `Weight: ${percentage.toFixed(2)}%`;
   }
 
-  _updateMarker(prevProps) {
-    const operationInfo = this.props.operationInfo;
-    const prevOperationInfo = prevProps.operationInfo;
-    const opLoc = operationInfo.getLocation();
-    const prevOpLoc = prevOperationInfo.getLocation();
-    if (opLoc.getLine() === prevOpLoc.getLine() &&
-        opLoc.getColumn() === prevOpLoc.getColumn()) {
-      return;
-    }
-    this._clearCodeMarker();
-    this._registerCodeMarker();
-  }
-
-  _registerCodeMarker() {
-    const {editor, operationInfo} = this.props;
-    const opLoc = operationInfo.getLocation();
-    // Line & Column are 1-based indices whereas Atom wants 0-based indices
-    this._marker = editor.markBufferPosition(
-      [opLoc.getLine() - 1, opLoc.getColumn() - 1],
-    );
-  }
-
-  _clearCodeMarker() {
-    if (this._marker == null) {
-      return;
-    }
-    this._marker.destroy();
-    this._marker = null;
-  }
-
   _handleHoverEnter() {
-    this._decoration = this.props.editor.decorateMarker(
-      this._marker,
-      {type: 'line', class: 'innpv-line-highlight'},
-    );
+    this._op_marker.showDecoration({type: 'line', class: 'innpv-line-highlight'});
   }
 
   _handleHoverExit() {
-    if (this._decoration == null) {
-      return;
-    }
-    this._decoration.destroy();
-    this._decoration = null;
+    this._op_marker.hideDecoration();
   }
 
   _handleIncrease() {
