@@ -16,10 +16,11 @@ export default class MessageHandler {
     console.log('Received', operationInfos.length, 'messages.');
     const artificalDelay = () => {
       OperationInfoStore.setOperationInfos(operationInfos);
-      BatchSizeStore.setInfos(
+      BatchSizeStore.receivedAnalysis(
         message.getThroughput(),
         message.getMemory(),
         message.getBatchSize(),
+        message.getInnpvAnnotation(),
       );
       INNPVStore.setPerfVisState(PerfVisState.READY);
       INNPVStore.clearErrorMessage();

@@ -6,10 +6,14 @@ import Resizable from './Resizable';
 
 class BarSlider extends React.Component {
   render() {
-    const {percentage, limitPercentage} = this.props;
+    const {percentage, limitPercentage, onMouseEnter, onMouseLeave} = this.props;
     const limitBarHeight = 100 - limitPercentage;
     return (
-      <div className="innpv-barslider">
+      <div
+        className="innpv-barslider"
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
         <div className="innpv-barslider-barwrap">
           <Resizable
             className="innpv-resizable-barslider"
@@ -29,6 +33,8 @@ class BarSlider extends React.Component {
 BarSlider.defaultProps = {
   limitPercentage: 100,
   handleResize: () => {},
+  onMouseEnter: () => {},
+  onMouseLeave: () => {},
 };
 
 export default BarSlider;

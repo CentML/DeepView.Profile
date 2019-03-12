@@ -10,6 +10,7 @@ import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
 import BatchSizeStore from '../stores/batchsize_store';
 import INNPVStore from '../stores/innpv_store';
+import SourceMarker from '../marker';
 
 function PerfVisHeader() {
   return (
@@ -25,23 +26,37 @@ export default class PerfVisMainView extends React.Component {
     this.state = {
       throughput: BatchSizeStore.getThroughputModel(),
       memory: BatchSizeStore.getMemoryModel(),
+      annotationLocation: BatchSizeStore.getAnnotationLocation(),
     };
+    this._annotation_marker = new SourceMarker(this.props.editor);
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
     this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
+    this._handleSliderHoverEnter = this._handleSliderHoverEnter.bind(this);
+    this._handleSliderHoverExit = this._handleSliderHoverExit.bind(this);
   }
 
   componentDidMount() {
     BatchSizeStore.addListener(this._onStoreUpdate);
+    this._annotation_marker.register(this.state.annotationLocation);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    this._annotation_marker.reconcileLocation(
+      prevState.annotationLocation,
+      this.state.annotationLocation,
+    );
   }
 
   componentWillUnmount() {
     BatchSizeStore.removeListener(this._onStoreUpdate);
+    this._annotation_marker.remove();
   }
 
   _onStoreUpdate() {
     this.setState({
       throughput: BatchSizeStore.getThroughputModel(),
       memory: BatchSizeStore.getMemoryModel(),
+      annotationLocation: BatchSizeStore.getAnnotationLocation(),
     });
   }
 
@@ -51,6 +66,14 @@ export default class PerfVisMainView extends React.Component {
     }
     BatchSizeStore.clearPredictions();
     INNPVStore.setPerfVisState(PerfVisState.READY);
+  }
+
+  _handleSliderHoverEnter() {
+    this._annotation_marker.showDecoration({type: 'line', class: 'innpv-line-highlight'});
+  }
+
+  _handleSliderHoverExit() {
+    this._annotation_marker.hideDecoration();
   }
 
   _classes() {
@@ -72,8 +95,16 @@ export default class PerfVisMainView extends React.Component {
         <div className="innpv-contents-columns">
           <PerfBarContainer editor={this.props.editor} />
           <div className="innpv-contents-subrows">
-            <Throughput model={this.state.throughput} />
-            <Memory model={this.state.memory} />
+            <Throughput
+              model={this.state.throughput}
+              handleSliderHoverEnter={this._handleSliderHoverEnter}
+              handleSliderHoverExit={this._handleSliderHoverExit}
+            />
+            <Memory
+              model={this.state.memory}
+              handleSliderHoverEnter={this._handleSliderHoverEnter}
+              handleSliderHoverExit={this._handleSliderHoverExit}
+            />
           </div>
         </div>
       );

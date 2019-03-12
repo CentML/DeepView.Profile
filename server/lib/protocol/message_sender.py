@@ -29,6 +29,9 @@ class MessageSender:
         message.memory.usage_model_mb.coefficient = 10.8583003
         message.memory.usage_model_mb.bias = 1132.56299
 
+        message.innpv_annotation.line = 18
+        message.innpv_annotation.column = 9
+
         self._send_message(message, 'analyze_response', address)
 
     def send_analyze_error(self, error_message, address):

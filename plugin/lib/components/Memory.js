@@ -22,7 +22,7 @@ export default class Memory extends React.Component {
   }
 
   render() {
-    const {model} = this.props;
+    const {model, handleSliderHoverEnter, handleSliderHoverExit} = this.props;
     const notReady = model == null;
 
     return (
@@ -32,6 +32,8 @@ export default class Memory extends React.Component {
           <BarSlider
             percentage={notReady ? 0 : model.displayPct}
             handleResize={this._handleResize}
+            onMouseEnter={handleSliderHoverEnter}
+            onMouseLeave={handleSliderHoverExit}
           />
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay

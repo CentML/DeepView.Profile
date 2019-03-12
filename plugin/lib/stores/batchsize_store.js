@@ -15,11 +15,12 @@ class BatchSizeStore extends BaseStore {
     this._throughputInfo = null;
     this._memoryInfo = null;
     this._batchSize = null;
+    this._annotationLocation = null;
     this._predictedBatchSize = null;
     this._maxBatchSize = null;
   }
 
-  setInfos(throughputInfo, memoryInfo, batchSize) {
+  receivedAnalysis(throughputInfo, memoryInfo, batchSize, annotationLocation) {
     this._throughputInfo = throughputInfo;
     this._memoryInfo = memoryInfo;
     this._batchSize = batchSize;
@@ -28,6 +29,7 @@ class BatchSizeStore extends BaseStore {
       this._memoryInfo.getUsageModelMb(),
       this._memoryInfo.getMaxCapacityMb(),
     );
+    this._annotationLocation = annotationLocation;
     this.notifyChanged();
   }
 
@@ -98,6 +100,10 @@ class BatchSizeStore extends BaseStore {
     } else {
       return Memory.fromPrediction(this._memoryInfo, this._predictedBatchSize);
     }
+  }
+
+  getAnnotationLocation() {
+    return this._annotationLocation;
   }
 }
 

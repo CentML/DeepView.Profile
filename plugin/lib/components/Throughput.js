@@ -22,7 +22,7 @@ export default class Throughput extends React.Component {
   }
 
   render() {
-    const {model} = this.props;
+    const {model, handleSliderHoverEnter, handleSliderHoverExit} = this.props;
     const notReady = model == null;
 
     return (
@@ -33,6 +33,8 @@ export default class Throughput extends React.Component {
             percentage={notReady ? 0 : model.displayPct}
             limitPercentage={notReady ? 100 : model.limitPct}
             handleResize={this._handleResize}
+            onMouseEnter={handleSliderHoverEnter}
+            onMouseLeave={handleSliderHoverExit}
           />
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay
