@@ -13,10 +13,10 @@ class MessageHandler:
 
     def _handle_analyze_request(self, message, address):
         try:
-            input_size, model_operations = analyze_source_code(
+            annotation_info, model_operations = analyze_source_code(
                 message.source_code)
             self._message_sender.send_analyze_response(
-                input_size[0], model_operations, address)
+                annotation_info, model_operations, address)
         except AnalysisError as ex:
             self._message_sender.send_analyze_error(str(ex), address)
 

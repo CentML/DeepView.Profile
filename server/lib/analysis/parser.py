@@ -7,6 +7,7 @@ from lib.analysis.ast_visitors import (
     PyTorchStatementProcessor,
 )
 from lib.exceptions import AnalysisError
+from lib.models.analysis import AnnotationInfo
 import lib.models_gen.messages_pb2 as m
 
 INPUT_SIZE_REGEX = re.compile(
@@ -38,18 +39,26 @@ def analyze_source_code(source_code):
     if not 'forward' in functions:
         raise AnalysisError('Missing forward() function in PyTorch module.')
 
-    # 4. Extract the input tensor dimension
-    input_size = _parse_input_size(ast.get_docstring(functions['forward']))
+    # 4. Parse the annotation, extract the input size and other source metadata
+    input_size, annotation = _parse_annotation(
+        ast.get_docstring(functions['forward']),
+    )
+    line, column = _get_annotation_source_location(
+        source_code,
+        annotation,
+        functions['forward'],
+    )
+    annotation_info = AnnotationInfo(input_size, line, column)
 
     # 5. Extract the line numbers of the module parameters
     statement_visitor = PyTorchStatementProcessor()
     statement_visitor.visit(functions['__init__'])
     model_operations = statement_visitor.get_model_operations()
 
-    return (input_size, model_operations)
+    return (annotation_info, model_operations)
 
 
-def _parse_input_size(docstring):
+def _parse_annotation(docstring):
     if docstring is None:
         raise AnalysisError(
             'The forward() function is missing an input size @innpv '
@@ -62,13 +71,29 @@ def _parse_input_size(docstring):
             continue
 
         sizes = result.groupdict()['sizes'].split(',')
-        return tuple(int(dimension) for dimension in sizes)
+        return tuple(int(dimension) for dimension in sizes), line
 
     raise AnalysisError(
         'The forward() function is missing an input size @innpv '
         'annotation or there is a syntax error in the @innpv size '
         'annotation.',
     )
+
+
+def _get_annotation_source_location(source_code, annotation, function_node):
+    # TODO: Make this work cross-platform
+    code_by_line = source_code.split('\n')
+    function_lineno = function_node.lineno
+
+    # NOTE: AST line numbers are 1-based
+    for offset, line in enumerate(code_by_line[function_lineno:]):
+        index = line.find(annotation)
+        if index == -1:
+            continue
+        # Add 1 to use the same convention as AST line numbers (1-based)
+        return (function_lineno + offset + 1, index)
+
+    raise AssertionError('Could not find the INNPV annotation\'s line number.')
 
 
 def main():
@@ -80,7 +105,7 @@ def main():
 
     with open(args.file, 'r') as file:
         lines = [line for line in file]
-        input_size, model_operations = analyze_source_code(''.join(lines))
+        annotation_info, model_operations = analyze_source_code(''.join(lines))
 
     code.interact(local=dict(globals(), **locals()))
 

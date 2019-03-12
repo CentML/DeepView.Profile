@@ -14,3 +14,10 @@ class OperationSourceMap:
         info_pb.op_name = self.op_name
         info_pb.location.line = self.line
         info_pb.location.column = self.column
+
+
+class AnnotationInfo:
+    def __init__(self, input_size, line, column):
+        self.input_size = input_size
+        self.line = line
+        self.column = column

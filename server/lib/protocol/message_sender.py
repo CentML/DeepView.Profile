@@ -7,9 +7,11 @@ class MessageSender:
     def __init__(self, connection_manager):
         self._connection_manager = connection_manager
 
-    def send_analyze_response(self, batch_size, model_operations, address):
+    def send_analyze_response(self, annotation_info, model_operations, address):
         message = m.AnalyzeResponse()
-        message.batch_size = batch_size
+        message.batch_size = annotation_info.input_size[0]
+        message.innpv_annotation.line = annotation_info.line
+        message.innpv_annotation.column = annotation_info.column
 
         for operation in model_operations:
             pb = message.results.add()
@@ -28,9 +30,6 @@ class MessageSender:
         message.memory.max_capacity_mb = 8192
         message.memory.usage_model_mb.coefficient = 10.8583003
         message.memory.usage_model_mb.bias = 1132.56299
-
-        message.innpv_annotation.line = 18
-        message.innpv_annotation.column = 9
 
         self._send_message(message, 'analyze_response', address)
 
