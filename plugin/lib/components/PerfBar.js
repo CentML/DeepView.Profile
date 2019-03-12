@@ -78,8 +78,10 @@ export default class PerfBar extends React.Component {
   _updateMarker(prevProps) {
     const operationInfo = this.props.operationInfo;
     const prevOperationInfo = prevProps.operationInfo;
-    if (operationInfo.getLine() === prevOperationInfo.getLine() &&
-        operationInfo.getColumn() === prevOperationInfo.getColumn()) {
+    const opLoc = operationInfo.getLocation();
+    const prevOpLoc = prevOperationInfo.getLocation();
+    if (opLoc.getLine() === prevOpLoc.getLine() &&
+        opLoc.getColumn() === prevOpLoc.getColumn()) {
       return;
     }
     this._clearCodeMarker();
@@ -88,9 +90,10 @@ export default class PerfBar extends React.Component {
 
   _registerCodeMarker() {
     const {editor, operationInfo} = this.props;
+    const opLoc = operationInfo.getLocation();
     // Line & Column are 1-based indices whereas Atom wants 0-based indices
     this._marker = editor.markBufferPosition(
-      [operationInfo.getLine() - 1, operationInfo.getColumn() - 1],
+      [opLoc.getLine() - 1, opLoc.getColumn() - 1],
     );
   }
 
