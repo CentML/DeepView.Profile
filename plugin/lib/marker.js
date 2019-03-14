@@ -11,9 +11,8 @@ export default class SourceMarker {
     if (location == null) {
       return;
     }
-    // Line is a 1-based index whereas Atom wants 0-based indices
     this._marker = this._editor.markBufferPosition(
-      [location.getLine() - 1, location.getColumn()],
+      [location.getLine(), location.getColumn()],
     );
   }
 

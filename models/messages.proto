@@ -21,12 +21,17 @@ message AnalyzeResponse {
   repeated OperationInfo results = 1;
   ThroughputInfo throughput = 2;
   MemoryInfo memory = 3;
-  uint32 batch_size = 4;
-  CodeLocation innpv_annotation = 5;
+  InputInfo input = 4;
 }
 
 message AnalyzeError {
   string error_message = 1;
+}
+
+message InputInfo {
+  CodeLocation annotation_start = 1;
+  CodeLocation annotation_end = 2;
+  Uint32Tuple input_size = 3;
 }
 
 message OperationInfo {
@@ -63,7 +68,7 @@ message LinearModel {
 }
 
 message CodeLocation {
-  // 1-based indices
+  // 0-based indices
   uint32 line = 1;
   uint32 column = 2;
 }
@@ -76,4 +81,8 @@ message PerformanceHint {
   }
   Effectiveness effectiveness = 2;
   bool natural_direction = 3;
+}
+
+message Uint32Tuple {
+  repeated uint32 values = 1;
 }

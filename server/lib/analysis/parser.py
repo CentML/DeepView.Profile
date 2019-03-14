@@ -7,7 +7,7 @@ from lib.analysis.ast_visitors import (
     PyTorchStatementProcessor,
 )
 from lib.exceptions import AnalysisError
-from lib.models.analysis import AnnotationInfo
+from lib.models.analysis import AnnotationInfo, Position
 import lib.models_gen.messages_pb2 as m
 
 INPUT_SIZE_REGEX = re.compile(
@@ -48,7 +48,13 @@ def analyze_source_code(source_code):
         annotation,
         functions['forward'],
     )
-    annotation_info = AnnotationInfo(input_size, line, column)
+
+    # NOTE: Ranges in Atom are end-exclusive
+    annotation_info = AnnotationInfo(
+        input_size,
+        Position(line, column),
+        Position(line, column + len(annotation)),
+    )
 
     # 5. Extract the line numbers of the module parameters
     statement_visitor = PyTorchStatementProcessor()
@@ -90,8 +96,8 @@ def _get_annotation_source_location(source_code, annotation, function_node):
         index = line.find(annotation)
         if index == -1:
             continue
-        # Add 1 to use the same convention as AST line numbers (1-based)
-        return (function_lineno + offset + 1, index)
+        # NOTE: We don't add 1 here to make the line number 0-based
+        return (function_lineno + offset, index)
 
     raise AssertionError('Could not find the INNPV annotation\'s line number.')
 

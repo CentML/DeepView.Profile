@@ -19,8 +19,7 @@ export default class MessageHandler {
       BatchSizeStore.receivedAnalysis(
         message.getThroughput(),
         message.getMemory(),
-        message.getBatchSize(),
-        message.getInnpvAnnotation(),
+        message.getInput(),
       );
       INNPVStore.setPerfVisState(PerfVisState.READY);
       INNPVStore.clearErrorMessage();

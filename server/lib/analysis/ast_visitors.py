@@ -1,7 +1,7 @@
 import ast
 
 from lib.exceptions import AnalysisError
-from lib.models.analysis import OperationSourceMap
+from lib.models.analysis import OperationSourceMap, Position
 
 
 class PyTorchModuleExtractorVisitor(ast.NodeVisitor):
@@ -55,12 +55,12 @@ class PyTorchStatementProcessor(ast.NodeVisitor):
         if op_name is None or op_node is None:
             return
 
+        # We subtract 1 from the line numbers to make them 0-based
         self.model_operations.append(OperationSourceMap(
             bound_name=node.targets[0].attr,
             op_name=op_name,
             ast_node=node,
-            line=node.value.lineno,
-            column=node.value.col_offset,
+            position=Position(node.value.lineno - 1, node.value.col_offset),
         ))
 
     def _is_instance_assignment(self, targets):

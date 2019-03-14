@@ -9,9 +9,7 @@ class MessageSender:
 
     def send_analyze_response(self, annotation_info, model_operations, address):
         message = m.AnalyzeResponse()
-        message.batch_size = annotation_info.input_size[0]
-        message.innpv_annotation.line = annotation_info.line
-        message.innpv_annotation.column = annotation_info.column
+        annotation_info.fill_protobuf(message.input)
 
         for operation in model_operations:
             pb = message.results.add()

@@ -26,7 +26,7 @@ export default class PerfVisMainView extends React.Component {
     this.state = {
       throughput: BatchSizeStore.getThroughputModel(),
       memory: BatchSizeStore.getMemoryModel(),
-      annotationLocation: BatchSizeStore.getAnnotationLocation(),
+      inputInfo: BatchSizeStore.getInputInfo(),
     };
     this._annotation_marker = new SourceMarker(this.props.editor);
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
@@ -36,14 +36,16 @@ export default class PerfVisMainView extends React.Component {
   }
 
   componentDidMount() {
+    const {inputInfo} = this.state;
     BatchSizeStore.addListener(this._onStoreUpdate);
-    this._annotation_marker.register(this.state.annotationLocation);
+    this._annotation_marker.register(inputInfo && inputInfo.getAnnotationStart());
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const {inputInfo} = this.state;
     this._annotation_marker.reconcileLocation(
-      prevState.annotationLocation,
-      this.state.annotationLocation,
+      prevState.inputInfo && prevState.inputInfo.getAnnotationStart(),
+      inputInfo && inputInfo.getAnnotationStart(),
     );
   }
 
@@ -56,7 +58,7 @@ export default class PerfVisMainView extends React.Component {
     this.setState({
       throughput: BatchSizeStore.getThroughputModel(),
       memory: BatchSizeStore.getMemoryModel(),
-      annotationLocation: BatchSizeStore.getAnnotationLocation(),
+      inputInfo: BatchSizeStore.getInputInfo(),
     });
   }
 
