@@ -8,6 +8,8 @@ import {
   getBatchSizeFromUsage,
   getBatchSizeFromThroughput,
 } from '../utils';
+import INNPVStore from './innpv_store';
+import {Range} from 'atom';
 
 class BatchSizeStore extends BaseStore {
   constructor() {
@@ -15,8 +17,12 @@ class BatchSizeStore extends BaseStore {
     this._throughputInfo = null;
     this._memoryInfo = null;
     this._inputInfo = null;
+
     this._predictedBatchSize = null;
     this._maxBatchSize = null;
+
+    this._currentAnnotationRange = null;
+    this._currentUndoCheckpoint = null;
   }
 
   receivedAnalysis(throughputInfo, memoryInfo, inputInfo) {
@@ -29,6 +35,15 @@ class BatchSizeStore extends BaseStore {
       this._memoryInfo.getUsageModelMb(),
       this._memoryInfo.getMaxCapacityMb(),
     );
+
+    const startPoint = this._inputInfo.getAnnotationStart();
+    const endPoint = this._inputInfo.getAnnotationEnd();
+    this._currentAnnotationRange = new Range(
+      [startPoint.getLine(), startPoint.getColumn()],
+      [endPoint.getLine(), endPoint.getColumn()],
+    );
+    this._currentUndoCheckpoint = INNPVStore.getEditor().getBuffer().createCheckpoint();
+
     this.notifyChanged();
   }
 
@@ -44,8 +59,9 @@ class BatchSizeStore extends BaseStore {
       getBatchSizeFromUsage(this._memoryInfo.getUsageModelMb(), updatedUsage),
       1,
     );
+
+    this._updateAnnotationInBuffer();
     this.notifyChanged();
-    return this._predictedBatchSize;
   }
 
   updateThroughput(deltaPct, basePct) {
@@ -68,12 +84,34 @@ class BatchSizeStore extends BaseStore {
       this._predictedBatchSize = Math.max(Math.min(throughputBatchSize, this._maxBatchSize), 1);
     }
 
+    this._updateAnnotationInBuffer();
     this.notifyChanged();
-    return this._predictedBatchSize;
+  }
+
+  _updateAnnotationInBuffer() {
+    const buffer = INNPVStore.getEditor().getBuffer();
+    const updatedAnnotation = this._getAnnotationString();
+    INNPVStore.ignoreEditorChanges();
+    this._currentAnnotationRange = buffer.setTextInRange(
+      this._currentAnnotationRange,
+      updatedAnnotation,
+    );
+    buffer.groupChangesSinceCheckpoint(this._currentUndoCheckpoint);
+    INNPVStore.subscribeToEditorChanges();
+  }
+
+  _getAnnotationString() {
+    const inputSizeTuple = this._inputInfo.getInputSize().getValuesList();
+    const inputSizeCopy = inputSizeTuple.map(x => x);
+    if (this._predictedBatchSize != null) {
+      inputSizeCopy[0] = Math.round(this._predictedBatchSize);
+    }
+    return `@innpv size (${inputSizeCopy.join(', ')})`;
   }
 
   clearPredictions() {
     this._predictedBatchSize = null;
+    this._updateAnnotationInBuffer();
     this.notifyChanged();
   }
 

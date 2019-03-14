@@ -33,4 +33,4 @@ class AnnotationInfo:
         for integer in self.input_size:
             annotation_pb.input_size.values.append(integer)
         self.start_position.fill_protobuf(annotation_pb.annotation_start)
-        self.end_position.fill_protobuf(annotation_pb.annotation_start)
+        self.end_position.fill_protobuf(annotation_pb.annotation_end)

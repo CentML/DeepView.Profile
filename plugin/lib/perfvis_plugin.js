@@ -1,6 +1,5 @@
 'use babel';
 
-import { CompositeDisposable } from 'atom';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
@@ -33,7 +32,6 @@ export default class PerfvisPlugin {
       this._panel.getItem(),
     );
 
-    this._subscriptions = new CompositeDisposable();
     this._connection = new Connection(this._handleMessage);
     this._messageSender = new MessageSender(this._connection);
     this._messageHandler = new MessageHandler(this._messageSender);
@@ -44,6 +42,7 @@ export default class PerfvisPlugin {
       return;
     }
     INNPVStore.setAppState(AppState.ACTIVATED);
+    INNPVStore.ignoreEditorChanges();
 
     if (this._editorDebounce != null) {
       clearTimeout(this._editorDebounce);
@@ -54,7 +53,6 @@ export default class PerfvisPlugin {
     this._messageHandler = null;
     this._messageSender = null;
     this._editor = null;
-    this._subscriptions.dispose();
 
     ReactDOM.unmountComponentAtNode(this._panel.getItem());
     this._panel.destroy();
@@ -69,8 +67,8 @@ export default class PerfvisPlugin {
     INNPVStore.setAppState(AppState.CONNECTING);
     Promise.all([getTextEditor(), this._connection.connect('localhost', 6060)]).then((values) => {
       this._editor = values[0];
-      this._subscriptions.add(this._editor.getBuffer().onDidChange(this._contentsChanged));
-      INNPVStore.setEditor(this._editor);
+      INNPVStore.setEditor(this._editor, this._contentsChanged);
+      INNPVStore.subscribeToEditorChanges();
 
       INNPVStore.setAppState(AppState.CONNECTED);
       console.log('Connected!');

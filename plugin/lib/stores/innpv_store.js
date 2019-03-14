@@ -10,7 +10,10 @@ class INNPVStore extends BaseStore {
     this._appState = AppState.ACTIVATED;
     this._perfVisState = PerfVisState.READY;
     this._errorMessage = '';
+
     this._editor = null;
+    this._editorOnChangeCallback = null;
+    this._bufferChangedDisposable = null;
   }
 
   getAppState() {
@@ -38,9 +41,23 @@ class INNPVStore extends BaseStore {
     return this._editor;
   }
 
-  setEditor(editor) {
+  setEditor(editor, onChangeCallback) {
+    this.ignoreEditorChanges();
     this._editor = editor;
+    this._editorOnChangeCallback = onChangeCallback;
     // NOTE: No notifyChanged() call because this doesn't affect rendering
+  }
+
+  subscribeToEditorChanges() {
+    this._bufferChangedDisposable = this._editor.getBuffer().onDidChange(this._editorOnChangeCallback);
+  }
+
+  ignoreEditorChanges() {
+    if (this._bufferChangedDisposable == null) {
+      return;
+    }
+    this._bufferChangedDisposable.dispose();
+    this._bufferChangedDisposable = null;
   }
 
   getErrorMessage() {

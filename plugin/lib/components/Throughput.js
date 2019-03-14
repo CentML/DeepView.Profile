@@ -16,8 +16,7 @@ export default class Throughput extends React.Component {
   }
 
   _handleResize(deltaPct, basePct) {
-    // TODO: Use the new batch size to modify the code
-    const newBatch = BatchSizeStore.updateThroughput(deltaPct, basePct);
+    BatchSizeStore.updateThroughput(deltaPct, basePct);
     INNPVStore.setPerfVisState(PerfVisState.SHOWING_PREDICTIONS);
   }
 

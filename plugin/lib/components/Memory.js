@@ -16,8 +16,7 @@ export default class Memory extends React.Component {
   }
 
   _handleResize(deltaPct, basePct) {
-    // TODO: Use the new batch size to modify the code
-    const newBatch = BatchSizeStore.updateMemoryUsage(deltaPct, basePct);
+    BatchSizeStore.updateMemoryUsage(deltaPct, basePct);
     INNPVStore.setPerfVisState(PerfVisState.SHOWING_PREDICTIONS);
   }
 
