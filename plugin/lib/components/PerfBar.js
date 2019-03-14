@@ -4,11 +4,12 @@ import React from 'react';
 
 import Elastic from './Elastic';
 import SourceMarker from '../marker';
+import INNPVStore from '../stores/innpv_store';
 
 export default class PerfBar extends React.Component {
   constructor(props) {
     super(props);
-    this._op_marker = new SourceMarker(this.props.editor);
+    this._op_marker = new SourceMarker(INNPVStore.getEditor());
     this._tooltip = null;
     this._barRef = React.createRef();
 

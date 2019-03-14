@@ -28,7 +28,7 @@ export default class PerfVisMainView extends React.Component {
       memory: BatchSizeStore.getMemoryModel(),
       inputInfo: BatchSizeStore.getInputInfo(),
     };
-    this._annotation_marker = new SourceMarker(this.props.editor);
+    this._annotation_marker = new SourceMarker(INNPVStore.getEditor());
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
     this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
     this._handleSliderHoverEnter = this._handleSliderHoverEnter.bind(this);
@@ -95,7 +95,7 @@ export default class PerfVisMainView extends React.Component {
     } else {
       return (
         <div className="innpv-contents-columns">
-          <PerfBarContainer editor={this.props.editor} />
+          <PerfBarContainer />
           <div className="innpv-contents-subrows">
             <Throughput
               model={this.state.throughput}

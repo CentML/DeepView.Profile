@@ -40,7 +40,7 @@ class INNPVStore extends BaseStore {
 
   setEditor(editor) {
     this._editor = editor;
-    this.notifyChanged();
+    // NOTE: No notifyChanged() call because this doesn't affect rendering
   }
 
   getErrorMessage() {
