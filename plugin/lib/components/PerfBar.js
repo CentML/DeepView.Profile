@@ -95,9 +95,13 @@ export default class PerfBar extends React.Component {
   }
 
   render() {
+    const {operationInfo} = this.props;
+    const resizable = operationInfo.getHintsList().length !== 0
+
     return (
       <Elastic
-        className="innpv-perfbar-wrap"
+        className={`innpv-perfbar-wrap ${resizable ? "innpv-perfbar-resizable" : ""}`}
+        disabled={!resizable}
         heightPct={this.props.percentage}
         updateMarginTop={this.props.updateMarginTop}
         handleShrink={this._handleDecrease}

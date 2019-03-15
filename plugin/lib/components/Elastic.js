@@ -32,6 +32,10 @@ class Elastic extends React.Component {
   }
 
   _handleMouseDown(event) {
+    if (this.props.disabled) {
+      return;
+    }
+
     this._dragging = true;
     const boundingRect = event.currentTarget.getBoundingClientRect();
     const middle = boundingRect.height / 2;
@@ -65,7 +69,7 @@ class Elastic extends React.Component {
   }
 
   _handleMouseMove(event) {
-    if (!this._dragging) {
+    if (!this._dragging || this.props.disabled) {
       return;
     }
     // Positive means cursor moved down, negative means cursor moved up
@@ -145,6 +149,7 @@ class Elastic extends React.Component {
 
 Elastic.defaultProps = {
   className: '',
+  disabled: false,
   handleShrink: () => {},
   handleGrow: () => {},
   handleSnapBack: () => {},
