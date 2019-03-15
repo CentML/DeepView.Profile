@@ -8,6 +8,7 @@ from lib.analysis.ast_visitors import (
 )
 from lib.exceptions import AnalysisError
 from lib.models.analysis import AnnotationInfo, Position
+from lib.models.source_map import SourceMap
 import lib.models_gen.messages_pb2 as m
 
 INPUT_SIZE_REGEX = re.compile(
@@ -24,6 +25,7 @@ def analyze_source_code(source_code):
             'Syntax error on line {} column {}.'
             .format(ex.lineno, ex.offset)
         ) from ex
+    source_map = SourceMap(source_code)
 
     # 2. Find the class definition for the PyTorch module
     extractor_visitor = PyTorchModuleExtractorVisitor()
@@ -43,21 +45,22 @@ def analyze_source_code(source_code):
     input_size, annotation = _parse_annotation(
         ast.get_docstring(functions['forward']),
     )
-    line, column = _get_annotation_source_location(
-        source_code,
-        annotation,
-        functions['forward'],
-    )
+    annotation_start = source_map.find_position(
+        annotation, functions['forward'].lineno)
+
+    if annotation_start is None:
+        raise AssertionError(
+            'Could not find the INNPV annotation\'s line number.')
 
     # NOTE: Ranges in Atom are end-exclusive
     annotation_info = AnnotationInfo(
         input_size,
-        Position(line, column),
-        Position(line, column + len(annotation)),
+        annotation_start,
+        annotation_start.offset(len(annotation)),
     )
 
     # 5. Extract the line numbers of the module parameters
-    statement_visitor = PyTorchStatementProcessor()
+    statement_visitor = PyTorchStatementProcessor(source_map)
     statement_visitor.visit(functions['__init__'])
     model_operations = statement_visitor.get_model_operations()
 
@@ -86,28 +89,20 @@ def _parse_annotation(docstring):
     )
 
 
-def _get_annotation_source_location(source_code, annotation, function_node):
-    # TODO: Make this work cross-platform
-    code_by_line = source_code.split('\n')
-    function_lineno = function_node.lineno
-
-    # NOTE: AST line numbers are 1-based
-    for offset, line in enumerate(code_by_line[function_lineno:]):
-        index = line.find(annotation)
-        if index == -1:
-            continue
-        # NOTE: We don't add 1 here to make the line number 0-based
-        return (function_lineno + offset, index)
-
-    raise AssertionError('Could not find the INNPV annotation\'s line number.')
-
-
 def main():
     import argparse
     import code
+    from lib.config import Config
+
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--hints-file",
+        default="hints.yml",
+        help="Path to the performance hints configuration YAML file.",
+    )
     parser.add_argument('file')
     args = parser.parse_args()
+    Config.initialize_hints_config(args.hints_file)
 
     with open(args.file, 'r') as file:
         lines = [line for line in file]

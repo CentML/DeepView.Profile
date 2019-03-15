@@ -3,6 +3,7 @@ import logging
 import threading
 import argparse
 
+from lib.config import Config
 from lib.server import INNPVServer
 
 should_shutdown = threading.Event()
@@ -40,6 +41,11 @@ def main():
         help="The port to listen on.",
     )
     parser.add_argument(
+        "--hints-file",
+        default="hints.yml",
+        help="Path to the performance hints configuration YAML file.",
+    )
+    parser.add_argument(
         "--log-file",
         default="/tmp/innpv-server.log",
         help="The location of the log file.",
@@ -47,6 +53,7 @@ def main():
     args = parser.parse_args()
 
     set_up_logging(args.log_file)
+    Config.initialize_hints_config(args.hints_file)
 
     # Run the server until asked to terminate
     with INNPVServer(args.host, args.port):

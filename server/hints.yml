@@ -1,0 +1,32 @@
+Conv2d:
+  in_channels:
+    effectiveness: 'high'
+    natural_direction: true
+
+  out_channels:
+    effectiveness: 'high'
+    natural_direction: true
+
+  kernel_size:
+    effectiveness: 'low'
+    natural_direction: true
+
+
+Linear:
+  in_features:
+    effectiveness: 'high'
+    natural_direction: true
+
+  out_features:
+    effectiveness: 'high'
+    natural_direction: true
+
+
+MaxPool2d:
+  kernel_size:
+    effectiveness: 'low'
+    natural_direction: true
+
+  stride:
+    effectiveness: 'low'
+    natural_direction: false
