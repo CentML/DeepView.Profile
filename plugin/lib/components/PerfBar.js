@@ -3,7 +3,9 @@
 import React from 'react';
 
 import Elastic from './Elastic';
+import PerfHint from './PerfHint';
 import SourceMarker from '../marker';
+import PerfHintState from '../models/PerfHintState';
 import INNPVStore from '../stores/innpv_store';
 
 export default class PerfBar extends React.Component {
@@ -12,6 +14,10 @@ export default class PerfBar extends React.Component {
     this._op_marker = new SourceMarker(INNPVStore.getEditor());
     this._tooltip = null;
     this._barRef = React.createRef();
+
+    this.state = {
+      perfHintState: PerfHintState.NONE,
+    };
 
     this._handleHoverEnter = this._handleHoverEnter.bind(this);
     this._handleHoverExit = this._handleHoverExit.bind(this);
@@ -86,16 +92,29 @@ export default class PerfBar extends React.Component {
   }
 
   _handleIncrease() {
+    if (this.state.perfHintState === PerfHintState.INCREASING) {
+      return;
+    }
+    this.setState({perfHintState: PerfHintState.INCREASING});
   }
 
   _handleDecrease() {
+    if (this.state.perfHintState === PerfHintState.DECREASING) {
+      return;
+    }
+    this.setState({perfHintState: PerfHintState.DECREASING});
   }
 
   _handleRestore() {
+    if (this.state.perfHintState === PerfHintState.NONE) {
+      return;
+    }
+    this.setState({perfHintState: PerfHintState.NONE});
   }
 
   render() {
     const {operationInfo} = this.props;
+    const {perfHintState} = this.state;
     const resizable = operationInfo.getHintsList().length !== 0
 
     return (
@@ -114,6 +133,9 @@ export default class PerfBar extends React.Component {
           onMouseEnter={this._handleHoverEnter}
           onMouseLeave={this._handleHoverExit}
         />
+        {operationInfo.getHintsList().map(perfHint =>
+          <PerfHint perfHint={perfHint} perfHintState={perfHintState} />
+        )}
       </Elastic>
     );
   }
