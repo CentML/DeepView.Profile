@@ -1,4 +1,4 @@
-import code
+import ast
 from lib.config import Config
 from lib.models.analysis import PerformanceHint
 
@@ -40,10 +40,13 @@ def _process_keyword(op_name, call_node, source_map, keyword_node):
     if keyword_position is None:
         return None
 
+    # Select a "nice" line:col offset (middle of the keyword)
+    refined_position = keyword_position.offset(len(keyword_node.arg) // 2)
+
     properties = Config.Hints[op_name][keyword_node.arg]
     return PerformanceHint(
         keyword=keyword_node.arg,
-        position=keyword_position,
+        position=refined_position,
         effectiveness=properties['effectiveness'],
         natural_direction=properties['natural_direction'],
     )
