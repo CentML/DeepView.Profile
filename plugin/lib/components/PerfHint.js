@@ -9,16 +9,16 @@ import PerfHintState from '../models/PerfHintState';
 
 function Increase() {
   return (
-    <div className="innpv-perfhint">
-      <span className="icon icon-arrow-up" />Increase
+    <div className="innpv-perfhint innpv-perfhint-tooltip-bottom">
+      <span className="icon icon-arrow-up hvr-bob" />Increase
     </div>
   );
 }
 
 function Decrease() {
   return (
-    <div className="innpv-perfhint">
-      <span className="icon icon-arrow-down" />Decrease
+    <div className="innpv-perfhint innpv-perfhint-tooltip-bottom">
+      <span className="icon icon-arrow-down hvr-hang" />Decrease
     </div>
   );
 }
