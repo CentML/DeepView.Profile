@@ -4,6 +4,7 @@ import React from 'react';
 
 import Elastic from './Elastic';
 import PerfHint from './PerfHint';
+import UsageHighlight from './UsageHighlight';
 import SourceMarker from '../marker';
 import PerfHintState from '../models/PerfHintState';
 import INNPVStore from '../stores/innpv_store';
@@ -17,6 +18,7 @@ export default class PerfBar extends React.Component {
 
     this.state = {
       perfHintState: PerfHintState.NONE,
+      showUsages: false,
     };
 
     this._handleHoverEnter = this._handleHoverEnter.bind(this);
@@ -78,17 +80,19 @@ export default class PerfBar extends React.Component {
 
   _generateTooltipHTML() {
     const {operationInfo, percentage} = this.props;
-    return `<strong>${operationInfo.getOpName()}</strong><br/>` +
+    return `<strong>${operationInfo.getOpName()}</strong> (${operationInfo.getBoundName()})<br/>` +
       `Run Time: ${operationInfo.getRuntimeUs().toFixed(2)} us<br/>` +
       `Weight: ${percentage.toFixed(2)}%`;
   }
 
   _handleHoverEnter() {
     this._op_marker.showDecoration({type: 'line', class: 'innpv-line-highlight'});
+    this.setState({showUsages: true});
   }
 
   _handleHoverExit() {
     this._op_marker.hideDecoration();
+    this.setState({showUsages: false});
   }
 
   _handleIncrease() {
@@ -114,7 +118,7 @@ export default class PerfBar extends React.Component {
 
   render() {
     const {operationInfo} = this.props;
-    const {perfHintState} = this.state;
+    const {perfHintState, showUsages} = this.state;
     const resizable = operationInfo.getHintsList().length !== 0
 
     return (
@@ -135,6 +139,9 @@ export default class PerfBar extends React.Component {
         />
         {operationInfo.getHintsList().map(perfHint =>
           <PerfHint perfHint={perfHint} perfHintState={perfHintState} />
+        )}
+        {operationInfo.getUsagesList().map(location =>
+          <UsageHighlight location={location} show={showUsages} />
         )}
       </Elastic>
     );
