@@ -53,9 +53,11 @@ class PyTorchStatementProcessor(ast.NodeVisitor):
         if not self._is_instance_assignment(node.targets):
             return
 
-        op_name, op_node = self.module_param_extractor.visit(node.value)
-        if op_name is None or op_node is None:
+        result = self.module_param_extractor.visit(node.value)
+        if result is None:
             return
+
+        op_name, op_node = result
 
         perf_hints = extract_performance_hints(
             op_name, node.value, self.source_map)
@@ -88,9 +90,9 @@ class PyTorchModuleParameterExtractor(ast.NodeVisitor):
         # to allow us to disambiguate between user defined names and PyTorch
         # modules.
         if not isinstance(node.func, ast.Attribute):
-            return (None, None)
+            return None
         if not self._is_properly_prefixed(node.func.value):
-            return (None, None)
+            return None
         return (node.func.attr, node)
 
     def _is_properly_prefixed(self, node):
