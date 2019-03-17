@@ -5,6 +5,7 @@ from lib.analysis.ast_visitors import (
     PyTorchModuleExtractorVisitor,
     PyTorchFunctionExtractor,
     PyTorchStatementProcessor,
+    PyTorchModuleUsagesExtractor,
 )
 from lib.exceptions import AnalysisError
 from lib.models.analysis import AnnotationInfo, Position
@@ -63,6 +64,19 @@ def analyze_source_code(source_code):
     statement_visitor = PyTorchStatementProcessor(source_map)
     statement_visitor.visit(functions['__init__'])
     model_operations = statement_visitor.get_model_operations()
+
+    # 6. Extract module usages from the forward() method
+    module_names = set(
+        map(lambda op_info: op_info.bound_name, model_operations),
+    )
+    usages_extractor = PyTorchModuleUsagesExtractor(module_names)
+    usages_extractor.visit(functions['forward'])
+    module_usages = usages_extractor.get_usages()
+
+    for model_op in model_operations:
+        if model_op.bound_name not in module_usages:
+            continue
+        model_op.set_usages(module_usages[model_op.bound_name])
 
     return (annotation_info, model_operations)
 

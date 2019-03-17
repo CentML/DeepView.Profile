@@ -108,3 +108,35 @@ class PyTorchModuleParameterExtractor(ast.NodeVisitor):
 
     def visit_Name(self, node):
         return [node.id]
+
+
+class PyTorchModuleUsagesExtractor(ast.NodeVisitor):
+    def __init__(self, module_names):
+        self.module_names = module_names
+        self.usages = {}
+
+    def get_usages(self):
+        return self.usages
+
+    def visit_Assign(self, node):
+        call_node = node.value
+        if not self._is_valid_call(call_node):
+            return
+
+        module_name = call_node.func.attr
+        if module_name not in self.module_names:
+            return
+
+        if module_name not in self.usages:
+            self.usages[module_name] = []
+        self.usages[module_name].append(
+            Position(call_node.lineno - 1, call_node.col_offset),
+        )
+
+    def _is_valid_call(self, call_node):
+        return (
+            isinstance(call_node, ast.Call) and
+            isinstance(call_node.func, ast.Attribute) and
+            isinstance(call_node.func.value, ast.Name) and
+            call_node.func.value.id == 'self'
+        )

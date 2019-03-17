@@ -9,6 +9,10 @@ class OperationSourceMap:
         self.ast_node = ast_node
         self.position = position
         self.perf_hints = perf_hints
+        self.usages = []
+
+    def set_usages(self, usages):
+        self.usages = usages
 
     def fill_protobuf(self, info_pb):
         info_pb.bound_name = self.bound_name
@@ -17,6 +21,9 @@ class OperationSourceMap:
         for hint in self.perf_hints:
             hint_pb = info_pb.hints.add()
             hint.fill_protobuf(hint_pb)
+        for usage in self.usages:
+            location_pb = info_pb.usages.add()
+            usage.fill_protobuf(location_pb)
 
 
 class AnnotationInfo:

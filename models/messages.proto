@@ -44,6 +44,7 @@ message OperationInfo {
   CodeLocation location = 4;
 
   repeated PerformanceHint hints = 5;
+  repeated CodeLocation usages = 6;
 }
 
 message ThroughputInfo {
