@@ -10,6 +10,7 @@ export default class MessageSender {
   sendAnalyzeRequest(sourceCode) {
     const message = new m.AnalyzeRequest();
     message.setSourceCode(sourceCode);
+    message.setMockResponse(true);
     this._sendMessage(message, 'AnalyzeRequest');
   }
 

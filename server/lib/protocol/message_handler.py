@@ -12,10 +12,21 @@ class MessageHandler:
         self._message_sender = message_sender
 
     def _handle_analyze_request(self, message, address):
+        if message.mock_response:
+            self._handle_analyze_request_mock_response(message, address)
+            return
+
+        self._message_sender.send_analyze_error(
+            'Not yet implemented!', address)
+
+    def _handle_analyze_request_mock_response(self, message, address):
+        """
+        Return a mock response when requested to analyze a model definition.
+        """
         try:
             annotation_info, model_operations = analyze_source_code(
                 message.source_code)
-            self._message_sender.send_analyze_response(
+            self._message_sender.send_mock_analyze_response(
                 annotation_info, model_operations, address)
         except AnalysisError as ex:
             self._message_sender.send_analyze_error(str(ex), address)

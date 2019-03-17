@@ -15,6 +15,7 @@ message ServerMessage {
 
 message AnalyzeRequest {
   string source_code = 1;
+  bool mock_response = 2;
 }
 
 message AnalyzeResponse {
