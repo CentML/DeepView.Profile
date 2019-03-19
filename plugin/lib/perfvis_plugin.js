@@ -7,6 +7,7 @@ import PerfVis from './components/PerfVis';
 import Connection from './io/connection';
 import MessageHandler from './io/message_handler';
 import MessageSender from './io/message_sender';
+import Protocol from './io/protocol';
 import AppState from './models/AppState';
 import PerfVisState from './models/PerfVisState';
 import INNPVStore from './stores/innpv_store';
@@ -33,7 +34,8 @@ export default class PerfvisPlugin {
     );
 
     this._connection = new Connection(this._handleMessage);
-    this._messageSender = new MessageSender(this._connection);
+    this._protocol = new Protocol();
+    this._messageSender = new MessageSender(this._connection, this._protocol);
     this._messageHandler = new MessageHandler(this._messageSender);
   }
 

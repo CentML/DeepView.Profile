@@ -1,6 +1,7 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
+from lib.analysis.request_manager import AnalysisRequestManager
 from lib.io.connection_acceptor import ConnectionAcceptor
 from lib.io.connection_manager import ConnectionManager
 from lib.protocol.message_handler import MessageHandler
@@ -24,7 +25,14 @@ class INNPVServer:
             self._on_connection_closed,
         )
         self._message_sender = MessageSender(self._connection_manager)
-        self._message_handler = MessageHandler(self._message_sender)
+        self._analysis_request_manager = AnalysisRequestManager(
+            self._submit_work,
+            self._message_sender,
+        )
+        self._message_handler = MessageHandler(
+            self._message_sender,
+            self._analysis_request_manager,
+        )
         self._main_executor = ThreadPoolExecutor(max_workers=1)
 
     def __enter__(self):
@@ -42,6 +50,8 @@ class INNPVServer:
         def shutdown():
             self._connection_acceptor.stop()
             self._connection_manager.stop()
+
+        self._analysis_request_manager.stop()
         self._main_executor.submit(shutdown).result()
         self._main_executor.shutdown()
         logger.info("INNPV server has shut down.")
@@ -68,3 +78,8 @@ class INNPVServer:
             self._connection_manager.remove_connection,
             address,
         )
+
+    def _submit_work(self, func, *args, **kwargs):
+        # Do not call directly - called by another thread to submit work
+        # onto the main executor
+        self._main_executor.submit(func, *args, **kwargs)

@@ -16,6 +16,7 @@ message ServerMessage {
 message AnalyzeRequest {
   string source_code = 1;
   bool mock_response = 2;
+  uint32 sequence_number = 3;
 }
 
 message AnalyzeResponse {
@@ -23,10 +24,12 @@ message AnalyzeResponse {
   ThroughputInfo throughput = 2;
   MemoryInfo memory = 3;
   InputInfo input = 4;
+  uint32 sequence_number = 5;
 }
 
 message AnalyzeError {
   string error_message = 1;
+  uint32 sequence_number = 2;
 }
 
 message InputInfo {

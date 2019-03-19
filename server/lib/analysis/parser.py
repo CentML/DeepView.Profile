@@ -17,8 +17,7 @@ INPUT_SIZE_REGEX = re.compile(
 )
 
 
-def analyze_source_code(source_code):
-    # 1. Generate the AST associated with the user's code
+def parse_source_code(source_code):
     try:
         tree = ast.parse(source_code)
     except SyntaxError as ex:
@@ -28,12 +27,16 @@ def analyze_source_code(source_code):
         ) from ex
     source_map = SourceMap(source_code)
 
-    # 2. Find the class definition for the PyTorch module
+    return (tree, source_map)
+
+
+def analyze_code(tree, source_map):
+    # 1. Find the class definition for the PyTorch module
     extractor_visitor = PyTorchModuleExtractorVisitor()
     extractor_visitor.visit(tree)
     class_node = extractor_visitor.get_class_node()
 
-    # 3. Find the relevant functions
+    # 2. Find the relevant functions
     function_visitor = PyTorchFunctionExtractor()
     function_visitor.visit(class_node)
     functions = function_visitor.get_functions()
@@ -42,7 +45,7 @@ def analyze_source_code(source_code):
     if not 'forward' in functions:
         raise AnalysisError('Missing forward() function in PyTorch module.')
 
-    # 4. Parse the annotation, extract the input size and other source metadata
+    # 3. Parse the annotation, extract the input size and other source metadata
     input_size, annotation = _parse_annotation(
         ast.get_docstring(functions['forward']),
     )
@@ -60,12 +63,12 @@ def analyze_source_code(source_code):
         annotation_start.offset(len(annotation)),
     )
 
-    # 5. Extract the line numbers of the module parameters
+    # 4. Extract the line numbers of the module parameters
     statement_visitor = PyTorchStatementProcessor(source_map)
     statement_visitor.visit(functions['__init__'])
     model_operations = statement_visitor.get_model_operations()
 
-    # 6. Extract module usages from the forward() method
+    # 5. Extract module usages from the forward() method
     module_names = set(
         map(lambda op_info: op_info.bound_name, model_operations),
     )

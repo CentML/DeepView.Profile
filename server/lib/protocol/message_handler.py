@@ -1,6 +1,6 @@
 import logging
 
-from lib.analysis.parser import analyze_source_code
+from lib.analysis.parser import parse_source_code, analyze_code
 from lib.exceptions import AnalysisError
 import lib.models_gen.messages_pb2 as m
 
@@ -8,24 +8,23 @@ logger = logging.getLogger(__name__)
 
 
 class MessageHandler:
-    def __init__(self, message_sender):
+    def __init__(self, message_sender, analysis_request_manager):
         self._message_sender = message_sender
+        self._analysis_request_manager = analysis_request_manager
 
     def _handle_analyze_request(self, message, address):
         if message.mock_response:
             self._handle_analyze_request_mock_response(message, address)
             return
-
-        self._message_sender.send_analyze_error(
-            'Not yet implemented!', address)
+        self._analysis_request_manager.submit_request(message, address)
 
     def _handle_analyze_request_mock_response(self, message, address):
         """
         Return a mock response when requested to analyze a model definition.
         """
         try:
-            annotation_info, model_operations = analyze_source_code(
-                message.source_code)
+            annotation_info, model_operations = analyze_code(
+                *parse_source_code(message.source_code))
             self._message_sender.send_mock_analyze_response(
                 annotation_info, model_operations, address)
         except AnalysisError as ex:
