@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from lib.analysis.parser import parse_source_code, analyze_code
 from lib.profiler import to_trainable_model
 from lib.profiler.memory import get_memory_info
+from lib.profiler.throughput import get_throughput_info
 from lib.exceptions import AnalysisError
 from lib.nvml import NVML
 
@@ -70,11 +71,17 @@ class AnalysisRequestManager:
             if not self._is_request_current(analysis_request):
                 return
 
+            throughput_info = get_throughput_info(
+                model, annotation_info, memory_info)
+            if not self._is_request_current(analysis_request):
+                return
+
             self._enqueue_response(
                 self._send_analysis_response,
                 annotation_info,
                 model_operations,
                 memory_info,
+                throughput_info,
                 address,
             )
         except AnalysisError as ex:
@@ -85,11 +92,22 @@ class AnalysisRequestManager:
 
 
     def _send_analysis_response(
-            self, annotation_info, model_operations, memory_info, address):
+        self,
+        annotation_info,
+        model_operations,
+        memory_info,
+        throughput_info,
+        address,
+    ):
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_analyze_response(
-                annotation_info, model_operations, memory_info, address)
+                annotation_info,
+                model_operations,
+                memory_info,
+                throughput_info,
+                address,
+            )
         except:
             logger.exception(
                 'Exception occurred when sending an analysis response.')

@@ -64,6 +64,12 @@ class LinearModel:
         return 'LinearModel(coefficient={:.2f}, bias={:.2f})'.format(
             self.coefficient, self.bias)
 
+    def evaluate(self, x):
+        return self.coefficient * x + self.bias
+
+    def inverse(self, y):
+        return (y - self.bias) / self.coefficient
+
     def fill_protobuf(self, model_pb):
         model_pb.coefficient = self.coefficient
         model_pb.bias = self.bias
@@ -83,3 +89,34 @@ class MemoryInfo:
         info_pb.usage_mb = self.usage_mb
         info_pb.max_capacity_mb = self.max_capacity_mb
         self.usage_model_mb.fill_protobuf(info_pb.usage_model_mb)
+
+
+class ThroughputInfo:
+    def __init__(
+        self,
+        throughput,
+        max_throughput,
+        throughput_limit,
+        runtime_model_ms
+    ):
+        self.throughput = throughput
+        self.max_throughput = max_throughput
+        self.throughput_limit = throughput_limit
+        self.runtime_model_ms = runtime_model_ms
+
+    def __repr__(self):
+        return (
+            'ThroughputInfo(thpt={}, max_thpt={}, limit={}, model={})'
+            .format(
+                self.throughput,
+                self.max_throughput,
+                self.throughput_limit,
+                self.runtime_model_ms,
+            )
+        )
+
+    def fill_protobuf(self, info_pb):
+        info_pb.throughput = self.throughput
+        info_pb.max_throughput = self.max_throughput
+        info_pb.throughput_limit = self.throughput_limit
+        self.runtime_model_ms.fill_protobuf(info_pb.runtime_model_ms)

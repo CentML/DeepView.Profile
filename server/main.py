@@ -48,6 +48,14 @@ def main():
         help="Path to the performance hints configuration YAML file.",
     )
     parser.add_argument(
+        "--measure-for",
+        help="Number of iterations to measure when determining throughput.",
+    )
+    parser.add_argument(
+        "--warm-up",
+        help="Number of warm up iterations when determining throughput.",
+    )
+    parser.add_argument(
         "--log-file",
         default="/tmp/innpv-server.log",
         help="The location of the log file.",
@@ -55,7 +63,7 @@ def main():
     args = parser.parse_args()
 
     set_up_logging(args.log_file)
-    Config.initialize_hints_config(args.hints_file)
+    Config.parse_args(args)
 
     torch.cuda.init()
 

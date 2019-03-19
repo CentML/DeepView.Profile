@@ -12,11 +12,13 @@ class MessageSender:
         annotation_info,
         model_operations,
         memory_info,
+        throughput_info,
         address,
     ):
         message = m.AnalyzeResponse()
         annotation_info.fill_protobuf(message.input)
         memory_info.fill_protobuf(message.memory)
+        throughput_info.fill_protobuf(message.throughput)
 
         self._send_message(message, 'analyze_response', address)
 
