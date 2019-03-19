@@ -43,6 +43,7 @@ class INNPVServer:
         self.stop()
 
     def start(self):
+        self._analysis_request_manager.start()
         self._connection_acceptor.start()
         logger.info("INNPV server has started.")
 

@@ -23,7 +23,7 @@ class MessageHandler:
         Return a mock response when requested to analyze a model definition.
         """
         try:
-            annotation_info, model_operations = analyze_code(
+            _, annotation_info, model_operations = analyze_code(
                 *parse_source_code(message.source_code))
             self._message_sender.send_mock_analyze_response(
                 annotation_info, model_operations, address)

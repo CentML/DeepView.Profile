@@ -81,7 +81,7 @@ def analyze_code(tree, source_map):
             continue
         model_op.set_usages(module_usages[model_op.bound_name])
 
-    return (annotation_info, model_operations)
+    return (class_node.name, annotation_info, model_operations)
 
 
 def _parse_annotation(docstring):
@@ -123,7 +123,8 @@ def main():
 
     with open(args.file, 'r') as file:
         lines = [line for line in file]
-        annotation_info, model_operations = analyze_source_code(''.join(lines))
+    class_name, annotation_info, model_operations = analyze_code(
+        *parse_source_code(''.join(lines)))
 
     code.interact(local=dict(globals(), **locals()))
 

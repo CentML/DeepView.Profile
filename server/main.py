@@ -2,10 +2,12 @@ import signal
 import logging
 import threading
 import argparse
+import torch
 
 from lib.config import Config
 from lib.server import INNPVServer
 
+logger = logging.getLogger(__name__)
 should_shutdown = threading.Event()
 
 
@@ -54,6 +56,8 @@ def main():
 
     set_up_logging(args.log_file)
     Config.initialize_hints_config(args.hints_file)
+
+    torch.cuda.init()
 
     # Run the server until asked to terminate
     with INNPVServer(args.host, args.port):

@@ -53,3 +53,33 @@ class PerformanceHint:
             perf_hint_pb.effectiveness = m.PerformanceHint.LOW
         perf_hint_pb.natural_direction = self.natural_direction
         self.position.fill_protobuf(perf_hint_pb.location)
+
+
+class LinearModel:
+    def __init__(self, coefficient, bias):
+        self.coefficient = coefficient
+        self.bias = bias
+
+    def __repr__(self):
+        return 'LinearModel(coefficient={:.2f}, bias={:.2f})'.format(
+            self.coefficient, self.bias)
+
+    def fill_protobuf(self, model_pb):
+        model_pb.coefficient = self.coefficient
+        model_pb.bias = self.bias
+
+
+class MemoryInfo:
+    def __init__(self, usage_model_mb, usage_mb, max_capacity_mb):
+        self.usage_model_mb = usage_model_mb
+        self.usage_mb = usage_mb
+        self.max_capacity_mb = max_capacity_mb
+
+    def __repr__(self):
+        return 'MemoryInfo(model={}, usage_mb={}, capacity_mb={})'.format(
+            self.usage_model_mb, self.usage_mb, self.max_capacity_mb)
+
+    def fill_protobuf(self, info_pb):
+        info_pb.usage_mb = self.usage_mb
+        info_pb.max_capacity_mb = self.max_capacity_mb
+        self.usage_model_mb.fill_protobuf(info_pb.usage_model_mb)

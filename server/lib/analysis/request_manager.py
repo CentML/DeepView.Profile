@@ -2,7 +2,10 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 from lib.analysis.parser import parse_source_code, analyze_code
+from lib.profiler import to_trainable_model
+from lib.profiler.memory import get_memory_info
 from lib.exceptions import AnalysisError
+from lib.nvml import NVML
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +25,13 @@ class AnalysisRequestManager:
         # Callable that enqueues a function onto the main executor
         self._enqueue_response = enqueue_response
         self._message_sender = message_sender
+        self._nvml = NVML()
+
+    def start(self):
+        self._nvml.start()
 
     def stop(self):
+        self._nvml.stop()
         self._executor.shutdown()
 
     def submit_request(self, analysis_request, address):
@@ -49,7 +57,16 @@ class AnalysisRequestManager:
             if not self._is_request_current(analysis_request):
                 return
 
-            annotation_info, model_operations = analyze_code(tree, source_map)
+            class_name, annotation_info, model_operations = analyze_code(
+                tree, source_map)
+            if not self._is_request_current(analysis_request):
+                return
+
+            model = to_trainable_model(tree, class_name)
+            if not self._is_request_current(analysis_request):
+                return
+
+            memory_info = get_memory_info(model, annotation_info, self._nvml)
             if not self._is_request_current(analysis_request):
                 return
 
@@ -57,6 +74,7 @@ class AnalysisRequestManager:
                 self._send_analysis_response,
                 annotation_info,
                 model_operations,
+                memory_info,
                 address,
             )
         except AnalysisError as ex:
@@ -65,12 +83,13 @@ class AnalysisRequestManager:
             logger.exception(
                 'Exception occurred when handling analysis request.')
 
+
     def _send_analysis_response(
-            self, annotation_info, model_operations, address):
+            self, annotation_info, model_operations, memory_info, address):
         # Called from the main executor. Do not call directly!
         try:
-            self._message_sender.send_mock_analyze_response(
-                annotation_info, model_operations, address)
+            self._message_sender.send_analyze_response(
+                annotation_info, model_operations, memory_info, address)
         except:
             logger.exception(
                 'Exception occurred when sending an analysis response.')

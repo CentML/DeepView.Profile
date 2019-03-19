@@ -7,6 +7,19 @@ class MessageSender:
     def __init__(self, connection_manager):
         self._connection_manager = connection_manager
 
+    def send_analyze_response(
+        self,
+        annotation_info,
+        model_operations,
+        memory_info,
+        address,
+    ):
+        message = m.AnalyzeResponse()
+        annotation_info.fill_protobuf(message.input)
+        memory_info.fill_protobuf(message.memory)
+
+        self._send_message(message, 'analyze_response', address)
+
     def send_mock_analyze_response(
             self, annotation_info, model_operations, address):
         message = m.AnalyzeResponse()
