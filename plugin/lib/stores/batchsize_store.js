@@ -17,6 +17,7 @@ class BatchSizeStore extends BaseStore {
     this._throughputInfo = null;
     this._memoryInfo = null;
     this._inputInfo = null;
+    this._perfLimits = null;
 
     this._predictedBatchSize = null;
     this._maxBatchSize = null;
@@ -25,16 +26,14 @@ class BatchSizeStore extends BaseStore {
     this._currentUndoCheckpoint = null;
   }
 
-  receivedAnalysis(throughputInfo, memoryInfo, inputInfo) {
+  receivedAnalysis(throughputInfo, memoryInfo, inputInfo, perfLimits) {
     this._throughputInfo = throughputInfo;
     this._memoryInfo = memoryInfo;
     this._inputInfo = inputInfo;
+    this._perfLimits = perfLimits;
 
     this._predictedBatchSize = null;
-    this._maxBatchSize = getBatchSizeFromUsage(
-      this._memoryInfo.getUsageModelMb(),
-      this._memoryInfo.getMaxCapacityMb(),
-    );
+    this._maxBatchSize = perfLimits.getMaxBatchSize();
 
     const startPoint = this._inputInfo.getAnnotationStart();
     const endPoint = this._inputInfo.getAnnotationEnd();
@@ -55,10 +54,10 @@ class BatchSizeStore extends BaseStore {
       updatedPct / 100 * this._memoryInfo.getMaxCapacityMb(),
       this._memoryInfo.getMaxCapacityMb(),
     );
-    this._predictedBatchSize = Math.max(
+    this._predictedBatchSize = Math.min(Math.max(
       getBatchSizeFromUsage(this._memoryInfo.getUsageModelMb(), updatedUsage),
       1,
-    );
+    ), this._maxBatchSize);
 
     this._updateAnnotationInBuffer();
     this.notifyChanged();
@@ -70,7 +69,7 @@ class BatchSizeStore extends BaseStore {
     const updatedPct = basePct + deltaPct;
     const updatedThroughput = Math.max(Math.min(
       updatedPct / 100 * this._throughputInfo.getMaxThroughput(),
-      this._throughputInfo.getThroughputLimit(),
+      this._perfLimits.getThroughputLimit(),
     ), 0);
     const throughputBatchSize = getBatchSizeFromThroughput(
       this._throughputInfo.getRuntimeModelMs(),
@@ -116,14 +115,14 @@ class BatchSizeStore extends BaseStore {
   }
 
   getThroughputModel() {
-    if (this._throughputInfo == null) {
+    if (this._throughputInfo == null || this._perfLimits == null) {
       return null;
     }
 
     if (this._predictedBatchSize == null) {
-      return Throughput.fromInfo(this._throughputInfo);
+      return Throughput.fromInfo(this._throughputInfo, this._perfLimits);
     } else {
-      return Throughput.fromPrediction(this._throughputInfo, this._predictedBatchSize);
+      return Throughput.fromPrediction(this._throughputInfo, this._perfLimits, this._predictedBatchSize);
     }
   }
 

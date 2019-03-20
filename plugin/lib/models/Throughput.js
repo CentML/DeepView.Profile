@@ -23,15 +23,15 @@ export default class Throughput {
     return this._throughputLimit / this._maxThroughput * 100;
   }
 
-  static fromInfo(infoProtobuf) {
+  static fromInfo(infoProtobuf, limitsProtobuf) {
     return new Throughput(
       infoProtobuf.getThroughput(),
       infoProtobuf.getMaxThroughput(),
-      infoProtobuf.getThroughputLimit(),
+      limitsProtobuf.getThroughputLimit(),
     );
   }
 
-  static fromPrediction(infoProtobuf, batchSize) {
+  static fromPrediction(infoProtobuf, limitsProtobuf, batchSize) {
     const runtimeModel = infoProtobuf.getRuntimeModelMs();
     const predRuntime = runtimeModel.getCoefficient() * batchSize + runtimeModel.getBias();
     // Runtime is in milliseconds, so multiply throughput by 1000 to get units in seconds
@@ -39,7 +39,7 @@ export default class Throughput {
     return new Throughput(
       predThroughput,
       infoProtobuf.getMaxThroughput(),
-      infoProtobuf.getThroughputLimit(),
+      limitsProtobuf.getThroughputLimit(),
     );
   }
 }

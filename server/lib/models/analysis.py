@@ -61,7 +61,7 @@ class LinearModel:
         self.bias = bias
 
     def __repr__(self):
-        return 'LinearModel(coefficient={:.2f}, bias={:.2f})'.format(
+        return 'LinearModel(coefficient={:.4f}, bias={:.4f})'.format(
             self.coefficient, self.bias)
 
     def evaluate(self, x):
@@ -96,27 +96,41 @@ class ThroughputInfo:
         self,
         throughput,
         max_throughput,
-        throughput_limit,
         runtime_model_ms
     ):
         self.throughput = throughput
         self.max_throughput = max_throughput
-        self.throughput_limit = throughput_limit
         self.runtime_model_ms = runtime_model_ms
 
     def __repr__(self):
         return (
-            'ThroughputInfo(thpt={}, max_thpt={}, limit={}, model={})'
+            'ThroughputInfo(thpt={}, max_thpt={}, model={})'
             .format(
                 self.throughput,
                 self.max_throughput,
-                self.throughput_limit,
                 self.runtime_model_ms,
             )
+        )
+
+    def batch_from_throughput(self, throughput):
+        # Thpt = batch / runtime_model
+        throughput_ms = throughput / 1000
+        return (
+            (throughput_ms * self.runtime_model_ms.bias) /
+            (1 - throughput_ms * self.runtime_model_ms.coefficient)
         )
 
     def fill_protobuf(self, info_pb):
         info_pb.throughput = self.throughput
         info_pb.max_throughput = self.max_throughput
-        info_pb.throughput_limit = self.throughput_limit
         self.runtime_model_ms.fill_protobuf(info_pb.runtime_model_ms)
+
+
+class PerformanceLimits:
+    def __init__(self, max_batch_size, throughput_limit):
+        self.max_batch_size = max_batch_size
+        self.throughput_limit = throughput_limit
+
+    def fill_protobuf(self, limits_pb):
+        limits_pb.max_batch_size = self.max_batch_size
+        limits_pb.throughput_limit = self.throughput_limit

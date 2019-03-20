@@ -13,12 +13,14 @@ class MessageSender:
         model_operations,
         memory_info,
         throughput_info,
+        perf_limits,
         address,
     ):
         message = m.AnalyzeResponse()
         annotation_info.fill_protobuf(message.input)
         memory_info.fill_protobuf(message.memory)
         throughput_info.fill_protobuf(message.throughput)
+        perf_limits.fill_protobuf(message.limits)
 
         self._send_message(message, 'analyze_response', address)
 
@@ -36,7 +38,7 @@ class MessageSender:
         # Use mock data for the throughput & memory
         message.throughput.throughput = 1000
         message.throughput.max_throughput = 1250
-        message.throughput.throughput_limit = 1250
+        # message.throughput.throughput_limit = 1250
         message.throughput.runtime_model_ms.coefficient = 0.80320687
         message.throughput.runtime_model_ms.bias = 9.16780518
 

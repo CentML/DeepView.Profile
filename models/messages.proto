@@ -16,6 +16,7 @@ message ServerMessage {
 message AnalyzeRequest {
   string source_code = 1;
   bool mock_response = 2;
+
   uint32 sequence_number = 3;
 }
 
@@ -24,6 +25,8 @@ message AnalyzeResponse {
   ThroughputInfo throughput = 2;
   MemoryInfo memory = 3;
   InputInfo input = 4;
+  PerformanceLimiters limits = 6;
+
   uint32 sequence_number = 5;
 }
 
@@ -56,7 +59,6 @@ message ThroughputInfo {
   LinearModel runtime_model_ms = 1;
   float throughput = 2;
   float max_throughput = 3;
-  float throughput_limit = 4;
 }
 
 message MemoryInfo {
@@ -64,6 +66,16 @@ message MemoryInfo {
   LinearModel usage_model_mb = 1;
   float usage_mb = 2;
   float max_capacity_mb = 3;
+}
+
+message PerformanceLimiters {
+  // The maximum batch size that can be used, either due to memory capacity
+  // constraints or because of the theoretical throughput ceiling.
+  float max_batch_size = 1;
+
+  // The maximum throughput attainable due to memory constraints (if there are
+  // no constraints then this is the same as the maximum throughput)
+  float throughput_limit = 2;
 }
 
 message LinearModel {

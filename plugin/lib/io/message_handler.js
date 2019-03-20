@@ -14,26 +14,21 @@ export default class MessageHandler {
   _handleAnalyzeResponse(message) {
     const operationInfos = message.getResultsList();
     console.log('Received', operationInfos.length, 'messages.');
-    const artificalDelay = () => {
-      OperationInfoStore.setOperationInfos(operationInfos);
-      BatchSizeStore.receivedAnalysis(
-        message.getThroughput(),
-        message.getMemory(),
-        message.getInput(),
-      );
-      INNPVStore.setPerfVisState(PerfVisState.READY);
-      INNPVStore.clearErrorMessage();
-    };
-    setTimeout(artificalDelay, 1500);
+    OperationInfoStore.setOperationInfos(operationInfos);
+    BatchSizeStore.receivedAnalysis(
+      message.getThroughput(),
+      message.getMemory(),
+      message.getInput(),
+      message.getLimits(),
+    );
+    INNPVStore.setPerfVisState(PerfVisState.READY);
+    INNPVStore.clearErrorMessage();
   }
 
   _handleAnalyzeError(message) {
     console.log('Received error message:', message.getErrorMessage());
-    const artificalDelay = () => {
-      INNPVStore.setErrorMessage(message.getErrorMessage());
-      INNPVStore.setPerfVisState(PerfVisState.ERROR);
-    };
-    setTimeout(artificalDelay, 1500);
+    INNPVStore.setErrorMessage(message.getErrorMessage());
+    INNPVStore.setPerfVisState(PerfVisState.ERROR);
   }
 
   handleMessage(byteArray) {

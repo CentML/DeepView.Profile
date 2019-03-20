@@ -12,38 +12,23 @@ logger = logging.getLogger(__name__)
 def get_throughput_info(model, annotation_info, memory_info):
     try:
         torch.backends.cudnn.benchmark = True
-        logger.debug('cuDNN benchmarking enabled.')
 
         input_size = annotation_info.input_size
         runtime_ms = _measure_runtime(model, input_size[0], input_size)
         runtime_model_ms = _get_runtime_model(model, input_size)
 
         throughput = input_size[0] / runtime_ms * 1000
-        # NOTE: Reduce the theoretical max by 10% to account for potential
-        #       modelling errors
+        # NOTE: Reduce the theoretical max by 5%, since it is asymptotic
         max_throughput = (
-            1.0 / runtime_model_ms.coefficient * 1000 * 0.9
+            1.0 / runtime_model_ms.coefficient * 1000 * .95
         )
 
-        max_capacity_batch_size = memory_info.usage_model_mb.inverse(
-            memory_info.max_capacity_mb)
-        max_capacity_throughput = (
-            max_capacity_batch_size /
-            runtime_model_ms.evaluate(max_capacity_batch_size) *
-            1000
-        )
-        # Indicates whether the maximum attainable throughput is limited by
-        # memory capacity or not
-        throughput_limit = min(max_throughput, max_capacity_throughput)
-
-        return ThroughputInfo(
-            throughput, max_throughput, throughput_limit, runtime_model_ms)
+        return ThroughputInfo(throughput, max_throughput, runtime_model_ms)
 
     except Exception as ex:
         raise AnalysisError(str(ex), type(ex))
     finally:
         torch.backends.cudnn.benchmark = False
-        logger.debug('cuDNN benchmarking disabled.')
 
 
 def _get_runtime_model(model, input_size):
