@@ -14,6 +14,9 @@ import {Range} from 'atom';
 class BatchSizeStore extends BaseStore {
   constructor() {
     super();
+  }
+
+  reset() {
     this._throughputInfo = null;
     this._memoryInfo = null;
     this._inputInfo = null;

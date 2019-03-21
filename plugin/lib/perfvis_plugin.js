@@ -11,6 +11,8 @@ import Protocol from './io/protocol';
 import AppState from './models/AppState';
 import PerfVisState from './models/PerfVisState';
 import INNPVStore from './stores/innpv_store';
+import BatchSizeStore from './stores/batchsize_store';
+import OperationInfoStore from './stores/operationinfo_store';
 import { getTextEditor } from './utils';
 
 export default class PerfvisPlugin {
@@ -59,6 +61,10 @@ export default class PerfvisPlugin {
     ReactDOM.unmountComponentAtNode(this._panel.getItem());
     this._panel.destroy();
     this._panel = null;
+
+    INNPVStore.reset();
+    BatchSizeStore.reset();
+    OperationInfoStore.reset();
   }
 
   _getStartedClicked(event) {

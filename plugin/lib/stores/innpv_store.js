@@ -7,6 +7,9 @@ import PerfVisState from '../models/PerfVisState';
 class INNPVStore extends BaseStore {
   constructor() {
     super();
+  }
+
+  reset() {
     this._appState = AppState.ACTIVATED;
     this._perfVisState = PerfVisState.READY;
     this._errorMessage = '';

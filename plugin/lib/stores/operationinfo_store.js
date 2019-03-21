@@ -5,6 +5,9 @@ import BaseStore from './base_store';
 class OperationInfoStore extends BaseStore {
   constructor() {
     super();
+  }
+
+  reset() {
     this._operationInfos = [];
   }
 
