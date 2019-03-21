@@ -85,3 +85,21 @@ class Connection:
 
         except:
             logger.exception("Connection unexpectedly stopping...")
+
+
+class ConnectionState:
+    def __init__(self):
+        # NOTE: This counter is modified by a thread in the main executor, but
+        #       will be read by other threads. No R/W lock is needed because of
+        #       the Python GIL.
+        #
+        # NOTE: The sequence number from the client must be non-negative
+        self.sequence_number = -1
+
+    def update_sequence(self, request):
+        if request.sequence_number <= self.sequence_number:
+            return
+        self.sequence_number = request.sequence_number
+
+    def is_request_current(self, request):
+        return request.sequence_number >= self.sequence_number

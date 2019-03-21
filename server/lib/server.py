@@ -28,6 +28,7 @@ class INNPVServer:
         self._analysis_request_manager = AnalysisRequestManager(
             self._submit_work,
             self._message_sender,
+            self._connection_manager,
         )
         self._message_handler = MessageHandler(
             self._message_sender,

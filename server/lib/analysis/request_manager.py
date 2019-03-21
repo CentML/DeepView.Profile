@@ -12,20 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class AnalysisRequestManager:
-    def __init__(self, enqueue_response, message_sender):
-        # NOTE: This counter is modified by a thread in the main executor, but
-        #       will be read by other threads. No R/W lock is needed because of
-        #       the Python GIL.
-        #
-        # NOTE: The sequence number from the client must be non-negative
-        self._sequence_number = -1
-
+    def __init__(self, enqueue_response, message_sender, connection_manager):
         # NOTE: We don't actually get parallelism because of the GIL.
         self._executor = ThreadPoolExecutor(max_workers=1)
 
         # Callable that enqueues a function onto the main executor
         self._enqueue_response = enqueue_response
         self._message_sender = message_sender
+        self._connection_manager = connection_manager
         self._nvml = NVML()
 
     def start(self):
@@ -36,48 +30,56 @@ class AnalysisRequestManager:
         self._executor.shutdown()
 
     def submit_request(self, analysis_request, address):
-        if analysis_request.sequence_number <= self._sequence_number:
+        state = self._connection_manager.get_connection_state(address)
+        if not state.is_request_current(analysis_request):
             return
-        self._sequence_number = analysis_request.sequence_number
+        state.update_sequence(analysis_request)
         self._executor.submit(
             self._handle_analysis_request,
             analysis_request,
+            state,
             address,
         )
 
     def _is_request_current(self, analysis_request):
         return self._sequence_number <= analysis_request.sequence_number
 
-    def _handle_analysis_request(self, analysis_request, address):
+    def _handle_analysis_request(self, analysis_request, state, address):
         """
         Process an analysis request with the ability to abort early if the
         request is no longer current.
         """
         try:
+            logger.debug(
+                'Processing request %d from (%s:%d).',
+                analysis_request.sequence_number,
+                *address,
+            )
+
             tree, source_map = parse_source_code(analysis_request.source_code)
-            if not self._is_request_current(analysis_request):
+            if not state.is_request_current(analysis_request):
                 return
 
             class_name, annotation_info, model_operations = analyze_code(
                 tree, source_map)
-            if not self._is_request_current(analysis_request):
+            if not state.is_request_current(analysis_request):
                 return
 
             model = to_trainable_model(tree, class_name)
-            if not self._is_request_current(analysis_request):
+            if not state.is_request_current(analysis_request):
                 return
 
             memory_info = get_memory_info(model, annotation_info, self._nvml)
-            if not self._is_request_current(analysis_request):
+            if not state.is_request_current(analysis_request):
                 return
 
             throughput_info = get_throughput_info(
                 model, annotation_info, memory_info)
-            if not self._is_request_current(analysis_request):
+            if not state.is_request_current(analysis_request):
                 return
 
             perf_limits = get_performance_limits(memory_info, throughput_info)
-            if not self._is_request_current(analysis_request):
+            if not state.is_request_current(analysis_request):
                 return
 
             self._enqueue_response(

@@ -1,7 +1,7 @@
 import logging
 import socket
 
-from lib.io.connection import Connection
+from lib.io.connection import Connection, ConnectionState
 
 logger = logging.getLogger(__name__)
 
@@ -13,21 +13,30 @@ class ConnectionManager:
         self._closed_handler = closed_handler
 
     def register_connection(self, opened_socket, address):
-        self._connections[address] = Connection(
-            opened_socket,
-            address,
-            self._message_handler,
-            self._closed_handler,
+        self._connections[address] = (
+            Connection(
+                opened_socket,
+                address,
+                self._message_handler,
+                self._closed_handler,
+            ),
+            ConnectionState(),
         )
-        self._connections[address].start()
+        self._connections[address][0].start()
 
     def remove_connection(self, address):
-        connection = self.get_connection(address)
+        connection, _ = self.get_connection(address)
         connection.stop()
         del self._connections[address]
         logger.debug("Removed connection to (%s:%d).", *address)
 
     def get_connection(self, address):
+        return self.get_connection_tuple(address)[0]
+
+    def get_connection_state(self, address):
+        return self.get_connection_tuple(address)[1]
+
+    def get_connection_tuple(self, address):
         if address not in self._connections:
             host, port = address
             raise ValueError(
@@ -35,7 +44,7 @@ class ConnectionManager:
         return self._connections[address]
 
     def broadcast(self, string_message):
-        for _, connection in self._connections.items():
+        for _, (connection, _) in self._connections.items():
             connection.write_string_message(string_message)
 
     def connect_to(self, host, port):
@@ -44,6 +53,6 @@ class ConnectionManager:
         self.register_connection(new_socket, (host, port))
 
     def stop(self):
-        for _, connection in self._connections.items():
+        for _, (connection, _) in self._connections.items():
             connection.stop()
         self._connections.clear()
