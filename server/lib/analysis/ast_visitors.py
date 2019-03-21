@@ -1,7 +1,7 @@
 import ast
 
 from lib.exceptions import AnalysisError
-from lib.models.analysis import OperationSourceMap, Position
+from lib.models.analysis import OperationInfo, OperationInfoMap, Position
 from lib.analysis.hints import extract_performance_hints
 
 
@@ -42,7 +42,7 @@ class PyTorchFunctionExtractor(ast.NodeVisitor):
 
 class PyTorchStatementProcessor(ast.NodeVisitor):
     def __init__(self, source_map):
-        self.model_operations = []
+        self.model_operations = OperationInfoMap()
         self.module_param_extractor = PyTorchModuleParameterExtractor()
         self.source_map = source_map
 
@@ -63,7 +63,7 @@ class PyTorchStatementProcessor(ast.NodeVisitor):
             op_name, node.value, self.source_map)
 
         # We subtract 1 from the line numbers to make them 0-based
-        self.model_operations.append(OperationSourceMap(
+        self.model_operations.add_operation_info(OperationInfo(
             bound_name=node.targets[0].attr,
             op_name=op_name,
             ast_node=node,

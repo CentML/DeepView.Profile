@@ -2,7 +2,7 @@ import lib.models_gen.messages_pb2 as m
 from lib.models.source_map import Position
 
 
-class OperationSourceMap:
+class OperationInfo:
     def __init__(self, bound_name, op_name, ast_node, position, perf_hints):
         self.bound_name = bound_name
         self.op_name = op_name
@@ -10,13 +10,18 @@ class OperationSourceMap:
         self.position = position
         self.perf_hints = perf_hints
         self.usages = []
+        self.runtime_us = 0
 
     def set_usages(self, usages):
         self.usages = usages
 
+    def add_to_runtime_us(self, runtime_us):
+        self.runtime_us += runtime_us
+
     def fill_protobuf(self, info_pb):
         info_pb.bound_name = self.bound_name
         info_pb.op_name = self.op_name
+        info_pb.runtime_us = self.runtime_us
         self.position.fill_protobuf(info_pb.location)
         for hint in self.perf_hints:
             hint_pb = info_pb.hints.add()
@@ -24,6 +29,27 @@ class OperationSourceMap:
         for usage in self.usages:
             location_pb = info_pb.usages.add()
             usage.fill_protobuf(location_pb)
+
+
+class OperationInfoMap:
+    def __init__(self):
+        self.operations = {}
+
+    def add_operation_info(self, operation):
+        self.operations[operation.bound_name] = operation
+
+    def get_operation_info_by_bound_name(self, bound_name):
+        if bound_name not in self.operations:
+            return None
+        return self.operations[bound_name]
+
+    def get_operations(self):
+        return self.operations.values()
+
+    def fill_protobuf(self, operation_list_pb):
+        for operation in self.get_operations():
+            pb = operation_list_pb.add()
+            operation.fill_protobuf(pb)
 
 
 class AnnotationInfo:

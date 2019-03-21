@@ -81,7 +81,7 @@ def _measure_runtime(model, batch_size, input_size):
     end_event.record()
     torch.cuda.synchronize()
 
-    return start_event.elapsed_time(end_event) / Config.warm_up
+    return start_event.elapsed_time(end_event) / Config.measure_for
 
 
 def main():

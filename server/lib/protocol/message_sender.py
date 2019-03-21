@@ -21,6 +21,7 @@ class MessageSender:
         memory_info.fill_protobuf(message.memory)
         throughput_info.fill_protobuf(message.throughput)
         perf_limits.fill_protobuf(message.limits)
+        model_operations.fill_protobuf(message.results)
 
         self._send_message(message, 'analyze_response', address)
 

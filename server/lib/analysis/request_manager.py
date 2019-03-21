@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor
 from lib.analysis.parser import parse_source_code, analyze_code
 from lib.profiler import to_trainable_model, get_performance_limits
 from lib.profiler.memory import get_memory_info
+from lib.profiler.module import get_operation_runtimes
 from lib.profiler.throughput import get_throughput_info
 from lib.exceptions import AnalysisError
 from lib.nvml import NVML
@@ -81,6 +82,9 @@ class AnalysisRequestManager:
             perf_limits = get_performance_limits(memory_info, throughput_info)
             if not state.is_request_current(analysis_request):
                 return
+
+            # This function makes in-place changes to model_operations
+            get_operation_runtimes(model, annotation_info, model_operations)
 
             self._enqueue_response(
                 self._send_analysis_response,
