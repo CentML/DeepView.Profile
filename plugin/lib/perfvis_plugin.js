@@ -38,7 +38,8 @@ export default class PerfvisPlugin {
     this._connection = new Connection(this._handleMessage);
     this._protocol = new Protocol();
     this._messageSender = new MessageSender(this._connection, this._protocol);
-    this._messageHandler = new MessageHandler(this._messageSender);
+    this._messageHandler = new MessageHandler(
+      this._messageSender, this._protocol);
   }
 
   close() {

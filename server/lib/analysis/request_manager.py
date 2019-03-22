@@ -93,10 +93,16 @@ class AnalysisRequestManager:
                 memory_info,
                 throughput_info,
                 perf_limits,
+                analysis_request.sequence_number,
                 address,
             )
         except AnalysisError as ex:
-            self._enqueue_response(self._send_analysis_error, ex, address)
+            self._enqueue_response(
+                self._send_analysis_error,
+                ex,
+                analysis_request.sequence_number,
+                address,
+            )
         except:
             logger.exception(
                 'Exception occurred when handling analysis request.')
@@ -109,6 +115,7 @@ class AnalysisRequestManager:
         memory_info,
         throughput_info,
         perf_limits,
+        sequence_number,
         address,
     ):
         # Called from the main executor. Do not call directly!
@@ -119,16 +126,18 @@ class AnalysisRequestManager:
                 memory_info,
                 throughput_info,
                 perf_limits,
+                sequence_number,
                 address,
             )
         except:
             logger.exception(
                 'Exception occurred when sending an analysis response.')
 
-    def _send_analysis_error(self, exception, address):
+    def _send_analysis_error(self, exception, sequence_number, address):
         try:
             # Called from the main executor. Do not call directly!
-            self._message_sender.send_analyze_error(str(exception), address)
+            self._message_sender.send_analyze_error(
+                str(exception), sequence_number, address)
         except:
             logger.exception(
                 'Exception occurred when sending an analysis error.')

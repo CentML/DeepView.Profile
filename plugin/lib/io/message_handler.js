@@ -7,13 +7,20 @@ import OperationInfoStore from '../stores/operationinfo_store';
 import BatchSizeStore from '../stores/batchsize_store';
 
 export default class MessageHandler {
-  constructor(messageSender) {
+  constructor(messageSender, protocol) {
     this._messageSender = messageSender;
+    this._protocol = protocol;
   }
 
   _handleAnalyzeResponse(message) {
+    const sequenceNumber = message.getSequenceNumber();
+    if (!this._protocol.isResponseCurrent(sequenceNumber)) {
+      console.log('Ignoring stale analyze response message with sequence number:', sequenceNumber);
+      return;
+    }
+
+    console.log('Received response with sequence number:', sequenceNumber);
     const operationInfos = message.getResultsList();
-    console.log('Received', operationInfos.length, 'messages.');
     OperationInfoStore.setOperationInfos(operationInfos);
     BatchSizeStore.receivedAnalysis(
       message.getThroughput(),
@@ -26,7 +33,13 @@ export default class MessageHandler {
   }
 
   _handleAnalyzeError(message) {
-    console.log('Received error message:', message.getErrorMessage());
+    const sequenceNumber = message.getSequenceNumber();
+    if (!this._protocol.isResponseCurrent(sequenceNumber)) {
+      console.log('Ignoring stale analyze error message with sequence number:', sequenceNumber);
+      return;
+    }
+
+    console.log('Received error message with sequence number:', sequenceNumber);
     INNPVStore.setErrorMessage(message.getErrorMessage());
     INNPVStore.setPerfVisState(PerfVisState.ERROR);
   }

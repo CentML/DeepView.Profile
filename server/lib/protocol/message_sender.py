@@ -14,9 +14,11 @@ class MessageSender:
         memory_info,
         throughput_info,
         perf_limits,
+        sequence_number,
         address,
     ):
         message = m.AnalyzeResponse()
+        message.sequence_number = sequence_number
         annotation_info.fill_protobuf(message.input)
         memory_info.fill_protobuf(message.memory)
         throughput_info.fill_protobuf(message.throughput)
@@ -26,12 +28,13 @@ class MessageSender:
         self._send_message(message, 'analyze_response', address)
 
     def send_mock_analyze_response(
-            self, annotation_info, model_operations, address):
+            self, annotation_info, model_operations, sequence_number, address):
         for operation in model_operations.get_operations():
             # Fake the runtime - use a random value between 100 us and 200 us
             operation.add_to_runtime_us(random() * 100 + 100)
 
         message = m.AnalyzeResponse()
+        message.sequence_number = sequence_number
         annotation_info.fill_protobuf(message.input)
         model_operations.fill_protobuf(message.results)
 
@@ -50,8 +53,9 @@ class MessageSender:
 
         self._send_message(message, 'analyze_response', address)
 
-    def send_analyze_error(self, error_message, address):
+    def send_analyze_error(self, error_message, sequence_number, address):
         message = m.AnalyzeError()
+        message.sequence_number = sequence_number
         message.error_message = error_message
         self._send_message(message, 'analyze_error', address)
 
