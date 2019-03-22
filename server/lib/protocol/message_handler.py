@@ -26,7 +26,11 @@ class MessageHandler:
             _, annotation_info, model_operations = analyze_code(
                 *parse_source_code(message.source_code))
             self._message_sender.send_mock_analyze_response(
-                annotation_info, model_operations, address)
+                annotation_info,
+                model_operations,
+                message.sequence_number,
+                address,
+            )
         except AnalysisError as ex:
             self._message_sender.send_analyze_error(str(ex), address)
 
