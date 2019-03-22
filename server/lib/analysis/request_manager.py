@@ -100,7 +100,8 @@ class AnalysisRequestManager:
                 return
 
             # This function makes in-place changes to model_operations
-            get_operation_runtimes(model, annotation_info, model_operations)
+            get_operation_runtimes(
+                model, annotation_info, model_operations, state.runtime_cache)
 
             results = (
                 annotation_info,

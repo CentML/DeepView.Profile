@@ -7,7 +7,8 @@ from lib.exceptions import AnalysisError
 logger = logging.getLogger(__name__)
 
 
-def get_operation_runtimes(model, annotation_info, model_operations):
+def get_operation_runtimes(
+        model, annotation_info, model_operations, runtime_cache):
     try:
         # 1. Create CUDA events used for timing
         start_event = torch.cuda.Event(enable_timing=True)
@@ -20,8 +21,8 @@ def get_operation_runtimes(model, annotation_info, model_operations):
             if operation_info is None:
                 continue
 
-            module.register_forward_hook(
-                _make_profiling_hook(operation_info, (start_event, end_event)))
+            module.register_forward_hook(_make_profiling_hook(
+                operation_info, (start_event, end_event), runtime_cache))
 
         # 3. Perform one forward pass to trigger the profiling
         model_input = torch.randn(
@@ -32,7 +33,7 @@ def get_operation_runtimes(model, annotation_info, model_operations):
         raise AnalysisError(str(ex), type(ex))
 
 
-def _make_profiling_hook(operation_info, events):
+def _make_profiling_hook(operation_info, events, runtime_cache):
     # Use a flag to prevent recursive calls to the hook
     profiling_in_progress = False
 
@@ -41,6 +42,21 @@ def _make_profiling_hook(operation_info, events):
         if profiling_in_progress:
             return
 
+        # If we've profiled this exact module + input combination before, just
+        # return the cached result
+        runtime_us = runtime_cache.query(module, inputs)
+        if runtime_us is not None:
+            operation_info.add_to_runtime_us(runtime_us)
+            logger.debug(
+                'Using cached runtime for %s.',
+                operation_info.bound_name,
+            )
+            return
+
+        logger.debug(
+            'Profiling %s...',
+            operation_info.bound_name,
+        )
         try:
             profiling_in_progress = True
             start_event, end_event = events
@@ -63,11 +79,6 @@ def _make_profiling_hook(operation_info, events):
             forward_time_us = 1000 * (
                 start_event.elapsed_time(end_event) / Config.measure_for
             )
-            logger.debug(
-                '%s forward time: %.2f us',
-                operation_info.bound_name,
-                forward_time_us,
-            )
             operation_info.add_to_runtime_us(forward_time_us)
 
             # Measure the backward pass
@@ -86,12 +97,10 @@ def _make_profiling_hook(operation_info, events):
             backward_time_us = 1000 * (
                 start_event.elapsed_time(end_event) / Config.measure_for
             )
-            logger.debug(
-                '%s backward time: %.2f us',
-                operation_info.bound_name,
-                backward_time_us,
-            )
             operation_info.add_to_runtime_us(backward_time_us)
+
+            runtime_cache.store(
+                module, inputs, forward_time_us + backward_time_us)
 
         finally:
             profiling_in_progress = False
