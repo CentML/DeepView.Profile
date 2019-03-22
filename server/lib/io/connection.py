@@ -4,6 +4,7 @@ import struct
 from threading import Thread
 
 from lib.io.sentinel import Sentinel
+from lib.analysis.request_cache import SourceCache, RuntimeCache
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +96,8 @@ class ConnectionState:
         #
         # NOTE: The sequence number from the client must be non-negative
         self.sequence_number = -1
+        self.source_cache = SourceCache()
+        self.runtime_cache = RuntimeCache()
 
     def update_sequence(self, request):
         if request.sequence_number <= self.sequence_number:

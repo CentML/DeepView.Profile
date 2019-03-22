@@ -61,6 +61,22 @@ class AnalysisRequestManager:
             if not state.is_request_current(analysis_request):
                 return
 
+            # If the parse tree has not changed, use our cached response
+            cached_results = state.source_cache.query(tree)
+            if cached_results is not None:
+                logger.debug(
+                    'Using cached response for request %d from (%s:%d).',
+                    analysis_request.sequence_number,
+                    *address,
+                )
+                self._enqueue_response(
+                    self._send_analysis_response,
+                    *cached_results,
+                    analysis_request.sequence_number,
+                    address,
+                )
+                return
+
             class_name, annotation_info, model_operations = analyze_code(
                 tree, source_map)
             if not state.is_request_current(analysis_request):
@@ -86,23 +102,31 @@ class AnalysisRequestManager:
             # This function makes in-place changes to model_operations
             get_operation_runtimes(model, annotation_info, model_operations)
 
-            self._enqueue_response(
-                self._send_analysis_response,
+            results = (
                 annotation_info,
                 model_operations,
                 memory_info,
                 throughput_info,
                 perf_limits,
+            )
+            state.source_cache.store(tree, results)
+
+            self._enqueue_response(
+                self._send_analysis_response,
+                *results,
                 analysis_request.sequence_number,
                 address,
             )
+
         except AnalysisError as ex:
+            # NOTE: Error responses are not cached
             self._enqueue_response(
                 self._send_analysis_error,
                 ex,
                 analysis_request.sequence_number,
                 address,
             )
+
         except:
             logger.exception(
                 'Exception occurred when handling analysis request.')
