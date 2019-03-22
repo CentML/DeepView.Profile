@@ -24,7 +24,7 @@ def get_memory_info(model, annotation_info, nvml):
 
 def _get_memory_model(model, input_size):
     # TODO: Select batch sizes for this more intelligently
-    batches = [32, 64, 128]
+    batches = [8, 16, 32]
     memory_usage = list(map(
         lambda batch_size: _get_memory_usage(model, batch_size, input_size),
         batches,

@@ -1,2 +1,4 @@
 .DS_Store
 models_gen
+__pycache__
+*.pyc

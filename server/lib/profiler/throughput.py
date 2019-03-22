@@ -33,7 +33,7 @@ def get_throughput_info(model, annotation_info, memory_info):
 
 def _get_runtime_model(model, input_size):
     # TODO: Select batch sizes for this more intelligently
-    batches = [32, 64, 128]
+    batches = [8, 16, 32]
     runtimes_ms = list(map(
         lambda batch_size: _measure_runtime(model, batch_size, input_size),
         batches,
