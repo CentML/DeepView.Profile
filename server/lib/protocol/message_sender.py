@@ -27,19 +27,16 @@ class MessageSender:
 
     def send_mock_analyze_response(
             self, annotation_info, model_operations, address):
+        for operation in model_operations.get_operations():
+            # Fake the runtime - use a random value between 100 us and 200 us
+            operation.add_to_runtime_us(random() * 100 + 100)
+
         message = m.AnalyzeResponse()
         annotation_info.fill_protobuf(message.input)
+        model_operations.fill_protobuf(message.results)
 
-        for operation in model_operations:
-            pb = message.results.add()
-            operation.fill_protobuf(pb)
-            # Fake the runtime - use a random value between 100 us and 200 us
-            pb.runtime_us = random() * 100 + 100
-
-        # Use mock data for the throughput & memory
         message.throughput.throughput = 1000
         message.throughput.max_throughput = 1250
-        # message.throughput.throughput_limit = 1250
         message.throughput.runtime_model_ms.coefficient = 0.80320687
         message.throughput.runtime_model_ms.bias = 9.16780518
 
@@ -47,6 +44,9 @@ class MessageSender:
         message.memory.max_capacity_mb = 8192
         message.memory.usage_model_mb.coefficient = 10.8583003
         message.memory.usage_model_mb.bias = 1132.56299
+
+        message.limits.throughput_limit = 1250
+        message.limits.max_batch_size = 650
 
         self._send_message(message, 'analyze_response', address)
 
