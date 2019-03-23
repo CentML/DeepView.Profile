@@ -86,7 +86,12 @@ class AnalysisRequestManager:
             if not state.is_request_current(analysis_request):
                 return
 
-            memory_info = get_memory_info(model, annotation_info, self._nvml)
+            memory_info = get_memory_info(
+                analysis_request.source_code,
+                class_name,
+                annotation_info,
+                self._nvml,
+            )
             if not state.is_request_current(analysis_request):
                 return
 

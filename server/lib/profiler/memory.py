@@ -2,19 +2,21 @@ import torch
 import logging
 from scipy import stats
 
-from lib.models.analysis import MemoryInfo, LinearModel
 from lib.exceptions import AnalysisError
+from lib.models.analysis import MemoryInfo, LinearModel
+from lib.profiler.memory_subprocess import measure_memory_usage
 
 logger = logging.getLogger(__name__)
 
 
-def get_memory_info(model, annotation_info, nvml):
+def get_memory_info(source_code, class_name, annotation_info, nvml):
     try:
         input_size = annotation_info.input_size
 
         capacity_mb = _to_mb(nvml.get_memory_capacity().total)
-        current_usage_mb = _get_memory_usage(model, input_size[0], input_size)
-        usage_model_mb = _get_memory_model(model, input_size)
+        current_usage_mb = _to_mb(measure_memory_usage(
+            source_code, class_name, input_size, input_size[0]))
+        usage_model_mb = _get_memory_model(source_code, class_name, input_size)
 
         return MemoryInfo(usage_model_mb, current_usage_mb, capacity_mb)
 
@@ -22,11 +24,12 @@ def get_memory_info(model, annotation_info, nvml):
         raise AnalysisError(str(ex), type(ex))
 
 
-def _get_memory_model(model, input_size):
+def _get_memory_model(source_code, class_name, input_size):
     # TODO: Select batch sizes for this more intelligently
     batches = [8, 16, 32]
     memory_usage = list(map(
-        lambda batch_size: _get_memory_usage(model, batch_size, input_size),
+        lambda batch_size: _to_mb(measure_memory_usage(
+            source_code, class_name, input_size, batch_size)),
         batches,
     ))
     slope, intercept, r_value, _, _ = stats.linregress(
@@ -41,11 +44,11 @@ def _get_memory_model(model, input_size):
     return LinearModel(slope, intercept)
 
 
-def _get_memory_usage(model, batch_size, input_size):
+def _get_memory_usage_local(model, batch_size, input_size):
     """
-    Returns the peak memory usage for a given batch size, in megabytes.
+    Returns the current memory usage for a given batch size, in megabytes.
 
-    NOTE: The peak memory usage occurs at the end of the forward pass
+    NOTE: This amount can be less than the peak memory usage.
     """
     mock_input = torch.randn(
         (batch_size, *input_size[1:]),
@@ -80,12 +83,14 @@ def main():
     with open(args.file, 'r') as file:
         lines = [line for line in file]
 
-    tree, source_map = parse_source_code(''.join(lines))
+    source_code = ''.join(lines)
+    tree, source_map = parse_source_code(source_code)
     class_name, annotation_info, _ = analyze_code(tree, source_map)
     model = to_trainable_model(tree, class_name)
 
     with NVML() as nvml:
-        memory_info = get_memory_info(model, annotation_info, nvml)
+        memory_info = get_memory_info(
+            source_code, class_name, annotation_info, nvml)
         print(memory_info)
         code.interact(local=dict(globals(), **locals()))
 
