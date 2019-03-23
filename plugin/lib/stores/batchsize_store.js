@@ -27,9 +27,12 @@ class BatchSizeStore extends BaseStore {
 
     this._currentAnnotationRange = null;
     this._currentUndoCheckpoint = null;
+
+    this._clearViewDebounce = null;
   }
 
   receivedAnalysis(throughputInfo, memoryInfo, inputInfo, perfLimits) {
+    this._cancelClearView();
     this._throughputInfo = throughputInfo;
     this._memoryInfo = memoryInfo;
     this._inputInfo = inputInfo;
@@ -40,12 +43,14 @@ class BatchSizeStore extends BaseStore {
   }
 
   receivedMemoryResponse(memoryInfo, inputInfo) {
+    this._cancelClearView();
     this._memoryInfo = memoryInfo;
     this._inputInfo = inputInfo;
     this.notifyChanged();
   }
 
   receivedThroughputResponse(throughputInfo, perfLimits) {
+    this._cancelClearView();
     this._throughputInfo = throughputInfo;
     this._perfLimits = perfLimits;
     this._updateComputedState();
@@ -116,6 +121,18 @@ class BatchSizeStore extends BaseStore {
     );
     buffer.groupChangesSinceCheckpoint(this._currentUndoCheckpoint);
     INNPVStore.subscribeToEditorChanges();
+  }
+
+  _cancelClearView() {
+    if (this._clearViewDebounce == null) {
+      return;
+    }
+    clearTimeout(this._clearViewDebounce);
+    this._clearViewDebounce = null;
+  }
+
+  setClearViewDebounce(clearViewDebounce) {
+    this._clearViewDebounce = clearViewDebounce;
   }
 
   _getAnnotationString() {

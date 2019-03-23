@@ -9,6 +9,7 @@ class OperationInfoStore extends BaseStore {
 
   reset() {
     this._operationInfos = [];
+    this._clearViewDebounce = null;
   }
 
   getOperationInfos() {
@@ -16,8 +17,19 @@ class OperationInfoStore extends BaseStore {
   }
 
   setOperationInfos(operationInfos) {
+    // Prevent the view from being cleared if we receive
+    // results really quickly.
+    if (this._clearViewDebounce != null) {
+      clearTimeout(this._clearViewDebounce);
+      this._clearViewDebounce = null;
+    }
+
     this._operationInfos = operationInfos;
     this.notifyChanged();
+  }
+
+  setClearViewDebounce(clearViewDebounce) {
+    this._clearViewDebounce = clearViewDebounce;
   }
 }
 

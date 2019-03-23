@@ -15,6 +15,10 @@ import BatchSizeStore from './stores/batchsize_store';
 import OperationInfoStore from './stores/operationinfo_store';
 import {getTextEditor} from './utils';
 
+// Clear the views if an analysis request is pending for more than
+// this many milliseconds.
+const CLEAR_VIEW_AFTER_MS = 200;
+
 export default class PerfvisPlugin {
   constructor() {
     this._contentsChanged = this._contentsChanged.bind(this);
@@ -101,9 +105,17 @@ export default class PerfvisPlugin {
     console.log('Sending analysis request...');
     INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
     this._messageSender.sendAnalyzeRequest(this._editor.getBuffer().getText());
-    OperationInfoStore.reset();
-    BatchSizeStore.reset();
-    OperationInfoStore.notifyChanged();
-    BatchSizeStore.notifyChanged();
+
+    // If the request takes longer than 200 ms, we clear the view.
+    // We don't clear it for fast requests to prevent screen flicker.
+    OperationInfoStore.setClearViewDebounce(setTimeout(() => {
+      OperationInfoStore.reset();
+      OperationInfoStore.notifyChanged();
+    }, CLEAR_VIEW_AFTER_MS));
+
+    BatchSizeStore.setClearViewDebounce(setTimeout(() => {
+      BatchSizeStore.reset();
+      BatchSizeStore.notifyChanged();
+    }, CLEAR_VIEW_AFTER_MS));
   }
 }
