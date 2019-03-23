@@ -10,6 +10,11 @@ message ServerMessage {
   oneof payload {
     AnalyzeResponse analyze_response = 1;
     AnalyzeError analyze_error = 2;
+
+    // Same information as AnalyzeResponse, just split into several messages
+    ProfiledLayersResponse profiled_layers_response = 3;
+    MemoryInfoResponse memory_info_response = 4;
+    ThroughputInfoResponse throughput_info_response = 5;
   }
 }
 
@@ -28,6 +33,23 @@ message AnalyzeResponse {
   PerformanceLimiters limits = 6;
 
   uint32 sequence_number = 5;
+}
+
+message ProfiledLayersResponse {
+  repeated OperationInfo results = 1;
+  uint32 sequence_number = 2;
+}
+
+message MemoryInfoResponse {
+  MemoryInfo memory = 1;
+  InputInfo input = 2;
+  uint32 sequence_number = 3;
+}
+
+message ThroughputInfoResponse {
+  ThroughputInfo throughput = 1;
+  PerformanceLimiters limits = 2;
+  uint32 sequence_number = 3;
 }
 
 message AnalyzeError {

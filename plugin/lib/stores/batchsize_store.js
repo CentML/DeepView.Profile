@@ -35,8 +35,26 @@ class BatchSizeStore extends BaseStore {
     this._inputInfo = inputInfo;
     this._perfLimits = perfLimits;
 
+    this._updateComputedState();
+    this.notifyChanged();
+  }
+
+  receivedMemoryResponse(memoryInfo, inputInfo) {
+    this._memoryInfo = memoryInfo;
+    this._inputInfo = inputInfo;
+    this.notifyChanged();
+  }
+
+  receivedThroughputResponse(throughputInfo, perfLimits) {
+    this._throughputInfo = throughputInfo;
+    this._perfLimits = perfLimits;
+    this._updateComputedState();
+    this.notifyChanged();
+  }
+
+  _updateComputedState() {
     this._predictedBatchSize = null;
-    this._maxBatchSize = perfLimits.getMaxBatchSize();
+    this._maxBatchSize = this._perfLimits.getMaxBatchSize();
 
     const startPoint = this._inputInfo.getAnnotationStart();
     const endPoint = this._inputInfo.getAnnotationEnd();
@@ -45,8 +63,6 @@ class BatchSizeStore extends BaseStore {
       [endPoint.getLine(), endPoint.getColumn()],
     );
     this._currentUndoCheckpoint = INNPVStore.getEditor().getBuffer().createCheckpoint();
-
-    this.notifyChanged();
   }
 
   updateMemoryUsage(deltaPct, basePct) {

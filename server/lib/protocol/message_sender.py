@@ -59,6 +59,29 @@ class MessageSender:
         message.error_message = error_message
         self._send_message(message, 'analyze_error', address)
 
+    def send_profiled_layers_response(
+            self, model_operations, sequence_number, address):
+        message = m.ProfiledLayersResponse()
+        message.sequence_number = sequence_number
+        model_operations.fill_protobuf(message.results)
+        self._send_message(message, 'profiled_layers_response', address)
+
+    def send_memory_info_response(
+            self, memory_info, annotation_info, sequence_number, address):
+        message = m.MemoryInfoResponse()
+        message.sequence_number = sequence_number
+        memory_info.fill_protobuf(message.memory)
+        annotation_info.fill_protobuf(message.input)
+        self._send_message(message, 'memory_info_response', address)
+
+    def send_throughput_info_response(
+            self, throughput_info, perf_limits, sequence_number, address):
+        message = m.ThroughputInfoResponse()
+        message.sequence_number = sequence_number
+        throughput_info.fill_protobuf(message.throughput)
+        perf_limits.fill_protobuf(message.limits)
+        self._send_message(message, 'throughput_info_response', address)
+
     def _send_message(self, message, payload_name, address):
         connection = self._connection_manager.get_connection(address)
         enclosing_message = m.ServerMessage()

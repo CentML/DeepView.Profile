@@ -61,7 +61,7 @@ class AnalysisRequestManager:
             if not state.is_request_current(analysis_request):
                 return
 
-            # If the parse tree has not changed, use our cached response
+            # 0. If the parse tree has not changed, use our cached response
             cached_results = state.source_cache.query(tree)
             if cached_results is not None:
                 logger.debug(
@@ -77,6 +77,7 @@ class AnalysisRequestManager:
                 )
                 return
 
+            # 1. Parse the code to extract relevant information
             class_name, annotation_info, model_operations = analyze_code(
                 tree, source_map)
             if not state.is_request_current(analysis_request):
@@ -86,6 +87,26 @@ class AnalysisRequestManager:
             if not state.is_request_current(analysis_request):
                 return
 
+            # 2. Profile the model layer by layer
+            # NOTE: This function makes in-place changes to model_operations
+            # NOTE: This function will attach hooks to the model
+            get_operation_runtimes(
+                model, annotation_info, model_operations, state.runtime_cache)
+            if not state.is_request_current(analysis_request):
+                return
+            self._enqueue_response(
+                self._send_profiled_layers_response,
+                model_operations,
+                analysis_request.sequence_number,
+                address,
+            )
+
+            # NOTE: We need to re-instantiate the model because
+            #       get_operation_runtimes() modifies it.
+            del model
+            model = to_trainable_model(tree, class_name)
+
+            # 3. Profile the model's overall memory usage
             memory_info = get_memory_info(
                 analysis_request.source_code,
                 class_name,
@@ -94,20 +115,27 @@ class AnalysisRequestManager:
             )
             if not state.is_request_current(analysis_request):
                 return
+            self._enqueue_response(
+                self._send_memory_info_response,
+                memory_info,
+                annotation_info,
+                analysis_request.sequence_number,
+                address,
+            )
 
+            # 4. Profile the model's throughput
             throughput_info = get_throughput_info(
                 model, annotation_info, memory_info)
-            if not state.is_request_current(analysis_request):
-                return
-
             perf_limits = get_performance_limits(memory_info, throughput_info)
-            if not state.is_request_current(analysis_request):
-                return
+            self._enqueue_response(
+                self._send_throughput_info_response,
+                throughput_info,
+                perf_limits,
+                analysis_request.sequence_number,
+                address,
+            )
 
-            # This function makes in-place changes to model_operations
-            get_operation_runtimes(
-                model, annotation_info, model_operations, state.runtime_cache)
-
+            # 5. Cache the overall results
             results = (
                 annotation_info,
                 model_operations,
@@ -116,13 +144,6 @@ class AnalysisRequestManager:
                 perf_limits,
             )
             state.source_cache.store(tree, results)
-
-            self._enqueue_response(
-                self._send_analysis_response,
-                *results,
-                analysis_request.sequence_number,
-                address,
-            )
 
         except AnalysisError as ex:
             # NOTE: Error responses are not cached
@@ -164,10 +185,40 @@ class AnalysisRequestManager:
                 'Exception occurred when sending an analysis response.')
 
     def _send_analysis_error(self, exception, sequence_number, address):
+        # Called from the main executor. Do not call directly!
         try:
-            # Called from the main executor. Do not call directly!
             self._message_sender.send_analyze_error(
                 str(exception), sequence_number, address)
         except:
             logger.exception(
                 'Exception occurred when sending an analysis error.')
+
+    def _send_profiled_layers_response(
+            self, model_operations, sequence_number, address):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_profiled_layers_response(
+                model_operations, sequence_number, address)
+        except:
+            logger.exception(
+                'Exception occurred when sending a profiled layers response.')
+
+    def _send_memory_info_response(
+            self, memory_info, annotation_info, sequence_number, address):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_memory_info_response(
+                memory_info, annotation_info, sequence_number, address)
+        except:
+            logger.exception(
+                'Exception occurred when sending a memory info response.')
+
+    def _send_throughput_info_response(
+            self, throughput_info, perf_limits, sequence_number, address):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_throughput_info_response(
+                throughput_info, perf_limits, sequence_number, address)
+        except:
+            logger.exception(
+                'Exception occurred when sending a throughput info response.')

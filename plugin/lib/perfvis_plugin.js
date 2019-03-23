@@ -13,7 +13,7 @@ import PerfVisState from './models/PerfVisState';
 import INNPVStore from './stores/innpv_store';
 import BatchSizeStore from './stores/batchsize_store';
 import OperationInfoStore from './stores/operationinfo_store';
-import { getTextEditor } from './utils';
+import {getTextEditor} from './utils';
 
 export default class PerfvisPlugin {
   constructor() {
@@ -101,5 +101,9 @@ export default class PerfvisPlugin {
     console.log('Sending analysis request...');
     INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
     this._messageSender.sendAnalyzeRequest(this._editor.getBuffer().getText());
+    OperationInfoStore.reset();
+    BatchSizeStore.reset();
+    OperationInfoStore.notifyChanged();
+    BatchSizeStore.notifyChanged();
   }
 }

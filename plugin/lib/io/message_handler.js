@@ -44,6 +44,44 @@ export default class MessageHandler {
     INNPVStore.setPerfVisState(PerfVisState.ERROR);
   }
 
+  _handleProfiledLayersResponse(message) {
+    // Protocol dictates that this message is received 1st
+    const sequenceNumber = message.getSequenceNumber();
+    if (!this._protocol.isResponseCurrent(sequenceNumber)) {
+      console.log('Ignoring stale profiled layers response with sequence number:', sequenceNumber);
+      return;
+    }
+
+    console.log('Received profiled layers response message with sequence number:', sequenceNumber);
+    OperationInfoStore.setOperationInfos(message.getResultsList());
+    INNPVStore.clearErrorMessage();
+  }
+
+  _handleMemoryInfoResponse(message) {
+    // Protocol dictates that this message is received 2nd
+    const sequenceNumber = message.getSequenceNumber();
+    if (!this._protocol.isResponseCurrent(sequenceNumber)) {
+      console.log('Ignoring stale memory info response with sequence number:', sequenceNumber);
+      return;
+    }
+
+    console.log('Received memory info response message with sequence number:', sequenceNumber);
+    BatchSizeStore.receivedMemoryResponse(message.getMemory(), message.getInput());
+  }
+
+  _handleThroughputInfoResponse(message) {
+    // Protocol dictates that this message is received 3rd
+    const sequenceNumber = message.getSequenceNumber();
+    if (!this._protocol.isResponseCurrent(sequenceNumber)) {
+      console.log('Ignoring stale throughput info response with sequence number:', sequenceNumber);
+      return;
+    }
+
+    console.log('Received throughput info response message with sequence number:', sequenceNumber);
+    BatchSizeStore.receivedThroughputResponse(message.getThroughput(), message.getLimits());
+    INNPVStore.setPerfVisState(PerfVisState.READY);
+  }
+
   handleMessage(byteArray) {
     const enclosingMessage = m.ServerMessage.deserializeBinary(byteArray);
     const payloadCase = enclosingMessage.getPayloadCase();
@@ -59,6 +97,18 @@ export default class MessageHandler {
 
       case m.ServerMessage.PayloadCase.ANALYZE_ERROR:
         this._handleAnalyzeError(enclosingMessage.getAnalyzeError());
+        break;
+
+      case m.ServerMessage.PayloadCase.PROFILED_LAYERS_RESPONSE:
+        this._handleProfiledLayersResponse(enclosingMessage.getProfiledLayersResponse());
+        break;
+
+      case m.ServerMessage.PayloadCase.MEMORY_INFO_RESPONSE:
+        this._handleMemoryInfoResponse(enclosingMessage.getMemoryInfoResponse());
+        break;
+
+      case m.ServerMessage.PayloadCase.THROUGHPUT_INFO_RESPONSE:
+        this._handleThroughputInfoResponse(enclosingMessage.getThroughputInfoResponse());
         break;
     }
   }
