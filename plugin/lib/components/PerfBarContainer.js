@@ -4,6 +4,7 @@ import React from 'react';
 
 import PerfBar from './PerfBar';
 import OperationInfoStore from '../stores/operationinfo_store';
+import PerfVisState from '../models/PerfVisState';
 
 const COLOR_CLASSES = [
   'ui-site-1',
@@ -44,12 +45,24 @@ export default class PerfBarContainer extends React.Component {
     this.setState({marginTop});
   }
 
+  _classes() {
+    const {perfVisState} = this.props;
+    const mainClass = 'innpv-perfbarcontainer-wrap';
+
+    if (perfVisState === PerfVisState.DEBOUNCING ||
+        (perfVisState === PerfVisState.ANALYZING &&
+          this.state.operationInfos.length == 0)) {
+      return mainClass + ' innpv-no-events';
+    }
+    return mainClass;
+  }
+
   render() {
     const totalTimeMicro =
       this.state.operationInfos.reduce((acc, info) => acc + info.getRuntimeUs(), 0);
 
     return (
-      <div className="innpv-perfbarcontainer-wrap">
+      <div className={this._classes()}>
         <div className="innpv-perfbarcontainer">
           <div
             className="innpv-perfbarcontainer-inner"

@@ -78,25 +78,27 @@ export default class PerfVisMainView extends React.Component {
     this._annotation_marker.hideDecoration();
   }
 
-  _classes() {
-    switch (this.props.perfVisState) {
-      case PerfVisState.ANALYZING:
-      case PerfVisState.DEBOUNCING:
-        return "innpv-contents innpv-no-events";
-
-      default:
-        return "innpv-contents";
+  _subrowClasses() {
+    const {perfVisState} = this.props;
+    const {throughput, memory} = this.state;
+    const mainClass = 'innpv-contents-subrows';
+    if (perfVisState === PerfVisState.DEBOUNCING ||
+        (perfVisState === PerfVisState.ANALYZING &&
+          (throughput == null || memory == null))) {
+      return mainClass + ' innpv-no-events';
     }
+    return mainClass;
   }
 
   _renderBody() {
     if (this.props.errorMessage !== '') {
       return <ErrorMessage message={this.props.errorMessage} />;
     } else {
+      const {perfVisState} = this.props;
       return (
         <div className="innpv-contents-columns">
-          <PerfBarContainer />
-          <div className="innpv-contents-subrows">
+          <PerfBarContainer perfVisState={perfVisState} />
+          <div className={this._subrowClasses()}>
             <Throughput
               model={this.state.throughput}
               handleSliderHoverEnter={this._handleSliderHoverEnter}
@@ -117,7 +119,7 @@ export default class PerfVisMainView extends React.Component {
     return (
       <div className="innpv-main">
         <PerfVisHeader />
-        <div className={this._classes()}>{this._renderBody()}</div>
+        <div className="innpv-contents">{this._renderBody()}</div>
         <PerfVisStatusBar
           handleClick={this._handleStatusBarClick}
           perfVisState={this.props.perfVisState}
