@@ -15,7 +15,7 @@ def get_memory_info(source_code, class_name, annotation_info, nvml):
 
         capacity_mb = _to_mb(nvml.get_memory_capacity().total)
         current_usage_mb = _to_mb(measure_memory_usage(
-            source_code, class_name, input_size, input_size[0]))
+            source_code, class_name, input_size, [input_size[0]])[0])
         usage_model_mb = _get_memory_model(source_code, class_name, input_size)
 
         return MemoryInfo(usage_model_mb, current_usage_mb, capacity_mb)
@@ -28,9 +28,8 @@ def _get_memory_model(source_code, class_name, input_size):
     # TODO: Select batch sizes for this more intelligently
     batches = [8, 16, 32]
     memory_usage = list(map(
-        lambda batch_size: _to_mb(measure_memory_usage(
-            source_code, class_name, input_size, batch_size)),
-        batches,
+        lambda usage_bytes: _to_mb(usage_bytes),
+        measure_memory_usage(source_code, class_name, input_size, batches),
     ))
     slope, intercept, r_value, _, _ = stats.linregress(
         batches, memory_usage)

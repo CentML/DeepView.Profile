@@ -3,26 +3,25 @@ import pickle
 from lib.exceptions import AnalysisError
 
 
-def measure_memory_usage(source_code, class_name, input_size, batch_size):
+def measure_memory_usage(source_code, class_name, input_size, batch_sizes):
     """
     Uses a child process to measure the model's peak memory usage, in bytes.
+
+    NOTE: Batch sizes must be in increasing order!
     """
     import subprocess
     result = None
 
     try:
         process = subprocess.Popen(
-            [
-                'python3', '-m', 'lib.profiler.memory_subprocess',
-                class_name,
-                str(batch_size),
-            ],
+            ['python3', '-m', 'lib.profiler.memory_subprocess', class_name],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
         )
         pickle.dump(source_code, process.stdin)
         pickle.dump(input_size, process.stdin)
+        pickle.dump(batch_sizes, process.stdin)
         process.stdin.flush()
         result = pickle.load(process.stdout)
 
@@ -46,25 +45,28 @@ def measure_memory_main():
 
     try:
         class_name = sys.argv[1]
-        batch_size = int(sys.argv[2])
         source_code = pickle.load(sys.stdin.buffer)
         input_size = pickle.load(sys.stdin.buffer)
+        batch_sizes = pickle.load(sys.stdin.buffer)
 
         code = compile(source_code, '<string>', 'exec')
         scope = {}
         exec(code, scope, scope)
 
+        usages_bytes = []
         torch.backends.cudnn.benchmark = True
         model = scope[class_name]().cuda()
         model.train()
-        mock_input = torch.randn(
-            (batch_size, *input_size[1:]), device=torch.device('cuda'))
-        output = model(mock_input)
-        fake_grads = torch.ones_like(output)
-        output.backward(fake_grads)
-        max_usage_bytes = torch.cuda.max_memory_allocated()
 
-        pickle.dump(max_usage_bytes, sys.stdout.buffer)
+        for batch_size in batch_sizes:
+            mock_input = torch.randn(
+                (batch_size, *input_size[1:]), device=torch.device('cuda'))
+            output = model(mock_input)
+            fake_grads = torch.ones_like(output)
+            output.backward(fake_grads)
+            usages_bytes.append(torch.cuda.max_memory_allocated())
+
+        pickle.dump(usages_bytes, sys.stdout.buffer)
         sys.stdout.flush()
 
     except Exception as ex:
