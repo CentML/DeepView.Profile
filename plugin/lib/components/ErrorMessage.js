@@ -2,10 +2,22 @@
 
 import React from 'react';
 
+import PerfVisState from '../models/PerfVisState';
+
 export default class ErrorMessage extends React.Component {
+  _classes() {
+    const mainClass = 'innpv-error';
+    const {perfVisState} = this.props;
+    if (perfVisState === PerfVisState.DEBOUNCING ||
+        perfVisState == PerfVisState.ANALYZING) {
+      return mainClass + ' innpv-no-events';
+    }
+    return mainClass;
+  }
+
   render() {
     return (
-      <div className="innpv-error">
+      <div className={this._classes()}>
         <div className="innpv-error-inner">
           <h1>Analysis Error</h1>
           <p>{this.props.message}</p>

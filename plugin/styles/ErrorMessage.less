@@ -1,4 +1,5 @@
 @import "ui-variables";
+@import "innpv-animation";
 
 .innpv-error {
   display: flex;
@@ -7,6 +8,8 @@
   justify-content: center;
   align-items: center;
   padding: @component-padding;
+  transition-property: opacity;
+  transition-duration: @noevents-duration;
 }
 
 .innpv-error-inner {
