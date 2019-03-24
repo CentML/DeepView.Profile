@@ -7,11 +7,11 @@ import OperationInfoStore from '../stores/operationinfo_store';
 import PerfVisState from '../models/PerfVisState';
 
 const COLOR_CLASSES = [
-  'ui-site-1',
-  'ui-site-2',
-  'ui-site-3',
-  'ui-site-4',
-  'ui-site-5',
+  'innpv-bar-color-1',
+  'innpv-bar-color-2',
+  'innpv-bar-color-3',
+  'innpv-bar-color-4',
+  'innpv-bar-color-5',
 ];
 
 export default class PerfBarContainer extends React.Component {
