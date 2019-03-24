@@ -30,3 +30,9 @@ MaxPool2d:
   stride:
     effectiveness: 'low'
     natural_direction: false
+
+
+BatchNorm2d:
+  num_features:
+    effectiveness: 'high'
+    natural_direction: true
