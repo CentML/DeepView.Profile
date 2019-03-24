@@ -2,6 +2,7 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 
 from lib.analysis.parser import parse_source_code, analyze_code
+from lib.analysis.request_cache import SourceCache, RuntimeCache
 from lib.profiler import to_trainable_model, get_performance_limits
 from lib.profiler.memory import get_memory_info
 from lib.profiler.module import get_operation_runtimes
@@ -22,6 +23,9 @@ class AnalysisRequestManager:
         self._message_sender = message_sender
         self._connection_manager = connection_manager
         self._nvml = NVML()
+
+        self._source_cache = SourceCache()
+        self._runtime_cache = RuntimeCache()
 
     def start(self):
         self._nvml.start()
@@ -62,7 +66,7 @@ class AnalysisRequestManager:
                 return
 
             # 0. If the parse tree has not changed, use our cached response
-            cached_results = state.source_cache.query(tree)
+            cached_results = self._source_cache.query(tree)
             if cached_results is not None:
                 logger.debug(
                     'Using cached response for request %d from (%s:%d).',
@@ -91,7 +95,7 @@ class AnalysisRequestManager:
             # NOTE: This function makes in-place changes to model_operations
             # NOTE: This function will attach hooks to the model
             get_operation_runtimes(
-                model, annotation_info, model_operations, state.runtime_cache)
+                model, annotation_info, model_operations, self._runtime_cache)
             if not state.is_request_current(analysis_request):
                 return
             self._enqueue_response(
@@ -143,7 +147,7 @@ class AnalysisRequestManager:
                 throughput_info,
                 perf_limits,
             )
-            state.source_cache.store(tree, results)
+            self._source_cache.store(tree, results)
 
         except AnalysisError as ex:
             # NOTE: Error responses are not cached
