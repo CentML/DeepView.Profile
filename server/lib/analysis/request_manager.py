@@ -65,7 +65,13 @@ class AnalysisRequestManager:
             if not state.is_request_current(analysis_request):
                 return
 
-            # 0. If the parse tree has not changed, use our cached response
+            # 1. Parse the code to extract source locations
+            class_name, annotation_info, model_operations = analyze_code(
+                tree, source_map)
+            if not state.is_request_current(analysis_request):
+                return
+
+            # 2. If the parse tree has not changed, use our cached response
             cached_results = self._source_cache.query(tree)
             if cached_results is not None:
                 logger.debug(
@@ -73,25 +79,22 @@ class AnalysisRequestManager:
                     analysis_request.sequence_number,
                     *address,
                 )
+                # cached_results[0] is the cached model_operations map
+                model_operations.set_runtimes_from_cache(cached_results[0])
                 self._enqueue_response(
                     self._send_analysis_response,
-                    *cached_results,
+                    annotation_info,
+                    model_operations,
+                    *cached_results[1:],
                     analysis_request.sequence_number,
                     address,
                 )
                 return
-
-            # 1. Parse the code to extract relevant information
-            class_name, annotation_info, model_operations = analyze_code(
-                tree, source_map)
-            if not state.is_request_current(analysis_request):
-                return
-
             model = to_trainable_model(tree, class_name)
             if not state.is_request_current(analysis_request):
                 return
 
-            # 2. Profile the model layer by layer
+            # 3. Profile the model layer by layer
             # NOTE: This function makes in-place changes to model_operations
             # NOTE: This function will attach hooks to the model
             get_operation_runtimes(
@@ -110,7 +113,7 @@ class AnalysisRequestManager:
             del model
             model = to_trainable_model(tree, class_name)
 
-            # 3. Profile the model's overall memory usage
+            # 4. Profile the model's overall memory usage
             memory_info = get_memory_info(
                 analysis_request.source_code,
                 class_name,
@@ -127,7 +130,7 @@ class AnalysisRequestManager:
                 address,
             )
 
-            # 4. Profile the model's throughput
+            # 5. Profile the model's throughput
             throughput_info = get_throughput_info(
                 model, annotation_info, memory_info)
             perf_limits = get_performance_limits(memory_info, throughput_info)
@@ -139,9 +142,8 @@ class AnalysisRequestManager:
                 address,
             )
 
-            # 5. Cache the overall results
+            # 6. Cache the overall results
             results = (
-                annotation_info,
                 model_operations,
                 memory_info,
                 throughput_info,

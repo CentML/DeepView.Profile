@@ -46,6 +46,16 @@ class OperationInfoMap:
     def get_operations(self):
         return self.operations.values()
 
+    def set_runtimes_from_cache(self, cached_info_map):
+        """
+        Used to set the runtimes from cache for when the parsed code has not
+        changed.
+        """
+        for bound_name, op_info in self.operations.items():
+            cached_op_info = cached_info_map.get_operation_info_by_bound_name(
+                bound_name)
+            op_info.runtime_us = cached_op_info.runtime_us
+
     def fill_protobuf(self, operation_list_pb):
         for operation in self.get_operations():
             pb = operation_list_pb.add()
@@ -156,6 +166,14 @@ class PerformanceLimits:
     def __init__(self, max_batch_size, throughput_limit):
         self.max_batch_size = max_batch_size
         self.throughput_limit = throughput_limit
+
+    def __repr__(self):
+        return (
+            'PerformanceLimits(max_batch={:.2f}, thpt_limit={:.2f})'.format(
+                self.max_batch_size,
+                self.throughput_limit,
+            )
+        )
 
     def fill_protobuf(self, limits_pb):
         limits_pb.max_batch_size = self.max_batch_size
