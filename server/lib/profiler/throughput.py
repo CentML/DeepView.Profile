@@ -18,9 +18,10 @@ def get_throughput_info(model, annotation_info, memory_info):
         runtime_model_ms = _get_runtime_model(model, input_size)
 
         throughput = input_size[0] / runtime_ms * 1000
-        # NOTE: Reduce the theoretical max by 5%, since it is asymptotic
+        # Reduce maximum throughput by 0.1% since throughput vs. batch size
+        # will asymptotically approach the theoretical max value
         max_throughput = (
-            1.0 / runtime_model_ms.coefficient * 1000 * .95
+            1.0 / runtime_model_ms.coefficient * 1000 * 0.999
         )
 
         return ThroughputInfo(throughput, max_throughput, runtime_model_ms)
@@ -32,8 +33,7 @@ def get_throughput_info(model, annotation_info, memory_info):
 
 
 def _get_runtime_model(model, input_size):
-    # TODO: Select batch sizes for this more intelligently
-    batches = [8, 16, 32]
+    batches = _batch_size_selector(input_size)
     runtimes_ms = list(map(
         lambda batch_size: _measure_runtime(model, batch_size, input_size),
         batches,
@@ -82,6 +82,18 @@ def _measure_runtime(model, batch_size, input_size):
     torch.cuda.synchronize()
 
     return start_event.elapsed_time(end_event) / Config.measure_for
+
+
+def _batch_size_selector(input_size):
+    # TODO: Select batch sizes more intelligently
+    batch_size = input_size[0]
+    if batch_size < 128:
+        smaller = max(batch_size // 2, 1)
+        larger = batch_size * 2
+    else:
+        smaller = max(batch_size - 50, 1)
+        larger = batch_size + 50
+    return [smaller, batch_size, larger]
 
 
 def main():

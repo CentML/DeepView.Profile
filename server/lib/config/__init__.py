@@ -5,8 +5,8 @@ class _Config:
     def __init__(self):
         self.Hints = None
 
-        self.warm_up = 200
-        self.measure_for = 200
+        self.warm_up = 100
+        self.measure_for = 10
 
     def initialize_hints_config(self, hints_file):
         with open(hints_file, 'r') as f:
