@@ -1,5 +1,7 @@
 import contextlib
-import traceback
+import weakref
+import inspect
+
 from hook_manager import HookManager
 
 
@@ -23,6 +25,7 @@ class MemoryTracker:
         self._torch = torch
         self._hook_manager = HookManager()
         self._meter = MemoryMeter(torch)
+        self._module_parameters = weakref.WeakKeyDictionary()
 
     @contextlib.contextmanager
     def track(self):
@@ -34,31 +37,44 @@ class MemoryTracker:
 
     def start_tracking(self):
         self._force_cuda_initialization()
-        self._meter.reset()
-        self._hook_manager.attach_hook(
-            self._torch.Tensor,
-            '__new__',
-            self._memory_allocation_hook_creator,
-        )
-        """
         self._hook_manager.attach_hook(
             self._torch.nn.Module,
             'register_parameter',
-            self._memory_allocation_hook_creator,
+            self._register_parameter_hook_creator,
         )
-        """
 
     def stop_tracking(self):
         self._hook_manager.remove_hooks()
 
+    def get_weight_report(self):
+        for param, (name, stack) in self._module_parameters.items():
+            if not param.is_cuda:
+                continue
+            param_size_bytes = param.element_size() * param.numel()
+            print(name, param_size_bytes)
+
     def _force_cuda_initialization(self):
         tensor = self._torch.randn((1,), device=self._torch.device('cuda'))
 
-    def _memory_allocation_hook_creator(self, func):
-        def memory_allocation_hook(*args, **kwargs):
-            print('Before:', func.__name__)
+    def _register_parameter_hook_creator(self, func):
+        def hook(*args, **kwargs):
+            name = args[1]
+            parameter = args[2]
             retval = func(*args, **kwargs)
-            print('After: ', func.__name__, self._meter.checkpoint())
-            #traceback.print_stack()
+            if parameter is not None:
+                self._module_parameters[parameter] = (
+                    name,
+                    self._extract_stack_context(start_from=2),
+                )
             return retval
-        return memory_allocation_hook
+        return hook
+
+    def _extract_stack_context(self, start_from=0):
+        stack = inspect.stack()
+        context = []
+        try:
+            for frame_info in stack[start_from:]:
+                context.append((frame_info.filename, frame_info.lineno))
+            return context
+        finally:
+            del stack
