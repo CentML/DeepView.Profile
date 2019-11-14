@@ -22,7 +22,7 @@ class _IterationTracker(_TrackerBase):
         )
         self._hook_manager.attach_hooks_on_module(
             torch.Tensor,
-            self._is_callable,
+            lambda fn: self._is_callable(fn) and fn.__name__ != 'backward',
             self._callable_hook_creator,
         )
         self._hook_manager.attach_hooks_on_module(
@@ -30,28 +30,46 @@ class _IterationTracker(_TrackerBase):
             self._is_callable,
             self._callable_hook_creator,
         )
+        self._hook_manager.attach_hook(
+            torch.Tensor,
+            'backward',
+            self._backward_hook_creator,
+        )
 
     def stop_tracking(self):
         super().stop_tracking()
         self._hook_manager.remove_hooks()
+
+    def get_report(self):
+        return []
 
     def _callable_hook_creator(self, func):
         def hook(*args, **kwargs):
             self._meter.checkpoint()
             retval = func(*args, **kwargs)
             delta = self._meter.checkpoint()
-            if delta > 0 or delta < 0:
-                print(func.__name__, delta)
+            if delta > 0:
+                #print(func.__name__, delta, type(retval))
+                pass
             return retval
         return hook
 
+    def _backward_hook_creator(self, func):
+        def hook(*args, **kwargs):
+            print('Tensor.backward() called')
+            return func(*args, **kwargs)
+        return hook
+
     def _is_callable(self, maybe_fn):
-        return (
+        is_callable = (
             inspect.isfunction(maybe_fn) or
             inspect.ismethod(maybe_fn) or
             inspect.isbuiltin(maybe_fn) or
             inspect.isroutine(maybe_fn)
         )
+        if not is_callable:
+            return False
 
-    def get_report(self):
-        return []
+        # By convention, _ prefixed functions in Python should not be
+        # called by users (i.e. they are "private" functions)
+        return maybe_fn.__name__[0] != '_'

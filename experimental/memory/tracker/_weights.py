@@ -3,6 +3,8 @@ import inspect
 import weakref
 
 from tracker._base import _TrackerBase
+from tracker._utils import tensor_size_bytes
+from tracker.call_stack import CallStack
 from hook_manager import HookManager
 
 
@@ -28,8 +30,8 @@ class _WeightsTracker(_TrackerBase):
         for param, (name, stack) in self._module_parameters.items():
             if not param.is_cuda:
                 continue
-            param_size_bytes = param.element_size() * param.numel()
-            print(name, param_size_bytes)
+            param_size_bytes = tensor_size_bytes(param)
+            grad_size_bytes = tensor_size_bytes(param.grad)
         return []
 
     def _register_parameter_hook_creator(self, func):
@@ -40,17 +42,7 @@ class _WeightsTracker(_TrackerBase):
             if parameter is not None:
                 self._module_parameters[parameter] = (
                     name,
-                    self._extract_stack_context(start_from=2),
+                    CallStack.from_here(start_from=2),
                 )
             return retval
         return hook
-
-    def _extract_stack_context(self, start_from=0):
-        stack = inspect.stack()
-        context = []
-        try:
-            for frame_info in stack[start_from:]:
-                context.append((frame_info.filename, frame_info.lineno))
-            return context
-        finally:
-            del stack
