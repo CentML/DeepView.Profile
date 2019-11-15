@@ -4,6 +4,7 @@ import contextlib
 from tracker._base import _TrackerBase
 from tracker._weights import _WeightsTracker
 from tracker._iteration import _IterationTracker
+from tracker.report import TrackerReportBuilder
 
 
 class MemoryTracker(_TrackerBase):
@@ -38,7 +39,7 @@ class MemoryTracker(_TrackerBase):
         finally:
             self._iteration_tracker.stop_tracking()
 
-    def get_report(self):
+    def get_report(self, output_file=None):
         if self._is_tracking:
             raise ValueError(
                 'Tracking reports are only available after tracking '
@@ -50,7 +51,9 @@ class MemoryTracker(_TrackerBase):
                 'Tracking reports are only available after at least one '
                 'tracking pass.'
             )
-        return self._weights_tracker.get_report()
+        report_builder = TrackerReportBuilder(output_file)
+        self._populate_report(report_builder)
+        return report_builder.build()
 
     def start_tracking(self):
         super().start_tracking()
@@ -58,8 +61,9 @@ class MemoryTracker(_TrackerBase):
         self._iteration_tracker = _IterationTracker()
         self._ensure_cuda_initialization()
 
-    def stop_tracking(self):
-        super().stop_tracking()
+    def _populate_report(self, report_builder):
+        self._weights_tracker._populate_report(report_builder)
+        self._iteration_tracker._populate_report(report_builder)
 
     def _ensure_cuda_initialization(self):
         tensor = torch.randn((1,), device=torch.device('cuda'))

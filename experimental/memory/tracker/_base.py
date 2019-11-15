@@ -10,5 +10,5 @@ class _TrackerBase:
     def stop_tracking(self):
         self._is_tracking = False
 
-    def get_report(self):
+    def _populate_report(self, report_builder):
         raise NotImplementedError

@@ -40,8 +40,8 @@ class _IterationTracker(_TrackerBase):
         super().stop_tracking()
         self._hook_manager.remove_hooks()
 
-    def get_report(self):
-        return []
+    def _populate_report(self, report_builder):
+        pass
 
     def _callable_hook_creator(self, func):
         def hook(*args, **kwargs):

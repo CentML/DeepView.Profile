@@ -26,13 +26,16 @@ class _WeightsTracker(_TrackerBase):
         super().stop_tracking()
         self._hook_manager.remove_hooks()
 
-    def get_report(self):
+    def _populate_report(self, report_builder):
         for param, (name, stack) in self._module_parameters.items():
             if not param.is_cuda:
                 continue
-            param_size_bytes = tensor_size_bytes(param)
-            grad_size_bytes = tensor_size_bytes(param.grad)
-        return []
+            report_builder.add_weight_entry(
+                name=name,
+                size_bytes=tensor_size_bytes(param),
+                grad_size_bytes=tensor_size_bytes(param.grad),
+                stack_context=stack,
+            )
 
     def _register_parameter_hook_creator(self, func):
         def hook(*args, **kwargs):
