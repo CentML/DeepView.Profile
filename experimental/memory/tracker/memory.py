@@ -30,14 +30,18 @@ class MemoryTracker(_TrackerBase):
         finally:
             self._weights_tracker.stop_tracking()
 
-    @contextlib.contextmanager
-    def training_iteration(self):
+    def track_iteration(self, run_forward):
         self._ensure_in_tracking_mode()
         self._iteration_tracker.start_tracking()
         try:
-            yield None
+            out = run_forward()
         finally:
             self._iteration_tracker.stop_tracking()
+
+        print('AFTER FORWARD:', torch.cuda.memory_allocated())
+        self._iteration_tracker.extract_gradient_functions(out)
+        del out
+        self._iteration_tracker.extract_memory_usage()
 
     def get_report(self, output_file=None):
         if self._is_tracking:
