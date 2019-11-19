@@ -89,7 +89,7 @@ class _IterationTracker(_TrackerBase):
                 size_bytes=-delta,
             ))
 
-    def _populate_report(self, report_builder):
+    def populate_report(self, report_builder):
         for entry in self._iteration_entries:
             report_builder.add_iteration_entry(
                 name=entry.operation_context.operation_name,

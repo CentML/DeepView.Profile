@@ -26,7 +26,7 @@ class _WeightsTracker(_TrackerBase):
         super().stop_tracking()
         self._hook_manager.remove_hooks()
 
-    def _populate_report(self, report_builder):
+    def populate_report(self, report_builder):
         for param, (name, stack) in self._module_parameters.items():
             if not param.is_cuda:
                 continue

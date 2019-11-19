@@ -56,7 +56,7 @@ class MemoryTracker(_TrackerBase):
                 'tracking pass.'
             )
         report_builder = TrackerReportBuilder(output_file)
-        self._populate_report(report_builder)
+        self.populate_report(report_builder)
         return report_builder.build()
 
     def start_tracking(self):
@@ -65,7 +65,7 @@ class MemoryTracker(_TrackerBase):
         self._iteration_tracker = _IterationTracker()
         self._ensure_cuda_initialization()
 
-    def _populate_report(self, report_builder):
+    def populate_report(self, report_builder):
         self._weights_tracker._populate_report(report_builder)
         self._iteration_tracker._populate_report(report_builder)
 
