@@ -37,6 +37,12 @@ create_report_tables = {
         name TEXT NOT NULL
       )
     """,
+    'misc_sizes': """
+      CREATE TABLE IF NOT EXISTS misc_sizes (
+        key TEXT PRIMARY KEY,
+        size_bytes INT NOT NULL
+      )
+    """,
 }
 
 set_report_format_version = 'PRAGMA user_version = {version:d}'
@@ -64,3 +70,5 @@ add_stack_frame = """
   INSERT INTO stack_frames (correlation_id, ordering, file_name, lineno)
     VALUES (?, ?, ?, ?)
 """
+
+add_misc_entry = "INSERT INTO misc_sizes (key, size_bytes) VALUES (?, ?)"

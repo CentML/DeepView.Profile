@@ -9,6 +9,10 @@ class EntryType(enum.Enum):
     Iteration = 2
 
 
+class MiscSizeType(enum.Enum):
+    PeakUsageBytes = 'peak_usage_bytes'
+
+
 class TrackerReport:
     def __init__(self, connection):
         self._connection = connection
@@ -49,6 +53,10 @@ class TrackerReportBuilder:
             entry_type=EntryType.Iteration,
             stack_context=stack_context,
         )
+
+    def add_misc_entry(self, size_type: MiscSizeType, size_bytes):
+        cursor = self._connection.cursor()
+        cursor.execute(queries.add_misc_entry, (size_type.value, size_bytes))
 
     def build(self):
         self._connection.commit()
