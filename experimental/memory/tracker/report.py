@@ -6,7 +6,7 @@ import tracker.report_queries as queries
 
 class EntryType(enum.Enum):
     Weight = 1
-    Iteration = 2
+    Activation = 2
 
 
 class MiscSizeType(enum.Enum):
@@ -49,13 +49,13 @@ class TrackerReportBuilder:
         )
         return self
 
-    def add_iteration_entry(self, name, size_bytes, stack_context):
+    def add_activation_entry(self, name, size_bytes, stack_context):
         cursor = self._connection.cursor()
-        cursor.execute(queries.add_iteration_entry, (name, size_bytes))
+        cursor.execute(queries.add_activation_entry, (name, size_bytes))
         self._add_stack_frames(
             cursor=cursor,
             entry_id=cursor.lastrowid,
-            entry_type=EntryType.Iteration,
+            entry_type=EntryType.Activation,
             stack_context=stack_context,
         )
         return self
@@ -81,7 +81,8 @@ class TrackerReportBuilder:
         )
         self._connection.commit()
 
-    def _add_stack_frames(self, cursor, entry_id, entry_type, stack_context):
+    def _add_stack_frames(
+            self, cursor, entry_id, entry_type: EntryType, stack_context):
         cursor.execute(
             queries.add_correlation_entry, (entry_id, entry_type.value))
         correlation_id = cursor.lastrowid

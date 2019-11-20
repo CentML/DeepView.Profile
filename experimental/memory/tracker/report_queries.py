@@ -7,8 +7,8 @@ create_report_tables = {
         grad_size_bytes INTEGER NOT NULL
       )
     """,
-    'iteration_entries': """
-      CREATE TABLE IF NOT EXISTS iteration_entries (
+    'activation_entries': """
+      CREATE TABLE IF NOT EXISTS activation_entries (
         id INTEGER PRIMARY KEY,
         operation_name TEXT NOT NULL,
         size_bytes INTEGER NOT NULL
@@ -56,8 +56,8 @@ add_weight_entry = """
     VALUES (NULL, ?, ?, ?)
 """
 
-add_iteration_entry = """
-  INSERT INTO iteration_entries (id, operation_name, size_bytes)
+add_activation_entry = """
+  INSERT INTO activation_entries (id, operation_name, size_bytes)
     VALUES (NULL, ?, ?)
 """
 

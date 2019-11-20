@@ -63,7 +63,7 @@ class ActivationsTracker:
 
     def populate_report(self, report_builder):
         for entry in self._activations:
-            report_builder.add_iteration_entry(
+            report_builder.add_activation_entry(
                 name=entry.operation_name,
                 size_bytes=entry.size_bytes,
                 stack_context=entry.stack,
