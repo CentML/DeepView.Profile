@@ -30,13 +30,11 @@ def track_memory_usage(model_provider, input_provider, report_file=None):
     peak_usage_bytes = torch.cuda.max_memory_allocated()
 
     # Store our tracking results
-    report_builder = TrackerReportBuilder(report_file)
-    report_builder.add_misc_entry(
-        MiscSizeType.PeakUsageBytes, peak_usage_bytes)
-    weight_tracker.populate_report(report_builder)
-    activations_tracker.populate_report(report_builder)
-
-    return report_builder.build()
+    return (TrackerReportBuilder(report_file)
+            .process_tracker(weight_tracker)
+            .process_tracker(activations_tracker)
+            .add_misc_entry(MiscSizeType.PeakUsageBytes, peak_usage_bytes)
+            .build())
 
 
 def _ensure_cuda_initialization():

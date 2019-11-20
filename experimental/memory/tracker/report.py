@@ -32,6 +32,10 @@ class TrackerReportBuilder:
         self._connection = sqlite3.connect(database_file)
         self._create_report_tables()
 
+    def process_tracker(self, tracker):
+        tracker.populate_report(self)
+        return self
+
     def add_weight_entry(
             self, name, size_bytes, grad_size_bytes, stack_context):
         cursor = self._connection.cursor()
@@ -43,6 +47,7 @@ class TrackerReportBuilder:
             entry_type=EntryType.Weight,
             stack_context=stack_context,
         )
+        return self
 
     def add_iteration_entry(self, name, size_bytes, stack_context):
         cursor = self._connection.cursor()
@@ -53,10 +58,12 @@ class TrackerReportBuilder:
             entry_type=EntryType.Iteration,
             stack_context=stack_context,
         )
+        return self
 
     def add_misc_entry(self, size_type: MiscSizeType, size_bytes):
         cursor = self._connection.cursor()
         cursor.execute(queries.add_misc_entry, (size_type.value, size_bytes))
+        return self
 
     def build(self):
         self._connection.commit()
