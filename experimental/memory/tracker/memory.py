@@ -1,81 +1,44 @@
 import torch
-import contextlib
 
-from tracker._base import _TrackerBase
-from tracker._weights import _WeightsTracker
-from tracker._iteration import _IterationTracker
-from tracker.report import TrackerReportBuilder
+from tracker.activations import ActivationsTracker
+from tracker.report import TrackerReportBuilder, MiscSizeType
+from tracker.weights import WeightsTracker
 
 
-class MemoryTracker(_TrackerBase):
-    def __init__(self):
-        super().__init__()
-        self._weights_tracker = None
-        self._iteration_tracker = None
+def track_memory_usage(model_provider, input_provider, report_file=None):
+    _ensure_cuda_initialization()
 
-    @contextlib.contextmanager
-    def track(self):
-        self.start_tracking()
-        try:
-            yield self
-        finally:
-            self.stop_tracking()
+    # Track and record memory usage associated with model creation
+    weight_tracker = WeightsTracker()
+    with weight_tracker.track():
+        model = model_provider()
 
-    @contextlib.contextmanager
-    def model_instantiation(self):
-        self._ensure_in_tracking_mode()
-        self._weights_tracker.start_tracking()
-        try:
-            yield None
-        finally:
-            self._weights_tracker.stop_tracking()
+    def run_iteration():
+        output = model(*input_provider())
+        output.backward()
 
-    def track_iteration(self, run_forward):
-        self._ensure_in_tracking_mode()
-        self._iteration_tracker.start_tracking()
-        try:
-            out = run_forward()
-        finally:
-            self._iteration_tracker.stop_tracking()
+    # Run one iteration to initialize the gradients
+    run_iteration()
 
-        print('AFTER FORWARD:', torch.cuda.memory_allocated())
-        self._iteration_tracker.extract_gradient_functions(out)
-        del out
-        self._iteration_tracker.extract_memory_usage()
+    # Track and record memory usage associated with stored activations
+    activations_tracker = ActivationsTracker()
+    activations_tracker.track_memory_usage(model, input_provider)
 
-    def get_report(self, output_file=None):
-        if self._is_tracking:
-            raise ValueError(
-                'Tracking reports are only available after tracking '
-                'completes. Please ensure get_report() is only called outside '
-                'the tracking context manager.'
-            )
-        if self._weights_tracker is None or self._iteration_tracker is None:
-            raise ValueError(
-                'Tracking reports are only available after at least one '
-                'tracking pass.'
-            )
-        report_builder = TrackerReportBuilder(output_file)
-        self.populate_report(report_builder)
-        return report_builder.build()
+    # Record peak memory usage
+    torch.cuda.reset_max_memory_allocated()
+    run_iteration()
+    peak_usage_bytes = torch.cuda.max_memory_allocated()
 
-    def start_tracking(self):
-        super().start_tracking()
-        self._weights_tracker = _WeightsTracker()
-        self._iteration_tracker = _IterationTracker()
-        self._ensure_cuda_initialization()
+    # Store our tracking results
+    return (TrackerReportBuilder(report_file)
+            .process_tracker(weight_tracker)
+            .process_tracker(activations_tracker)
+            .add_misc_entry(MiscSizeType.PeakUsageBytes, peak_usage_bytes)
+            .build())
 
-    def populate_report(self, report_builder):
-        self._weights_tracker._populate_report(report_builder)
-        self._iteration_tracker._populate_report(report_builder)
 
-    def _ensure_cuda_initialization(self):
-        tensor = torch.randn((1,), device=torch.device('cuda'))
-
-    def _ensure_in_tracking_mode(self):
-        if not self._is_tracking:
-            raise ValueError(
-                'This mode can only be entered within a tracking context. '
-                'Please make sure that you are using a "with tracker.track():"'
-                'context manager.'
-            )
+def _ensure_cuda_initialization():
+    if not torch.cuda.is_available():
+        raise ValueError(
+            'The memory tracker is only available for CUDA devices.')
+    tensor = torch.randn((1,), device=torch.device('cuda'))

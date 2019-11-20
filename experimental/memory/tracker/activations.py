@@ -4,9 +4,9 @@ import inspect
 
 import torch
 
-from tracker._base import _TrackerBase
+from tracker.base import TrackerBase
 from tracker.call_stack import CallStack
-from hook_manager import HookManager
+from tracker.hook_manager import HookManager
 
 OperationContext = collections.namedtuple(
     'OperationContext',
@@ -95,7 +95,7 @@ class ActivationsTracker:
         return relevant_grad_fns, relevant_contexts
 
 
-class GradFunctionTracker(_TrackerBase):
+class GradFunctionTracker(TrackerBase):
     def __init__(self):
         super().__init__()
         self._hook_manager = HookManager()

@@ -1,7 +1,7 @@
 import contextlib
 
 
-class _TrackerBase:
+class TrackerBase:
     def __init__(self):
         self._is_tracking = False
 

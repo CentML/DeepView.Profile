@@ -2,13 +2,13 @@ import torch
 import inspect
 import weakref
 
-from tracker._base import _TrackerBase
-from tracker._utils import tensor_size_bytes
+from tracker.base import TrackerBase
 from tracker.call_stack import CallStack
-from hook_manager import HookManager
+from tracker.hook_manager import HookManager
+from tracker.utils import tensor_size_bytes
 
 
-class _WeightsTracker(_TrackerBase):
+class WeightsTracker(TrackerBase):
     def __init__(self):
         super().__init__()
         self._hook_manager = HookManager()
