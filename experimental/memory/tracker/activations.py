@@ -18,6 +18,15 @@ ActivationEntry = collections.namedtuple(
     ['operation_name', 'stack', 'size_bytes'],
 )
 
+_recurrent_modules = [
+    torch.nn.RNN,
+    torch.nn.RNNCell,
+    torch.nn.LSTM,
+    torch.nn.LSTMCell,
+    torch.nn.GRU,
+    torch.nn.GRUCell,
+]
+
 
 class ActivationsTracker:
     def __init__(self):
@@ -119,6 +128,11 @@ class GradFunctionTracker(TrackerBase):
             _is_callable,
             self._callable_hook_creator,
         )
+        # Recurrent modules don't use torch.nn.functional functions, so we need
+        # to handle them separately.
+        for module in _recurrent_modules:
+            self._hook_manager.attach_hook(
+                module, 'forward', self._callable_hook_creator)
 
     def stop_tracking(self):
         super().stop_tracking()
