@@ -18,15 +18,6 @@ ActivationEntry = collections.namedtuple(
     ['operation_name', 'stack', 'size_bytes'],
 )
 
-_recurrent_modules = [
-    torch.nn.RNN,
-    torch.nn.RNNCell,
-    torch.nn.LSTM,
-    torch.nn.LSTMCell,
-    torch.nn.GRU,
-    torch.nn.GRUCell,
-]
-
 
 class ActivationsTracker:
     def __init__(self):
@@ -109,6 +100,7 @@ class GradFunctionTracker(TrackerBase):
         super().__init__()
         self._hook_manager = HookManager()
         self.grad_function_contexts = {}
+        self._processing_hook = False
 
     def start_tracking(self):
         super().start_tracking()
@@ -128,11 +120,12 @@ class GradFunctionTracker(TrackerBase):
             _is_callable,
             self._callable_hook_creator,
         )
-        # Recurrent modules don't use torch.nn.functional functions, so we need
-        # to handle them separately.
-        for module in _recurrent_modules:
-            self._hook_manager.attach_hook(
-                module, 'forward', self._callable_hook_creator)
+        self._hook_manager.attach_hooks_on_module_using(
+            torch.nn._VF,
+            torch._C._VariableFunctions,
+            _is_callable,
+            self._callable_hook_creator,
+        )
 
     def stop_tracking(self):
         super().stop_tracking()
@@ -140,7 +133,16 @@ class GradFunctionTracker(TrackerBase):
 
     def _callable_hook_creator(self, func):
         def hook(*args, **kwargs):
-            retval = func(*args, **kwargs)
+            # NOTE: We use self._processing_hook to handle cases where we have
+            #       hooks on nested function calls.
+            if self._processing_hook:
+                return func(*args, **kwargs)
+
+            self._processing_hook = True
+            try:
+                retval = func(*args, **kwargs)
+            finally:
+                self._processing_hook = False
 
             # Early return for tensor-producing operations that are not
             # involved in the backward pass

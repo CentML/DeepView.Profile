@@ -8,7 +8,16 @@ class HookManager:
         self._original_callables = {}
 
     def attach_hooks_on_module(self, module, predicate, hook_creator):
-        for prop in dir(module):
+        self.attach_hooks_on_module_using(
+            module, module, predicate, hook_creator)
+
+    def attach_hooks_on_module_using(
+            self, module, using_module, predicate, hook_creator):
+        """
+        Attach hooks onto functions in the provided module. Use the
+        `using_module` to discover the existing functions.
+        """
+        for prop in dir(using_module):
             if not predicate(getattr(module, prop)):
                 continue
             self.attach_hook(module, prop, hook_creator)
