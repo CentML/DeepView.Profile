@@ -4,7 +4,7 @@ import socket
 import logging
 from threading import Thread
 
-from lib.io.sentinel import Sentinel
+from innpv.io.sentinel import Sentinel
 
 logger = logging.getLogger(__name__)
 

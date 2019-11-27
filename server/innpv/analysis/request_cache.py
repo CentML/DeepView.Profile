@@ -1,5 +1,5 @@
 import ast
-from lib.lru_cache import LRUCache
+from innpv.lru_cache import LRUCache
 
 
 class SourceCache:

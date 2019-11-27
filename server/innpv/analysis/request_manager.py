@@ -1,14 +1,14 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-from lib.analysis.parser import parse_source_code, analyze_code
-from lib.analysis.request_cache import SourceCache, RuntimeCache
-from lib.profiler import to_trainable_model, get_performance_limits
-from lib.profiler.memory import get_memory_info
-from lib.profiler.module import get_operation_runtimes
-from lib.profiler.throughput import get_throughput_info
-from lib.exceptions import AnalysisError
-from lib.nvml import NVML
+from innpv.analysis.parser import parse_source_code, analyze_code
+from innpv.analysis.request_cache import SourceCache, RuntimeCache
+from innpv.profiler import to_trainable_model, get_performance_limits
+from innpv.profiler.memory import get_memory_info
+from innpv.profiler.module import get_operation_runtimes
+from innpv.profiler.throughput import get_throughput_info
+from innpv.exceptions import AnalysisError
+from innpv.nvml import NVML
 
 logger = logging.getLogger(__name__)
 

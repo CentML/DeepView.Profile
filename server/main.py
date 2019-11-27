@@ -4,8 +4,8 @@ import threading
 import argparse
 import torch
 
-from lib.config import Config
-from lib.server import INNPVServer
+from innpv.config import Config
+from innpv.server import INNPVServer
 
 logger = logging.getLogger(__name__)
 should_shutdown = threading.Event()

@@ -1,8 +1,8 @@
 import logging
 
-from lib.analysis.parser import parse_source_code, analyze_code
-from lib.exceptions import AnalysisError
-import lib.models_gen.messages_pb2 as m
+from innpv.analysis.parser import parse_source_code, analyze_code
+from innpv.exceptions import AnalysisError
+import innpv.models_gen.messages_pb2 as m
 
 logger = logging.getLogger(__name__)
 

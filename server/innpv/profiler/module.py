@@ -1,8 +1,8 @@
 import torch
 import logging
 
-from lib.config import Config
-from lib.exceptions import AnalysisError
+from innpv.config import Config
+from innpv.exceptions import AnalysisError
 
 logger = logging.getLogger(__name__)
 

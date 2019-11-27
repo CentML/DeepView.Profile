@@ -1,8 +1,8 @@
 import ast
 
-from lib.exceptions import AnalysisError
-from lib.models.analysis import OperationInfo, OperationInfoMap, Position
-from lib.analysis.hints import extract_performance_hints
+from innpv.exceptions import AnalysisError
+from innpv.models.analysis import OperationInfo, OperationInfoMap, Position
+from innpv.analysis.hints import extract_performance_hints
 
 
 class PyTorchModuleExtractorVisitor(ast.NodeVisitor):

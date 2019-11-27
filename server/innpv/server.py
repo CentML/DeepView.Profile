@@ -1,11 +1,11 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-from lib.analysis.request_manager import AnalysisRequestManager
-from lib.io.connection_acceptor import ConnectionAcceptor
-from lib.io.connection_manager import ConnectionManager
-from lib.protocol.message_handler import MessageHandler
-from lib.protocol.message_sender import MessageSender
+from innpv.analysis.request_manager import AnalysisRequestManager
+from innpv.io.connection_acceptor import ConnectionAcceptor
+from innpv.io.connection_manager import ConnectionManager
+from innpv.protocol.message_handler import MessageHandler
+from innpv.protocol.message_sender import MessageSender
 
 logger = logging.getLogger(__name__)
 

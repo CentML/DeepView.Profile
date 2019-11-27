@@ -1,16 +1,16 @@
 import ast
 import re
 
-from lib.analysis.ast_visitors import (
+from innpv.analysis.ast_visitors import (
     PyTorchModuleExtractorVisitor,
     PyTorchFunctionExtractor,
     PyTorchStatementProcessor,
     PyTorchModuleUsagesExtractor,
 )
-from lib.exceptions import AnalysisError
-from lib.models.analysis import AnnotationInfo, Position
-from lib.models.source_map import SourceMap
-import lib.models_gen.messages_pb2 as m
+from innpv.exceptions import AnalysisError
+from innpv.models.analysis import AnnotationInfo, Position
+from innpv.models.source_map import SourceMap
+import innpv.models_gen.messages_pb2 as m
 
 INPUT_SIZE_REGEX = re.compile(
     '.*@innpv[ \t]+size[ \t]+\((?P<sizes>[0-9]+(,[ \t]*[0-9]+)*)\).*',
@@ -110,7 +110,7 @@ def _parse_annotation(docstring):
 def main():
     import argparse
     import code
-    from lib.config import Config
+    from innpv.config import Config
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

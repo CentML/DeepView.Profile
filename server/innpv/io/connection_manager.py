@@ -1,7 +1,7 @@
 import logging
 import socket
 
-from lib.io.connection import Connection, ConnectionState
+from innpv.io.connection import Connection, ConnectionState
 
 logger = logging.getLogger(__name__)
 

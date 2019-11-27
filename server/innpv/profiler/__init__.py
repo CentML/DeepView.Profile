@@ -1,7 +1,7 @@
 import torch
 
-from lib.exceptions import AnalysisError
-from lib.models.analysis import PerformanceLimits
+from innpv.exceptions import AnalysisError
+from innpv.models.analysis import PerformanceLimits
 
 
 def to_trainable_model(parse_tree, class_name):

@@ -1,6 +1,6 @@
 from random import random
 
-import lib.models_gen.messages_pb2 as m
+import innpv.models_gen.messages_pb2 as m
 
 
 class MessageSender:

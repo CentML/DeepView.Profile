@@ -1,6 +1,6 @@
 import pickle
 
-from lib.exceptions import AnalysisError
+from innpv.exceptions import AnalysisError
 
 
 def measure_memory_usage(source_code, class_name, input_size, batch_sizes):

@@ -1,6 +1,6 @@
 import ast
-from lib.config import Config
-from lib.models.analysis import PerformanceHint
+from innpv.config import Config
+from innpv.models.analysis import PerformanceHint
 
 
 def extract_performance_hints(op_name, call_node, source_map):

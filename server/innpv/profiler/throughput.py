@@ -2,9 +2,9 @@ import torch
 import logging
 from scipy import stats
 
-from lib.config import Config
-from lib.models.analysis import ThroughputInfo, LinearModel
-from lib.exceptions import AnalysisError
+from innpv.config import Config
+from innpv.models.analysis import ThroughputInfo, LinearModel
+from innpv.exceptions import AnalysisError
 
 logger = logging.getLogger(__name__)
 
@@ -99,10 +99,10 @@ def _batch_size_selector(input_size):
 def main():
     import argparse
     import code
-    from lib.analysis.parser import parse_source_code, analyze_code
-    from lib.profiler import to_trainable_model
-    from lib.profiler.memory import get_memory_info
-    from lib.nvml import NVML
+    from innpv.analysis.parser import parse_source_code, analyze_code
+    from innpv.profiler import to_trainable_model
+    from innpv.profiler.memory import get_memory_info
+    from innpv.nvml import NVML
 
     parser = argparse.ArgumentParser()
     parser.add_argument(

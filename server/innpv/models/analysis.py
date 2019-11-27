@@ -1,5 +1,5 @@
-import lib.models_gen.messages_pb2 as m
-from lib.models.source_map import Position
+import innpv.models_gen.messages_pb2 as m
+from innpv.models.source_map import Position
 
 
 class OperationInfo:

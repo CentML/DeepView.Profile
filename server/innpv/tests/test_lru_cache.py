@@ -1,6 +1,6 @@
 import unittest
 
-import lib.lru_cache as lru
+import innpv.lru_cache as lru
 
 
 class LRUCacheTests(unittest.TestCase):

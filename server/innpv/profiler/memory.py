@@ -2,9 +2,9 @@ import torch
 import logging
 from scipy import stats
 
-from lib.exceptions import AnalysisError
-from lib.models.analysis import MemoryInfo, LinearModel
-from lib.profiler.memory_subprocess import measure_memory_usage
+from innpv.exceptions import AnalysisError
+from innpv.models.analysis import MemoryInfo, LinearModel
+from innpv.profiler.memory_subprocess import measure_memory_usage
 
 logger = logging.getLogger(__name__)
 
@@ -64,10 +64,10 @@ def _to_mb(num_bytes):
 def main():
     import argparse
     import code
-    from lib.analysis.parser import parse_source_code, analyze_code
-    from lib.config import Config
-    from lib.profiler import to_trainable_model
-    from lib.nvml import NVML
+    from innpv.analysis.parser import parse_source_code, analyze_code
+    from innpv.config import Config
+    from innpv.profiler import to_trainable_model
+    from innpv.nvml import NVML
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
