@@ -46,7 +46,7 @@ class INNPVServer:
     def start(self):
         self._analysis_request_manager.start()
         self._connection_acceptor.start()
-        logger.info("INNPV server has started.")
+        logger.debug("INNPV server has started.")
 
     def stop(self):
         def shutdown():
@@ -56,7 +56,11 @@ class INNPVServer:
         self._analysis_request_manager.stop()
         self._main_executor.submit(shutdown).result()
         self._main_executor.shutdown()
-        logger.info("INNPV server has shut down.")
+        logger.debug("INNPV server has shut down.")
+
+    @property
+    def listening_on(self):
+        return (self._connection_acceptor.host, self._connection_acceptor.port)
 
     def _on_message(self, data, address):
         # Do not call directly - called by a connection

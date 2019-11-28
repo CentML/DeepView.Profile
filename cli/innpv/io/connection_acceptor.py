@@ -34,7 +34,7 @@ class ConnectionAcceptor:
         self._server_socket.listen()
         self._sentinel.start()
         self._acceptor.start()
-        logger.info(
+        logger.debug(
             "INNPV is listening for connections on (%s:%d).",
             self._host,
             self._port,
@@ -45,11 +45,19 @@ class ConnectionAcceptor:
         self._acceptor.join()
         self._server_socket.close()
         self._sentinel.stop()
-        logging.info(
+        logging.debug(
             "INNPV has stopped listening for connections on (%s:%d).",
             self._host,
             self._port,
         )
+
+    @property
+    def host(self):
+        return self._host
+
+    @property
+    def port(self):
+        return self._port
 
     def _accept_connections(self):
         try:

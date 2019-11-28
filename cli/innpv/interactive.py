@@ -1,22 +1,7 @@
+import logging
+import signal
+import sys
 import threading
-
-should_shutdown = threading.Event()
-
-
-def signal_handler(signal, frame):
-    global should_shutdown
-    should_shutdown.set()
-
-
-def set_up_logging(log_location):
-    import logging
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format="%(asctime)s %(levelname)-8s %(message)s",
-        datefmt="%Y-%m-%d %H:%M",
-        filename=log_location,
-        filemode="w",
-    )
 
 
 def register_command(subparsers):
@@ -50,23 +35,47 @@ def register_command(subparsers):
     )
     parser.add_argument(
         "--log-file",
-        default="/tmp/innpv-server.log",
         help="The location of the log file.",
     )
+    parser.add_argument(
+        "--debug", action="store_true", help="Log debug messages.")
     parser.set_defaults(func=main)
 
 
+def configure_logging(args):
+    kwargs = {
+        "format": "%(asctime)s %(levelname)-8s %(message)s",
+        "datefmt": "%Y-%m-%d %H:%M",
+        "level": logging.DEBUG if args.debug else logging.INFO,
+    }
+
+    if args.log_file is not None:
+        kwargs["filename"] = args.log_file
+
+    logging.basicConfig(**kwargs)
+
+
 def main(args):
-    import signal
     from innpv.config import Config
     from innpv.server import INNPVServer
+
+    should_shutdown = threading.Event()
+
+    def signal_handler(signal, frame):
+        should_shutdown.set()
 
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    set_up_logging(args.log_file)
+    configure_logging(args)
     Config.parse_args(args)
 
-    # Run the server until asked to terminate
-    with INNPVServer(args.host, args.port):
+    with INNPVServer(args.host, args.port) as server:
+        _, port = server.listening_on
+        logging.info(
+            "INNPV interactive profiling session started! "
+            "Listening on port %d.",
+            port,
+        )
+        # Run the server until asked to terminate
         should_shutdown.wait()
