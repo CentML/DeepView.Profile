@@ -4,35 +4,49 @@
   height: 100%;
   width: 100%;
   padding: @component-padding;
+
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
 }
 
-.innpv-get-started-contents {
+.innpv-get-started-text {
+  width: 100%;
+
   h1 {
     font-size: 3em;
     font-weight: bold;
     font-style: italic;
+    text-align: center;
   }
+}
 
-  width: 100%;
+.innpv-get-started-buttons {
   text-align: center;
 }
 
-.innpv-get-started-form {
+.innpv-get-started-options {
   width: 100%;
-  padding: 10px 0 5px 0;
-  margin-bottom: 20px;
   border-top: 1px solid @base-border-color;
-  border-bottom: 1px solid @base-border-color;
+  padding-top: 15px;
+  margin-top: 20px;
 }
 
-.innpv-get-started-form-field {
-  margin-bottom: 10px;
+.innpv-get-started-host-port-fields {
+  display: flex;
+  justify-content: space-between;
 
   p {
     margin: 0;
     text-align: left;
   }
+}
+
+.innpv-get-started-host {
+  width: 75%;
+}
+
+.innpv-get-started-port {
+  width: 20%;
 }

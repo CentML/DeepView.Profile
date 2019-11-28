@@ -6,11 +6,14 @@ class GetStarted extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      entrypoint: '',
-      root: '',
+      optionsVisible: false,
+      host: 'localhost',
+      port: 60606,
     };
 
+    this._handleConnectClick = this._handleConnectClick.bind(this);
     this._handleInputChange = this._handleInputChange.bind(this);
+    this._handleOptionsClick = this._handleOptionsClick.bind(this);
   }
 
   _handleInputChange(event) {
@@ -21,49 +24,80 @@ class GetStarted extends React.Component {
     });
   }
 
-  _isFormSubmittable() {
-    return this.state.entrypoint != null &&
-      this.state.root != null &&
-      this.state.entrypoint.length > 0 &&
-      this.state.root.length > 0;
+  _isPortValid(port) {
+    const portAsInt = parseInt(port, 10);
+    return !isNaN(portAsInt) && portAsInt > 0 && portAsInt <= 65535;
+  }
+
+  _allowConnectClick() {
+    return this.state.host != null &&
+      this.state.port != null &&
+      this.state.host.length > 0 &&
+      this._isPortValid(this.state.port);
+  }
+
+  _handleOptionsClick() {
+    this.setState({optionsVisible: !this.state.optionsVisible});
+  }
+
+  _handleConnectClick() {
+    const portAsInt = parseInt(this.state.port, 10);
+    this.props.handleClick({host: this.state.host, port: portAsInt});
+  }
+
+  renderOptions() {
+    return (
+      <div className="innpv-get-started-options">
+        <div className="innpv-get-started-host-port-fields">
+          <div className="innpv-get-started-host">
+            <p>Host:</p>
+            <input
+              className="input-text native-key-bindings"
+              type="text"
+              name="host"
+              value={this.state.host}
+              onChange={this._handleInputChange}
+            />
+          </div>
+          <div className="innpv-get-started-port">
+            <p>Port:</p>
+            <input
+              className="input-text native-key-bindings"
+              type="text"
+              name="port"
+              value={this.state.port}
+              onChange={this._handleInputChange}
+            />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   render() {
     return (
       <div className="innpv-get-started">
-        <div className="innpv-get-started-contents">
+        <div className="innpv-get-started-text">
           <h1>innpv</h1>
-          <p>Visualize the training performance of your PyTorch deep neural networks.</p>
-          <div className="innpv-get-started-form">
-            <div className="innpv-get-started-form-field">
-              <p>Project Entrypoint:</p>
-              <input
-                className="input-text native-key-bindings"
-                type="text"
-                name="entrypoint"
-                value={this.state.entrypoint}
-                onChange={this._handleInputChange}
-              />
-            </div>
-            <div className="innpv-get-started-form-field">
-              <p>Project Root:</p>
-              <input
-                className="input-text native-key-bindings"
-                type="text"
-                name="root"
-                value={this.state.root}
-                onChange={this._handleInputChange}
-              />
-            </div>
-          </div>
+          <p>
+            To get started, launch an INNPV server inside your PyTorch project
+            and then hit Connect below.
+          </p>
+        </div>
+        <div className="innpv-get-started-buttons">
           <button
             className="btn btn-primary inline-block-tight icon icon-playback-play"
-            onClick={this.props.handleClick}
-            disabled={!this._isFormSubmittable()}
+            onClick={this._handleConnectClick}
+            disabled={!this._allowConnectClick()}
           >
-            Get Started
+            Connect
           </button>
+          <button
+            className="btn inline-block-tight icon icon-gear"
+            onClick={this._handleOptionsClick}
+          />
         </div>
+        {this.state.optionsVisible ? this.renderOptions() : null}
       </div>
     );
   }

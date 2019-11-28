@@ -72,13 +72,13 @@ export default class PerfvisPlugin {
     OperationInfoStore.reset();
   }
 
-  _getStartedClicked(event) {
+  _getStartedClicked({host, port}) {
     if (INNPVStore.getAppState() !== AppState.OPENED) {
       return;
     }
 
     INNPVStore.setAppState(AppState.CONNECTING);
-    Promise.all([getTextEditor(), this._connection.connect('localhost', 6060)]).then((values) => {
+    Promise.all([getTextEditor(), this._connection.connect(host, port)]).then((values) => {
       this._editor = values[0];
       INNPVStore.setEditor(this._editor, this._contentsChanged);
       INNPVStore.subscribeToEditorChanges();
