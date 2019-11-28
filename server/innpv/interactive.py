@@ -1,13 +1,5 @@
-import signal
-import logging
 import threading
-import argparse
-import torch
 
-from innpv.config import Config
-from innpv.server import INNPVServer
-
-logger = logging.getLogger(__name__)
 should_shutdown = threading.Event()
 
 
@@ -17,6 +9,7 @@ def signal_handler(signal, frame):
 
 
 def set_up_logging(log_location):
+    import logging
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s %(levelname)-8s %(message)s",
@@ -26,11 +19,11 @@ def set_up_logging(log_location):
     )
 
 
-def main():
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-
-    parser = argparse.ArgumentParser(description="Starts the INNPV server.")
+def register_command(subparsers):
+    parser = subparsers.add_parser(
+        "interactive",
+        help="Start a new INNPV interactive profiling session.",
+    )
     parser.add_argument(
         "--host",
         default="",
@@ -60,17 +53,20 @@ def main():
         default="/tmp/innpv-server.log",
         help="The location of the log file.",
     )
-    args = parser.parse_args()
+    parser.set_defaults(func=main)
+
+
+def main(args):
+    import signal
+    from innpv.config import Config
+    from innpv.server import INNPVServer
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     set_up_logging(args.log_file)
     Config.parse_args(args)
 
-    torch.cuda.init()
-
     # Run the server until asked to terminate
     with INNPVServer(args.host, args.port):
         should_shutdown.wait()
-
-
-if __name__ == "__main__":
-    main()
