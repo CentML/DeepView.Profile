@@ -27,15 +27,25 @@ export default class Connection {
     if (this._connected) {
       return Promise.resolve();
     }
-    this._connected = true;
+    if (this._connectingPromise != null) {
+      return this._connectingPromise;
+    }
 
-    return new Promise((resolve, reject) => {
-      this._socket.once('error', reject);
+    this._connectingPromise = new Promise((resolve, reject) => {
+      this._socket.once('error', (error) => {
+        this._connectingPromise = null;
+        reject(error);
+      });
+
       this._socket.connect({host, port}, () => {
         this._socket.removeListener('error', reject);
+        this._connectingPromise = null;
+        this._connected = true;
         resolve();
       });
     });
+
+    return this._connectingPromise;
   }
 
   close() {

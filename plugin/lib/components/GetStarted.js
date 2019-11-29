@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import AppState from '../models/AppState';
+
 class GetStarted extends React.Component {
   constructor(props) {
     super(props);
@@ -30,7 +32,8 @@ class GetStarted extends React.Component {
   }
 
   _allowConnectClick() {
-    return this.state.host != null &&
+    return this.props.appState === AppState.OPENED &&
+      this.state.host != null &&
       this.state.port != null &&
       this.state.host.length > 0 &&
       this._isPortValid(this.state.port);
@@ -45,7 +48,7 @@ class GetStarted extends React.Component {
     this.props.handleClick({host: this.state.host, port: portAsInt});
   }
 
-  renderOptions() {
+  _renderOptions() {
     return (
       <div className="innpv-get-started-options">
         <div className="innpv-get-started-host-port-fields">
@@ -74,6 +77,14 @@ class GetStarted extends React.Component {
     );
   }
 
+  _renderErrorMessage() {
+    const {errorMessage} = this.props;
+    if (errorMessage.length === 0) {
+      return null;
+    }
+    return <p className="text-error">{errorMessage}</p>;
+  }
+
   render() {
     return (
       <div className="innpv-get-started">
@@ -84,6 +95,7 @@ class GetStarted extends React.Component {
             and then hit Connect below.
           </p>
         </div>
+        {this._renderErrorMessage()}
         <div className="innpv-get-started-buttons">
           <button
             className="btn btn-primary inline-block-tight icon icon-playback-play"
@@ -97,7 +109,7 @@ class GetStarted extends React.Component {
             onClick={this._handleOptionsClick}
           />
         </div>
-        {this.state.optionsVisible ? this.renderOptions() : null}
+        {this.state.optionsVisible ? this._renderOptions() : null}
       </div>
     );
   }

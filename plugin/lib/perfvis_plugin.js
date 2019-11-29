@@ -78,15 +78,29 @@ export default class PerfvisPlugin {
     }
 
     INNPVStore.setAppState(AppState.CONNECTING);
-    Promise.all([getTextEditor(), this._connection.connect(host, port)]).then((values) => {
-      this._editor = values[0];
-      INNPVStore.setEditor(this._editor, this._contentsChanged);
-      INNPVStore.subscribeToEditorChanges();
+    Promise.all([getTextEditor(), this._connection.connect(host, port)])
+      .then((values) => {
+        this._editor = values[0];
+        INNPVStore.setEditor(this._editor, this._contentsChanged);
+        INNPVStore.subscribeToEditorChanges();
 
-      INNPVStore.setAppState(AppState.CONNECTED);
-      console.log('Connected!');
-      this._requestAnalysis();
-    });
+        INNPVStore.clearErrorMessage();
+        INNPVStore.setAppState(AppState.CONNECTED);
+        console.log('Connected!');
+        this._requestAnalysis();
+      })
+      .catch((err) => {
+        if (err.hasOwnProperty('errno') && err.errno === 'ECONNREFUSED') {
+          INNPVStore.setErrorMessage(
+            'INNPV could not connect to the INNPV server. Please check that the server ' +
+            'is running and that the connection options are correct.'
+          );
+        } else {
+          INNPVStore.setErrorMessage('Unknown error occurred. Please file a bug report!');
+          console.error(err);
+        }
+        INNPVStore.setAppState(AppState.OPENED);
+      });
   }
 
   _contentsChanged(event) {

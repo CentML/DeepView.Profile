@@ -39,7 +39,13 @@ export default class PerfVis extends React.Component {
     switch (this.state.appState) {
       case AppState.OPENED:
       case AppState.CONNECTING:
-        return <GetStarted handleClick={this.props.handleGetStartedClick} />;
+        return (
+          <GetStarted
+            appState={this.state.appState}
+            handleClick={this.props.handleGetStartedClick}
+            errorMessage={this.state.errorMessage}
+          />
+        );
 
       case AppState.CONNECTED:
         return (
