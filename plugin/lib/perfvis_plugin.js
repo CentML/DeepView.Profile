@@ -25,6 +25,7 @@ export default class PerfvisPlugin {
     this._handleMessage = this._handleMessage.bind(this);
     this._requestAnalysis = this._requestAnalysis.bind(this);
     this._getStartedClicked = this._getStartedClicked.bind(this);
+    this._handleServerClosure = this._handleServerClosure.bind(this);
   }
 
   open() {
@@ -38,12 +39,6 @@ export default class PerfvisPlugin {
       <PerfVis handleGetStartedClick={this._getStartedClicked} />,
       this._panel.getItem(),
     );
-
-    this._connection = new Connection(this._handleMessage);
-    this._protocol = new Protocol();
-    this._messageSender = new MessageSender(this._connection, this._protocol);
-    this._messageHandler = new MessageHandler(
-      this._messageSender, this._protocol);
   }
 
   close() {
@@ -51,17 +46,7 @@ export default class PerfvisPlugin {
       return;
     }
     INNPVStore.setAppState(AppState.ACTIVATED);
-    INNPVStore.ignoreEditorChanges();
-
-    if (this._editorDebounce != null) {
-      clearTimeout(this._editorDebounce);
-      this._editorDebounce = null;
-    }
-    this._connection.close();
-    this._connection = null;
-    this._messageHandler = null;
-    this._messageSender = null;
-    this._editor = null;
+    this._disconnectFromServer();
 
     ReactDOM.unmountComponentAtNode(this._panel.getItem());
     this._panel.destroy();
@@ -72,15 +57,50 @@ export default class PerfvisPlugin {
     OperationInfoStore.reset();
   }
 
+  _connectToServer(host, port) {
+    this._connection = new Connection(this._handleMessage, this._handleServerClosure);
+    return this._connection.connect(host, port)
+      .then(() => {
+        this._protocol = new Protocol();
+        this._messageSender = new MessageSender(this._connection, this._protocol);
+        this._messageHandler = new MessageHandler(
+          this._messageSender, this._protocol);
+      });
+  }
+
+  _disconnectFromServer() {
+    // 1. We need to first "unbind" from the editor
+    INNPVStore.ignoreEditorChanges();
+    if (this._editorDebounce != null) {
+      clearTimeout(this._editorDebounce);
+      this._editorDebounce = null;
+    }
+    this._editor = null;
+
+    // 2. Shutdown the connection socket
+    if (this._connection != null) {
+      this._connection.close();
+      this._connection = null;
+    }
+
+    // 3. Discard any unneeded connection state
+    this._messageHandler = null;
+    this._messageSender = null;
+    this._protocol = null;
+
+    console.log('Disconnected from the server.');
+  }
+
   _getStartedClicked({host, port}) {
     if (INNPVStore.getAppState() !== AppState.OPENED) {
       return;
     }
 
     INNPVStore.setAppState(AppState.CONNECTING);
-    Promise.all([getTextEditor(), this._connection.connect(host, port)])
-      .then((values) => {
-        this._editor = values[0];
+    this._connectToServer(host, port)
+      .then(getTextEditor)
+      .then((editor) => {
+        this._editor = editor;
         INNPVStore.setEditor(this._editor, this._contentsChanged);
         INNPVStore.subscribeToEditorChanges();
 
@@ -90,6 +110,7 @@ export default class PerfvisPlugin {
         this._requestAnalysis();
       })
       .catch((err) => {
+        this._connection = null;
         if (err.hasOwnProperty('errno') && err.errno === 'ECONNREFUSED') {
           INNPVStore.setErrorMessage(
             'INNPV could not connect to the INNPV server. Please check that the server ' +
@@ -101,6 +122,17 @@ export default class PerfvisPlugin {
         }
         INNPVStore.setAppState(AppState.OPENED);
       });
+  }
+
+  _handleServerClosure() {
+    this._disconnectFromServer();
+    INNPVStore.setAppState(AppState.OPENED);
+    INNPVStore.setErrorMessage(
+      'INNPV has lost its connection to the server. Please check that ' +
+      'the server is running before reconnecting.'
+    );
+    BatchSizeStore.reset();
+    OperationInfoStore.reset();
   }
 
   _contentsChanged(event) {

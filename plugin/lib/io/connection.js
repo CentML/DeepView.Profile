@@ -4,23 +4,18 @@ import net from 'net';
 import { CompositeDisposable } from 'atom';
 
 export default class Connection {
-  constructor(dataHandler) {
+  constructor(dataHandler, onServerClosure) {
     this._connected = false;
     this._socket = new net.Socket();
+    this._dataHandler = dataHandler;
+    this._onServerClosure = onServerClosure;
 
     // Used for the incoming message
     this._incomingBuffers = [];
     this._nextMessageLength = -1;
 
-    // Socket event bindings
     this._handleData = this._handleData.bind(this);
-    this._socket.on('data', this._handleData);
-    this._socket.once('end', () => {
-      console.log('Connection closed by the server.');
-      this.close();
-    });
-
-    this._dataHandler = dataHandler
+    this._handleServerClosure = this._handleServerClosure.bind(this);
   }
 
   connect(host, port) {
@@ -39,6 +34,10 @@ export default class Connection {
 
       this._socket.connect({host, port}, () => {
         this._socket.removeListener('error', reject);
+
+        this._socket.on('data', this._handleData);
+        this._socket.once('end', this._handleServerClosure);
+
         this._connectingPromise = null;
         this._connected = true;
         resolve();
@@ -52,11 +51,10 @@ export default class Connection {
     if (!this._connected) {
       return;
     }
-    this._socket.removeListener('data', this._handleData);
-    this._socket.end();
+    this._socket.removeAllListeners();
+    this._socket.destroy();
     this._socket = null;
     this._connected = false;
-    console.log('Connection closed.');
   }
 
   sendBytes(byteArray) {
@@ -66,6 +64,14 @@ export default class Connection {
     lengthBuffer.writeUInt32BE(byteArray.length, 0);
     this._socket.write(lengthBuffer);
     this._socket.write(Buffer.from(byteArray));
+  }
+
+  _handleServerClosure() {
+    // Called when the server initiates the connection closure
+    console.log('Connection closure initiated by the server.');
+    if (this._onServerClosure != null) {
+      this._onServerClosure();
+    }
   }
 
   _handleData(chunk) {
