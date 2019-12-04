@@ -1,4 +1,12 @@
 .DS_Store
-models_gen
+*.swp
+
 __pycache__
 *.pyc
+
+# Holds generated code
+models_gen
+
+# User-specific CLI development environment files
+cli/env
+cli/innpv.egg-info

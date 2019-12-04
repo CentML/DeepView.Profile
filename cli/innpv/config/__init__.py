@@ -1,5 +1,7 @@
 import yaml
 
+import innpv.data
+
 
 class _Config:
     def __init__(self):
@@ -9,7 +11,12 @@ class _Config:
         self.measure_for = 10
 
     def initialize_hints_config(self, hints_file):
-        with open(hints_file, 'r') as f:
+        if hints_file is None:
+            file_to_open = innpv.data.get_absolute_path('hints.yml')
+        else:
+            file_to_open = hints_file
+
+        with open(file_to_open, 'r') as f:
             self.Hints = yaml.load(f, Loader=yaml.Loader)
 
     def parse_args(self, args):

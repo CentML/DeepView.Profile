@@ -22,7 +22,6 @@ def register_command(subparsers):
     )
     parser.add_argument(
         "--hints-file",
-        default="hints.yml",
         help="Path to the performance hints configuration YAML file.",
     )
     parser.add_argument(

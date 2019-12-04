@@ -1,5 +1,0 @@
-pyyaml
-torch
-nvidia-ml-py3
-numpy
-scipy

@@ -2,6 +2,7 @@ import argparse
 import enum
 import sys
 
+import innpv
 import innpv.interactive
 
 
@@ -21,7 +22,7 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        print("v0.0.0")
+        print('INNPV Command Line Interface', 'v' + innpv.__version__)
         return
 
     if 'func' not in args:
