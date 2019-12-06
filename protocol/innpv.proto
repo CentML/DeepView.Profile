@@ -1,0 +1,58 @@
+syntax = 'proto3';
+
+// Messages used in the INNPV protocol are defined in this file.
+//
+// INNPV operates on individual "projects", which are treated as collections of
+// conceptually related files under one common directory (the project root
+// directory).
+//
+// All file paths exchanged by the protocol are *relative* to the project root.
+// Paths are passed in component form (i.e. without separators) to account for
+// different operating systems (e.g., the server could be running on a Linux
+// machine whereas the client is running on a Windows machine).
+//
+// The client and server must individually determine the project root during
+// connection establishment. The server implicitly determines the project root
+// based on the directory from which the user launches it. The client can
+// ask the server for this project root during initialization or can request it
+// from the user. Requesting the project root from the user is useful for
+// situations where the client is remote (e.g., operating on a mounted network
+// file system).
+
+
+// ========== Client Messages ==========
+
+message ClientMessage {
+  oneof payload {
+    InitializeRequest initialize = 1;
+  }
+}
+
+message InitializeRequest {
+}
+
+
+// ========== Server Messages ==========
+
+message ServerMessage {
+  oneof payload {
+    ProtocolError error = 1;
+    InitializeResponse initialize = 2;
+  }
+}
+
+message InitializeResponse {
+  string server_project_root = 1;
+  Path entry_point = 2;
+}
+
+message ProtocolError {
+  uint32 error_code = 1;
+}
+
+
+// ========== Generic Models ==========
+
+message Path {
+  repeated string component = 1;
+}
