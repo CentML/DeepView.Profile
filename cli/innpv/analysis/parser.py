@@ -10,7 +10,6 @@ from innpv.analysis.ast_visitors import (
 from innpv.exceptions import AnalysisError
 from innpv.models.analysis import AnnotationInfo, Position
 from innpv.models.source_map import SourceMap
-import innpv.models_gen.messages_pb2 as m
 
 INPUT_SIZE_REGEX = re.compile(
     '.*@innpv[ \t]+size[ \t]+\((?P<sizes>[0-9]+(,[ \t]*[0-9]+)*)\).*',

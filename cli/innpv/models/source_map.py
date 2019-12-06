@@ -8,10 +8,6 @@ class Position:
     def offset(self, length):
         return Position(self.line, self.column + length)
 
-    def fill_protobuf(self, location_pb):
-        location_pb.line = self.line
-        location_pb.column = self.column
-
 
 class SourceMap:
     def __init__(self, source_code):

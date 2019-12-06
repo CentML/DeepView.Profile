@@ -1,4 +1,3 @@
-import innpv.models_gen.messages_pb2 as m
 from innpv.models.source_map import Position
 
 
@@ -17,18 +16,6 @@ class OperationInfo:
 
     def add_to_runtime_us(self, runtime_us):
         self.runtime_us += runtime_us
-
-    def fill_protobuf(self, info_pb):
-        info_pb.bound_name = self.bound_name
-        info_pb.op_name = self.op_name
-        info_pb.runtime_us = self.runtime_us
-        self.position.fill_protobuf(info_pb.location)
-        for hint in self.perf_hints:
-            hint_pb = info_pb.hints.add()
-            hint.fill_protobuf(hint_pb)
-        for usage in self.usages:
-            location_pb = info_pb.usages.add()
-            usage.fill_protobuf(location_pb)
 
 
 class OperationInfoMap:
@@ -56,23 +43,12 @@ class OperationInfoMap:
                 bound_name)
             op_info.runtime_us = cached_op_info.runtime_us
 
-    def fill_protobuf(self, operation_list_pb):
-        for operation in self.get_operations():
-            pb = operation_list_pb.add()
-            operation.fill_protobuf(pb)
-
 
 class AnnotationInfo:
     def __init__(self, input_size, start_position, end_position):
         self.input_size = input_size
         self.start_position = start_position
         self.end_position = end_position
-
-    def fill_protobuf(self, annotation_pb):
-        for integer in self.input_size:
-            annotation_pb.input_size.values.append(integer)
-        self.start_position.fill_protobuf(annotation_pb.annotation_start)
-        self.end_position.fill_protobuf(annotation_pb.annotation_end)
 
 
 class PerformanceHint:
@@ -81,14 +57,6 @@ class PerformanceHint:
         self.position = position
         self.effectiveness = effectiveness
         self.natural_direction = natural_direction
-
-    def fill_protobuf(self, perf_hint_pb):
-        if self.effectiveness == 'high':
-            perf_hint_pb.effectiveness = m.PerformanceHint.HIGH
-        else:
-            perf_hint_pb.effectiveness = m.PerformanceHint.LOW
-        perf_hint_pb.natural_direction = self.natural_direction
-        self.position.fill_protobuf(perf_hint_pb.location)
 
 
 class LinearModel:
@@ -106,10 +74,6 @@ class LinearModel:
     def inverse(self, y):
         return (y - self.bias) / self.coefficient
 
-    def fill_protobuf(self, model_pb):
-        model_pb.coefficient = self.coefficient
-        model_pb.bias = self.bias
-
 
 class MemoryInfo:
     def __init__(self, usage_model_mb, usage_mb, max_capacity_mb):
@@ -120,11 +84,6 @@ class MemoryInfo:
     def __repr__(self):
         return 'MemoryInfo(model={}, usage_mb={}, capacity_mb={})'.format(
             self.usage_model_mb, self.usage_mb, self.max_capacity_mb)
-
-    def fill_protobuf(self, info_pb):
-        info_pb.usage_mb = self.usage_mb
-        info_pb.max_capacity_mb = self.max_capacity_mb
-        self.usage_model_mb.fill_protobuf(info_pb.usage_model_mb)
 
 
 class ThroughputInfo:
@@ -156,11 +115,6 @@ class ThroughputInfo:
             (1 - throughput_ms * self.runtime_model_ms.coefficient)
         )
 
-    def fill_protobuf(self, info_pb):
-        info_pb.throughput = self.throughput
-        info_pb.max_throughput = self.max_throughput
-        self.runtime_model_ms.fill_protobuf(info_pb.runtime_model_ms)
-
 
 class PerformanceLimits:
     def __init__(self, max_batch_size, throughput_limit):
@@ -174,7 +128,3 @@ class PerformanceLimits:
                 self.throughput_limit,
             )
         )
-
-    def fill_protobuf(self, limits_pb):
-        limits_pb.max_batch_size = self.max_batch_size
-        limits_pb.throughput_limit = self.throughput_limit
