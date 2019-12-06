@@ -113,9 +113,9 @@ def main(args):
         sys.exit(1)
 
     Config.parse_args(args)
+    Config.set_project_paths(project_root, entry_point)
 
-    with INNPVServer(
-            args.host, args.port, project_root, entry_point) as server:
+    with INNPVServer(args.host, args.port) as server:
         _, port = server.listening_on
         logger.info(
             "INNPV interactive profiling session started! "

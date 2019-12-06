@@ -96,6 +96,10 @@ class ConnectionState:
         # NOTE: The sequence number from the client must be non-negative
         self.sequence_number = -1
 
+        # Connections have two states: uninitialized and "ready" (initialized)
+        # As a result for simplicity, we use a boolean to represent the state.
+        self.initialized = False
+
     def update_sequence(self, request):
         if request.sequence_number <= self.sequence_number:
             return

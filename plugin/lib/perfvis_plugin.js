@@ -7,13 +7,12 @@ import PerfVis from './components/PerfVis';
 import Connection from './io/connection';
 import MessageHandler from './io/message_handler';
 import MessageSender from './io/message_sender';
-import Protocol from './io/protocol';
+import ConnectionState from './io/connection_state';
 import AppState from './models/AppState';
 import PerfVisState from './models/PerfVisState';
 import INNPVStore from './stores/innpv_store';
 import BatchSizeStore from './stores/batchsize_store';
 import OperationInfoStore from './stores/operationinfo_store';
-import {getTextEditor} from './utils';
 
 // Clear the views if an analysis request is pending for more than
 // this many milliseconds.
@@ -61,10 +60,10 @@ export default class PerfvisPlugin {
     this._connection = new Connection(this._handleMessage, this._handleServerClosure);
     return this._connection.connect(host, port)
       .then(() => {
-        this._protocol = new Protocol();
-        this._messageSender = new MessageSender(this._connection, this._protocol);
+        this._connectionState = new ConnectionState();
+        this._messageSender = new MessageSender(this._connection, this._connectionState);
         this._messageHandler = new MessageHandler(
-          this._messageSender, this._protocol);
+          this._messageSender, this._connectionState);
       });
   }
 
@@ -86,7 +85,7 @@ export default class PerfvisPlugin {
     // 3. Discard any unneeded connection state
     this._messageHandler = null;
     this._messageSender = null;
-    this._protocol = null;
+    this._connectionState = null;
 
     console.log('Disconnected from the server.');
   }
@@ -98,16 +97,8 @@ export default class PerfvisPlugin {
 
     INNPVStore.setAppState(AppState.CONNECTING);
     this._connectToServer(host, port)
-      .then(getTextEditor)
-      .then((editor) => {
-        this._editor = editor;
-        INNPVStore.setEditor(this._editor, this._contentsChanged);
-        INNPVStore.subscribeToEditorChanges();
-
-        INNPVStore.clearErrorMessage();
-        INNPVStore.setAppState(AppState.CONNECTED);
-        console.log('Connected!');
-        this._requestAnalysis();
+      .then(() => {
+        this._messageSender.sendInitializeRequest();
       })
       .catch((err) => {
         this._connection = null;

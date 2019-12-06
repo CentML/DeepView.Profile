@@ -17,6 +17,9 @@ class INNPVStore extends BaseStore {
     this._editor = null;
     this._editorOnChangeCallback = null;
     this._bufferChangedDisposable = null;
+
+    this._projectRoot = null;
+    this._entryPoint = null;
   }
 
   getAppState() {
@@ -77,6 +80,19 @@ class INNPVStore extends BaseStore {
 
   clearErrorMessage() {
     this.setErrorMessage('');
+  }
+
+  setPaths(projectRoot, entryPoint) {
+    this._projectRoot = projectRoot;
+    this._entryPoint = entryPoint;
+  }
+
+  getProjectRoot() {
+    return this._projectRoot;
+  }
+
+  getEntryPoint() {
+    return this._entryPoint;
   }
 }
 

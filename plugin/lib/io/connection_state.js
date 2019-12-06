@@ -1,8 +1,19 @@
 'use babel';
 
-export default class Protocol {
+export default class ConnectionState {
   constructor() {
     this._analysisSequenceNumber = 0;
+    // The connection only has two states: uninitialized and "ready" (initialized)
+    // Therefore for simplicity, we use a boolean to represent these states
+    this._initialized = false;
+  }
+
+  get initialized() {
+    return this._initialized;
+  }
+
+  markInitialized() {
+    this._initialized = true;
   }
 
   nextAnalysisSequenceNumber() {

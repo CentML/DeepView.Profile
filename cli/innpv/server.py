@@ -11,13 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class INNPVServer:
-    def __init__(self, host, port, project_root, entry_point):
+    def __init__(self, host, port):
         self._requested_host = host
         # This is the port the user specified on the command line (it can be 0)
         self._requested_port = port
-        self._project_root = project_root
-        self._entry_point = entry_point
-
         self._connection_acceptor = ConnectionAcceptor(
             self._requested_host,
             self._requested_port,
@@ -34,8 +31,8 @@ class INNPVServer:
             self._connection_manager,
         )
         self._message_handler = MessageHandler(
+            self._connection_manager,
             self._message_sender,
-            self._analysis_request_manager,
         )
         self._main_executor = ThreadPoolExecutor(max_workers=1)
 

@@ -17,24 +17,24 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='innpv.proto',
-  package='',
+  package='innpv.protocol',
   syntax='proto3',
-  serialized_pb=_b('\n\x0binnpv.proto\"D\n\rClientMessage\x12(\n\ninitialize\x18\x01 \x01(\x0b\x32\x12.InitializeRequestH\x00\x42\t\n\x07payload\"\x13\n\x11InitializeRequest\"f\n\rServerMessage\x12\x1f\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x0e.ProtocolErrorH\x00\x12)\n\ninitialize\x18\x02 \x01(\x0b\x32\x13.InitializeResponseH\x00\x42\t\n\x07payload\"M\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12\x1a\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x05.Path\"#\n\rProtocolError\x12\x12\n\nerror_code\x18\x01 \x01(\r\"\x19\n\x04Path\x12\x11\n\tcomponent\x18\x01 \x03(\tb\x06proto3')
+  serialized_pb=_b('\n\x0binnpv.proto\x12\x0einnpv.protocol\"P\n\nFromClient\x12\x37\n\ninitialize\x18\x01 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x42\t\n\x07payload\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"\x81\x01\n\nFromServer\x12.\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x02 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x42\t\n\x07payload\"\\\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\"#\n\rProtocolError\x12\x12\n\nerror_code\x18\x01 \x01(\r\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\tb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
 
 
-_CLIENTMESSAGE = _descriptor.Descriptor(
-  name='ClientMessage',
-  full_name='ClientMessage',
+_FROMCLIENT = _descriptor.Descriptor(
+  name='FromClient',
+  full_name='innpv.protocol.FromClient',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='initialize', full_name='ClientMessage.initialize', index=0,
+      name='initialize', full_name='innpv.protocol.FromClient.initialize', index=0,
       number=1, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -52,126 +52,23 @@ _CLIENTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
     _descriptor.OneofDescriptor(
-      name='payload', full_name='ClientMessage.payload',
+      name='payload', full_name='innpv.protocol.FromClient.payload',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=15,
-  serialized_end=83,
+  serialized_start=31,
+  serialized_end=111,
 )
 
 
 _INITIALIZEREQUEST = _descriptor.Descriptor(
   name='InitializeRequest',
-  full_name='InitializeRequest',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=85,
-  serialized_end=104,
-)
-
-
-_SERVERMESSAGE = _descriptor.Descriptor(
-  name='ServerMessage',
-  full_name='ServerMessage',
+  full_name='innpv.protocol.InitializeRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='error', full_name='ServerMessage.error', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='initialize', full_name='ServerMessage.initialize', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-    _descriptor.OneofDescriptor(
-      name='payload', full_name='ServerMessage.payload',
-      index=0, containing_type=None, fields=[]),
-  ],
-  serialized_start=106,
-  serialized_end=208,
-)
-
-
-_INITIALIZERESPONSE = _descriptor.Descriptor(
-  name='InitializeResponse',
-  full_name='InitializeResponse',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='server_project_root', full_name='InitializeResponse.server_project_root', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='entry_point', full_name='InitializeResponse.entry_point', index=1,
-      number=2, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=210,
-  serialized_end=287,
-)
-
-
-_PROTOCOLERROR = _descriptor.Descriptor(
-  name='ProtocolError',
-  full_name='ProtocolError',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='error_code', full_name='ProtocolError.error_code', index=0,
+      name='protocol_version', full_name='innpv.protocol.InitializeRequest.protocol_version', index=0,
       number=1, type=13, cpp_type=3, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -189,20 +86,130 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=289,
-  serialized_end=324,
+  serialized_start=113,
+  serialized_end=158,
 )
 
 
-_PATH = _descriptor.Descriptor(
-  name='Path',
-  full_name='Path',
+_FROMSERVER = _descriptor.Descriptor(
+  name='FromServer',
+  full_name='innpv.protocol.FromServer',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='component', full_name='Path.component', index=0,
+      name='error', full_name='innpv.protocol.FromServer.error', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='initialize', full_name='innpv.protocol.FromServer.initialize', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+    _descriptor.OneofDescriptor(
+      name='payload', full_name='innpv.protocol.FromServer.payload',
+      index=0, containing_type=None, fields=[]),
+  ],
+  serialized_start=161,
+  serialized_end=290,
+)
+
+
+_INITIALIZERESPONSE = _descriptor.Descriptor(
+  name='InitializeResponse',
+  full_name='innpv.protocol.InitializeResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='server_project_root', full_name='innpv.protocol.InitializeResponse.server_project_root', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='entry_point', full_name='innpv.protocol.InitializeResponse.entry_point', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=292,
+  serialized_end=384,
+)
+
+
+_PROTOCOLERROR = _descriptor.Descriptor(
+  name='ProtocolError',
+  full_name='innpv.protocol.ProtocolError',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='error_code', full_name='innpv.protocol.ProtocolError.error_code', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=386,
+  serialized_end=421,
+)
+
+
+_PATH = _descriptor.Descriptor(
+  name='Path',
+  full_name='innpv.protocol.Path',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='components', full_name='innpv.protocol.Path.components', index=0,
       number=1, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -220,69 +227,69 @@ _PATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=326,
-  serialized_end=351,
+  serialized_start=423,
+  serialized_end=449,
 )
 
-_CLIENTMESSAGE.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST
-_CLIENTMESSAGE.oneofs_by_name['payload'].fields.append(
-  _CLIENTMESSAGE.fields_by_name['initialize'])
-_CLIENTMESSAGE.fields_by_name['initialize'].containing_oneof = _CLIENTMESSAGE.oneofs_by_name['payload']
-_SERVERMESSAGE.fields_by_name['error'].message_type = _PROTOCOLERROR
-_SERVERMESSAGE.fields_by_name['initialize'].message_type = _INITIALIZERESPONSE
-_SERVERMESSAGE.oneofs_by_name['payload'].fields.append(
-  _SERVERMESSAGE.fields_by_name['error'])
-_SERVERMESSAGE.fields_by_name['error'].containing_oneof = _SERVERMESSAGE.oneofs_by_name['payload']
-_SERVERMESSAGE.oneofs_by_name['payload'].fields.append(
-  _SERVERMESSAGE.fields_by_name['initialize'])
-_SERVERMESSAGE.fields_by_name['initialize'].containing_oneof = _SERVERMESSAGE.oneofs_by_name['payload']
+_FROMCLIENT.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST
+_FROMCLIENT.oneofs_by_name['payload'].fields.append(
+  _FROMCLIENT.fields_by_name['initialize'])
+_FROMCLIENT.fields_by_name['initialize'].containing_oneof = _FROMCLIENT.oneofs_by_name['payload']
+_FROMSERVER.fields_by_name['error'].message_type = _PROTOCOLERROR
+_FROMSERVER.fields_by_name['initialize'].message_type = _INITIALIZERESPONSE
+_FROMSERVER.oneofs_by_name['payload'].fields.append(
+  _FROMSERVER.fields_by_name['error'])
+_FROMSERVER.fields_by_name['error'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
+_FROMSERVER.oneofs_by_name['payload'].fields.append(
+  _FROMSERVER.fields_by_name['initialize'])
+_FROMSERVER.fields_by_name['initialize'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
 _INITIALIZERESPONSE.fields_by_name['entry_point'].message_type = _PATH
-DESCRIPTOR.message_types_by_name['ClientMessage'] = _CLIENTMESSAGE
+DESCRIPTOR.message_types_by_name['FromClient'] = _FROMCLIENT
 DESCRIPTOR.message_types_by_name['InitializeRequest'] = _INITIALIZEREQUEST
-DESCRIPTOR.message_types_by_name['ServerMessage'] = _SERVERMESSAGE
+DESCRIPTOR.message_types_by_name['FromServer'] = _FROMSERVER
 DESCRIPTOR.message_types_by_name['InitializeResponse'] = _INITIALIZERESPONSE
 DESCRIPTOR.message_types_by_name['ProtocolError'] = _PROTOCOLERROR
 DESCRIPTOR.message_types_by_name['Path'] = _PATH
 
-ClientMessage = _reflection.GeneratedProtocolMessageType('ClientMessage', (_message.Message,), dict(
-  DESCRIPTOR = _CLIENTMESSAGE,
+FromClient = _reflection.GeneratedProtocolMessageType('FromClient', (_message.Message,), dict(
+  DESCRIPTOR = _FROMCLIENT,
   __module__ = 'innpv_pb2'
-  # @@protoc_insertion_point(class_scope:ClientMessage)
+  # @@protoc_insertion_point(class_scope:innpv.protocol.FromClient)
   ))
-_sym_db.RegisterMessage(ClientMessage)
+_sym_db.RegisterMessage(FromClient)
 
 InitializeRequest = _reflection.GeneratedProtocolMessageType('InitializeRequest', (_message.Message,), dict(
   DESCRIPTOR = _INITIALIZEREQUEST,
   __module__ = 'innpv_pb2'
-  # @@protoc_insertion_point(class_scope:InitializeRequest)
+  # @@protoc_insertion_point(class_scope:innpv.protocol.InitializeRequest)
   ))
 _sym_db.RegisterMessage(InitializeRequest)
 
-ServerMessage = _reflection.GeneratedProtocolMessageType('ServerMessage', (_message.Message,), dict(
-  DESCRIPTOR = _SERVERMESSAGE,
+FromServer = _reflection.GeneratedProtocolMessageType('FromServer', (_message.Message,), dict(
+  DESCRIPTOR = _FROMSERVER,
   __module__ = 'innpv_pb2'
-  # @@protoc_insertion_point(class_scope:ServerMessage)
+  # @@protoc_insertion_point(class_scope:innpv.protocol.FromServer)
   ))
-_sym_db.RegisterMessage(ServerMessage)
+_sym_db.RegisterMessage(FromServer)
 
 InitializeResponse = _reflection.GeneratedProtocolMessageType('InitializeResponse', (_message.Message,), dict(
   DESCRIPTOR = _INITIALIZERESPONSE,
   __module__ = 'innpv_pb2'
-  # @@protoc_insertion_point(class_scope:InitializeResponse)
+  # @@protoc_insertion_point(class_scope:innpv.protocol.InitializeResponse)
   ))
 _sym_db.RegisterMessage(InitializeResponse)
 
 ProtocolError = _reflection.GeneratedProtocolMessageType('ProtocolError', (_message.Message,), dict(
   DESCRIPTOR = _PROTOCOLERROR,
   __module__ = 'innpv_pb2'
-  # @@protoc_insertion_point(class_scope:ProtocolError)
+  # @@protoc_insertion_point(class_scope:innpv.protocol.ProtocolError)
   ))
 _sym_db.RegisterMessage(ProtocolError)
 
 Path = _reflection.GeneratedProtocolMessageType('Path', (_message.Message,), dict(
   DESCRIPTOR = _PATH,
   __module__ = 'innpv_pb2'
-  # @@protoc_insertion_point(class_scope:Path)
+  # @@protoc_insertion_point(class_scope:innpv.protocol.Path)
   ))
 _sym_db.RegisterMessage(Path)
 
