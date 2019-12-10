@@ -26,6 +26,7 @@ package innpv.protocol;
 message FromClient {
   oneof payload {
     InitializeRequest initialize = 1;
+    AnalysisRequest analysis = 2;
   }
 }
 
@@ -40,6 +41,10 @@ message InitializeRequest {
   uint32 protocol_version = 1;
 }
 
+message AnalysisRequest {
+  uint32 sequence_number = 1;
+}
+
 
 // ========== Server Messages ==========
 
@@ -47,12 +52,27 @@ message FromServer {
   oneof payload {
     ProtocolError error = 1;
     InitializeResponse initialize = 2;
+    MemoryUsageResponse memory_usage = 3;
+    AnalysisError analysis_error = 4;
   }
 }
 
 message InitializeResponse {
   string server_project_root = 1;
   Path entry_point = 2;
+}
+
+message MemoryUsageResponse {
+  uint32 sequence_number = 1;
+
+  uint64 peak_usage_bytes = 2;
+  repeated WeightEntry weight_entries = 3;
+  repeated ActivationEntry activation_entries = 4;
+}
+
+message AnalysisError {
+  uint32 sequence_number = 1;
+  string error_message = 2;
 }
 
 message ProtocolError {
@@ -64,4 +84,22 @@ message ProtocolError {
 
 message Path {
   repeated string components = 1;
+}
+
+message FileReference {
+  Path file = 1;
+  uint32 line_number = 2;
+}
+
+message ActivationEntry {
+  string operation_name = 1;
+  uint64 size_bytes = 2;
+  FileReference context = 3;
+}
+
+message WeightEntry {
+  string weight_name = 1;
+  uint64 size_bytes = 2;
+  uint64 grad_size_bytes = 3;
+  FileReference context = 4;
 }
