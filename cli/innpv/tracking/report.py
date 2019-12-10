@@ -1,7 +1,7 @@
 import enum
 import sqlite3
 
-import tracker.report_queries as queries
+import innpv.tracking.report_queries as queries
 
 
 class EntryType(enum.Enum):

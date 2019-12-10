@@ -4,9 +4,9 @@ import inspect
 
 import torch
 
-from tracker.base import TrackerBase
-from tracker.call_stack import CallStack
-from tracker.hook_manager import HookManager
+from innpv.tracking.base import TrackerBase
+from innpv.tracking.call_stack import CallStack
+from innpv.tracking.hook_manager import HookManager
 
 OperationContext = collections.namedtuple(
     'OperationContext',

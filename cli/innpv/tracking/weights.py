@@ -2,10 +2,10 @@ import torch
 import inspect
 import weakref
 
-from tracker.base import TrackerBase
-from tracker.call_stack import CallStack
-from tracker.hook_manager import HookManager
-from tracker.utils import tensor_size_bytes
+from innpv.tracking.base import TrackerBase
+from innpv.tracking.call_stack import CallStack
+from innpv.tracking.hook_manager import HookManager
+from innpv.tracking.utils import tensor_size_bytes
 
 
 class WeightsTracker(TrackerBase):

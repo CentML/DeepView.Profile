@@ -1,8 +1,8 @@
 import torch
 
-from tracker.activations import ActivationsTracker
-from tracker.report import TrackerReportBuilder, MiscSizeType
-from tracker.weights import WeightsTracker
+from innpv.tracking.activations import ActivationsTracker
+from innpv.tracking.report import TrackerReportBuilder, MiscSizeType
+from innpv.tracking.weights import WeightsTracker
 
 
 def track_memory_usage(model_provider, input_provider, report_file=None):
