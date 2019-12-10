@@ -99,7 +99,7 @@ def _batch_size_selector(input_size):
 def main():
     import argparse
     import code
-    from innpv.analysis.parser import parse_source_code, analyze_code
+    from innpv.legacy_analysis.parser import parse_source_code, analyze_code
     from innpv.profiler import to_trainable_model
     from innpv.profiler.memory import get_memory_info
     from innpv.nvml import NVML

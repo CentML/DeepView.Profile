@@ -1,7 +1,7 @@
 import ast
 import re
 
-from innpv.analysis.ast_visitors import (
+from innpv.legacy_analysis.ast_visitors import (
     PyTorchModuleExtractorVisitor,
     PyTorchFunctionExtractor,
     PyTorchStatementProcessor,

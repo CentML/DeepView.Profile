@@ -1,8 +1,8 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-from innpv.analysis.parser import parse_source_code, analyze_code
-from innpv.analysis.request_cache import SourceCache, RuntimeCache
+from innpv.legacy_analysis.parser import parse_source_code, analyze_code
+from innpv.legacy_analysis.request_cache import SourceCache, RuntimeCache
 from innpv.profiler import to_trainable_model, get_performance_limits
 from innpv.profiler.memory import get_memory_info
 from innpv.profiler.module import get_operation_runtimes

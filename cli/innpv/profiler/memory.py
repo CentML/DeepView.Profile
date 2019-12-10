@@ -64,7 +64,7 @@ def _to_mb(num_bytes):
 def main():
     import argparse
     import code
-    from innpv.analysis.parser import parse_source_code, analyze_code
+    from innpv.legacy_analysis.parser import parse_source_code, analyze_code
     from innpv.config import Config
     from innpv.profiler import to_trainable_model
     from innpv.nvml import NVML

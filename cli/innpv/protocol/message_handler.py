@@ -1,6 +1,6 @@
 import logging
 
-from innpv.analysis.parser import parse_source_code, analyze_code
+from innpv.legacy_analysis.parser import parse_source_code, analyze_code
 from innpv.exceptions import AnalysisError
 from innpv.protocol.error_codes import ErrorCode
 
