@@ -1,14 +1,44 @@
 import argparse
 import os
 
+import innpv.protocol_gen.innpv_pb2 as pm
 from innpv.tracking.memory import track_memory_usage
+from innpv.tracking.report import MiscSizeType
 from innpv.exceptions import AnalysisError
 
 MODEL_PROVIDER_NAME = "innpv_model_provider"
 INPUT_PROVIDER_NAME = "innpv_input_provider"
 
 
+# The code in this file should be "standalone" (i.e. it should not rely on any
+# state kept in the innpv server). This is because eventually we might need to
+# run it in a separate process for performance purposes.
+
+
 def analyze_project(project_root, entry_point):
+    model_provider, input_provider = _get_providers(project_root, entry_point)
+
+    report = track_memory_usage(model_provider, input_provider)
+
+    memory_usage = pm.MemoryUsageResponse()
+    memory_usage.peak_usage_bytes = report.get_misc_entry(
+        MiscSizeType.PeakUsageBytes)
+
+    for weight_entry in report.get_weight_entries():
+        entry = memory_usage.weight_entries.add()
+        entry.weight_name = weight_entry.name
+        entry.size_bytes = weight_entry.size_bytes
+        entry.grad_size_bytes = weight_entry.grad_size_bytes
+
+    for activation_entry in report.get_activation_entries():
+        entry = memory_usage.activation_entries.add()
+        entry.operation_name = activation_entry.operation_name
+        entry.size_bytes = activation_entry.size_bytes
+
+    return memory_usage
+
+
+def _get_providers(project_root, entry_point):
     # 1. Run the entry point file to "load" the model
     try:
         scope = _run_entry_point(project_root, entry_point)
@@ -36,11 +66,7 @@ def analyze_project(project_root, entry_point):
             "\"{}\".".format(INPUT_PROVIDER_NAME)
         )
 
-    model_provider = scope[MODEL_PROVIDER_NAME]
-    input_provider = scope[INPUT_PROVIDER_NAME]
-
-    # 3. Run the analysis - right now this is just a memory analysis
-    report = track_memory_usage(model_provider, input_provider)
+    return (scope[MODEL_PROVIDER_NAME], scope[INPUT_PROVIDER_NAME])
 
 
 def _run_entry_point(project_root, entry_point):
@@ -54,15 +80,16 @@ def _run_entry_point(project_root, entry_point):
 
 
 def main():
+    # This is used for development and debugging purposes
     parser = argparse.ArgumentParser()
     parser.add_argument("entry_point", type=str)
     args = parser.parse_args()
 
-    # TODO:
-    #  - Define protobufs for the memory usage report
-    #  - Serialize and write out results or errors
     project_root = os.getcwd()
-    analyze_project(project_root, args.entry_point)
+    result = analyze_project(project_root, args.entry_point)
+    print('Peak usage:', result.peak_usage_bytes, 'bytes')
+    print('No. of weight entries:', len(result.weight_entries))
+    print('No. of activ. entries:', len(result.activation_entries))
 
 
 if __name__ == "__main__":

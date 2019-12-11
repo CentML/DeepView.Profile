@@ -72,3 +72,15 @@ add_stack_frame = """
 """
 
 add_misc_entry = "INSERT INTO misc_sizes (key, size_bytes) VALUES (?, ?)"
+
+get_weight_entries = """
+  SELECT name, size_bytes, grad_size_bytes
+    FROM weight_entries WHERE size_bytes > 0
+"""
+
+get_misc_entry = "SELECT size_bytes FROM misc_sizes WHERE key = ?"
+
+get_activation_entries = """
+  SELECT operation_name, size_bytes
+    FROM activation_entries WHERE size_bytes > 0
+"""

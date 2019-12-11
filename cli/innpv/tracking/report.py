@@ -1,7 +1,20 @@
+import collections
 import enum
 import sqlite3
 
 import innpv.tracking.report_queries as queries
+
+
+WeightEntry = collections.namedtuple(
+    'WeightEntry',
+    ['name', 'size_bytes', 'grad_size_bytes'],
+)
+
+
+ActivationEntry = collections.namedtuple(
+    'ActivationEntry',
+    ['operation_name', 'size_bytes'],
+)
 
 
 class EntryType(enum.Enum):
@@ -16,6 +29,28 @@ class MiscSizeType(enum.Enum):
 class TrackerReport:
     def __init__(self, connection):
         self._connection = connection
+
+    def __del__(self):
+        self._connection.close()
+
+    def get_weight_entries(self):
+        cursor = self._connection.cursor()
+        return map(
+            lambda row: WeightEntry(*row),
+            cursor.execute(queries.get_weight_entries),
+        )
+
+    def get_activation_entries(self):
+        cursor = self._connection.cursor()
+        return map(
+            lambda row: ActivationEntry(*row),
+            cursor.execute(queries.get_activation_entries),
+        )
+
+    def get_misc_entry(self, misc_size_type: MiscSizeType):
+        cursor = self._connection.cursor()
+        cursor.execute(queries.get_misc_entry, (misc_size_type.value,))
+        return cursor.fetchone()[0]
 
 
 class TrackerReportBuilder:
