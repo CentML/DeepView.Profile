@@ -15,6 +15,12 @@ export default class MessageSender {
     this._sendMessage(message, 'Initialize');
   }
 
+  sendAnalysisRequest() {
+    const message = new pm.AnalysisRequest();
+    message.setSequenceNumber(this._connectionState.nextAnalysisSequenceNumber());
+    this._sendMessage(message, 'Analysis');
+  }
+
   _sendMessage(message, payloadName) {
     const enclosingMessage = new pm.FromClient();
     enclosingMessage['set' + payloadName](message);

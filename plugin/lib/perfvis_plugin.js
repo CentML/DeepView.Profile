@@ -20,9 +20,7 @@ const CLEAR_VIEW_AFTER_MS = 200;
 
 export default class PerfvisPlugin {
   constructor() {
-    this._contentsChanged = this._contentsChanged.bind(this);
     this._handleMessage = this._handleMessage.bind(this);
-    this._requestAnalysis = this._requestAnalysis.bind(this);
     this._getStartedClicked = this._getStartedClicked.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
   }
@@ -126,33 +124,7 @@ export default class PerfvisPlugin {
     OperationInfoStore.reset();
   }
 
-  _contentsChanged(event) {
-    if (this._editorDebounce != null) {
-      clearTimeout(this._editorDebounce);
-    }
-    this._editorDebounce = setTimeout(this._requestAnalysis, 1000);
-    INNPVStore.setPerfVisState(PerfVisState.DEBOUNCING);
-  }
-
   _handleMessage(message) {
     this._messageHandler.handleMessage(message);
-  }
-
-  _requestAnalysis() {
-    console.log('Sending analysis request...');
-    INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
-    this._messageSender.sendAnalyzeRequest(this._editor.getBuffer().getText());
-
-    // If the request takes longer than 200 ms, we clear the view.
-    // We don't clear it for fast requests to prevent screen flicker.
-    OperationInfoStore.setClearViewDebounce(setTimeout(() => {
-      OperationInfoStore.reset();
-      OperationInfoStore.notifyChanged();
-    }, CLEAR_VIEW_AFTER_MS));
-
-    BatchSizeStore.setClearViewDebounce(setTimeout(() => {
-      BatchSizeStore.reset();
-      BatchSizeStore.notifyChanged();
-    }, CLEAR_VIEW_AFTER_MS));
   }
 }
