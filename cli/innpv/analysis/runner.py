@@ -2,9 +2,10 @@ import argparse
 import os
 
 import innpv.protocol_gen.innpv_pb2 as pm
+from innpv.exceptions import AnalysisError
+from innpv.nvml import NVML
 from innpv.tracking.memory import track_memory_usage
 from innpv.tracking.report import MiscSizeType
-from innpv.exceptions import AnalysisError
 
 MODEL_PROVIDER_NAME = "innpv_model_provider"
 INPUT_PROVIDER_NAME = "innpv_input_provider"
@@ -15,7 +16,7 @@ INPUT_PROVIDER_NAME = "innpv_input_provider"
 # run it in a separate process for performance purposes.
 
 
-def analyze_project(project_root, entry_point):
+def analyze_project(project_root, entry_point, nvml):
     model_provider, input_provider = _get_providers(project_root, entry_point)
 
     report = track_memory_usage(model_provider, input_provider)
@@ -23,6 +24,7 @@ def analyze_project(project_root, entry_point):
     memory_usage = pm.MemoryUsageResponse()
     memory_usage.peak_usage_bytes = report.get_misc_entry(
         MiscSizeType.PeakUsageBytes)
+    memory_usage.memory_capacity_bytes = nvml.get_memory_capacity().total
 
     for weight_entry in report.get_weight_entries():
         entry = memory_usage.weight_entries.add()
@@ -86,8 +88,10 @@ def main():
     args = parser.parse_args()
 
     project_root = os.getcwd()
-    result = analyze_project(project_root, args.entry_point)
-    print('Peak usage:', result.peak_usage_bytes, 'bytes')
+    with NVML() as nvml:
+        result = analyze_project(project_root, args.entry_point, nvml)
+    print('Peak usage:   ', result.peak_usage_bytes, 'bytes')
+    print('Max. capacity:', result.memory_capacity_bytes, 'bytes')
     print('No. of weight entries:', len(result.weight_entries))
     print('No. of activ. entries:', len(result.activation_entries))
 

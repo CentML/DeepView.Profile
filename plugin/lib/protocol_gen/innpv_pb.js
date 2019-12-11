@@ -1147,7 +1147,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.innpv.protocol.MemoryUsageResponse.repeatedFields_ = [3,4];
+proto.innpv.protocol.MemoryUsageResponse.repeatedFields_ = [4,5];
 
 
 
@@ -1179,6 +1179,7 @@ proto.innpv.protocol.MemoryUsageResponse.toObject = function(includeInstance, ms
   var f, obj = {
     sequenceNumber: msg.getSequenceNumber(),
     peakUsageBytes: msg.getPeakUsageBytes(),
+    memoryCapacityBytes: msg.getMemoryCapacityBytes(),
     weightEntriesList: jspb.Message.toObjectList(msg.getWeightEntriesList(),
     proto.innpv.protocol.WeightEntry.toObject, includeInstance),
     activationEntriesList: jspb.Message.toObjectList(msg.getActivationEntriesList(),
@@ -1228,12 +1229,16 @@ proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader = function(
       msg.setPeakUsageBytes(value);
       break;
     case 3:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setMemoryCapacityBytes(value);
+      break;
+    case 4:
       var value = new proto.innpv.protocol.WeightEntry;
       reader.readMessage(value,proto.innpv.protocol.WeightEntry.deserializeBinaryFromReader);
       msg.getWeightEntriesList().push(value);
       msg.setWeightEntriesList(msg.getWeightEntriesList());
       break;
-    case 4:
+    case 5:
       var value = new proto.innpv.protocol.ActivationEntry;
       reader.readMessage(value,proto.innpv.protocol.ActivationEntry.deserializeBinaryFromReader);
       msg.getActivationEntriesList().push(value);
@@ -1291,10 +1296,17 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinaryToWriter = fun
       f
     );
   }
+  f = this.getMemoryCapacityBytes();
+  if (f !== 0) {
+    writer.writeUint64(
+      3,
+      f
+    );
+  }
   f = this.getWeightEntriesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      3,
+      4,
       f,
       proto.innpv.protocol.WeightEntry.serializeBinaryToWriter
     );
@@ -1302,7 +1314,7 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinaryToWriter = fun
   f = this.getActivationEntriesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      4,
+      5,
       f,
       proto.innpv.protocol.ActivationEntry.serializeBinaryToWriter
     );
@@ -1350,20 +1362,35 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.setPeakUsageBytes = function(
 
 
 /**
- * repeated WeightEntry weight_entries = 3;
+ * optional uint64 memory_capacity_bytes = 3;
+ * @return {number}
+ */
+proto.innpv.protocol.MemoryUsageResponse.prototype.getMemoryCapacityBytes = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.MemoryUsageResponse.prototype.setMemoryCapacityBytes = function(value) {
+  jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * repeated WeightEntry weight_entries = 4;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<!proto.innpv.protocol.WeightEntry>}
  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.getWeightEntriesList = function() {
   return /** @type{!Array.<!proto.innpv.protocol.WeightEntry>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.WeightEntry, 3));
+    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.WeightEntry, 4));
 };
 
 
 /** @param {Array.<!proto.innpv.protocol.WeightEntry>} value  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.setWeightEntriesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 3, value);
+  jspb.Message.setRepeatedWrapperField(this, 4, value);
 };
 
 
@@ -1373,20 +1400,20 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.clearWeightEntriesList = func
 
 
 /**
- * repeated ActivationEntry activation_entries = 4;
+ * repeated ActivationEntry activation_entries = 5;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<!proto.innpv.protocol.ActivationEntry>}
  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.getActivationEntriesList = function() {
   return /** @type{!Array.<!proto.innpv.protocol.ActivationEntry>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.ActivationEntry, 4));
+    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.ActivationEntry, 5));
 };
 
 
 /** @param {Array.<!proto.innpv.protocol.ActivationEntry>} value  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.setActivationEntriesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 4, value);
+  jspb.Message.setRepeatedWrapperField(this, 5, value);
 };
 
 

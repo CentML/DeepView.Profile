@@ -66,8 +66,9 @@ message MemoryUsageResponse {
   uint32 sequence_number = 1;
 
   uint64 peak_usage_bytes = 2;
-  repeated WeightEntry weight_entries = 3;
-  repeated ActivationEntry activation_entries = 4;
+  uint64 memory_capacity_bytes = 3;
+  repeated WeightEntry weight_entries = 4;
+  repeated ActivationEntry activation_entries = 5;
 }
 
 message AnalysisError {
