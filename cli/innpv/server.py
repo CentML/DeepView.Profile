@@ -1,7 +1,7 @@
 import logging
 from concurrent.futures import ThreadPoolExecutor
 
-from innpv.legacy_analysis.request_manager import AnalysisRequestManager
+from innpv.analysis.request_manager import AnalysisRequestManager
 from innpv.io.connection_acceptor import ConnectionAcceptor
 from innpv.io.connection_manager import ConnectionManager
 from innpv.protocol.message_handler import MessageHandler
@@ -33,6 +33,7 @@ class INNPVServer:
         self._message_handler = MessageHandler(
             self._connection_manager,
             self._message_sender,
+            self._analysis_request_manager,
         )
         self._main_executor = ThreadPoolExecutor(max_workers=1)
 

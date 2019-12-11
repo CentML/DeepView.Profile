@@ -10,9 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 class MessageHandler:
-    def __init__(self, connection_manager, message_sender):
+    def __init__(
+        self,
+        connection_manager,
+        message_sender,
+        analysis_request_manager,
+    ):
         self._connection_manager = connection_manager
         self._message_sender = message_sender
+        self._analysis_request_manager = analysis_request_manager
 
     def _handle_initialize_request(self, message, address):
         state = self._connection_manager.get_connection_state(address)
@@ -23,6 +29,9 @@ class MessageHandler:
 
         state.initialized = True
         self._message_sender.send_initialize_response(address)
+
+    def _handle_analysis_request(self, message, address):
+        self._analysis_request_manager.submit_request(message, address)
 
     def handle_message(self, raw_data, address):
         try:
@@ -37,6 +46,9 @@ class MessageHandler:
 
             if message_type == 'initialize':
                 self._handle_initialize_request(
+                    getattr(message, message_type), address)
+            elif message_type == 'analysis':
+                self._handle_analysis_request(
                     getattr(message, message_type), address)
             else:
                 # If the protobuf was compiled properly, this block should

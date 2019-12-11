@@ -22,6 +22,19 @@ class MessageSender:
         message.error_code = error_code.value
         self._send_message(message, 'error', address)
 
+    def send_memory_usage_response(self, memory_usage, sequence_number, address):
+        # Ideally, MessageSender users should not need to know about the INNPV
+        # protocol messages. However, to avoid extraneous copies, sometimes
+        # callers will pass in constructed messages for sending.
+        memory_usage.sequence_number = sequence_number
+        self._send_message(memory_usage, 'memory_usage', address)
+
+    def send_analysis_error(self, error_message, sequence_number, address):
+        message = pm.AnalysisError()
+        message.sequence_number = sequence_number
+        message.error_message = error_message
+        self._send_message(message, 'analysis_error', address)
+
     def _send_message(self, message, payload_name, address):
         connection = self._connection_manager.get_connection(address)
         enclosing_message = pm.FromServer()
