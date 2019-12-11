@@ -1,5 +1,6 @@
 import collections
 import enum
+import os
 import sqlite3
 
 import innpv.tracking.report_queries as queries
@@ -7,19 +8,14 @@ import innpv.tracking.report_queries as queries
 
 WeightEntry = collections.namedtuple(
     'WeightEntry',
-    ['name', 'size_bytes', 'grad_size_bytes'],
+    ['weight_name', 'size_bytes', 'grad_size_bytes', 'file_name', 'line_number'],
 )
 
 
 ActivationEntry = collections.namedtuple(
     'ActivationEntry',
-    ['operation_name', 'size_bytes'],
+    ['operation_name', 'size_bytes', 'file_name', 'line_number'],
 )
-
-
-class EntryType(enum.Enum):
-    Weight = 1
-    Activation = 2
 
 
 class MiscSizeType(enum.Enum):
@@ -33,24 +29,35 @@ class TrackerReport:
     def __del__(self):
         self._connection.close()
 
-    def get_weight_entries(self):
+    def get_weight_entries(self, path_prefix=None):
         cursor = self._connection.cursor()
         return map(
             lambda row: WeightEntry(*row),
-            cursor.execute(queries.get_weight_entries),
+            cursor.execute(
+                queries.get_weight_entries_with_context,
+                (self._to_search_prefix(path_prefix),),
+            ),
         )
 
-    def get_activation_entries(self):
+    def get_activation_entries(self, path_prefix=None):
         cursor = self._connection.cursor()
         return map(
             lambda row: ActivationEntry(*row),
-            cursor.execute(queries.get_activation_entries),
+            cursor.execute(
+                queries.get_activation_entries_with_context,
+                (self._to_search_prefix(path_prefix),),
+            )
         )
 
     def get_misc_entry(self, misc_size_type: MiscSizeType):
         cursor = self._connection.cursor()
         cursor.execute(queries.get_misc_entry, (misc_size_type.value,))
         return cursor.fetchone()[0]
+
+    def _to_search_prefix(self, path_prefix):
+        if path_prefix is None:
+            return '%'
+        return os.path.join(path_prefix, '%')
 
 
 class TrackerReportBuilder:
@@ -79,7 +86,7 @@ class TrackerReportBuilder:
         self._add_stack_frames(
             cursor=cursor,
             entry_id=cursor.lastrowid,
-            entry_type=EntryType.Weight,
+            entry_type=queries.EntryType.Weight,
             stack_context=stack_context,
         )
         return self
@@ -90,7 +97,7 @@ class TrackerReportBuilder:
         self._add_stack_frames(
             cursor=cursor,
             entry_id=cursor.lastrowid,
-            entry_type=EntryType.Activation,
+            entry_type=queries.EntryType.Activation,
             stack_context=stack_context,
         )
         return self
@@ -112,12 +119,17 @@ class TrackerReportBuilder:
             cursor.execute(creation_query)
         cursor.executemany(
             queries.add_entry_type,
-            map(lambda entry: (entry.value, entry.name), EntryType),
+            map(lambda entry: (entry.value, entry.name), queries.EntryType),
         )
         self._connection.commit()
 
     def _add_stack_frames(
-            self, cursor, entry_id, entry_type: EntryType, stack_context):
+        self,
+        cursor,
+        entry_id,
+        entry_type: queries.EntryType,
+        stack_context,
+    ):
         cursor.execute(
             queries.add_correlation_entry, (entry_id, entry_type.value))
         correlation_id = cursor.lastrowid

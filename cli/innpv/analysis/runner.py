@@ -26,13 +26,14 @@ def analyze_project(project_root, entry_point, nvml):
         MiscSizeType.PeakUsageBytes)
     memory_usage.memory_capacity_bytes = nvml.get_memory_capacity().total
 
-    for weight_entry in report.get_weight_entries():
+    for weight_entry in report.get_weight_entries(path_prefix=project_root):
         entry = memory_usage.weight_entries.add()
-        entry.weight_name = weight_entry.name
+        entry.weight_name = weight_entry.weight_name
         entry.size_bytes = weight_entry.size_bytes
         entry.grad_size_bytes = weight_entry.grad_size_bytes
 
-    for activation_entry in report.get_activation_entries():
+    for activation_entry in report.get_activation_entries(
+            path_prefix=project_root):
         entry = memory_usage.activation_entries.add()
         entry.operation_name = activation_entry.operation_name
         entry.size_bytes = activation_entry.size_bytes

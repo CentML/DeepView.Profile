@@ -1,3 +1,11 @@
+import enum
+
+
+class EntryType(enum.Enum):
+    Weight = 1
+    Activation = 2
+
+
 create_report_tables = {
     'weight_entries': """
       CREATE TABLE IF NOT EXISTS weight_entries (
@@ -21,6 +29,10 @@ create_report_tables = {
         entry_type INTEGER NOT NULL,
         UNIQUE (correlation_id, entry_id)
       )
+    """,
+    'correlation_index': """
+      CREATE UNIQUE INDEX IF NOT EXISTS entry_type_and_id
+        ON stack_correlation(entry_type, entry_id)
     """,
     'stack_frames': """
       CREATE TABLE IF NOT EXISTS stack_frames (
@@ -73,14 +85,39 @@ add_stack_frame = """
 
 add_misc_entry = "INSERT INTO misc_sizes (key, size_bytes) VALUES (?, ?)"
 
-get_weight_entries = """
-  SELECT name, size_bytes, grad_size_bytes
-    FROM weight_entries WHERE size_bytes > 0
-"""
-
 get_misc_entry = "SELECT size_bytes FROM misc_sizes WHERE key = ?"
 
-get_activation_entries = """
-  SELECT operation_name, size_bytes
-    FROM activation_entries WHERE size_bytes > 0
+get_code_context_subquery = """
+  WITH code_contexts AS (
+    SELECT c.entry_id, s.file_name, s.lineno AS line_number
+      FROM stack_frames AS s JOIN stack_correlation AS c
+        ON s.correlation_id == c.correlation_id
+      WHERE
+        c.entry_type = {:d} AND
+        s.file_name LIKE ?
+      GROUP BY s.correlation_id HAVING s.ordering == MIN(s.ordering)
+  )
 """
+
+get_weight_entries_with_context = (
+    get_code_context_subquery.format(EntryType.Weight.value) +
+    """
+      SELECT
+          w.name, w.size_bytes, w.grad_size_bytes, c.file_name, c.line_number
+        FROM weight_entries AS w
+          LEFT JOIN code_contexts AS c
+          ON w.id == c.entry_id
+        WHERE w.size_bytes > 0
+    """
+)
+
+get_activation_entries_with_context = (
+    get_code_context_subquery.format(EntryType.Activation.value) +
+    """
+      SELECT a.operation_name, a.size_bytes, c.file_name, c.line_number
+        FROM activation_entries AS a
+          LEFT JOIN code_contexts AS c
+          ON a.id == c.entry_id
+        WHERE a.size_bytes > 0
+    """
+)
