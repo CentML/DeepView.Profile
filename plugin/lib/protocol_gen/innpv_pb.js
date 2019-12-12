@@ -472,7 +472,8 @@ proto.innpv.protocol.AnalysisRequest.prototype.toObject = function(opt_includeIn
  */
 proto.innpv.protocol.AnalysisRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    sequenceNumber: msg.getSequenceNumber()
+    sequenceNumber: msg.getSequenceNumber(),
+    mockResponse: msg.getMockResponse()
   };
 
   if (includeInstance) {
@@ -512,6 +513,10 @@ proto.innpv.protocol.AnalysisRequest.deserializeBinaryFromReader = function(msg,
     case 1:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setSequenceNumber(value);
+      break;
+    case 2:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setMockResponse(value);
       break;
     default:
       reader.skipField();
@@ -558,6 +563,13 @@ proto.innpv.protocol.AnalysisRequest.prototype.serializeBinaryToWriter = functio
       f
     );
   }
+  f = this.getMockResponse();
+  if (f) {
+    writer.writeBool(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -582,6 +594,23 @@ proto.innpv.protocol.AnalysisRequest.prototype.getSequenceNumber = function() {
 /** @param {number} value  */
 proto.innpv.protocol.AnalysisRequest.prototype.setSequenceNumber = function(value) {
   jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional bool mock_response = 2;
+ * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
+ * You should avoid comparisons like {@code val === true/false} in those cases.
+ * @return {boolean}
+ */
+proto.innpv.protocol.AnalysisRequest.prototype.getMockResponse = function() {
+  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+};
+
+
+/** @param {boolean} value  */
+proto.innpv.protocol.AnalysisRequest.prototype.setMockResponse = function(value) {
+  jspb.Message.setField(this, 2, value);
 };
 
 

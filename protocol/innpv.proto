@@ -43,6 +43,10 @@ message InitializeRequest {
 
 message AnalysisRequest {
   uint32 sequence_number = 1;
+
+  // Set this to receive a mock response from the server.
+  // This is useful when developing the UI to avoid waiting for the analysis.
+  bool mock_response = 2;
 }
 
 

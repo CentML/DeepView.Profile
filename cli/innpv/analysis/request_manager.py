@@ -5,6 +5,7 @@ from innpv.analysis.runner import analyze_project
 from innpv.config import Config
 from innpv.exceptions import AnalysisError
 from innpv.nvml import NVML
+import innpv.protocol_gen.innpv_pb2 as pm
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,11 @@ class AnalysisRequestManager:
             return
 
         state.update_sequence(analysis_request)
+
+        if analysis_request.mock_response:
+            self._handle_mock_analysis_request(analysis_request, address)
+            return
+
         self._executor.submit(
             self._handle_analysis_request,
             analysis_request,
@@ -72,6 +78,15 @@ class AnalysisRequestManager:
             logger.exception(
                 'Exception occurred when handling analysis request.')
 
+    def _handle_mock_analysis_request(self, analysis_request, address):
+        memory_usage = pm.MemoryUsageResponse()
+        memory_usage.peak_usage_bytes = 1337
+        memory_usage.memory_capacity_bytes = 13337
+        self._message_sender.send_memory_usage_response(
+            memory_usage,
+            analysis_request.sequence_number,
+            address,
+        )
 
     def _send_memory_usage_response(
         self,
