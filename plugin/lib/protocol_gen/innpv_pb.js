@@ -1987,7 +1987,7 @@ proto.innpv.protocol.FileReference.prototype.toObject = function(opt_includeInst
  */
 proto.innpv.protocol.FileReference.toObject = function(includeInstance, msg) {
   var f, obj = {
-    file: (f = msg.getFile()) && proto.innpv.protocol.Path.toObject(includeInstance, f),
+    filePath: (f = msg.getFilePath()) && proto.innpv.protocol.Path.toObject(includeInstance, f),
     lineNumber: msg.getLineNumber()
   };
 
@@ -2028,7 +2028,7 @@ proto.innpv.protocol.FileReference.deserializeBinaryFromReader = function(msg, r
     case 1:
       var value = new proto.innpv.protocol.Path;
       reader.readMessage(value,proto.innpv.protocol.Path.deserializeBinaryFromReader);
-      msg.setFile(value);
+      msg.setFilePath(value);
       break;
     case 2:
       var value = /** @type {number} */ (reader.readUint32());
@@ -2072,7 +2072,7 @@ proto.innpv.protocol.FileReference.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.FileReference.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getFile();
+  f = this.getFilePath();
   if (f != null) {
     writer.writeMessage(
       1,
@@ -2100,23 +2100,23 @@ proto.innpv.protocol.FileReference.prototype.cloneMessage = function() {
 
 
 /**
- * optional Path file = 1;
+ * optional Path file_path = 1;
  * @return {proto.innpv.protocol.Path}
  */
-proto.innpv.protocol.FileReference.prototype.getFile = function() {
+proto.innpv.protocol.FileReference.prototype.getFilePath = function() {
   return /** @type{proto.innpv.protocol.Path} */ (
     jspb.Message.getWrapperField(this, proto.innpv.protocol.Path, 1));
 };
 
 
 /** @param {proto.innpv.protocol.Path|undefined} value  */
-proto.innpv.protocol.FileReference.prototype.setFile = function(value) {
+proto.innpv.protocol.FileReference.prototype.setFilePath = function(value) {
   jspb.Message.setWrapperField(this, 1, value);
 };
 
 
-proto.innpv.protocol.FileReference.prototype.clearFile = function() {
-  this.setFile(undefined);
+proto.innpv.protocol.FileReference.prototype.clearFilePath = function() {
+  this.setFilePath(undefined);
 };
 
 
@@ -2124,7 +2124,7 @@ proto.innpv.protocol.FileReference.prototype.clearFile = function() {
  * Returns whether this field is set.
  * @return{!boolean}
  */
-proto.innpv.protocol.FileReference.prototype.hasFile = function() {
+proto.innpv.protocol.FileReference.prototype.hasFilePath = function() {
   return jspb.Message.getField(this, 1) != null;
 };
 

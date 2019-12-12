@@ -38,8 +38,8 @@ create_report_tables = {
       CREATE TABLE IF NOT EXISTS stack_frames (
         correlation_id INTEGER NOT NULL,
         ordering INTEGER NOT NULL,
-        file_name TEXT NOT NULL,
-        lineno INTEGER NOT NULL,
+        file_path TEXT NOT NULL,
+        line_number INTEGER NOT NULL,
         PRIMARY KEY (correlation_id, ordering)
       )
     """,
@@ -79,7 +79,7 @@ add_correlation_entry = """
 """
 
 add_stack_frame = """
-  INSERT INTO stack_frames (correlation_id, ordering, file_name, lineno)
+  INSERT INTO stack_frames (correlation_id, ordering, file_path, line_number)
     VALUES (?, ?, ?, ?)
 """
 
@@ -89,12 +89,12 @@ get_misc_entry = "SELECT size_bytes FROM misc_sizes WHERE key = ?"
 
 get_code_context_subquery = """
   WITH code_contexts AS (
-    SELECT c.entry_id, s.file_name, s.lineno AS line_number
+    SELECT c.entry_id, s.file_path, s.line_number
       FROM stack_frames AS s JOIN stack_correlation AS c
         ON s.correlation_id == c.correlation_id
       WHERE
         c.entry_type = {:d} AND
-        s.file_name LIKE ?
+        s.file_path LIKE ?
       GROUP BY s.correlation_id HAVING s.ordering == MIN(s.ordering)
   )
 """
@@ -103,7 +103,7 @@ get_weight_entries_with_context = (
     get_code_context_subquery.format(EntryType.Weight.value) +
     """
       SELECT
-          w.name, w.size_bytes, w.grad_size_bytes, c.file_name, c.line_number
+          w.name, w.size_bytes, w.grad_size_bytes, c.file_path, c.line_number
         FROM weight_entries AS w
           LEFT JOIN code_contexts AS c
           ON w.id == c.entry_id
@@ -114,7 +114,7 @@ get_weight_entries_with_context = (
 get_activation_entries_with_context = (
     get_code_context_subquery.format(EntryType.Activation.value) +
     """
-      SELECT a.operation_name, a.size_bytes, c.file_name, c.line_number
+      SELECT a.operation_name, a.size_bytes, c.file_path, c.line_number
         FROM activation_entries AS a
           LEFT JOIN code_contexts AS c
           ON a.id == c.entry_id

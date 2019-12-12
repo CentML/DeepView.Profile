@@ -88,7 +88,7 @@ message Path {
 }
 
 message FileReference {
-  Path file = 1;
+  Path file_path = 1;
   uint32 line_number = 2;
 }
 

@@ -31,20 +31,14 @@ def analyze_project(project_root, entry_point, nvml):
         entry.weight_name = weight_entry.weight_name
         entry.size_bytes = weight_entry.size_bytes
         entry.grad_size_bytes = weight_entry.grad_size_bytes
-
-        if (weight_entry.file_name is not None and
-                weight_entry.line_number is not None):
-            _set_file_context(entry, project_root, weight_entry)
+        _set_file_context(entry, project_root, weight_entry)
 
     for activation_entry in report.get_activation_entries(
             path_prefix=project_root):
         entry = memory_usage.activation_entries.add()
         entry.operation_name = activation_entry.operation_name
         entry.size_bytes = activation_entry.size_bytes
-
-        if (weight_entry.file_name is not None and
-                weight_entry.line_number is not None):
-            _set_file_context(entry, project_root, weight_entry)
+        _set_file_context(entry, project_root, activation_entry)
 
     return memory_usage
 
@@ -91,10 +85,13 @@ def _run_entry_point(project_root, entry_point):
 
 
 def _set_file_context(message, project_root, entry):
+    if entry.file_path is None or entry.line_number is None:
+        return
+
     message.context.line_number = entry.line_number
-    relative_file_name = os.path.relpath(
-        entry.file_name, start=project_root)
-    message.context.file.components.extend(relative_file_name.split(os.sep))
+    relative_file_path = os.path.relpath(entry.file_path, start=project_root)
+    message.context.file_path.components.extend(
+        relative_file_path.split(os.sep))
 
 
 def main():

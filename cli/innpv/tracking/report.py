@@ -8,13 +8,17 @@ import innpv.tracking.report_queries as queries
 
 WeightEntry = collections.namedtuple(
     'WeightEntry',
-    ['weight_name', 'size_bytes', 'grad_size_bytes', 'file_name', 'line_number'],
+    ['weight_name',
+     'size_bytes',
+     'grad_size_bytes',
+     'file_path',
+     'line_number'],
 )
 
 
 ActivationEntry = collections.namedtuple(
     'ActivationEntry',
-    ['operation_name', 'size_bytes', 'file_name', 'line_number'],
+    ['operation_name', 'size_bytes', 'file_path', 'line_number'],
 )
 
 
@@ -136,6 +140,6 @@ class TrackerReportBuilder:
 
         def stack_frame_generator():
             for idx, frame in enumerate(stack_context.frames):
-                yield (correlation_id, idx, frame.file_name, frame.lineno)
+                yield (correlation_id, idx, frame.file_path, frame.line_number)
 
         cursor.executemany(queries.add_stack_frame, stack_frame_generator())

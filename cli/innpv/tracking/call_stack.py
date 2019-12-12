@@ -3,7 +3,7 @@ import inspect
 
 
 SourceLocation = collections.namedtuple(
-    'SourceLocation', ['file_name', 'lineno'])
+    'SourceLocation', ['file_path', 'line_number'])
 
 
 class CallStack:
@@ -20,7 +20,9 @@ class CallStack:
         try:
             for frame_info in stack[start_from:]:
                 context.append(SourceLocation(
-                    file_name=frame_info.filename, lineno=frame_info.lineno))
+                    file_path=frame_info.filename,
+                    line_number=frame_info.lineno,
+                ))
             return CallStack(context)
         finally:
             del stack
