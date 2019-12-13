@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import PerfBar from './PerfBar';
+import RunTimePerfBar from './RunTimePerfBar';
 import PerfBarContainer from './generic/PerfBarContainer';
 import OperationInfoStore from '../stores/operationinfo_store';
 import PerfVisState from '../models/PerfVisState';
@@ -51,7 +51,7 @@ export default class RunTimePerfBarContainer extends React.Component {
 
   _perfBarGenerator(operationInfo, index, updateMarginTop) {
     return (
-      <PerfBar
+      <RunTimePerfBar
         key={operationInfo.getBoundName()}
         operationInfo={operationInfo}
         percentage={operationInfo.getRuntimeUs() / this.state.totalTimeUs * 100}

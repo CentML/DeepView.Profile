@@ -3,22 +3,21 @@
 import React from 'react';
 
 import Elastic from './Elastic';
-import PerfHint from './PerfHint';
-import UsageHighlight from './UsageHighlight';
-import SourceMarker from '../marker';
-import PerfHintState from '../models/PerfHintState';
-import INNPVStore from '../stores/innpv_store';
+import PerfHintState from '../../models/PerfHintState';
 
-export default class PerfBar extends React.Component {
+class PerfBar extends React.Component {
   constructor(props) {
     super(props);
-    this._op_marker = new SourceMarker(INNPVStore.getEditor());
     this._tooltip = null;
     this._barRef = React.createRef();
 
     this.state = {
+      // Keeps track of how this PerfBar is being manipulated.
       perfHintState: PerfHintState.NONE,
-      showUsages: false,
+
+      // Keeps track of whether this PerfBar is "active". Right now, "active"
+      // means the user's cursor is hovering over this PerfBar.
+      isActive: false,
     };
 
     this._handleHoverEnter = this._handleHoverEnter.bind(this);
@@ -30,29 +29,21 @@ export default class PerfBar extends React.Component {
   }
 
   componentDidMount() {
-    this._op_marker.register(this.props.operationInfo.getLocation());
     this._registerTooltip();
   }
 
   componentDidUpdate(prevProps) {
-    this._op_marker.reconcileLocation(
-      prevProps.operationInfo.getLocation(),
-      this.props.operationInfo.getLocation(),
-    );
-    this._updateTooltip(prevProps);
+    this._reconcileTooltip(prevProps);
   }
 
   componentWillUnmount() {
-    this._op_marker.remove();
     this._clearTooltip();
   }
 
-  _updateTooltip(prevProps) {
-    const operationInfo = this.props.operationInfo;
-    const prevOperationInfo = prevProps.operationInfo;
-    if (operationInfo.getOpName() === prevOperationInfo.getOpName() &&
-        operationInfo.getRuntimeUs() === prevOperationInfo.getRuntimeUs() &&
-        this.props.percentage === prevProps.percentage) {
+  _reconcileTooltip(prevProps) {
+    const {tooltipHTML} = this.props;
+    const prevTooltipHTML = prevProps.tooltipHTML;
+    if (tooltipHTML === prevTooltipHTML) {
       return;
     }
     this._clearTooltip();
@@ -60,10 +51,15 @@ export default class PerfBar extends React.Component {
   }
 
   _registerTooltip() {
+    const {tooltipHTML} = this.props;
+    if (tooltipHTML == null) {
+      return;
+    }
+
     this._tooltip = atom.tooltips.add(
       this._barRef.current,
       {
-        title: this._generateTooltipHTML(),
+        title: tooltipHTML,
         placement: 'right',
         html: true,
       },
@@ -78,21 +74,12 @@ export default class PerfBar extends React.Component {
     this._tooltip = null;
   }
 
-  _generateTooltipHTML() {
-    const {operationInfo, percentage} = this.props;
-    return `<strong>${operationInfo.getOpName()}</strong> (${operationInfo.getBoundName()})<br/>` +
-      `Run Time: ${operationInfo.getRuntimeUs().toFixed(2)} us<br/>` +
-      `Weight: ${percentage.toFixed(2)}%`;
-  }
-
   _handleHoverEnter() {
-    this._op_marker.showDecoration({type: 'line', class: 'innpv-line-highlight'});
-    this.setState({showUsages: true});
+    this.setState({isActive: true});
   }
 
   _handleHoverExit() {
-    this._op_marker.hideDecoration();
-    this.setState({showUsages: false});
+    this.setState({isActive: false});
   }
 
   _handleIncrease() {
@@ -117,33 +104,41 @@ export default class PerfBar extends React.Component {
   }
 
   render() {
-    const {operationInfo} = this.props;
-    const {perfHintState, showUsages} = this.state;
-    const resizable = operationInfo.getHintsList().length !== 0
+    const {
+      renderPerfHints,
+      resizable,
+      percentage,
+      updateMarginTop,
+      colorClass,
+    } = this.props;
+    const {isActive, perfHintState} = this.state;
 
     return (
       <Elastic
         className={`innpv-perfbar-wrap ${resizable ? "innpv-perfbar-resizable" : ""}`}
         disabled={!resizable}
-        heightPct={this.props.percentage}
-        updateMarginTop={this.props.updateMarginTop}
+        heightPct={percentage}
+        updateMarginTop={updateMarginTop}
         handleShrink={this._handleDecrease}
         handleGrow={this._handleIncrease}
         handleSnapBack={this._handleRestore}
       >
         <div
           ref={this._barRef}
-          className={`innpv-perfbar ${this.props.colorClass}`}
+          className={`innpv-perfbar ${colorClass}`}
           onMouseEnter={this._handleHoverEnter}
           onMouseLeave={this._handleHoverExit}
         />
-        {operationInfo.getHintsList().map(perfHint =>
-          <PerfHint perfHint={perfHint} perfHintState={perfHintState} />
-        )}
-        {operationInfo.getUsagesList().map(location =>
-          <UsageHighlight location={location} show={showUsages} />
-        )}
+        {renderPerfHints(isActive, perfHintState)}
       </Elastic>
     );
   }
 }
+
+PerfBar.defaultProps = {
+  resizable: false,
+  renderPerfHints: (isActive, perfHintState) => null,
+  tooltipHTML: null,
+};
+
+export default PerfBar;
