@@ -16,6 +16,9 @@ export default class Memory extends React.Component {
   }
 
   _handleResize(deltaPct, basePct) {
+    // TODO: Add in memory predictions again
+    return;
+
     BatchSizeStore.updateMemoryUsage(deltaPct, basePct);
     INNPVStore.setPerfVisState(PerfVisState.SHOWING_PREDICTIONS);
   }
@@ -37,13 +40,13 @@ export default class Memory extends React.Component {
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay
               top="Peak Usage"
-              number={notReady ? '---' : model.usageMb}
+              number={notReady ? '---' : model.peakUsageMb}
               bottom="Megabytes"
             />
             <div className="innpv-separator" />
             <NumericDisplay
               top="Maximum Capacity"
-              number={notReady ? '---' : model.maxCapacityMb}
+              number={notReady ? '---' : model.memoryCapacityMb}
               bottom="Megabytes"
             />
           </div>

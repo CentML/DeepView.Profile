@@ -13,6 +13,7 @@ import PerfVisState from './models/PerfVisState';
 import INNPVStore from './stores/innpv_store';
 import BatchSizeStore from './stores/batchsize_store';
 import OperationInfoStore from './stores/operationinfo_store';
+import MemoryStore from './stores/memory_store';
 
 // Clear the views if an analysis request is pending for more than
 // this many milliseconds.
@@ -52,6 +53,7 @@ export default class PerfvisPlugin {
     INNPVStore.reset();
     BatchSizeStore.reset();
     OperationInfoStore.reset();
+    MemoryStore.reset();
   }
 
   _connectToServer(host, port) {

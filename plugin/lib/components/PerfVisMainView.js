@@ -9,6 +9,7 @@ import PerfVisStatusBar from './PerfVisStatusBar';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
 import BatchSizeStore from '../stores/batchsize_store';
+import MemoryStore from '../stores/memory_store';
 import INNPVStore from '../stores/innpv_store';
 import SourceMarker from '../marker';
 
@@ -25,10 +26,9 @@ export default class PerfVisMainView extends React.Component {
     super(props);
     this.state = {
       throughput: BatchSizeStore.getThroughputModel(),
-      memory: BatchSizeStore.getMemoryModel(),
       inputInfo: BatchSizeStore.getInputInfo(),
+      overallMemoryUsage: MemoryStore.getOverallMemoryUsage(),
     };
-    this._annotation_marker = new SourceMarker(INNPVStore.getEditor());
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
     this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
     this._handleSliderHoverEnter = this._handleSliderHoverEnter.bind(this);
@@ -36,29 +36,20 @@ export default class PerfVisMainView extends React.Component {
   }
 
   componentDidMount() {
-    const {inputInfo} = this.state;
     BatchSizeStore.addListener(this._onStoreUpdate);
-    this._annotation_marker.register(inputInfo && inputInfo.getAnnotationStart());
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const {inputInfo} = this.state;
-    this._annotation_marker.reconcileLocation(
-      prevState.inputInfo && prevState.inputInfo.getAnnotationStart(),
-      inputInfo && inputInfo.getAnnotationStart(),
-    );
+    MemoryStore.addListener(this._onStoreUpdate);
   }
 
   componentWillUnmount() {
     BatchSizeStore.removeListener(this._onStoreUpdate);
-    this._annotation_marker.remove();
+    MemoryStore.removeListener(this._onStoreUpdate);
   }
 
   _onStoreUpdate() {
     this.setState({
       throughput: BatchSizeStore.getThroughputModel(),
-      memory: BatchSizeStore.getMemoryModel(),
       inputInfo: BatchSizeStore.getInputInfo(),
+      overallMemoryUsage: MemoryStore.getOverallMemoryUsage(),
     });
   }
 
@@ -71,11 +62,10 @@ export default class PerfVisMainView extends React.Component {
   }
 
   _handleSliderHoverEnter() {
-    this._annotation_marker.showDecoration({type: 'line', class: 'innpv-line-highlight'});
+    // TODO: Use these event handling functions to highlight the batch size
   }
 
   _handleSliderHoverExit() {
-    this._annotation_marker.hideDecoration();
   }
 
   _subrowClasses() {
@@ -107,7 +97,7 @@ export default class PerfVisMainView extends React.Component {
               handleSliderHoverExit={this._handleSliderHoverExit}
             />
             <Memory
-              model={this.state.memory}
+              model={this.state.overallMemoryUsage}
               handleSliderHoverEnter={this._handleSliderHoverEnter}
               handleSliderHoverExit={this._handleSliderHoverExit}
             />
