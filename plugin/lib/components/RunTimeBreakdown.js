@@ -55,18 +55,6 @@ export default class RunTimeBreakdown extends React.Component {
     this.setState({marginTop});
   }
 
-  _perfBarGenerator(operationInfo, index, updateMarginTop) {
-    return (
-      <RunTimePerfBar
-        key={operationInfo.getBoundName()}
-        operationInfo={operationInfo}
-        percentage={operationInfo.getRuntimeUs() / this.state.totalTimeUs * 100}
-        colorClass={COLOR_CLASSES[index % COLOR_CLASSES.length]}
-        updateMarginTop={updateMarginTop}
-      />
-    );
-  }
-
   render() {
     const {perfVisState} = this.props;
     const {operationInfos, marginTop} = this.state;

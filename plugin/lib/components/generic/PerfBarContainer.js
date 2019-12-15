@@ -42,7 +42,7 @@ function LabelContainer(props) {
 
   return (
     <div className="innpv-perfbarcontainer-labelcontainer">
-      {props.labels.map(({label, percentage}) => (
+      {props.labels.filter(({percentage}) => percentage > 0).map(({label, percentage}) => (
         <div className="innpv-perfbarcontainer-labelwrap" style={{height: `${percentage}%`}}>
           {percentage >= 10 ? <div className="innpv-perfbarcontainer-label">{label}</div> : null}
         </div>

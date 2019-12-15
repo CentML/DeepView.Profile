@@ -2,6 +2,7 @@
 
 import BaseStore from './base_store';
 
+import MemoryBreakdown from '../models/MemoryBreakdown';
 import MemoryUsage from '../models/MemoryUsage';
 
 class AnalysisStore extends BaseStore {
@@ -15,13 +16,13 @@ class AnalysisStore extends BaseStore {
   }
 
   receivedMemoryUsage(memoryUsageResponse) {
+    this._memoryBreakdown = MemoryBreakdown.fromMemoryUsageResponse(memoryUsageResponse);
     this._overallMemoryUsage = MemoryUsage.fromMemoryUsageResponse(memoryUsageResponse);
-    // TODO: Construct a model for the memory breakdown
     this.notifyChanged();
   }
 
   getMemoryBreakdown() {
-    // This data is used by the MemoryPerfBarContainer
+    // This data is used by the MemoryBreakdown component
     return this._memoryBreakdown;
   }
 

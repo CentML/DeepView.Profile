@@ -1,5 +1,7 @@
 'use babel';
 
+import path from 'path';
+
 export default {
   getTextEditor(newEditor) {
     return new Promise((res) => {
@@ -27,5 +29,16 @@ export default {
     const throughputMs = throughput / 1000;
     return (throughputMs * runtimeModelMs.getBias()) /
       (1 - throughputMs * runtimeModelMs.getCoefficient());
+  },
+
+  processFileReference(fileReferenceProto) {
+    return {
+      filePath: path.join(...(fileReferenceProto.getFilePath().getComponentsList())),
+      lineNumber: fileReferenceProto.getLineNumber(),
+    };
+  },
+
+  toPercentage(numerator, denominator) {
+    return numerator / denominator * 100;
   },
 };
