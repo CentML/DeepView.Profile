@@ -9,7 +9,7 @@ import PerfVisStatusBar from './PerfVisStatusBar';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
 import BatchSizeStore from '../stores/batchsize_store';
-import MemoryStore from '../stores/memory_store';
+import AnalysisStore from '../stores/analysis_store';
 import INNPVStore from '../stores/innpv_store';
 import SourceMarker from '../marker';
 
@@ -27,7 +27,7 @@ export default class PerfVisMainView extends React.Component {
     this.state = {
       throughput: BatchSizeStore.getThroughputModel(),
       inputInfo: BatchSizeStore.getInputInfo(),
-      overallMemoryUsage: MemoryStore.getOverallMemoryUsage(),
+      overallMemoryUsage: AnalysisStore.getOverallMemoryUsage(),
     };
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
     this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
@@ -37,19 +37,19 @@ export default class PerfVisMainView extends React.Component {
 
   componentDidMount() {
     BatchSizeStore.addListener(this._onStoreUpdate);
-    MemoryStore.addListener(this._onStoreUpdate);
+    AnalysisStore.addListener(this._onStoreUpdate);
   }
 
   componentWillUnmount() {
     BatchSizeStore.removeListener(this._onStoreUpdate);
-    MemoryStore.removeListener(this._onStoreUpdate);
+    AnalysisStore.removeListener(this._onStoreUpdate);
   }
 
   _onStoreUpdate() {
     this.setState({
       throughput: BatchSizeStore.getThroughputModel(),
       inputInfo: BatchSizeStore.getInputInfo(),
-      overallMemoryUsage: MemoryStore.getOverallMemoryUsage(),
+      overallMemoryUsage: AnalysisStore.getOverallMemoryUsage(),
     });
   }
 

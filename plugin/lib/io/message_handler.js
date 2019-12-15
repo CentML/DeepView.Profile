@@ -6,7 +6,7 @@ import PerfVisState from '../models/PerfVisState';
 import INNPVStore from '../stores/innpv_store';
 import OperationInfoStore from '../stores/operationinfo_store';
 import BatchSizeStore from '../stores/batchsize_store';
-import MemoryStore from '../stores/memory_store';
+import AnalysisStore from '../stores/analysis_store';
 
 export default class MessageHandler {
   constructor(messageSender, connectionState) {
@@ -41,7 +41,7 @@ export default class MessageHandler {
   _handleMemoryUsageResponse(message) {
     console.log('Received memory usage message.');
     console.log(`Peak usage: ${message.getPeakUsageBytes()} bytes.`);
-    MemoryStore.receivedMemoryUsage(message);
+    AnalysisStore.receivedMemoryUsage(message);
     INNPVStore.setPerfVisState(PerfVisState.READY);
   }
 

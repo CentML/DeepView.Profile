@@ -4,7 +4,7 @@ import BaseStore from './base_store';
 
 import MemoryUsage from '../models/MemoryUsage';
 
-class MemoryStore extends BaseStore {
+class AnalysisStore extends BaseStore {
   constructor() {
     super();
   }
@@ -31,6 +31,6 @@ class MemoryStore extends BaseStore {
   }
 }
 
-const storeInstance = new MemoryStore();
+const storeInstance = new AnalysisStore();
 
 export default storeInstance;
