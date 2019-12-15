@@ -15,7 +15,7 @@ const COLOR_CLASSES = [
   'innpv-bar-color-5',
 ];
 
-export default class RunTimePerfBarContainer extends React.Component {
+export default class RunTimeBreakdown extends React.Component {
   constructor(props) {
     super(props);
 
@@ -23,10 +23,12 @@ export default class RunTimePerfBarContainer extends React.Component {
     this.state = {
       operationInfos,
       totalTimeUs: this._getTotalTimeUs(operationInfos),
+      marginTop: 0,
     };
 
     this._onStoreChange = this._onStoreChange.bind(this);
     this._perfBarGenerator = this._perfBarGenerator.bind(this);
+    this._updateMarginTop = this._updateMarginTop.bind(this);
   }
 
   componentDidMount() {
@@ -49,6 +51,10 @@ export default class RunTimePerfBarContainer extends React.Component {
     return operationInfos.reduce((acc, info) => acc + info.getRuntimeUs(), 0);
   }
 
+  _updateMarginTop(marginTop) {
+    this.setState({marginTop});
+  }
+
   _perfBarGenerator(operationInfo, index, updateMarginTop) {
     return (
       <RunTimePerfBar
@@ -63,16 +69,22 @@ export default class RunTimePerfBarContainer extends React.Component {
 
   render() {
     const {perfVisState} = this.props;
+    const {operationInfos, marginTop} = this.state;
     const disabled = perfVisState === PerfVisState.DEBOUNCING ||
-      (perfVisState === PerfVisState.ANALYZING &&
-        this.state.operationInfos.length == 0);
+      (perfVisState === PerfVisState.ANALYZING && operationInfos.length == 0);
 
     return (
-      <PerfBarContainer
-        data={this.state.operationInfos}
-        perfBarGenerator={this._perfBarGenerator}
-        disabled={disabled}
-      />
+      <PerfBarContainer disabled={disabled} marginTop={marginTop}>
+        {operationInfos.map((opInfo, index) => (
+          <RunTimePerfBar
+            key={opInfo.getBoundName()}
+            operationInfo={opInfo}
+            percentage={opInfo.getRuntimeUs() / this.state.totalTimeUs * 100}
+            colorClass={COLOR_CLASSES[index % COLOR_CLASSES.length]}
+            updateMarginTop={this._updateMarginTop}
+          />
+        ))}
+      </PerfBarContainer>
     );
   }
 }

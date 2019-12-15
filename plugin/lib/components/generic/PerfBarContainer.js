@@ -3,18 +3,6 @@
 import React from 'react';
 
 class PerfBarContainer extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      marginTop: 0,
-    };
-    this._updateMarginTop = this._updateMarginTop.bind(this);
-  }
-
-  _updateMarginTop(marginTop) {
-    this.setState({marginTop});
-  }
-
   _classes() {
     const mainClass = 'innpv-perfbarcontainer-wrap';
     if (this.props.disabled) {
@@ -24,32 +12,27 @@ class PerfBarContainer extends React.Component {
   }
 
   render() {
+    const {children, marginTop, labels} = this.props;
     return (
       <div className={this._classes()}>
         <div className="innpv-perfbarcontainer">
           <div
             className="innpv-perfbarcontainer-inner"
-            style={{marginTop: `-${this.state.marginTop}px`}}
+            style={{marginTop: `-${marginTop}px`}}
           >
-            {this.props.data.map(
-              (dataElement, index) => this.props.perfBarGenerator(
-                dataElement,
-                index,
-                this._updateMarginTop,
-              ))}
+            {children}
           </div>
         </div>
-        <LabelContainer labels={this.props.labels} />
+        <LabelContainer labels={labels} />
       </div>
     );
   }
 }
 
 PerfBarContainer.defaultProps = {
-  data: [],
-  perfBarGenerator: (dataElement, index, updateMarginTop) => null,
   disabled: false,
   labels: [],
+  marginTop: 0,
 };
 
 function LabelContainer(props) {

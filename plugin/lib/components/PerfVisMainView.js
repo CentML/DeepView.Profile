@@ -4,7 +4,7 @@ import React from 'react';
 
 import ErrorMessage from './ErrorMessage';
 import Memory from './Memory';
-import RunTimePerfBarContainer from './RunTimePerfBarContainer';
+import RunTimeBreakdown from './RunTimeBreakdown';
 import PerfVisStatusBar from './PerfVisStatusBar';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
@@ -88,7 +88,7 @@ export default class PerfVisMainView extends React.Component {
       return (
         <div className="innpv-contents-columns">
           <div className="innpv-perfbar-contents">
-            <RunTimePerfBarContainer perfVisState={perfVisState} />
+            <RunTimeBreakdown perfVisState={perfVisState} />
           </div>
           <div className={this._subrowClasses()}>
             <Throughput
