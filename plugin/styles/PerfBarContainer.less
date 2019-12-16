@@ -29,11 +29,14 @@
 @innpv-perfbar-label-border: 1px solid @text-color-subtle;
 
 .innpv-perfbarcontainer-labelwrap {
-  height: 33%;
   display: flex;
   justify-content: center;
   align-items: center;
   border-bottom: @innpv-perfbar-label-border;
+
+  transition-property: height;
+  transition-duration: @perfbar-label-duration;
+  transition-timing-function: @perfbar-label-easing;
 
   &:first-child {
     border-top: @innpv-perfbar-label-border;
