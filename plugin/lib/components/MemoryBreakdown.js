@@ -6,6 +6,7 @@ import AnalysisStore from '../stores/analysis_store';
 import PerfBarContainer from './generic/PerfBarContainer';
 import MemoryEntryLabel from '../models/MemoryEntryLabel';
 import PerfBar from './generic/PerfBar';
+import {toReadableByteSize} from '../utils';
 
 const DEFAULT_MEMORY_LABELS = [
   {label: MemoryEntryLabel.Weights, percentage: 30},
@@ -15,13 +16,25 @@ const DEFAULT_MEMORY_LABELS = [
 
 const MEMORY_LABEL_ORDER = DEFAULT_MEMORY_LABELS.map(({label}) => label);
 
-const COLOR_CLASSES = [
-  'innpv-bar-color-1',
-  'innpv-bar-color-2',
-  'innpv-bar-color-3',
-  'innpv-bar-color-4',
-  'innpv-bar-color-5',
-];
+const COLORS_BY_LABEL = {
+  [MemoryEntryLabel.Weights]: [
+    'innpv-green-color-1',
+    'innpv-green-color-2',
+    'innpv-green-color-3',
+    'innpv-green-color-4',
+    'innpv-green-color-5',
+  ],
+  [MemoryEntryLabel.Activations]: [
+    'innpv-blue-color-1',
+    'innpv-blue-color-2',
+    'innpv-blue-color-3',
+    'innpv-blue-color-4',
+    'innpv-blue-color-5',
+  ],
+  [MemoryEntryLabel.Untracked]: [
+    'innpv-untracked-color',
+  ],
+}
 
 export default class MemoryPerfBarContainer extends React.Component {
   constructor(props) {
@@ -66,6 +79,12 @@ export default class MemoryPerfBarContainer extends React.Component {
     return `${entry.name}-idx${index}`;
   }
 
+  _entryTooltipHTML(entry) {
+    return `<strong>${entry.name}</strong><br/>` +
+      `${toReadableByteSize(entry.sizeBytes)}<br/>` +
+      `${entry.displayPct.toFixed(2)}%`;
+  }
+
   _renderPerfBars() {
     const {memoryBreakdown} = this.state;
     if (memoryBreakdown == null) {
@@ -76,12 +95,14 @@ export default class MemoryPerfBarContainer extends React.Component {
     const results = [];
     MEMORY_LABEL_ORDER.forEach(label => {
       memoryBreakdown.getEntriesByLabel(label).forEach((entry, index) => {
+        const colors = COLORS_BY_LABEL[label];
         results.push(
           <PerfBar
             key={this._entryKey(entry, index)}
             resizable={false}
             percentage={entry.displayPct}
-            colorClass={COLOR_CLASSES[index % COLOR_CLASSES.length]}
+            colorClass={colors[index % colors.length]}
+            tooltipHTML={this._entryTooltipHTML(entry)}
           />
         );
       })

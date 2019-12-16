@@ -8,11 +8,11 @@ import OperationInfoStore from '../stores/operationinfo_store';
 import PerfVisState from '../models/PerfVisState';
 
 const COLOR_CLASSES = [
-  'innpv-bar-color-1',
-  'innpv-bar-color-2',
-  'innpv-bar-color-3',
-  'innpv-bar-color-4',
-  'innpv-bar-color-5',
+  'innpv-blue-color-1',
+  'innpv-blue-color-2',
+  'innpv-blue-color-3',
+  'innpv-blue-color-4',
+  'innpv-blue-color-5',
 ];
 
 export default class RunTimeBreakdown extends React.Component {
