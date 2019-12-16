@@ -74,6 +74,10 @@ class MemoryBreakdown {
     return this._entryMap[label].displayPct;
   }
 
+  getTotalSizeBytesByLabel(label) {
+    return this._entryMap[label].totalSizeBytes;
+  }
+
   static fromMemoryUsageResponse(memoryUsageResponse) {
     const peakUsageBytes = memoryUsageResponse.getPeakUsageBytes();
 
@@ -93,10 +97,12 @@ class MemoryBreakdown {
       [MemoryEntryLabel.Weights]: {
         entries: weightEntries,
         displayPct: toPercentage(totalWeightSizeBytes, peakUsageBytes),
+        totalSizeBytes: totalWeightSizeBytes,
       },
       [MemoryEntryLabel.Activations]: {
         entries: activationEntries,
         displayPct: toPercentage(totalActivationSizeBytes, peakUsageBytes),
+        totalSizeBytes: totalActivationSizeBytes,
       },
       [MemoryEntryLabel.Untracked]: {
         entries: [new MemoryEntry({
@@ -107,6 +113,7 @@ class MemoryBreakdown {
           lineNumber: null,
         })],
         displayPct: untrackedDisplayPct,
+        totalSizeBytes: untrackedBytes,
       },
     });
   }

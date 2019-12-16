@@ -6,7 +6,7 @@ import AnalysisStore from '../stores/analysis_store';
 import PerfBarContainer from './generic/PerfBarContainer';
 import MemoryEntryLabel from '../models/MemoryEntryLabel';
 import PerfBar from './generic/PerfBar';
-import {toReadableByteSize} from '../utils';
+import {toReadableByteSize, toPercentage} from '../utils';
 
 const DEFAULT_MEMORY_LABELS = [
   {label: MemoryEntryLabel.Weights, percentage: 30},
@@ -41,9 +41,11 @@ export default class MemoryPerfBarContainer extends React.Component {
     super(props);
     this.state = {
       memoryBreakdown: AnalysisStore.getMemoryBreakdown(),
+      expanded: null,
     };
 
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
+    this._onLabelClick = this._onLabelClick.bind(this);
   }
 
   componentDidMount() {
@@ -61,15 +63,31 @@ export default class MemoryPerfBarContainer extends React.Component {
   }
 
   _getLabels() {
-    const {memoryBreakdown} = this.state;
+    const {memoryBreakdown, expanded} = this.state;
     if (memoryBreakdown == null) {
       return DEFAULT_MEMORY_LABELS;
+    }
+
+    if (expanded != null) {
+      return DEFAULT_MEMORY_LABELS.map(({label}) => ({
+        label,
+        percentage: expanded === label ? 100 : 0.001,
+      }));
     }
 
     return DEFAULT_MEMORY_LABELS.map(({label}) => ({
       label,
       percentage: memoryBreakdown.getOverallDisplayPctByLabel(label),
     }));
+  }
+
+  _onLabelClick(label) {
+    const {expanded} = this.state;
+    if (expanded == null && label !== MemoryEntryLabel.Untracked) {
+      this.setState({expanded: label});
+    } else if (expanded === label) {
+      this.setState({expanded: null});
+    }
   }
 
   _entryKey(entry, index) {
@@ -86,7 +104,7 @@ export default class MemoryPerfBarContainer extends React.Component {
   }
 
   _renderPerfBars() {
-    const {memoryBreakdown} = this.state;
+    const {memoryBreakdown, expanded} = this.state;
     if (memoryBreakdown == null) {
       return;
     }
@@ -94,13 +112,22 @@ export default class MemoryPerfBarContainer extends React.Component {
     // [].flatMap() is a nicer way to do this, but it is not yet available.
     const results = [];
     MEMORY_LABEL_ORDER.forEach(label => {
+      const totalSizeBytes = memoryBreakdown.getTotalSizeBytesByLabel(label);
+      const colors = COLORS_BY_LABEL[label];
+
       memoryBreakdown.getEntriesByLabel(label).forEach((entry, index) => {
-        const colors = COLORS_BY_LABEL[label];
+        let displayPct = 0.001;
+        if (expanded == null) {
+          displayPct = entry.displayPct;
+        } else if (label === expanded) {
+          displayPct = toPercentage(entry.sizeBytes, totalSizeBytes);
+        }
+
         results.push(
           <PerfBar
             key={this._entryKey(entry, index)}
             resizable={false}
-            percentage={entry.displayPct}
+            percentage={displayPct}
             colorClass={colors[index % colors.length]}
             tooltipHTML={this._entryTooltipHTML(entry)}
           />
@@ -113,7 +140,10 @@ export default class MemoryPerfBarContainer extends React.Component {
 
   render() {
     return (
-      <PerfBarContainer labels={this._getLabels()}>
+      <PerfBarContainer
+        labels={this._getLabels()}
+        onLabelClick={this._onLabelClick}
+      >
         {this._renderPerfBars()}
       </PerfBarContainer>
     );
