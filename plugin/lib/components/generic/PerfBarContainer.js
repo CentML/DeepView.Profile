@@ -43,8 +43,11 @@ function LabelContainer(props) {
 
   return (
     <div className="innpv-perfbarcontainer-labelcontainer">
-      {props.labels.filter(({percentage}) => percentage > 0).map(({label, percentage}) => (
-        <div className="innpv-perfbarcontainer-labelwrap"
+      {props.labels.filter(({percentage}) => percentage > 0).map(({label, percentage, clickable}) => (
+        <div
+          className={
+            `innpv-perfbarcontainer-labelwrap ${clickable ? 'innpv-perfbarcontainer-clickable' : ''}`
+          }
           key={label}
           style={{height: `${percentage}%`}}
           onClick={() => props.onLabelClick(label)}

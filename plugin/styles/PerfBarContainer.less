@@ -47,4 +47,16 @@
   transform: rotate(270deg);
   color: @text-color-subtle;
   font-size: 0.8em;
+
+  transition-property: color;
+  transition-duration: @perfbar-label-duration;
+  transition-timing-function: @perfbar-label-easing;
+}
+
+.innpv-perfbarcontainer-clickable {
+  cursor: pointer;
+}
+
+.innpv-perfbarcontainer-clickable:hover .innpv-perfbarcontainer-label {
+  color: @text-color;
 }

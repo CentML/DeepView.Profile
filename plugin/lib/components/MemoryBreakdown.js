@@ -9,9 +9,9 @@ import PerfBar from './generic/PerfBar';
 import {toReadableByteSize, toPercentage} from '../utils';
 
 const DEFAULT_MEMORY_LABELS = [
-  {label: MemoryEntryLabel.Weights, percentage: 30},
-  {label: MemoryEntryLabel.Activations, percentage: 55},
-  {label: MemoryEntryLabel.Untracked, percentage: 15},
+  {label: MemoryEntryLabel.Weights, percentage: 30, clickable: true},
+  {label: MemoryEntryLabel.Activations, percentage: 55, clickable: true},
+  {label: MemoryEntryLabel.Untracked, percentage: 15, clickable: false},
 ];
 
 const MEMORY_LABEL_ORDER = DEFAULT_MEMORY_LABELS.map(({label}) => label);
@@ -69,13 +69,15 @@ export default class MemoryPerfBarContainer extends React.Component {
     }
 
     if (expanded != null) {
-      return DEFAULT_MEMORY_LABELS.map(({label}) => ({
+      return DEFAULT_MEMORY_LABELS.map(({label, ...rest}) => ({
+        ...rest,
         label,
         percentage: expanded === label ? 100 : 0.001,
       }));
     }
 
-    return DEFAULT_MEMORY_LABELS.map(({label}) => ({
+    return DEFAULT_MEMORY_LABELS.map(({label, ...rest}) => ({
+      ...rest,
       label,
       percentage: memoryBreakdown.getOverallDisplayPctByLabel(label),
     }));
