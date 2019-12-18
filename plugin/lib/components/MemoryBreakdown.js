@@ -76,10 +76,11 @@ export default class MemoryPerfBarContainer extends React.Component {
       }));
     }
 
+    const peakUsageBytes = memoryBreakdown.getPeakUsageBytes();
     return DEFAULT_MEMORY_LABELS.map(({label, ...rest}) => ({
       ...rest,
       label,
-      percentage: memoryBreakdown.getOverallDisplayPctByLabel(label),
+      percentage: toPercentage(memoryBreakdown.getTotalSizeBytesByLabel(label), peakUsageBytes),
     }));
   }
 
@@ -99,10 +100,10 @@ export default class MemoryPerfBarContainer extends React.Component {
     return `${entry.name}-idx${index}`;
   }
 
-  _entryTooltipHTML(entry) {
+  _entryTooltipHTML(entry, overallPct) {
     return `<strong>${entry.name}</strong><br/>` +
       `${toReadableByteSize(entry.sizeBytes)}<br/>` +
-      `${entry.displayPct.toFixed(2)}%`;
+      `${overallPct.toFixed(2)}%`;
   }
 
   _renderPerfBars() {
@@ -111,16 +112,21 @@ export default class MemoryPerfBarContainer extends React.Component {
       return;
     }
 
-    // [].flatMap() is a nicer way to do this, but it is not yet available.
     const results = [];
+    const peakUsageBytes = memoryBreakdown.getPeakUsageBytes();
+
+    // [].flatMap() is a nicer way to do this, but it is not yet available.
     MEMORY_LABEL_ORDER.forEach(label => {
       const totalSizeBytes = memoryBreakdown.getTotalSizeBytesByLabel(label);
       const colors = COLORS_BY_LABEL[label];
 
       memoryBreakdown.getEntriesByLabel(label).forEach((entry, index) => {
+        const overallPct = toPercentage(entry.sizeBytes, peakUsageBytes);
+
+        // This helps account for "expanded" labels
         let displayPct = 0.001;
         if (expanded == null) {
-          displayPct = entry.displayPct;
+          displayPct = overallPct;
         } else if (label === expanded) {
           displayPct = toPercentage(entry.sizeBytes, totalSizeBytes);
         }
@@ -131,7 +137,7 @@ export default class MemoryPerfBarContainer extends React.Component {
             resizable={false}
             percentage={displayPct}
             colorClass={colors[index % colors.length]}
-            tooltipHTML={this._entryTooltipHTML(entry)}
+            tooltipHTML={this._entryTooltipHTML(entry, overallPct)}
           />
         );
       })
