@@ -13,13 +13,6 @@ class INNPVStore extends BaseStore {
     this._appState = AppState.ACTIVATED;
     this._perfVisState = PerfVisState.READY;
     this._errorMessage = '';
-
-    this._editor = null;
-    this._editorOnChangeCallback = null;
-    this._bufferChangedDisposable = null;
-
-    this._projectRoot = null;
-    this._entryPoint = null;
   }
 
   getAppState() {
@@ -43,29 +36,6 @@ class INNPVStore extends BaseStore {
     this.notifyChanged();
   }
 
-  getEditor() {
-    return this._editor;
-  }
-
-  setEditor(editor, onChangeCallback) {
-    this.ignoreEditorChanges();
-    this._editor = editor;
-    this._editorOnChangeCallback = onChangeCallback;
-    // NOTE: No notifyChanged() call because this doesn't affect rendering
-  }
-
-  subscribeToEditorChanges() {
-    this._bufferChangedDisposable = this._editor.getBuffer().onDidChange(this._editorOnChangeCallback);
-  }
-
-  ignoreEditorChanges() {
-    if (this._bufferChangedDisposable == null) {
-      return;
-    }
-    this._bufferChangedDisposable.dispose();
-    this._bufferChangedDisposable = null;
-  }
-
   getErrorMessage() {
     return this._errorMessage;
   }
@@ -80,19 +50,6 @@ class INNPVStore extends BaseStore {
 
   clearErrorMessage() {
     this.setErrorMessage('');
-  }
-
-  setPaths(projectRoot, entryPoint) {
-    this._projectRoot = projectRoot;
-    this._entryPoint = entryPoint;
-  }
-
-  getProjectRoot() {
-    return this._projectRoot;
-  }
-
-  getEntryPoint() {
-    return this._entryPoint;
   }
 }
 

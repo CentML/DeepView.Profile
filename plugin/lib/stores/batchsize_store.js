@@ -26,7 +26,6 @@ class BatchSizeStore extends BaseStore {
     this._maxBatchSize = null;
 
     this._currentAnnotationRange = null;
-    this._currentUndoCheckpoint = null;
 
     this._clearViewDebounce = null;
   }
@@ -67,7 +66,6 @@ class BatchSizeStore extends BaseStore {
       [startPoint.getLine(), startPoint.getColumn()],
       [endPoint.getLine(), endPoint.getColumn()],
     );
-    this._currentUndoCheckpoint = INNPVStore.getEditor().getBuffer().createCheckpoint();
   }
 
   updateMemoryUsage(deltaPct, basePct) {
@@ -112,15 +110,8 @@ class BatchSizeStore extends BaseStore {
   }
 
   _updateAnnotationInBuffer() {
-    const buffer = INNPVStore.getEditor().getBuffer();
-    const updatedAnnotation = this._getAnnotationString();
-    INNPVStore.ignoreEditorChanges();
-    this._currentAnnotationRange = buffer.setTextInRange(
-      this._currentAnnotationRange,
-      updatedAnnotation,
-    );
-    buffer.groupChangesSinceCheckpoint(this._currentUndoCheckpoint);
-    INNPVStore.subscribeToEditorChanges();
+    // TODO: Re-implement this function so that it handles
+    //       cases where there are multiple text editors.
   }
 
   _cancelClearView() {

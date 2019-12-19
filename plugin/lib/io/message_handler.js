@@ -4,9 +4,8 @@ import pm from '../protocol_gen/innpv_pb';
 import AppState from '../models/AppState';
 import PerfVisState from '../models/PerfVisState';
 import INNPVStore from '../stores/innpv_store';
-import OperationInfoStore from '../stores/operationinfo_store';
-import BatchSizeStore from '../stores/batchsize_store';
 import AnalysisStore from '../stores/analysis_store';
+import ProjectStore from '../stores/project_store';
 
 export default class MessageHandler {
   constructor(messageSender, connectionState) {
@@ -23,7 +22,7 @@ export default class MessageHandler {
     // TODO: Validate the project root and entry point paths.
     //       We don't (yet) support remote work, so "trusting" the server is fine
     //       for now because we validate the paths on the server.
-    INNPVStore.setPaths(message.getServerProjectRoot(), message.getEntryPoint());
+    ProjectStore.receivedProjectConfig(message.getServerProjectRoot(), message.getEntryPoint());
     INNPVStore.clearErrorMessage();
     INNPVStore.setAppState(AppState.CONNECTED);
     this._connectionState.markInitialized();

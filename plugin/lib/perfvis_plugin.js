@@ -14,6 +14,7 @@ import INNPVStore from './stores/innpv_store';
 import BatchSizeStore from './stores/batchsize_store';
 import OperationInfoStore from './stores/operationinfo_store';
 import AnalysisStore from './stores/analysis_store';
+import ProjectStore from './stores/project_store';
 
 // Clear the views if an analysis request is pending for more than
 // this many milliseconds.
@@ -54,6 +55,7 @@ export default class PerfvisPlugin {
     BatchSizeStore.reset();
     OperationInfoStore.reset();
     AnalysisStore.reset();
+    ProjectStore.reset();
   }
 
   _connectToServer(host, port) {
@@ -68,21 +70,13 @@ export default class PerfvisPlugin {
   }
 
   _disconnectFromServer() {
-    // 1. We need to first "unbind" from the editor
-    INNPVStore.ignoreEditorChanges();
-    if (this._editorDebounce != null) {
-      clearTimeout(this._editorDebounce);
-      this._editorDebounce = null;
-    }
-    this._editor = null;
-
-    // 2. Shutdown the connection socket
+    // 1. Shutdown the connection socket
     if (this._connection != null) {
       this._connection.close();
       this._connection = null;
     }
 
-    // 3. Discard any unneeded connection state
+    // 2. Discard any unneeded connection state
     this._messageHandler = null;
     this._messageSender = null;
     this._connectionState = null;
