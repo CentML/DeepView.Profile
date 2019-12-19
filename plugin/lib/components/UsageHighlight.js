@@ -6,17 +6,27 @@ import SourceMarker from '../marker';
 import INNPVStore from '../stores/innpv_store';
 
 class UsageHighlight extends React.Component {
-  constructor(props) {
-    super(props);
-    this._marker = new SourceMarker(INNPVStore.getEditor());
-  }
-
   componentDidMount() {
-    this._marker.register(this.props.location);
+    this._setUpMarker();
   }
 
   componentDidUpdate(prevProps) {
-    this._marker.reconcileLocation(prevProps.location, this.props.location);
+    const {editor} = this.props;
+    const prevEditor = prevProps.editor;
+    if (prevEditor !== editor) {
+      this._marker.remove();
+      this._setUpMarker();
+      return;
+    }
+
+    const {lineNumber, column} = this.props;
+    const prevLineNumber = prevProps.lineNumber;
+    const prevColumn = prevProps.column;
+    this._marker.reconcileLocation(
+      {lineNumber: prevLineNumber, column: prevColumn},
+      {lineNumber, column},
+    );
+
     if (!prevProps.show && this.props.show) {
       this._showDecoration();
     } else if (prevProps.show && !this.props.show) {
@@ -26,6 +36,16 @@ class UsageHighlight extends React.Component {
 
   componentWillUnmount() {
     this._marker.remove();
+  }
+
+  _setUpMarker() {
+    const {editor, lineNumber, column, show} = this.props;
+    this._marker = new SourceMarker(editor);
+    this._marker.register({lineNumber, column});
+
+    if (show) {
+      this._showDecoration();
+    }
   }
 
   _showDecoration() {
@@ -43,6 +63,7 @@ class UsageHighlight extends React.Component {
 
 UsageHighlight.defaultProps = {
   show: false,
+  column: 1,
 };
 
 export default UsageHighlight;

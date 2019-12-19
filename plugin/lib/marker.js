@@ -7,19 +7,20 @@ export default class SourceMarker {
     this._decoration = null;
   }
 
-  register(location) {
-    if (location == null) {
-      return;
-    }
-    this._marker = this._editor.markBufferPosition(
-      [location.getLine(), location.getColumn()],
-    );
+  register({lineNumber, column}) {
+    // NOTE: INNPV uses 1-based line numbers and columns, but Atom uses
+    // 0-based line numbers and columns.
+    this._marker = this._editor.markBufferPosition([lineNumber - 1, column - 1]);
   }
 
   reconcileLocation(prevLocation, newLocation) {
+    const prevLineNumber = prevLocation.lineNumber;
+    const prevColumn = prevLocation.column;
+    const {lineNumber, column} = newLocation;
+
     if (prevLocation != null && newLocation != null &&
-        newLocation.getLine() === prevLocation.getLine() &&
-        newLocation.getColumn() === prevLocation.getColumn()) {
+        lineNumber === prevLineNumber &&
+        column === prevColumn) {
       return;
     }
     this.remove();

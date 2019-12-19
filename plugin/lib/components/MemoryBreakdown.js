@@ -3,10 +3,11 @@
 import React from 'react';
 
 import AnalysisStore from '../stores/analysis_store';
+import ProjectStore from '../stores/project_store';
 import PerfBarContainer from './generic/PerfBarContainer';
 import MemoryEntryLabel from '../models/MemoryEntryLabel';
-import PerfBar from './generic/PerfBar';
-import {toReadableByteSize, toPercentage} from '../utils';
+import MemoryPerfBar from './MemoryPerfBar';
+import {toPercentage} from '../utils';
 
 const DEFAULT_MEMORY_LABELS = [
   {label: MemoryEntryLabel.Weights, percentage: 30, clickable: true},
@@ -39,27 +40,58 @@ const COLORS_BY_LABEL = {
 export default class MemoryPerfBarContainer extends React.Component {
   constructor(props) {
     super(props);
+    const memoryBreakdown = AnalysisStore.getMemoryBreakdown();
     this.state = {
-      memoryBreakdown: AnalysisStore.getMemoryBreakdown(),
+      memoryBreakdown,
+      textEditorMap: this._getTextEditorMap(memoryBreakdown),
       expanded: null,
     };
 
-    this._onStoreUpdate = this._onStoreUpdate.bind(this);
     this._onLabelClick = this._onLabelClick.bind(this);
+    this._onAnalysisStoreUpdate = this._onAnalysisStoreUpdate.bind(this);
+    this._onProjectStoreUpdate = this._onProjectStoreUpdate.bind(this);
   }
 
   componentDidMount() {
-    AnalysisStore.addListener(this._onStoreUpdate);
+    AnalysisStore.addListener(this._onAnalysisStoreUpdate);
+    ProjectStore.addListener(this._onProjectStoreUpdate);
   }
 
   componentWillUnmount() {
-    AnalysisStore.removeListener(this._onStoreUpdate);
+    AnalysisStore.removeListener(this._onAnalysisStoreUpdate);
+    ProjectStore.removeListener(this._onProjectStoreUpdate);
   }
 
-  _onStoreUpdate() {
+  _onAnalysisStoreUpdate() {
+    const memoryBreakdown = AnalysisStore.getMemoryBreakdown();
     this.setState({
-      memoryBreakdown: AnalysisStore.getMemoryBreakdown(),
+      memoryBreakdown,
+      textEditorMap: this._getTextEditorMap(memoryBreakdown),
     });
+  }
+
+  _onProjectStoreUpdate() {
+    this.setState({
+      textEditorMap: this._getTextEditorMap(this.state.memoryBreakdown),
+    });
+  }
+
+  _getTextEditorMap(memoryBreakdown) {
+    const editorMap = new Map();
+    if (memoryBreakdown == null) {
+      return editorMap;
+    }
+
+    [MemoryEntryLabel.Weights, MemoryEntryLabel.Activations].forEach(label => {
+      memoryBreakdown.getEntriesByLabel(label).forEach(entry => {
+        if (entry.filePath == null || editorMap.has(entry.filePath)) {
+          return;
+        }
+        editorMap.set(entry.filePath, ProjectStore.getTextEditorsFor(entry.filePath));
+      });
+    });
+
+    return editorMap;
   }
 
   _getLabels() {
@@ -100,16 +132,10 @@ export default class MemoryPerfBarContainer extends React.Component {
     return `${entry.name}-idx${index}`;
   }
 
-  _entryTooltipHTML(entry, overallPct) {
-    return `<strong>${entry.name}</strong><br/>` +
-      `${toReadableByteSize(entry.sizeBytes)}<br/>` +
-      `${overallPct.toFixed(2)}%`;
-  }
-
   _renderPerfBars() {
-    const {memoryBreakdown, expanded} = this.state;
+    const {memoryBreakdown, expanded, textEditorMap} = this.state;
     if (memoryBreakdown == null) {
-      return;
+      return null;
     }
 
     const results = [];
@@ -131,13 +157,17 @@ export default class MemoryPerfBarContainer extends React.Component {
           displayPct = toPercentage(entry.sizeBytes, totalSizeBytes);
         }
 
+        const editors = entry.filePath != null ? textEditorMap.get(entry.filePath) : [];
+
         results.push(
-          <PerfBar
+          <MemoryPerfBar
             key={this._entryKey(entry, index)}
+            memoryEntry={entry}
+            editors={editors}
+            overallPct={overallPct}
             resizable={false}
             percentage={displayPct}
             colorClass={colors[index % colors.length]}
-            tooltipHTML={this._entryTooltipHTML(entry, overallPct)}
           />
         );
       })
