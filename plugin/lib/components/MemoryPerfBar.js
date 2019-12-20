@@ -1,15 +1,18 @@
 'use babel';
 
+import path from 'path';
 import React from 'react';
 
 import PerfBar from './generic/PerfBar';
 import UsageHighlight from './UsageHighlight';
+import ProjectStore from '../stores/project_store';
 import {toReadableByteSize} from '../utils';
 
 class MemoryPerfBar extends React.Component {
   constructor(props) {
     super(props);
     this._renderPerfHints = this._renderPerfHints.bind(this);
+    this._onClick = this._onClick.bind(this);
   }
 
   _generateTooltipHTML() {
@@ -32,12 +35,25 @@ class MemoryPerfBar extends React.Component {
     ));
   }
 
+  _onClick() {
+    const {memoryEntry} = this.props;
+    if (memoryEntry.filePath == null) {
+      return;
+    }
+
+    // Atom uses 0-based line numbers, but INNPV uses 1-based line numbers
+    const absoluteFilePath = path.join(ProjectStore.getProjectRoot(), memoryEntry.filePath);
+    atom.workspace.open(absoluteFilePath, {initialLine: memoryEntry.lineNumber - 1});
+  }
+
   render() {
     const {memoryEntry, editors, ...rest} = this.props;
     return (
       <PerfBar
+        clickable={memoryEntry.filePath != null}
         renderPerfHints={this._renderPerfHints}
         tooltipHTML={this._generateTooltipHTML()}
+        onClick={this._onClick}
         {...rest}
       />
     );

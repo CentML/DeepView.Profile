@@ -103,6 +103,19 @@ class PerfBar extends React.Component {
     this.setState({perfHintState: PerfHintState.NONE});
   }
 
+  _className() {
+    const {resizable, clickable} = this.props;
+    const mainClass = 'innpv-perfbar-wrap';
+
+    if (resizable) {
+      return mainClass + ' innpv-perfbar-resizable';
+    } else if (clickable) {
+      return mainClass + ' innpv-perfbar-clickable';
+    } else {
+      return mainClass;
+    }
+  }
+
   render() {
     const {
       renderPerfHints,
@@ -110,12 +123,13 @@ class PerfBar extends React.Component {
       percentage,
       updateMarginTop,
       colorClass,
+      onClick,
     } = this.props;
     const {isActive, perfHintState} = this.state;
 
     return (
       <Elastic
-        className={`innpv-perfbar-wrap ${resizable ? "innpv-perfbar-resizable" : ""}`}
+        className={this._className()}
         disabled={!resizable}
         heightPct={percentage}
         updateMarginTop={updateMarginTop}
@@ -128,6 +142,7 @@ class PerfBar extends React.Component {
           className={`innpv-perfbar ${colorClass}`}
           onMouseEnter={this._handleHoverEnter}
           onMouseLeave={this._handleHoverExit}
+          onClick={onClick}
         />
         {renderPerfHints(isActive, perfHintState)}
       </Elastic>
@@ -137,8 +152,10 @@ class PerfBar extends React.Component {
 
 PerfBar.defaultProps = {
   resizable: false,
+  clickable: false,
   renderPerfHints: (isActive, perfHintState) => null,
   tooltipHTML: null,
+  onClick: () => {},
 };
 
 export default PerfBar;
