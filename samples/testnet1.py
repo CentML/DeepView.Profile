@@ -53,3 +53,30 @@ class TestNet(nn.Module):
         output = self.linear(output)
 
         return output
+
+
+class TestNetWithLoss(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.testnet = TestNet()
+
+    def forward(self, input):
+        return self.testnet(input).sum()
+
+
+def innpv_model_provider():
+    return TestNetWithLoss().cuda()
+
+
+def innpv_input_provider(batch_size=32):
+    return (torch.randn((batch_size, 3, 128, 128)).cuda(),)
+
+
+def innpv_iteration_provider(model, inputs):
+    optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
+    def iteration():
+        optimizer.zero_grad()
+        out = model(*inputs)
+        out.backward()
+        optimizer.step()
+    return iteration
