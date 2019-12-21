@@ -3,7 +3,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 
-import SourceMarker from '../marker';
+import SourceMarker from '../editor/marker';
 import INNPVStore from '../stores/innpv_store';
 import PerfHintState from '../models/PerfHintState';
 

@@ -5,7 +5,7 @@ import React from 'react';
 import PerfBar from './generic/PerfBar';
 import PerfHint from './PerfHint';
 import UsageHighlight from './UsageHighlight';
-import SourceMarker from '../marker';
+import SourceMarker from '../editor/marker';
 import PerfHintState from '../models/PerfHintState';
 import INNPVStore from '../stores/innpv_store';
 

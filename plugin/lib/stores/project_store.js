@@ -1,7 +1,7 @@
 'use babel';
 
 import BaseStore from './base_store';
-import FileTracker from '../file_tracker';
+import FileTracker from '../editor/file_tracker';
 
 class ProjectStore extends BaseStore {
   constructor() {

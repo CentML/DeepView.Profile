@@ -11,7 +11,7 @@ import PerfVisState from '../models/PerfVisState';
 import BatchSizeStore from '../stores/batchsize_store';
 import AnalysisStore from '../stores/analysis_store';
 import INNPVStore from '../stores/innpv_store';
-import SourceMarker from '../marker';
+import SourceMarker from '../editor/marker';
 
 function PerfVisHeader() {
   return (

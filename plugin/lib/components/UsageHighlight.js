@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import SourceMarker from '../marker';
+import SourceMarker from '../editor/marker';
 import INNPVStore from '../stores/innpv_store';
 
 class UsageHighlight extends React.Component {
