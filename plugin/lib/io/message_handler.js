@@ -42,7 +42,10 @@ export default class MessageHandler {
     console.log('Received memory usage message.');
     console.log(`Peak usage: ${message.getPeakUsageBytes()} bytes.`);
     AnalysisStore.receivedMemoryUsage(message);
-    INNPVStore.setPerfVisState(PerfVisState.READY);
+    INNPVStore.clearErrorMessage();
+    if (INNPVStore.getPerfVisState() !== PerfVisState.MODIFIED) {
+      INNPVStore.setPerfVisState(PerfVisState.READY);
+    }
   }
 
   _handleAnalysisError(message) {

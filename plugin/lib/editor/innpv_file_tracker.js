@@ -41,7 +41,7 @@ export default class INNPVFileTracker {
 
   _onProjectFileSave() {
     if (this._tracker.isProjectModified() ||
-        INNPVStore.getPerfVisState() !== PerfVisState.READY) {
+        INNPVStore.getPerfVisState() === PerfVisState.ANALYZING) {
       return;
     }
     INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
@@ -52,11 +52,32 @@ export default class INNPVFileTracker {
     const modified = this._tracker.isProjectModified();
     const perfVisState = INNPVStore.getPerfVisState();
 
-    if (modified && perfVisState === PerfVisState.READY) {
-      INNPVStore.setPerfVisState(PerfVisState.MODIFIED);
+    if (modified) {
+      // Project went from unmodified -> modified
+      switch (perfVisState) {
+        case PerfVisState.ANALYZING:
+        case PerfVisState.READY:
+        case PerfVisState.ERROR:
+          INNPVStore.setPerfVisState(PerfVisState.MODIFIED);
+          break;
 
-    } else if (!modified && perfVisState === PerfVisState.MODIFIED) {
-      INNPVStore.setPerfVisState(PerfVisState.READY);
+        case PerfVisState.MODIFIED:
+          console.warn('Warning: PerfVisState.MODIFIED mismatch (unmodified -> modified).');
+          break;
+
+        default:
+          console.warn(`Modified change unhandled state: ${perfVisState}`);
+          break;
+      }
+
+    } else {
+      // Project went from modified -> unmodified
+      if (perfVisState === PerfVisState.MODIFIED) {
+        INNPVStore.setPerfVisState(PerfVisState.READY);
+
+      } else {
+        console.warn('Warning: PerfVisState.MODIFIED mismatch (modified -> unmodified).');
+      }
     }
   }
 }
