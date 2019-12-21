@@ -6,47 +6,26 @@ import FileTracker from '../editor/file_tracker';
 class ProjectStore extends BaseStore {
   constructor() {
     super();
-    this._onOpenFilesChange = this._onOpenFilesChange.bind(this);
   }
 
   reset() {
-    this._projectRoot = null;
-    this._entryPoint = null;
-    this._resetFileTracker();
+    this._projectConfig = null;
   }
 
-  receivedProjectConfig(projectRoot, entryPoint) {
-    this._projectRoot = projectRoot;
-    this._entryPoint = entryPoint;
-    this._resetFileTracker();
-    this._fileTracker = new FileTracker({
-      projectRoot,
-      onOpenFilesChange: this._onOpenFilesChange,
-    });
+  receivedProjectConfig(projectConfig) {
+    this._projectConfig = projectConfig;
     this.notifyChanged();
   }
 
   getProjectRoot() {
-    return this._projectRoot;
+    return this._projectConfig && this._projectConfig.getProjectRoot();
   }
 
   getTextEditorsFor(filePath) {
-    if (this._fileTracker == null) {
+    if (this._projectConfig == null) {
       return [];
     }
-    return this._fileTracker.getTextEditorsFor(filePath);
-  }
-
-  _resetFileTracker() {
-    if (this._fileTracker == null) {
-      return;
-    }
-    this._fileTracker.dispose();
-    this._fileTracker = null;
-  }
-
-  _onOpenFilesChange() {
-    this.notifyChanged();
+    return this._projectConfig.getTextEditorsFor(filePath);
   }
 }
 

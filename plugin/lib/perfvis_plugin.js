@@ -79,7 +79,10 @@ export default class PerfvisPlugin {
     // 2. Discard any unneeded connection state
     this._messageHandler = null;
     this._messageSender = null;
-    this._connectionState = null;
+    if (this._connectionState != null) {
+      this._connectionState.dispose();
+      this._connectionState = null;
+    }
 
     console.log('Disconnected from the server.');
   }

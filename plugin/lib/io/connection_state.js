@@ -6,14 +6,23 @@ export default class ConnectionState {
     // The connection only has two states: uninitialized and "ready" (initialized)
     // Therefore for simplicity, we use a boolean to represent these states
     this._initialized = false;
+    this._fileTracker = null;
+  }
+
+  dispose() {
+    if (this._fileTracker != null) {
+      this._fileTracker.dispose();
+      this._fileTracker = null;
+    }
   }
 
   get initialized() {
     return this._initialized;
   }
 
-  markInitialized() {
+  markInitialized(fileTracker) {
     this._initialized = true;
+    this._fileTracker = fileTracker;
   }
 
   nextAnalysisSequenceNumber() {
