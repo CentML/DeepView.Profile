@@ -6,6 +6,7 @@ import AnalysisStore from '../stores/analysis_store';
 import ProjectStore from '../stores/project_store';
 import PerfBarContainer from './generic/PerfBarContainer';
 import MemoryEntryLabel from '../models/MemoryEntryLabel';
+import PerfVisState from '../models/PerfVisState';
 import MemoryPerfBar from './MemoryPerfBar';
 import {toPercentage} from '../utils';
 
@@ -177,8 +178,14 @@ export default class MemoryPerfBarContainer extends React.Component {
   }
 
   render() {
+    const {perfVisState} = this.props;
+    const {memoryBreakdown} = this.state;
+    const disabled = perfVisState === PerfVisState.MODIFIED ||
+      perfVisState === PerfVisState.ANALYZING;
+
     return (
       <PerfBarContainer
+        disabled={disabled}
         labels={this._getLabels()}
         onLabelClick={this._onLabelClick}
       >

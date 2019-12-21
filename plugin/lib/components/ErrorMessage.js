@@ -8,8 +8,8 @@ export default class ErrorMessage extends React.Component {
   _classes() {
     const mainClass = 'innpv-error';
     const {perfVisState} = this.props;
-    if (perfVisState === PerfVisState.DEBOUNCING ||
-        perfVisState == PerfVisState.ANALYZING) {
+    if (perfVisState === PerfVisState.MODIFIED ||
+        perfVisState === PerfVisState.ANALYZING) {
       return mainClass + ' innpv-no-events';
     }
     return mainClass;

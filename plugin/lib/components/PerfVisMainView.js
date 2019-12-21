@@ -72,7 +72,7 @@ export default class PerfVisMainView extends React.Component {
     const {perfVisState} = this.props;
     const {throughput, memory} = this.state;
     const mainClass = 'innpv-contents-subrows';
-    if (perfVisState === PerfVisState.DEBOUNCING ||
+    if (perfVisState === PerfVisState.MODIFIED ||
         (perfVisState === PerfVisState.ANALYZING &&
           (throughput == null || memory == null))) {
       return mainClass + ' innpv-no-events';
@@ -88,7 +88,7 @@ export default class PerfVisMainView extends React.Component {
       return (
         <div className="innpv-contents-columns">
           <div className="innpv-perfbar-contents">
-            <MemoryBreakdown />
+            <MemoryBreakdown perfVisState={perfVisState} />
           </div>
           <div className={this._subrowClasses()}>
             <Throughput

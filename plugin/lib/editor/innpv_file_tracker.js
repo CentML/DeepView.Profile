@@ -53,9 +53,9 @@ export default class INNPVFileTracker {
     const perfVisState = INNPVStore.getPerfVisState();
 
     if (modified && perfVisState === PerfVisState.READY) {
-      INNPVStore.setPerfVisState(PerfVisState.DEBOUNCING);
+      INNPVStore.setPerfVisState(PerfVisState.MODIFIED);
 
-    } else if (!modified && perfVisState === PerfVisState.DEBOUNCING) {
+    } else if (!modified && perfVisState === PerfVisState.MODIFIED) {
       INNPVStore.setPerfVisState(PerfVisState.READY);
     }
   }

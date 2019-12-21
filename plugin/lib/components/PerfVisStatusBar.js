@@ -43,8 +43,8 @@ class PerfVisStatusBar extends React.Component {
       case PerfVisState.SHOWING_PREDICTIONS:
         return 'Showing predicted performance';
 
-      case PerfVisState.DEBOUNCING:
-        return 'Changes detected, analysis scheduled...';
+      case PerfVisState.MODIFIED:
+        return 'Unsaved changes; save to re-enable interactivity';
     }
   }
 

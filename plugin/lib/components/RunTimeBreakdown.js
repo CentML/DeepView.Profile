@@ -58,7 +58,7 @@ export default class RunTimeBreakdown extends React.Component {
   render() {
     const {perfVisState} = this.props;
     const {operationInfos, marginTop} = this.state;
-    const disabled = perfVisState === PerfVisState.DEBOUNCING ||
+    const disabled = perfVisState === PerfVisState.MODIFIED ||
       (perfVisState === PerfVisState.ANALYZING && operationInfos.length == 0);
 
     return (
