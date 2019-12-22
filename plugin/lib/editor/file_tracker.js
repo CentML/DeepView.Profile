@@ -138,7 +138,7 @@ export default class FileTracker {
   }
 
   _toProjectRelativePath(candidateFilePath) {
-    if (!candidateFilePath.startsWith(this._projectRoot)) {
+    if (candidateFilePath == null || !candidateFilePath.startsWith(this._projectRoot)) {
       return null;
     }
     return path.relative(this._projectRoot, candidateFilePath);
