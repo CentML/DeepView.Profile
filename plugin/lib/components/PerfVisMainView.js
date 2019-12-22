@@ -8,7 +8,6 @@ import MemoryBreakdown from './MemoryBreakdown';
 import PerfVisStatusBar from './PerfVisStatusBar';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
-import BatchSizeStore from '../stores/batchsize_store';
 import AnalysisStore from '../stores/analysis_store';
 import INNPVStore from '../stores/innpv_store';
 import SourceMarker from '../editor/marker';
@@ -25,9 +24,8 @@ export default class PerfVisMainView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      throughput: BatchSizeStore.getThroughputModel(),
-      inputInfo: BatchSizeStore.getInputInfo(),
       overallMemoryUsage: AnalysisStore.getOverallMemoryUsage(),
+      throughput: AnalysisStore.getThroughput(),
     };
     this._onStoreUpdate = this._onStoreUpdate.bind(this);
     this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
@@ -36,29 +34,22 @@ export default class PerfVisMainView extends React.Component {
   }
 
   componentDidMount() {
-    BatchSizeStore.addListener(this._onStoreUpdate);
     AnalysisStore.addListener(this._onStoreUpdate);
   }
 
   componentWillUnmount() {
-    BatchSizeStore.removeListener(this._onStoreUpdate);
     AnalysisStore.removeListener(this._onStoreUpdate);
   }
 
   _onStoreUpdate() {
     this.setState({
-      throughput: BatchSizeStore.getThroughputModel(),
-      inputInfo: BatchSizeStore.getInputInfo(),
       overallMemoryUsage: AnalysisStore.getOverallMemoryUsage(),
+      throughput: AnalysisStore.getThroughput(),
     });
   }
 
   _handleStatusBarClick() {
-    if (this.props.perfVisState !== PerfVisState.SHOWING_PREDICTIONS) {
-      return;
-    }
-    BatchSizeStore.clearPredictions();
-    INNPVStore.setPerfVisState(PerfVisState.READY);
+    // TODO: Handle status bar clicks (currently only to undo predictions)
   }
 
   _handleSliderHoverEnter() {

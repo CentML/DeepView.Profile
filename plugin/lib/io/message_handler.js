@@ -52,6 +52,7 @@ export default class MessageHandler {
 
   _handleThroughputResponse(message) {
     console.log(`Received throughput message: ${message.getSamplesPerSecond()} samples/s.`);
+    AnalysisStore.receivedThroughput(message);
     INNPVStore.clearErrorMessage();
     if (INNPVStore.getPerfVisState() !== PerfVisState.MODIFIED) {
       INNPVStore.setPerfVisState(PerfVisState.READY);
