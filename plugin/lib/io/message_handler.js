@@ -43,14 +43,19 @@ export default class MessageHandler {
     console.log(`Peak usage: ${message.getPeakUsageBytes()} bytes.`);
     AnalysisStore.receivedMemoryUsage(message);
     INNPVStore.clearErrorMessage();
-    if (INNPVStore.getPerfVisState() !== PerfVisState.MODIFIED) {
-      INNPVStore.setPerfVisState(PerfVisState.READY);
-    }
   }
 
   _handleAnalysisError(message) {
     INNPVStore.setErrorMessage(message.getErrorMessage());
     INNPVStore.setPerfVisState(PerfVisState.ERROR);
+  }
+
+  _handleThroughputResponse(message) {
+    console.log(`Received throughput message: ${message.getSamplesPerSecond()} samples/s.`);
+    INNPVStore.clearErrorMessage();
+    if (INNPVStore.getPerfVisState() !== PerfVisState.MODIFIED) {
+      INNPVStore.setPerfVisState(PerfVisState.READY);
+    }
   }
 
   _handleAfterInitializationMessage(handler, message) {
@@ -93,6 +98,13 @@ export default class MessageHandler {
         this._handleAfterInitializationMessage(
           this._handleAnalysisError,
           enclosingMessage.getAnalysisError(),
+        );
+        break;
+
+      case pm.FromServer.PayloadCase.THROUGHPUT:
+        this._handleAfterInitializationMessage(
+          this._handleThroughputResponse,
+          enclosingMessage.getThroughput(),
         );
         break;
     }

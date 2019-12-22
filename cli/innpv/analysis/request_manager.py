@@ -65,8 +65,20 @@ class AnalysisRequestManager:
                 Config.project_root, Config.entry_point, self._nvml)
 
             memory_usage = next(analyzer)
-            self._send_memory_usage_response(
-                memory_usage, analysis_request.sequence_number, address)
+            self._enqueue_response(
+                self._send_memory_usage_response,
+                memory_usage,
+                analysis_request.sequence_number,
+                address,
+            )
+
+            throughput = next(analyzer)
+            self._enqueue_response(
+                self._send_throughput_response,
+                throughput,
+                analysis_request.sequence_number,
+                address,
+            )
 
         except AnalysisError as ex:
             self._enqueue_response(
@@ -115,3 +127,12 @@ class AnalysisRequestManager:
         except:
             logger.exception(
                 'Exception occurred when sending an analysis error.')
+
+    def _send_throughput_response(self, throughput, sequence_number, address):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_throughput_response(
+                throughput, sequence_number, address)
+        except:
+            logger.exception(
+                'Exception occurred when sending a throughput response.')

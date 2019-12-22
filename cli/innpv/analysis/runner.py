@@ -27,7 +27,7 @@ def main():
     print('Max. capacity:', memory.memory_capacity_bytes, 'bytes')
     print('No. of weight entries:', len(memory.weight_entries))
     print('No. of activ. entries:', len(memory.activation_entries))
-    print('Throughput:', throughput, 'samples/s')
+    print('Throughput:', throughput.samples_per_second, 'samples/s')
 
 
 if __name__ == "__main__":

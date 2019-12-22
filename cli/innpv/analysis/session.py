@@ -1,4 +1,5 @@
 import inspect
+import math
 import os
 
 import innpv.protocol_gen.innpv_pb2 as pm
@@ -123,12 +124,18 @@ class AnalysisSession:
         return memory_usage
 
     def measure_throughput(self):
-        return measure_throughput(
+        samples_per_second = measure_throughput(
             self._model_provider,
             self._input_provider,
             self._iteration_provider,
             self._batch_size,
         )
+
+        throughput = pm.ThroughputResponse()
+        throughput.samples_per_second = samples_per_second
+        throughput.predicted_max_samples_per_second = math.nan
+
+        return throughput
 
 
 def _run_entry_point(project_root, entry_point):
