@@ -1,7 +1,7 @@
 'use babel';
 
 import BaseStore from './base_store';
-import Throughput from '../models/Throughput';
+import Throughput from '../models/LegacyThroughput';
 import Memory from '../models/Memory';
 import {
   evaluateLinearModel,
