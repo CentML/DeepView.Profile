@@ -58,6 +58,7 @@ message FromServer {
     InitializeResponse initialize = 2;
     MemoryUsageResponse memory_usage = 3;
     AnalysisError analysis_error = 4;
+    ThroughputResponse throughput = 5;
   }
 }
 
@@ -78,6 +79,13 @@ message MemoryUsageResponse {
 message AnalysisError {
   uint32 sequence_number = 1;
   string error_message = 2;
+}
+
+message ThroughputResponse {
+  uint32 sequence_number = 1;
+  float samples_per_second = 2;
+  // This will be NaN if we cannot make a prediction.
+  float predicted_max_samples_per_second = 3;
 }
 
 message ProtocolError {
