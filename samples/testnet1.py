@@ -72,9 +72,9 @@ def innpv_input_provider(batch_size=32):
     return (torch.randn((batch_size, 3, 128, 128)).cuda(),)
 
 
-def innpv_iteration_provider(model, inputs):
+def innpv_iteration_provider(model):
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
-    def iteration():
+    def iteration(*inputs):
         optimizer.zero_grad()
         out = model(*inputs)
         out.backward()

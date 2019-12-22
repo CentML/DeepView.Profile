@@ -61,8 +61,10 @@ class AnalysisRequestManager:
                 analysis_request.sequence_number,
                 *address,
             )
-            memory_usage = analyze_project(
+            analyzer = analyze_project(
                 Config.project_root, Config.entry_point, self._nvml)
+
+            memory_usage = next(analyzer)
             self._send_memory_usage_response(
                 memory_usage, analysis_request.sequence_number, address)
 
