@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 
 from innpv.analysis.session import AnalysisSession
@@ -31,4 +32,10 @@ def main():
 
 
 if __name__ == "__main__":
+    kwargs = {
+        "format": "%(asctime)s %(levelname)-8s %(message)s",
+        "datefmt": "%Y-%m-%d %H:%M",
+        "level": logging.DEBUG,
+    }
+    logging.basicConfig(**kwargs)
     main()

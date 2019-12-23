@@ -73,13 +73,100 @@ class IterationProfiler:
 
         return min(lesser, greater), repetitions
 
-    def measure_throughput(self, batch_size):
+    def safely_measure_run_time_ms(self, batch_size, initial_repetitions=None):
         try:
-            run_time_ms, repetitions = self.measure_run_time_ms(batch_size)
-            return batch_size / run_time_ms * 1000
+            return (
+                None,
+                self.measure_run_time_ms(batch_size, initial_repetitions),
+            )
         except RuntimeError as ex:
             message = str(ex)
             if 'CUDA out of memory' in message:
-                raise AnalysisError(message, type(ex)) from ex
+                return (ex, None)
             else:
                 raise
+
+    def measure_throughput(self, batch_size):
+        samples = self.sample_run_time_ms_by_batch_size(batch_size)
+        logger.debug('Num. samples: %d', len(samples))
+        return samples[0][0] / samples[0][1] * 1000
+
+    def sample_run_time_ms_by_batch_size(
+            self, start_batch_size, num_samples=3):
+        samples = []
+
+        # 1. Make sure we can measure the run time of the "start" batch size
+        err, start_result = self.safely_measure_run_time_ms(start_batch_size)
+        if err is not None:
+            raise AnalysisError(str(err), type(err))
+        samples.append((start_batch_size, start_result[0]))
+
+        # 2. Perform sampling. We keep a range of "viable" batch sizes, where
+        #    the upper limit is a guess on what will fit in memory. We adjust
+        #    these limits as we sample.
+        max_batch_size = start_batch_size * 2
+
+        if len(samples) < num_samples:
+            samples.extend(self._sample_range(
+                start_batch_size,
+                max_batch_size,
+                num_samples=(num_samples - len(samples)),
+                is_increasing=True,
+            ))
+
+        if len(samples) < num_samples:
+            samples.extend(self._sample_range(
+                1,
+                start_batch_size,
+                num_samples=(num_samples - len(samples)),
+                is_increasing=False,
+            ))
+
+        return samples
+
+    def _sample_range(
+            self, min_size, max_size, num_samples, is_increasing=True):
+        # The idea here is to sample the range of possible batch sizes by
+        # recursively narrowing down the acceptable ranges of batch sizes.
+
+        samples = []
+        stack = [(min_size, max_size)]
+
+        while len(samples) < num_samples and len(stack) > 0:
+            lower, upper = stack.pop()
+            if lower >= upper:
+                continue
+
+            next_size = self._select_batch_size(lower, upper, is_increasing)
+            logger.debug("Sampling batch size: %d", next_size)
+            err, result = self.safely_measure_run_time_ms(next_size)
+            if err is not None:
+                if is_increasing:
+                    stack.append((lower, next_size - 1))
+                else:
+                    stack.append((next_size + 1, upper))
+                continue
+
+            samples.append((next_size, result[0]))
+
+            # Change the order in which we explore each range
+            if is_increasing:
+                stack.append((lower, next_size - 1))
+                stack.append((next_size + 1, upper))
+            else:
+                stack.append((next_size + 1, upper))
+                stack.append((lower, next_size - 1))
+
+        return samples
+
+    def _select_batch_size(self, lower, upper, is_increasing):
+        diff = upper - lower
+        base = lower if is_increasing else upper
+        mult = 1 if is_increasing else -1
+
+        if diff >= 10:
+            return base + mult * 10
+        elif diff >= 5:
+            return base + mult * 5
+        else:
+            return base + mult * 1
