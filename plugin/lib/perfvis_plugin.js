@@ -121,6 +121,8 @@ export default class PerfvisPlugin {
     );
     BatchSizeStore.reset();
     OperationInfoStore.reset();
+    AnalysisStore.reset();
+    ProjectStore.reset();
   }
 
   _handleMessage(message) {
