@@ -27,6 +27,7 @@ class AnalysisSession:
         self._input_provider = input_provider
         self._iteration_provider = iteration_provider
         self._batch_size = self._validate_providers()
+        self._memory_usage_percentage = None
 
     @classmethod
     def new_from(cls, project_root, entry_point):
@@ -99,7 +100,11 @@ class AnalysisSession:
         return batch_size
 
     def measure_memory_usage(self, nvml):
-        report = track_memory_usage(self._model_provider, self._input_provider)
+        report = track_memory_usage(
+            self._model_provider,
+            self._input_provider,
+            self._iteration_provider,
+        )
 
         memory_usage = pm.MemoryUsageResponse()
         memory_usage.peak_usage_bytes = report.get_misc_entry(
@@ -120,6 +125,10 @@ class AnalysisSession:
             entry.operation_name = activation_entry.operation_name
             entry.size_bytes = activation_entry.size_bytes
             _set_file_context(entry, self._project_root, activation_entry)
+
+        self._memory_usage_percentage = (
+            memory_usage.peak_usage_bytes / memory_usage.memory_capacity_bytes
+        )
 
         return memory_usage
 

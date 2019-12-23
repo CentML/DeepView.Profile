@@ -5,7 +5,8 @@ from innpv.tracking.report import TrackerReportBuilder, MiscSizeType
 from innpv.tracking.weights import WeightsTracker
 
 
-def track_memory_usage(model_provider, input_provider, report_file=None):
+def track_memory_usage(
+        model_provider, input_provider, iteration_provider, report_file=None):
     _ensure_cuda_initialization()
 
     # Track and record memory usage associated with model creation
@@ -13,12 +14,10 @@ def track_memory_usage(model_provider, input_provider, report_file=None):
     with weight_tracker.track():
         model = model_provider()
 
-    def run_iteration():
-        output = model(*input_provider())
-        output.backward()
+    iteration = iteration_provider(model)
 
     # Run one iteration to initialize the gradients
-    run_iteration()
+    iteration(*input_provider())
 
     # Track and record memory usage associated with stored activations
     activations_tracker = ActivationsTracker()
@@ -26,7 +25,7 @@ def track_memory_usage(model_provider, input_provider, report_file=None):
 
     # Record peak memory usage
     torch.cuda.reset_max_memory_allocated()
-    run_iteration()
+    iteration(*input_provider())
     peak_usage_bytes = torch.cuda.max_memory_allocated()
 
     # Store our tracking results
