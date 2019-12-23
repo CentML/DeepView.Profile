@@ -4,9 +4,9 @@ import os
 
 import innpv.protocol_gen.innpv_pb2 as pm
 from innpv.exceptions import AnalysisError
+from innpv.profiler.iteration import IterationProfiler
 from innpv.tracking.memory import track_memory_usage
 from innpv.tracking.report import MiscSizeType
-from innpv.profiler.throughput_new import measure_throughput
 
 MODEL_PROVIDER_NAME = "innpv_model_provider"
 INPUT_PROVIDER_NAME = "innpv_input_provider"
@@ -124,12 +124,12 @@ class AnalysisSession:
         return memory_usage
 
     def measure_throughput(self):
-        samples_per_second = measure_throughput(
+        profiler = IterationProfiler.new_from(
             self._model_provider,
             self._input_provider,
             self._iteration_provider,
-            self._batch_size,
         )
+        samples_per_second = profiler.measure_throughput(self._batch_size)
 
         throughput = pm.ThroughputResponse()
         throughput.samples_per_second = samples_per_second
