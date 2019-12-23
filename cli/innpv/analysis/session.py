@@ -1,12 +1,17 @@
 import inspect
+import logging
 import math
 import os
+
+import numpy as np
 
 import innpv.protocol_gen.innpv_pb2 as pm
 from innpv.exceptions import AnalysisError
 from innpv.profiler.iteration import IterationProfiler
 from innpv.tracking.memory import track_memory_usage
 from innpv.tracking.report import MiscSizeType
+
+logger = logging.getLogger(__name__)
 
 MODEL_PROVIDER_NAME = "innpv_model_provider"
 INPUT_PROVIDER_NAME = "innpv_input_provider"
@@ -138,11 +143,35 @@ class AnalysisSession:
             self._input_provider,
             self._iteration_provider,
         )
-        samples_per_second = profiler.measure_throughput(self._batch_size)
+        samples = profiler.sample_run_time_ms_by_batch_size(
+            self._batch_size)
+        if len(samples) == 0 or samples[0].batch_size != self._batch_size:
+            raise AnalysisError(
+                "Something went wrong with INNPV when measuring your model's "
+                "throughput. Please file a bug."
+            )
 
         throughput = pm.ThroughputResponse()
-        throughput.samples_per_second = samples_per_second
-        throughput.predicted_max_samples_per_second = math.nan
+        throughput.samples_per_second = (
+            samples[0].batch_size / samples[0].run_time_ms * 1000
+        )
+
+        run_times = np.array(
+            list(map(lambda sample: sample.run_time_ms, samples)))
+        batches = np.array(
+            list(map(lambda sample: sample.batch_size, samples)))
+        stacked = np.vstack([batches, np.ones(len(batches))]).T
+        slope, coefficient = np.linalg.lstsq(stacked, run_times, rcond=None)[0]
+        logger.debug(
+            "Run time model - Slope: %f, Coefficient: %f", slope, coefficient)
+
+        if slope < 1e-3 or coefficient < 1e-3:
+            # We expect the slope and coefficient to be positive. If they are
+            # not, we ignore our prediction.
+            throughput.predicted_max_samples_per_second = math.nan
+            return throughput
+
+        throughput.predicted_max_samples_per_second = 1000.0 / slope
 
         return throughput
 

@@ -1,3 +1,4 @@
+import collections
 import logging
 
 import torch
@@ -5,6 +6,9 @@ import torch
 from innpv.exceptions import AnalysisError
 
 logger = logging.getLogger(__name__)
+
+IterationSample = collections.namedtuple(
+    "IterationSample", ["batch_size", "run_time_ms"])
 
 
 class IterationProfiler:
@@ -86,11 +90,6 @@ class IterationProfiler:
             else:
                 raise
 
-    def measure_throughput(self, batch_size):
-        samples = self.sample_run_time_ms_by_batch_size(batch_size)
-        logger.debug('Num. samples: %d', len(samples))
-        return samples[0][0] / samples[0][1] * 1000
-
     def sample_run_time_ms_by_batch_size(
             self, start_batch_size, num_samples=3):
         samples = []
@@ -99,7 +98,7 @@ class IterationProfiler:
         err, start_result = self.safely_measure_run_time_ms(start_batch_size)
         if err is not None:
             raise AnalysisError(str(err), type(err))
-        samples.append((start_batch_size, start_result[0]))
+        samples.append(IterationSample(start_batch_size, start_result[0]))
 
         # 2. Perform sampling. We keep a range of "viable" batch sizes, where
         #    the upper limit is a guess on what will fit in memory. We adjust
@@ -147,7 +146,7 @@ class IterationProfiler:
                     stack.append((next_size + 1, upper))
                 continue
 
-            samples.append((next_size, result[0]))
+            samples.append(IterationSample(next_size, result[0]))
 
             # Change the order in which we explore each range
             if is_increasing:
