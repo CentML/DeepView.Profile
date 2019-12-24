@@ -144,7 +144,9 @@ class AnalysisSession:
             self._iteration_provider,
         )
         samples = profiler.sample_run_time_ms_by_batch_size(
-            self._batch_size)
+            start_batch_size=self._batch_size,
+            memory_usage_percentage=self._memory_usage_percentage,
+        )
         if len(samples) == 0 or samples[0].batch_size != self._batch_size:
             raise AnalysisError(
                 "Something went wrong with INNPV when measuring your model's "

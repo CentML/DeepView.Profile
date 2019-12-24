@@ -91,7 +91,11 @@ class IterationProfiler:
                 raise
 
     def sample_run_time_ms_by_batch_size(
-            self, start_batch_size, num_samples=3):
+        self,
+        start_batch_size,
+        memory_usage_percentage=None,
+        num_samples=3,
+    ):
         samples = []
 
         # 1. Make sure we can measure the run time of the "start" batch size
@@ -103,7 +107,16 @@ class IterationProfiler:
         # 2. Perform sampling. We keep a range of "viable" batch sizes, where
         #    the upper limit is a guess on what will fit in memory. We adjust
         #    these limits as we sample.
-        max_batch_size = start_batch_size * 2
+        #
+        #    We estimate the maximum batch size by assuming a linear
+        #    relationship between the model's memory use and its batch size.
+        #    The memory use at the initial batch size is obtained through
+        #    memory tracking. If it is not specified, we just add a constant
+        max_batch_size = (
+            start_batch_size / memory_usage_percentage
+            if memory_usage_percentage is not None
+            else start_batch_size + 100
+        )
 
         if len(samples) < num_samples:
             samples.extend(self._sample_range(
