@@ -114,6 +114,17 @@ def validate_dependencies():
         return False
 
 
+def validate_gpu():
+    import torch
+    if not torch.cuda.is_available():
+        logger.error(
+            "INNPV did not detect a GPU on this machine. INNPV only profiles "
+            "deep learning workloads on GPUs."
+        )
+        return False
+    return True
+
+
 def pre_main(args):
     configure_logging(args)
     if not validate_dependencies():
@@ -123,6 +134,9 @@ def pre_main(args):
 def actual_main(args):
     from innpv.config import Config
     from innpv.server import INNPVServer
+
+    if not validate_gpu():
+        sys.exit(1)
 
     project_root = os.getcwd()
     entry_point = args.entry_point
