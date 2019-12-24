@@ -25,13 +25,14 @@ class AnalysisSession:
         project_root,
         model_provider,
         input_provider,
-        iteration_provider
+        iteration_provider,
+        batch_size
     ):
         self._project_root = project_root
         self._model_provider = model_provider
         self._input_provider = input_provider
         self._iteration_provider = iteration_provider
-        self._batch_size = self._validate_providers()
+        self._batch_size = batch_size
         self._memory_usage_percentage = None
 
     @classmethod
@@ -70,39 +71,20 @@ class AnalysisSession:
                 "named \"{}\".".format(ITERATION_PROVIDER_NAME)
             )
 
+        model_provider = scope[MODEL_PROVIDER_NAME]
+        input_provider = scope[INPUT_PROVIDER_NAME]
+        iteration_provider = scope[ITERATION_PROVIDER_NAME]
+
+        batch_size = _validate_providers(
+            model_provider, input_provider, iteration_provider)
+
         return cls(
             project_root,
-            scope[MODEL_PROVIDER_NAME],
-            scope[INPUT_PROVIDER_NAME],
-            scope[ITERATION_PROVIDER_NAME],
+            model_provider,
+            input_provider,
+            iteration_provider,
+            batch_size,
         )
-
-    def _validate_providers(self):
-        model_sig = inspect.signature(self._model_provider)
-        if len(model_sig.parameters) != 0:
-            raise AnalysisError(
-                "The model provider function cannot have any parameters."
-            )
-
-        input_sig = inspect.signature(self._input_provider)
-        if (len(input_sig.parameters) != 1 or
-                BATCH_SIZE_ARG not in input_sig.parameters or
-                type(input_sig.parameters[BATCH_SIZE_ARG].default) is not int):
-            raise AnalysisError(
-                "The input provider function must have exactly one '{}' "
-                "parameter with an integral default "
-                "value.".format(BATCH_SIZE_ARG)
-            )
-        batch_size = input_sig.parameters[BATCH_SIZE_ARG].default
-
-        iteration_sig = inspect.signature(self._iteration_provider)
-        if len(iteration_sig.parameters) != 1:
-            raise AnalysisError(
-                "The iteration provider function must have exactly one "
-                "parameter (the model being profiled)."
-            )
-
-        return batch_size
 
     def measure_memory_usage(self, nvml):
         report = track_memory_usage(
@@ -201,3 +183,75 @@ def _set_file_context(message, project_root, entry):
     relative_file_path = os.path.relpath(entry.file_path, start=project_root)
     message.context.file_path.components.extend(
         relative_file_path.split(os.sep))
+
+
+def _validate_providers(model_provider, input_provider, iteration_provider):
+    model_sig = inspect.signature(model_provider)
+    if len(model_sig.parameters) != 0:
+        raise AnalysisError(
+            "The model provider function cannot have any parameters."
+        )
+
+    input_sig = inspect.signature(input_provider)
+    if (len(input_sig.parameters) != 1 or
+            BATCH_SIZE_ARG not in input_sig.parameters or
+            type(input_sig.parameters[BATCH_SIZE_ARG].default) is not int):
+        raise AnalysisError(
+            "The input provider function must have exactly one '{}' "
+            "parameter with an integral default "
+            "value.".format(BATCH_SIZE_ARG)
+        )
+    batch_size = input_sig.parameters[BATCH_SIZE_ARG].default
+
+    iteration_sig = inspect.signature(iteration_provider)
+    if len(iteration_sig.parameters) != 1:
+        raise AnalysisError(
+            "The iteration provider function must have exactly one "
+            "parameter (the model being profiled)."
+        )
+
+    err = _validate_provider_return_values(
+        model_provider, input_provider, iteration_provider)
+    if err is not None:
+        raise err
+
+    return batch_size
+
+
+def _validate_provider_return_values(
+        model_provider, input_provider, iteration_provider):
+    try:
+        # We return exceptions instead of raising them here to prevent
+        # them from being caught by the overall exception handler below.
+        model = model_provider()
+        if not callable(model):
+            return AnalysisError(
+                "The model provider function must return a callable (i.e. "
+                "return something that can be called like a PyTorch "
+                "module or function)."
+            )
+
+        inputs = input_provider()
+        try:
+            input_iter = iter(inputs)
+        except TypeError as ex:
+            return AnalysisError(
+                "The input provider function must return an iterable that "
+                "contains the inputs for the model."
+            )
+
+        iteration = iteration_provider(model)
+        if not callable(iteration):
+            return AnalysisError(
+                "The iteration provider function must return a callable "
+                "(i.e. return something that can be called like a "
+                "function)."
+            )
+
+        return None
+
+    except Exception as ex:
+        # There may be errors when running user code. Catch any exceptions
+        # here and return them as an AnalysisError so that we can inform
+        # the user.
+        return AnalysisError(str(ex), type(ex))
