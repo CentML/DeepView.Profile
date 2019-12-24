@@ -93,19 +93,36 @@ def validate_paths(project_root, entry_point):
     return True
 
 
-def main(args):
+def validate_dependencies():
+    # NOTE: If you make a change here, make sure to update the INSTALL_REQUIRES
+    #       list in setup.py as well.
+    try:
+        import yaml # pyyaml on pip
+        import pynvml # nvidia-ml-py3 on pip
+        import google.protobuf # protobuf on pip
+        import numpy
+        import torch
+        return True
+    except ImportError as ex:
+        logger.error(
+            "INNPV could not find the '%s' module, which is a required "
+            "dependency. Please make sure all the required dependencies are "
+            "installed before launching INNPV. If you use a package manager, "
+            "these dependencies will be automatically installed for you.",
+            ex.name,
+        )
+        return False
+
+
+def pre_main(args):
+    configure_logging(args)
+    if not validate_dependencies():
+        sys.exit(1)
+
+
+def actual_main(args):
     from innpv.config import Config
     from innpv.server import INNPVServer
-
-    should_shutdown = threading.Event()
-
-    def signal_handler(signal, frame):
-        should_shutdown.set()
-
-    signal.signal(signal.SIGINT, signal_handler)
-    signal.signal(signal.SIGTERM, signal_handler)
-
-    configure_logging(args)
 
     project_root = os.getcwd()
     entry_point = args.entry_point
@@ -114,6 +131,14 @@ def main(args):
 
     Config.parse_args(args)
     Config.set_project_paths(project_root, entry_point)
+
+    should_shutdown = threading.Event()
+
+    def signal_handler(signal, frame):
+        should_shutdown.set()
+
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
 
     with INNPVServer(args.host, args.port) as server:
         _, port = server.listening_on
@@ -127,3 +152,10 @@ def main(args):
 
         # Run the server until asked to terminate
         should_shutdown.wait()
+
+
+def main(args):
+    # We need a separate pre_main() to validate the existence of our
+    # dependencies before any further INNPV imports in actual_main().
+    pre_main(args)
+    actual_main(args)
