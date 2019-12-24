@@ -57,7 +57,7 @@ class IterationProfiler:
         #
         # We will return the smaller number of repetitions. This can be used by
         # future callers as the value of the initial_repetitions argument.
-        repetitions = 5 if initial_repetitions is None else initial_repetitions
+        repetitions = 3 if initial_repetitions is None else initial_repetitions
         max_repetitions = (
             50 if initial_repetitions is None else max(50, initial_repetitions)
         )
@@ -176,7 +176,9 @@ class IterationProfiler:
         base = lower if is_increasing else upper
         mult = 1 if is_increasing else -1
 
-        if diff >= 10:
+        if diff >= 20:
+            return base + mult * 20
+        elif diff >= 10:
             return base + mult * 10
         elif diff >= 5:
             return base + mult * 5

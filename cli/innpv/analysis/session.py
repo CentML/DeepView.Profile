@@ -153,10 +153,11 @@ class AnalysisSession:
                 "throughput. Please file a bug."
             )
 
-        throughput = pm.ThroughputResponse()
-        throughput.samples_per_second = (
+        measured_throughput = (
             samples[0].batch_size / samples[0].run_time_ms * 1000
         )
+        throughput = pm.ThroughputResponse()
+        throughput.samples_per_second = measured_throughput
 
         run_times = np.array(
             list(map(lambda sample: sample.run_time_ms, samples)))
@@ -167,13 +168,17 @@ class AnalysisSession:
         logger.debug(
             "Run time model - Slope: %f, Coefficient: %f", slope, coefficient)
 
-        if slope < 1e-3 or coefficient < 1e-3:
-            # We expect the slope and coefficient to be positive. If they are
-            # not, we ignore our prediction.
+        predicted_max_throughput = 1000.0 / slope
+
+        # Our prediction can be inaccurate due to sampling error or incorrect
+        # assumptions. In these cases, we ignore our prediction. At the very
+        # minimum, a good linear model has a positive slope and coefficient.
+        if (slope < 1e-3 or coefficient < 1e-3 or
+                measured_throughput > predicted_max_throughput):
             throughput.predicted_max_samples_per_second = math.nan
             return throughput
 
-        throughput.predicted_max_samples_per_second = 1000.0 / slope
+        throughput.predicted_max_samples_per_second = predicted_max_throughput
 
         return throughput
 
