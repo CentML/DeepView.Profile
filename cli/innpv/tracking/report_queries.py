@@ -108,6 +108,7 @@ get_weight_entries_with_context = (
           LEFT JOIN code_contexts AS c
           ON w.id == c.entry_id
         WHERE w.size_bytes > 0
+        ORDER BY c.file_path ASC, c.line_number ASC
     """
 )
 
@@ -119,5 +120,6 @@ get_activation_entries_with_context = (
           LEFT JOIN code_contexts AS c
           ON a.id == c.entry_id
         WHERE a.size_bytes > 0
+        ORDER BY c.file_path ASC, c.line_number ASC
     """
 )
