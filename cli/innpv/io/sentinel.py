@@ -24,3 +24,8 @@ class Sentinel:
 
     def signal_exit(self):
         os.write(self._write_pipe, b'\0')
+
+    def consume_exit_signal(self):
+        # This should only be called after signal_exit(),
+        # otherwise the calling thread will block.
+        os.read(self._read_pipe, 1)

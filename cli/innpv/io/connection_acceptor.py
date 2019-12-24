@@ -71,6 +71,7 @@ class ConnectionAcceptor:
                     [self._server_socket, self._sentinel.read_pipe], [], [])
 
                 if self._sentinel.should_exit(read_ready):
+                    self._sentinel.consume_exit_signal()
                     break
 
                 socket, address = self._server_socket.accept()

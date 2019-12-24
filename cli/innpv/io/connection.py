@@ -56,6 +56,7 @@ class Connection:
                         "Connection (%s:%d) is being closed.",
                         *self.address,
                     )
+                    self._sentinel.consume_exit_signal()
                     break
 
                 data = self._socket.recv(4096)
