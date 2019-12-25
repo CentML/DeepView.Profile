@@ -24,7 +24,7 @@ export default class MessageSender {
     const enclosingMessage = new pm.FromClient();
     enclosingMessage['set' + payloadName](message);
     enclosingMessage.setSequenceNumber(
-      this._connectionState.nextAnalysisSequenceNumber(),
+      this._connectionState.nextSequenceNumber(),
     );
     this._connection.sendBytes(enclosingMessage.serializeBinary());
   }

@@ -2,7 +2,7 @@
 
 export default class ConnectionState {
   constructor() {
-    this._analysisSequenceNumber = 0;
+    this._sequenceNumber = 0;
     // The connection only has two states: uninitialized and "ready" (initialized)
     // Therefore for simplicity, we use a boolean to represent these states
     this._initialized = false;
@@ -39,16 +39,16 @@ export default class ConnectionState {
     }
   }
 
-  nextAnalysisSequenceNumber() {
-    const number = this._analysisSequenceNumber;
-    this._analysisSequenceNumber += 1;
+  nextSequenceNumber() {
+    const number = this._sequenceNumber;
+    this._sequenceNumber += 1;
     return number;
   }
 
   isResponseCurrent(responseSequenceNumber) {
     // Since we always increase the sequence number by one, a "current"
     // response is one with a sequence number exactly one less than the next
-    // sequence number to be assigned (this._analysisSequenceNumber).
-    return responseSequenceNumber === this._analysisSequenceNumber - 1;
+    // sequence number to be assigned (this._sequenceNumber).
+    return responseSequenceNumber === this._sequenceNumber - 1;
   }
 }
