@@ -91,6 +91,15 @@ class AnalysisRequestManager:
         except:
             logger.exception(
                 'Exception occurred when handling analysis request.')
+            self._enqueue_response(
+                self._send_analysis_error,
+                AnalysisError(
+                    'An unexpected error occurred when analyzing your model. '
+                    'Please file a bug report and then restart INNPV.'
+                ),
+                analysis_request.sequence_number,
+                address,
+            )
 
     def _handle_mock_analysis_request(self, analysis_request, address):
         memory_usage = pm.MemoryUsageResponse()
