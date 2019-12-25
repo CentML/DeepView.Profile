@@ -25,7 +25,7 @@ class ConnectionManager:
         self._connections[address][0].start()
 
     def remove_connection(self, address):
-        connection, _ = self.get_connection(address)
+        connection = self.get_connection(address)
         connection.stop()
         del self._connections[address]
         logger.debug("Removed connection to (%s:%d).", *address)

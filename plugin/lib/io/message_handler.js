@@ -35,7 +35,10 @@ export default class MessageHandler {
   }
 
   _handleProtocolError(message) {
-    console.error(`Received a protocol error with code: ${message.getErrorCode()}`);
+    console.error(
+      `Received a protocol error with code: ${message.getErrorCode()}. ` +
+      'Please file a bug report.'
+    );
   }
 
   _handleMemoryUsageResponse(message) {

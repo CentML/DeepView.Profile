@@ -20,6 +20,7 @@ goog.exportSymbol('proto.innpv.protocol.InitializeResponse', null, global);
 goog.exportSymbol('proto.innpv.protocol.MemoryUsageResponse', null, global);
 goog.exportSymbol('proto.innpv.protocol.Path', null, global);
 goog.exportSymbol('proto.innpv.protocol.ProtocolError', null, global);
+goog.exportSymbol('proto.innpv.protocol.ProtocolError.ErrorCode', null, global);
 goog.exportSymbol('proto.innpv.protocol.ThroughputResponse', null, global);
 goog.exportSymbol('proto.innpv.protocol.WeightEntry', null, global);
 
@@ -1980,7 +1981,7 @@ proto.innpv.protocol.ProtocolError.deserializeBinaryFromReader = function(msg, r
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readUint32());
+      var value = /** @type {!proto.innpv.protocol.ProtocolError.ErrorCode} */ (reader.readEnum());
       msg.setErrorCode(value);
       break;
     default:
@@ -2022,8 +2023,8 @@ proto.innpv.protocol.ProtocolError.prototype.serializeBinary = function() {
 proto.innpv.protocol.ProtocolError.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
   f = this.getErrorCode();
-  if (f !== 0) {
-    writer.writeUint32(
+  if (f !== 0.0) {
+    writer.writeEnum(
       1,
       f
     );
@@ -2041,19 +2042,29 @@ proto.innpv.protocol.ProtocolError.prototype.cloneMessage = function() {
 
 
 /**
- * optional uint32 error_code = 1;
- * @return {number}
+ * optional ErrorCode error_code = 1;
+ * @return {!proto.innpv.protocol.ProtocolError.ErrorCode}
  */
 proto.innpv.protocol.ProtocolError.prototype.getErrorCode = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
+  return /** @type {!proto.innpv.protocol.ProtocolError.ErrorCode} */ (jspb.Message.getFieldProto3(this, 1, 0));
 };
 
 
-/** @param {number} value  */
+/** @param {!proto.innpv.protocol.ProtocolError.ErrorCode} value  */
 proto.innpv.protocol.ProtocolError.prototype.setErrorCode = function(value) {
   jspb.Message.setField(this, 1, value);
 };
 
+
+/**
+ * @enum {number}
+ */
+proto.innpv.protocol.ProtocolError.ErrorCode = {
+  UNKNOWN: 0,
+  UNSUPPORTED_PROTOCOL_VERSION: 1,
+  UNINITIALIZED_CONNECTION: 2,
+  ALREADY_INITIALIZED_CONNECTION: 3
+};
 
 
 /**

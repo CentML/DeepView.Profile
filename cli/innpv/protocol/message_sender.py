@@ -2,7 +2,6 @@ import os
 from random import random
 
 from innpv.config import Config
-from innpv.protocol.error_codes import ErrorCode
 
 import innpv.protocol_gen.innpv_pb2 as pm
 
@@ -17,9 +16,9 @@ class MessageSender:
         message.entry_point.components.extend(Config.entry_point.split(os.sep))
         self._send_message(message, 'initialize', address)
 
-    def send_protocol_error(self, error_code: ErrorCode, address):
+    def send_protocol_error(self, error_code, address):
         message = pm.ProtocolError()
-        message.error_code = error_code.value
+        message.error_code = error_code
         self._send_message(message, 'error', address)
 
     def send_memory_usage_response(

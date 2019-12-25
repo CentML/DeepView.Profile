@@ -19,11 +19,41 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='innpv.proto',
   package='innpv.protocol',
   syntax='proto3',
-  serialized_pb=_b('\n\x0binnpv.proto\x12\x0einnpv.protocol\"\x85\x01\n\nFromClient\x12\x37\n\ninitialize\x18\x01 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x02 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x42\t\n\x07payload\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"A\n\x0f\x41nalysisRequest\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x15\n\rmock_response\x18\x02 \x01(\x08\"\xb1\x02\n\nFromServer\x12.\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x02 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12;\n\x0cmemory_usage\x18\x03 \x01(\x0b\x32#.innpv.protocol.MemoryUsageResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x05 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x42\t\n\x07payload\"\\\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\"\xd9\x01\n\x13MemoryUsageResponse\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x18\n\x10peak_usage_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x03 \x01(\x04\x12\x33\n\x0eweight_entries\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.WeightEntry\x12;\n\x12\x61\x63tivation_entries\x18\x05 \x03(\x0b\x32\x1f.innpv.protocol.ActivationEntry\"?\n\rAnalysisError\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x15\n\rerror_message\x18\x02 \x01(\t\"s\n\x12ThroughputResponse\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x1a\n\x12samples_per_second\x18\x02 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x03 \x01(\x02\"#\n\rProtocolError\x12\x12\n\nerror_code\x18\x01 \x01(\r\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"m\n\x0f\x41\x63tivationEntry\x12\x16\n\x0eoperation_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12.\n\x07\x63ontext\x18\x03 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\x7f\n\x0bWeightEntry\x12\x13\n\x0bweight_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x03 \x01(\x04\x12.\n\x07\x63ontext\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.FileReferenceb\x06proto3')
+  serialized_pb=_b('\n\x0binnpv.proto\x12\x0einnpv.protocol\"\x85\x01\n\nFromClient\x12\x37\n\ninitialize\x18\x01 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x02 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x42\t\n\x07payload\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"A\n\x0f\x41nalysisRequest\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x15\n\rmock_response\x18\x02 \x01(\x08\"\xb1\x02\n\nFromServer\x12.\n\x05\x65rror\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x02 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12;\n\x0cmemory_usage\x18\x03 \x01(\x0b\x32#.innpv.protocol.MemoryUsageResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x05 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x42\t\n\x07payload\"\\\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\"\xd9\x01\n\x13MemoryUsageResponse\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x18\n\x10peak_usage_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x03 \x01(\x04\x12\x33\n\x0eweight_entries\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.WeightEntry\x12;\n\x12\x61\x63tivation_entries\x18\x05 \x03(\x0b\x32\x1f.innpv.protocol.ActivationEntry\"?\n\rAnalysisError\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x15\n\rerror_message\x18\x02 \x01(\t\"s\n\x12ThroughputResponse\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x1a\n\x12samples_per_second\x18\x02 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x03 \x01(\x02\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"m\n\x0f\x41\x63tivationEntry\x12\x16\n\x0eoperation_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12.\n\x07\x63ontext\x18\x03 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\x7f\n\x0bWeightEntry\x12\x13\n\x0bweight_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x03 \x01(\x04\x12.\n\x07\x63ontext\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.FileReferenceb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 
+
+_PROTOCOLERROR_ERRORCODE = _descriptor.EnumDescriptor(
+  name='ErrorCode',
+  full_name='innpv.protocol.ProtocolError.ErrorCode',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='UNKNOWN', index=0, number=0,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='UNSUPPORTED_PROTOCOL_VERSION', index=1, number=1,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='UNINITIALIZED_CONNECTION', index=2, number=2,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ALREADY_INITIALIZED_CONNECTION', index=3, number=3,
+      options=None,
+      type=None),
+  ],
+  containing_type=None,
+  options=None,
+  serialized_start=1164,
+  serialized_end=1288,
+)
+_sym_db.RegisterEnumDescriptor(_PROTOCOLERROR_ERRORCODE)
 
 
 _FROMCLIENT = _descriptor.Descriptor(
@@ -387,7 +417,7 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='error_code', full_name='innpv.protocol.ProtocolError.error_code', index=0,
-      number=1, type=13, cpp_type=3, label=1,
+      number=1, type=14, cpp_type=8, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -397,6 +427,7 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   ],
   nested_types=[],
   enum_types=[
+    _PROTOCOLERROR_ERRORCODE,
   ],
   options=None,
   is_extendable=False,
@@ -404,8 +435,8 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1085,
-  serialized_end=1120,
+  serialized_start=1086,
+  serialized_end=1288,
 )
 
 
@@ -435,8 +466,8 @@ _PATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1122,
-  serialized_end=1148,
+  serialized_start=1290,
+  serialized_end=1316,
 )
 
 
@@ -473,8 +504,8 @@ _FILEREFERENCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1150,
-  serialized_end=1227,
+  serialized_start=1318,
+  serialized_end=1395,
 )
 
 
@@ -518,8 +549,8 @@ _ACTIVATIONENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1229,
-  serialized_end=1338,
+  serialized_start=1397,
+  serialized_end=1506,
 )
 
 
@@ -570,8 +601,8 @@ _WEIGHTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1340,
-  serialized_end=1467,
+  serialized_start=1508,
+  serialized_end=1635,
 )
 
 _FROMCLIENT.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST
@@ -605,6 +636,8 @@ _FROMSERVER.fields_by_name['throughput'].containing_oneof = _FROMSERVER.oneofs_b
 _INITIALIZERESPONSE.fields_by_name['entry_point'].message_type = _PATH
 _MEMORYUSAGERESPONSE.fields_by_name['weight_entries'].message_type = _WEIGHTENTRY
 _MEMORYUSAGERESPONSE.fields_by_name['activation_entries'].message_type = _ACTIVATIONENTRY
+_PROTOCOLERROR.fields_by_name['error_code'].enum_type = _PROTOCOLERROR_ERRORCODE
+_PROTOCOLERROR_ERRORCODE.containing_type = _PROTOCOLERROR
 _FILEREFERENCE.fields_by_name['file_path'].message_type = _PATH
 _ACTIVATIONENTRY.fields_by_name['context'].message_type = _FILEREFERENCE
 _WEIGHTENTRY.fields_by_name['context'].message_type = _FILEREFERENCE

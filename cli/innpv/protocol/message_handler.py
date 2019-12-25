@@ -2,7 +2,6 @@ import logging
 
 from innpv.legacy_analysis.parser import parse_source_code, analyze_code
 from innpv.exceptions import AnalysisError
-from innpv.protocol.error_codes import ErrorCode
 
 import innpv.protocol_gen.innpv_pb2 as pm
 
@@ -24,13 +23,31 @@ class MessageHandler:
         state = self._connection_manager.get_connection_state(address)
         if state.initialized:
             self._message_sender.send_protocol_error(
-                ErrorCode.AlreadyInitialized, address)
+                pm.ProtocolError.ErrorCode.ALREADY_INITIALIZED_CONNECTION,
+                address,
+            )
+            return
+        if message.protocol_version != 1:
+            # We only support version 1 of the protocol.
+            self._message_sender.send_protocol_error(
+                pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION,
+                address,
+            )
+            self._connection_manager.remove_connection(address)
             return
 
         state.initialized = True
         self._message_sender.send_initialize_response(address)
 
     def _handle_analysis_request(self, message, address):
+        state = self._connection_manager.get_connection_state(address)
+        if not state.initialized:
+            self._message_sender.send_protocol_error(
+                pm.ProtocolError.ErrorCode.UNINITIALIZED_CONNECTION,
+                address,
+            )
+            return
+
         self._analysis_request_manager.submit_request(message, address)
 
     def handle_message(self, raw_data, address):

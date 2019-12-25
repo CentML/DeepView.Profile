@@ -34,6 +34,11 @@ message InitializeRequest {
   // The protocol version is increased monotonically each time a breaking
   // change is made to the protocol.
   //
+  // Protobuf messages are always backward-compatible (if used properly).
+  // However future versions of the server/client may use entirely new
+  // messages. These changes are considered "breaking changes" and will warrant
+  // an increase in the protocol version.
+  //
   // On initialization, the client will inform the server of the protocol
   // version it supports so that we have the option of providing backward
   // compatability. If the protocol version is unsupported by the server, it
@@ -89,7 +94,24 @@ message ThroughputResponse {
 }
 
 message ProtocolError {
-  uint32 error_code = 1;
+  enum ErrorCode {
+    // A catch-all error code that should only be used as a last resort.
+    UNKNOWN = 0;
+
+    // The protocol version requested by the client is not supported
+    // by the server.
+    UNSUPPORTED_PROTOCOL_VERSION = 1;
+
+    // The client has not yet initialized the connection. This error code is
+    // used if the client sends a normal request (e.g., analysis) before
+    // sending an initialization request.
+    UNINITIALIZED_CONNECTION = 2;
+
+    // The client sent an initialization request, but the connection is
+    // already initialized.
+    ALREADY_INITIALIZED_CONNECTION = 3;
+  }
+  ErrorCode error_code = 1;
 }
 
 
