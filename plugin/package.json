@@ -1,16 +1,16 @@
 {
   "name": "innpv",
-  "main": "./lib/perfvis",
+  "main": "./lib/innpv",
   "version": "0.0.0",
   "description": "",
   "keywords": [],
   "activationCommands": {
     "atom-workspace": [
-      "perfvis:start",
-      "perfvis:stop"
+      "innpv:start",
+      "innpv:stop"
     ]
   },
-  "repository": "https://github.com/geoffxy/perfvis",
+  "repository": "https://github.com/geoffxy/innpv",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },

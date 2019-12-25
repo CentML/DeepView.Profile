@@ -20,7 +20,7 @@ import ProjectStore from './stores/project_store';
 // this many milliseconds.
 const CLEAR_VIEW_AFTER_MS = 200;
 
-export default class PerfvisPlugin {
+export default class INNPVPlugin {
   constructor() {
     this._handleMessage = this._handleMessage.bind(this);
     this._getStartedClicked = this._getStartedClicked.bind(this);
