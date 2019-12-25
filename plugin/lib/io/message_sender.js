@@ -17,13 +17,15 @@ export default class MessageSender {
 
   sendAnalysisRequest() {
     const message = new pm.AnalysisRequest();
-    message.setSequenceNumber(this._connectionState.nextAnalysisSequenceNumber());
     this._sendMessage(message, 'Analysis');
   }
 
   _sendMessage(message, payloadName) {
     const enclosingMessage = new pm.FromClient();
     enclosingMessage['set' + payloadName](message);
+    enclosingMessage.setSequenceNumber(
+      this._connectionState.nextAnalysisSequenceNumber(),
+    );
     this._connection.sendBytes(enclosingMessage.serializeBinary());
   }
 }

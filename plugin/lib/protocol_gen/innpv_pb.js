@@ -49,15 +49,15 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.innpv.protocol.FromClient.oneofGroups_ = [[1,2]];
+proto.innpv.protocol.FromClient.oneofGroups_ = [[2,3]];
 
 /**
  * @enum {number}
  */
 proto.innpv.protocol.FromClient.PayloadCase = {
   PAYLOAD_NOT_SET: 0,
-  INITIALIZE: 1,
-  ANALYSIS: 2
+  INITIALIZE: 2,
+  ANALYSIS: 3
 };
 
 /**
@@ -95,6 +95,7 @@ proto.innpv.protocol.FromClient.prototype.toObject = function(opt_includeInstanc
  */
 proto.innpv.protocol.FromClient.toObject = function(includeInstance, msg) {
   var f, obj = {
+    sequenceNumber: msg.getSequenceNumber(),
     initialize: (f = msg.getInitialize()) && proto.innpv.protocol.InitializeRequest.toObject(includeInstance, f),
     analysis: (f = msg.getAnalysis()) && proto.innpv.protocol.AnalysisRequest.toObject(includeInstance, f)
   };
@@ -134,11 +135,15 @@ proto.innpv.protocol.FromClient.deserializeBinaryFromReader = function(msg, read
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setSequenceNumber(value);
+      break;
+    case 2:
       var value = new proto.innpv.protocol.InitializeRequest;
       reader.readMessage(value,proto.innpv.protocol.InitializeRequest.deserializeBinaryFromReader);
       msg.setInitialize(value);
       break;
-    case 2:
+    case 3:
       var value = new proto.innpv.protocol.AnalysisRequest;
       reader.readMessage(value,proto.innpv.protocol.AnalysisRequest.deserializeBinaryFromReader);
       msg.setAnalysis(value);
@@ -181,10 +186,17 @@ proto.innpv.protocol.FromClient.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.FromClient.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
+  f = this.getSequenceNumber();
+  if (f !== 0) {
+    writer.writeUint32(
+      1,
+      f
+    );
+  }
   f = this.getInitialize();
   if (f != null) {
     writer.writeMessage(
-      1,
+      2,
       f,
       proto.innpv.protocol.InitializeRequest.serializeBinaryToWriter
     );
@@ -192,7 +204,7 @@ proto.innpv.protocol.FromClient.prototype.serializeBinaryToWriter = function (wr
   f = this.getAnalysis();
   if (f != null) {
     writer.writeMessage(
-      2,
+      3,
       f,
       proto.innpv.protocol.AnalysisRequest.serializeBinaryToWriter
     );
@@ -210,18 +222,33 @@ proto.innpv.protocol.FromClient.prototype.cloneMessage = function() {
 
 
 /**
- * optional InitializeRequest initialize = 1;
+ * optional uint32 sequence_number = 1;
+ * @return {number}
+ */
+proto.innpv.protocol.FromClient.prototype.getSequenceNumber = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.FromClient.prototype.setSequenceNumber = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional InitializeRequest initialize = 2;
  * @return {proto.innpv.protocol.InitializeRequest}
  */
 proto.innpv.protocol.FromClient.prototype.getInitialize = function() {
   return /** @type{proto.innpv.protocol.InitializeRequest} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.InitializeRequest, 1));
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.InitializeRequest, 2));
 };
 
 
 /** @param {proto.innpv.protocol.InitializeRequest|undefined} value  */
 proto.innpv.protocol.FromClient.prototype.setInitialize = function(value) {
-  jspb.Message.setOneofWrapperField(this, 1, proto.innpv.protocol.FromClient.oneofGroups_[0], value);
+  jspb.Message.setOneofWrapperField(this, 2, proto.innpv.protocol.FromClient.oneofGroups_[0], value);
 };
 
 
@@ -235,23 +262,23 @@ proto.innpv.protocol.FromClient.prototype.clearInitialize = function() {
  * @return{!boolean}
  */
 proto.innpv.protocol.FromClient.prototype.hasInitialize = function() {
-  return jspb.Message.getField(this, 1) != null;
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
 /**
- * optional AnalysisRequest analysis = 2;
+ * optional AnalysisRequest analysis = 3;
  * @return {proto.innpv.protocol.AnalysisRequest}
  */
 proto.innpv.protocol.FromClient.prototype.getAnalysis = function() {
   return /** @type{proto.innpv.protocol.AnalysisRequest} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.AnalysisRequest, 2));
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.AnalysisRequest, 3));
 };
 
 
 /** @param {proto.innpv.protocol.AnalysisRequest|undefined} value  */
 proto.innpv.protocol.FromClient.prototype.setAnalysis = function(value) {
-  jspb.Message.setOneofWrapperField(this, 2, proto.innpv.protocol.FromClient.oneofGroups_[0], value);
+  jspb.Message.setOneofWrapperField(this, 3, proto.innpv.protocol.FromClient.oneofGroups_[0], value);
 };
 
 
@@ -265,7 +292,7 @@ proto.innpv.protocol.FromClient.prototype.clearAnalysis = function() {
  * @return{!boolean}
  */
 proto.innpv.protocol.FromClient.prototype.hasAnalysis = function() {
-  return jspb.Message.getField(this, 2) != null;
+  return jspb.Message.getField(this, 3) != null;
 };
 
 
@@ -474,7 +501,6 @@ proto.innpv.protocol.AnalysisRequest.prototype.toObject = function(opt_includeIn
  */
 proto.innpv.protocol.AnalysisRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    sequenceNumber: msg.getSequenceNumber(),
     mockResponse: msg.getMockResponse()
   };
 
@@ -513,10 +539,6 @@ proto.innpv.protocol.AnalysisRequest.deserializeBinaryFromReader = function(msg,
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setSequenceNumber(value);
-      break;
-    case 2:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setMockResponse(value);
       break;
@@ -558,17 +580,10 @@ proto.innpv.protocol.AnalysisRequest.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.AnalysisRequest.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getSequenceNumber();
-  if (f !== 0) {
-    writer.writeUint32(
-      1,
-      f
-    );
-  }
   f = this.getMockResponse();
   if (f) {
     writer.writeBool(
-      2,
+      1,
       f
     );
   }
@@ -585,34 +600,19 @@ proto.innpv.protocol.AnalysisRequest.prototype.cloneMessage = function() {
 
 
 /**
- * optional uint32 sequence_number = 1;
- * @return {number}
- */
-proto.innpv.protocol.AnalysisRequest.prototype.getSequenceNumber = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.AnalysisRequest.prototype.setSequenceNumber = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional bool mock_response = 2;
+ * optional bool mock_response = 1;
  * Note that Boolean fields may be set to 0/1 when serialized from a Java server.
  * You should avoid comparisons like {@code val === true/false} in those cases.
  * @return {boolean}
  */
 proto.innpv.protocol.AnalysisRequest.prototype.getMockResponse = function() {
-  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 2, false));
+  return /** @type {boolean} */ (jspb.Message.getFieldProto3(this, 1, false));
 };
 
 
 /** @param {boolean} value  */
 proto.innpv.protocol.AnalysisRequest.prototype.setMockResponse = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setField(this, 1, value);
 };
 
 
@@ -642,18 +642,18 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.innpv.protocol.FromServer.oneofGroups_ = [[1,2,3,4,5]];
+proto.innpv.protocol.FromServer.oneofGroups_ = [[2,3,4,5,6]];
 
 /**
  * @enum {number}
  */
 proto.innpv.protocol.FromServer.PayloadCase = {
   PAYLOAD_NOT_SET: 0,
-  ERROR: 1,
-  INITIALIZE: 2,
-  MEMORY_USAGE: 3,
-  ANALYSIS_ERROR: 4,
-  THROUGHPUT: 5
+  ERROR: 2,
+  INITIALIZE: 3,
+  MEMORY_USAGE: 4,
+  ANALYSIS_ERROR: 5,
+  THROUGHPUT: 6
 };
 
 /**
@@ -691,6 +691,7 @@ proto.innpv.protocol.FromServer.prototype.toObject = function(opt_includeInstanc
  */
 proto.innpv.protocol.FromServer.toObject = function(includeInstance, msg) {
   var f, obj = {
+    sequenceNumber: msg.getSequenceNumber(),
     error: (f = msg.getError()) && proto.innpv.protocol.ProtocolError.toObject(includeInstance, f),
     initialize: (f = msg.getInitialize()) && proto.innpv.protocol.InitializeResponse.toObject(includeInstance, f),
     memoryUsage: (f = msg.getMemoryUsage()) && proto.innpv.protocol.MemoryUsageResponse.toObject(includeInstance, f),
@@ -733,26 +734,30 @@ proto.innpv.protocol.FromServer.deserializeBinaryFromReader = function(msg, read
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setSequenceNumber(value);
+      break;
+    case 2:
       var value = new proto.innpv.protocol.ProtocolError;
       reader.readMessage(value,proto.innpv.protocol.ProtocolError.deserializeBinaryFromReader);
       msg.setError(value);
       break;
-    case 2:
+    case 3:
       var value = new proto.innpv.protocol.InitializeResponse;
       reader.readMessage(value,proto.innpv.protocol.InitializeResponse.deserializeBinaryFromReader);
       msg.setInitialize(value);
       break;
-    case 3:
+    case 4:
       var value = new proto.innpv.protocol.MemoryUsageResponse;
       reader.readMessage(value,proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader);
       msg.setMemoryUsage(value);
       break;
-    case 4:
+    case 5:
       var value = new proto.innpv.protocol.AnalysisError;
       reader.readMessage(value,proto.innpv.protocol.AnalysisError.deserializeBinaryFromReader);
       msg.setAnalysisError(value);
       break;
-    case 5:
+    case 6:
       var value = new proto.innpv.protocol.ThroughputResponse;
       reader.readMessage(value,proto.innpv.protocol.ThroughputResponse.deserializeBinaryFromReader);
       msg.setThroughput(value);
@@ -795,10 +800,17 @@ proto.innpv.protocol.FromServer.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.FromServer.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
+  f = this.getSequenceNumber();
+  if (f !== 0) {
+    writer.writeUint32(
+      1,
+      f
+    );
+  }
   f = this.getError();
   if (f != null) {
     writer.writeMessage(
-      1,
+      2,
       f,
       proto.innpv.protocol.ProtocolError.serializeBinaryToWriter
     );
@@ -806,7 +818,7 @@ proto.innpv.protocol.FromServer.prototype.serializeBinaryToWriter = function (wr
   f = this.getInitialize();
   if (f != null) {
     writer.writeMessage(
-      2,
+      3,
       f,
       proto.innpv.protocol.InitializeResponse.serializeBinaryToWriter
     );
@@ -814,7 +826,7 @@ proto.innpv.protocol.FromServer.prototype.serializeBinaryToWriter = function (wr
   f = this.getMemoryUsage();
   if (f != null) {
     writer.writeMessage(
-      3,
+      4,
       f,
       proto.innpv.protocol.MemoryUsageResponse.serializeBinaryToWriter
     );
@@ -822,7 +834,7 @@ proto.innpv.protocol.FromServer.prototype.serializeBinaryToWriter = function (wr
   f = this.getAnalysisError();
   if (f != null) {
     writer.writeMessage(
-      4,
+      5,
       f,
       proto.innpv.protocol.AnalysisError.serializeBinaryToWriter
     );
@@ -830,7 +842,7 @@ proto.innpv.protocol.FromServer.prototype.serializeBinaryToWriter = function (wr
   f = this.getThroughput();
   if (f != null) {
     writer.writeMessage(
-      5,
+      6,
       f,
       proto.innpv.protocol.ThroughputResponse.serializeBinaryToWriter
     );
@@ -848,18 +860,33 @@ proto.innpv.protocol.FromServer.prototype.cloneMessage = function() {
 
 
 /**
- * optional ProtocolError error = 1;
+ * optional uint32 sequence_number = 1;
+ * @return {number}
+ */
+proto.innpv.protocol.FromServer.prototype.getSequenceNumber = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.FromServer.prototype.setSequenceNumber = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional ProtocolError error = 2;
  * @return {proto.innpv.protocol.ProtocolError}
  */
 proto.innpv.protocol.FromServer.prototype.getError = function() {
   return /** @type{proto.innpv.protocol.ProtocolError} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.ProtocolError, 1));
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.ProtocolError, 2));
 };
 
 
 /** @param {proto.innpv.protocol.ProtocolError|undefined} value  */
 proto.innpv.protocol.FromServer.prototype.setError = function(value) {
-  jspb.Message.setOneofWrapperField(this, 1, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
+  jspb.Message.setOneofWrapperField(this, 2, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
 };
 
 
@@ -873,23 +900,23 @@ proto.innpv.protocol.FromServer.prototype.clearError = function() {
  * @return{!boolean}
  */
 proto.innpv.protocol.FromServer.prototype.hasError = function() {
-  return jspb.Message.getField(this, 1) != null;
+  return jspb.Message.getField(this, 2) != null;
 };
 
 
 /**
- * optional InitializeResponse initialize = 2;
+ * optional InitializeResponse initialize = 3;
  * @return {proto.innpv.protocol.InitializeResponse}
  */
 proto.innpv.protocol.FromServer.prototype.getInitialize = function() {
   return /** @type{proto.innpv.protocol.InitializeResponse} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.InitializeResponse, 2));
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.InitializeResponse, 3));
 };
 
 
 /** @param {proto.innpv.protocol.InitializeResponse|undefined} value  */
 proto.innpv.protocol.FromServer.prototype.setInitialize = function(value) {
-  jspb.Message.setOneofWrapperField(this, 2, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
+  jspb.Message.setOneofWrapperField(this, 3, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
 };
 
 
@@ -903,23 +930,23 @@ proto.innpv.protocol.FromServer.prototype.clearInitialize = function() {
  * @return{!boolean}
  */
 proto.innpv.protocol.FromServer.prototype.hasInitialize = function() {
-  return jspb.Message.getField(this, 2) != null;
+  return jspb.Message.getField(this, 3) != null;
 };
 
 
 /**
- * optional MemoryUsageResponse memory_usage = 3;
+ * optional MemoryUsageResponse memory_usage = 4;
  * @return {proto.innpv.protocol.MemoryUsageResponse}
  */
 proto.innpv.protocol.FromServer.prototype.getMemoryUsage = function() {
   return /** @type{proto.innpv.protocol.MemoryUsageResponse} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.MemoryUsageResponse, 3));
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.MemoryUsageResponse, 4));
 };
 
 
 /** @param {proto.innpv.protocol.MemoryUsageResponse|undefined} value  */
 proto.innpv.protocol.FromServer.prototype.setMemoryUsage = function(value) {
-  jspb.Message.setOneofWrapperField(this, 3, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
+  jspb.Message.setOneofWrapperField(this, 4, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
 };
 
 
@@ -933,23 +960,23 @@ proto.innpv.protocol.FromServer.prototype.clearMemoryUsage = function() {
  * @return{!boolean}
  */
 proto.innpv.protocol.FromServer.prototype.hasMemoryUsage = function() {
-  return jspb.Message.getField(this, 3) != null;
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
 /**
- * optional AnalysisError analysis_error = 4;
+ * optional AnalysisError analysis_error = 5;
  * @return {proto.innpv.protocol.AnalysisError}
  */
 proto.innpv.protocol.FromServer.prototype.getAnalysisError = function() {
   return /** @type{proto.innpv.protocol.AnalysisError} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.AnalysisError, 4));
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.AnalysisError, 5));
 };
 
 
 /** @param {proto.innpv.protocol.AnalysisError|undefined} value  */
 proto.innpv.protocol.FromServer.prototype.setAnalysisError = function(value) {
-  jspb.Message.setOneofWrapperField(this, 4, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
+  jspb.Message.setOneofWrapperField(this, 5, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
 };
 
 
@@ -963,23 +990,23 @@ proto.innpv.protocol.FromServer.prototype.clearAnalysisError = function() {
  * @return{!boolean}
  */
 proto.innpv.protocol.FromServer.prototype.hasAnalysisError = function() {
-  return jspb.Message.getField(this, 4) != null;
+  return jspb.Message.getField(this, 5) != null;
 };
 
 
 /**
- * optional ThroughputResponse throughput = 5;
+ * optional ThroughputResponse throughput = 6;
  * @return {proto.innpv.protocol.ThroughputResponse}
  */
 proto.innpv.protocol.FromServer.prototype.getThroughput = function() {
   return /** @type{proto.innpv.protocol.ThroughputResponse} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.ThroughputResponse, 5));
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.ThroughputResponse, 6));
 };
 
 
 /** @param {proto.innpv.protocol.ThroughputResponse|undefined} value  */
 proto.innpv.protocol.FromServer.prototype.setThroughput = function(value) {
-  jspb.Message.setOneofWrapperField(this, 5, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
+  jspb.Message.setOneofWrapperField(this, 6, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
 };
 
 
@@ -993,7 +1020,7 @@ proto.innpv.protocol.FromServer.prototype.clearThroughput = function() {
  * @return{!boolean}
  */
 proto.innpv.protocol.FromServer.prototype.hasThroughput = function() {
-  return jspb.Message.getField(this, 5) != null;
+  return jspb.Message.getField(this, 6) != null;
 };
 
 
@@ -1223,7 +1250,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<number>}
  * @const
  */
-proto.innpv.protocol.MemoryUsageResponse.repeatedFields_ = [4,5];
+proto.innpv.protocol.MemoryUsageResponse.repeatedFields_ = [3,4];
 
 
 
@@ -1253,7 +1280,6 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.toObject = function(opt_inclu
  */
 proto.innpv.protocol.MemoryUsageResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    sequenceNumber: msg.getSequenceNumber(),
     peakUsageBytes: msg.getPeakUsageBytes(),
     memoryCapacityBytes: msg.getMemoryCapacityBytes(),
     weightEntriesList: jspb.Message.toObjectList(msg.getWeightEntriesList(),
@@ -1297,24 +1323,20 @@ proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader = function(
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setSequenceNumber(value);
-      break;
-    case 2:
       var value = /** @type {number} */ (reader.readUint64());
       msg.setPeakUsageBytes(value);
       break;
-    case 3:
+    case 2:
       var value = /** @type {number} */ (reader.readUint64());
       msg.setMemoryCapacityBytes(value);
       break;
-    case 4:
+    case 3:
       var value = new proto.innpv.protocol.WeightEntry;
       reader.readMessage(value,proto.innpv.protocol.WeightEntry.deserializeBinaryFromReader);
       msg.getWeightEntriesList().push(value);
       msg.setWeightEntriesList(msg.getWeightEntriesList());
       break;
-    case 5:
+    case 4:
       var value = new proto.innpv.protocol.ActivationEntry;
       reader.readMessage(value,proto.innpv.protocol.ActivationEntry.deserializeBinaryFromReader);
       msg.getActivationEntriesList().push(value);
@@ -1358,31 +1380,24 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinary = function() 
  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getSequenceNumber();
-  if (f !== 0) {
-    writer.writeUint32(
-      1,
-      f
-    );
-  }
   f = this.getPeakUsageBytes();
   if (f !== 0) {
     writer.writeUint64(
-      2,
+      1,
       f
     );
   }
   f = this.getMemoryCapacityBytes();
   if (f !== 0) {
     writer.writeUint64(
-      3,
+      2,
       f
     );
   }
   f = this.getWeightEntriesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      4,
+      3,
       f,
       proto.innpv.protocol.WeightEntry.serializeBinaryToWriter
     );
@@ -1390,7 +1405,7 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinaryToWriter = fun
   f = this.getActivationEntriesList();
   if (f.length > 0) {
     writer.writeRepeatedMessage(
-      5,
+      4,
       f,
       proto.innpv.protocol.ActivationEntry.serializeBinaryToWriter
     );
@@ -1408,65 +1423,50 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.cloneMessage = function() {
 
 
 /**
- * optional uint32 sequence_number = 1;
+ * optional uint64 peak_usage_bytes = 1;
  * @return {number}
  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.getSequenceNumber = function() {
+proto.innpv.protocol.MemoryUsageResponse.prototype.getPeakUsageBytes = function() {
   return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
 };
 
 
 /** @param {number} value  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.setSequenceNumber = function(value) {
+proto.innpv.protocol.MemoryUsageResponse.prototype.setPeakUsageBytes = function(value) {
   jspb.Message.setField(this, 1, value);
 };
 
 
 /**
- * optional uint64 peak_usage_bytes = 2;
+ * optional uint64 memory_capacity_bytes = 2;
  * @return {number}
  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.getPeakUsageBytes = function() {
+proto.innpv.protocol.MemoryUsageResponse.prototype.getMemoryCapacityBytes = function() {
   return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
 };
 
 
 /** @param {number} value  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.setPeakUsageBytes = function(value) {
+proto.innpv.protocol.MemoryUsageResponse.prototype.setMemoryCapacityBytes = function(value) {
   jspb.Message.setField(this, 2, value);
 };
 
 
 /**
- * optional uint64 memory_capacity_bytes = 3;
- * @return {number}
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.getMemoryCapacityBytes = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.setMemoryCapacityBytes = function(value) {
-  jspb.Message.setField(this, 3, value);
-};
-
-
-/**
- * repeated WeightEntry weight_entries = 4;
+ * repeated WeightEntry weight_entries = 3;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<!proto.innpv.protocol.WeightEntry>}
  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.getWeightEntriesList = function() {
   return /** @type{!Array.<!proto.innpv.protocol.WeightEntry>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.WeightEntry, 4));
+    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.WeightEntry, 3));
 };
 
 
 /** @param {Array.<!proto.innpv.protocol.WeightEntry>} value  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.setWeightEntriesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 4, value);
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
 };
 
 
@@ -1476,20 +1476,20 @@ proto.innpv.protocol.MemoryUsageResponse.prototype.clearWeightEntriesList = func
 
 
 /**
- * repeated ActivationEntry activation_entries = 5;
+ * repeated ActivationEntry activation_entries = 4;
  * If you change this array by adding, removing or replacing elements, or if you
  * replace the array itself, then you must call the setter to update it.
  * @return {!Array.<!proto.innpv.protocol.ActivationEntry>}
  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.getActivationEntriesList = function() {
   return /** @type{!Array.<!proto.innpv.protocol.ActivationEntry>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.ActivationEntry, 5));
+    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.ActivationEntry, 4));
 };
 
 
 /** @param {Array.<!proto.innpv.protocol.ActivationEntry>} value  */
 proto.innpv.protocol.MemoryUsageResponse.prototype.setActivationEntriesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 5, value);
+  jspb.Message.setRepeatedWrapperField(this, 4, value);
 };
 
 
@@ -1544,7 +1544,6 @@ proto.innpv.protocol.AnalysisError.prototype.toObject = function(opt_includeInst
  */
 proto.innpv.protocol.AnalysisError.toObject = function(includeInstance, msg) {
   var f, obj = {
-    sequenceNumber: msg.getSequenceNumber(),
     errorMessage: msg.getErrorMessage()
   };
 
@@ -1583,10 +1582,6 @@ proto.innpv.protocol.AnalysisError.deserializeBinaryFromReader = function(msg, r
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setSequenceNumber(value);
-      break;
-    case 2:
       var value = /** @type {string} */ (reader.readString());
       msg.setErrorMessage(value);
       break;
@@ -1628,17 +1623,10 @@ proto.innpv.protocol.AnalysisError.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.AnalysisError.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getSequenceNumber();
-  if (f !== 0) {
-    writer.writeUint32(
-      1,
-      f
-    );
-  }
   f = this.getErrorMessage();
   if (f.length > 0) {
     writer.writeString(
-      2,
+      1,
       f
     );
   }
@@ -1655,32 +1643,17 @@ proto.innpv.protocol.AnalysisError.prototype.cloneMessage = function() {
 
 
 /**
- * optional uint32 sequence_number = 1;
- * @return {number}
- */
-proto.innpv.protocol.AnalysisError.prototype.getSequenceNumber = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.AnalysisError.prototype.setSequenceNumber = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional string error_message = 2;
+ * optional string error_message = 1;
  * @return {string}
  */
 proto.innpv.protocol.AnalysisError.prototype.getErrorMessage = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 2, ""));
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
 };
 
 
 /** @param {string} value  */
 proto.innpv.protocol.AnalysisError.prototype.setErrorMessage = function(value) {
-  jspb.Message.setField(this, 2, value);
+  jspb.Message.setField(this, 1, value);
 };
 
 
@@ -1730,7 +1703,6 @@ proto.innpv.protocol.ThroughputResponse.prototype.toObject = function(opt_includ
  */
 proto.innpv.protocol.ThroughputResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    sequenceNumber: msg.getSequenceNumber(),
     samplesPerSecond: msg.getSamplesPerSecond(),
     predictedMaxSamplesPerSecond: msg.getPredictedMaxSamplesPerSecond()
   };
@@ -1770,14 +1742,10 @@ proto.innpv.protocol.ThroughputResponse.deserializeBinaryFromReader = function(m
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {number} */ (reader.readUint32());
-      msg.setSequenceNumber(value);
-      break;
-    case 2:
       var value = /** @type {number} */ (reader.readFloat());
       msg.setSamplesPerSecond(value);
       break;
-    case 3:
+    case 2:
       var value = /** @type {number} */ (reader.readFloat());
       msg.setPredictedMaxSamplesPerSecond(value);
       break;
@@ -1819,24 +1787,17 @@ proto.innpv.protocol.ThroughputResponse.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.ThroughputResponse.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getSequenceNumber();
-  if (f !== 0) {
-    writer.writeUint32(
-      1,
-      f
-    );
-  }
   f = this.getSamplesPerSecond();
   if (f !== 0.0) {
     writer.writeFloat(
-      2,
+      1,
       f
     );
   }
   f = this.getPredictedMaxSamplesPerSecond();
   if (f !== 0.0) {
     writer.writeFloat(
-      3,
+      2,
       f
     );
   }
@@ -1853,47 +1814,32 @@ proto.innpv.protocol.ThroughputResponse.prototype.cloneMessage = function() {
 
 
 /**
- * optional uint32 sequence_number = 1;
+ * optional float samples_per_second = 1;
  * @return {number}
  */
-proto.innpv.protocol.ThroughputResponse.prototype.getSequenceNumber = function() {
+proto.innpv.protocol.ThroughputResponse.prototype.getSamplesPerSecond = function() {
   return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
 };
 
 
 /** @param {number} value  */
-proto.innpv.protocol.ThroughputResponse.prototype.setSequenceNumber = function(value) {
+proto.innpv.protocol.ThroughputResponse.prototype.setSamplesPerSecond = function(value) {
   jspb.Message.setField(this, 1, value);
 };
 
 
 /**
- * optional float samples_per_second = 2;
+ * optional float predicted_max_samples_per_second = 2;
  * @return {number}
  */
-proto.innpv.protocol.ThroughputResponse.prototype.getSamplesPerSecond = function() {
+proto.innpv.protocol.ThroughputResponse.prototype.getPredictedMaxSamplesPerSecond = function() {
   return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
 };
 
 
 /** @param {number} value  */
-proto.innpv.protocol.ThroughputResponse.prototype.setSamplesPerSecond = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * optional float predicted_max_samples_per_second = 3;
- * @return {number}
- */
-proto.innpv.protocol.ThroughputResponse.prototype.getPredictedMaxSamplesPerSecond = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
-};
-
-
-/** @param {number} value  */
 proto.innpv.protocol.ThroughputResponse.prototype.setPredictedMaxSamplesPerSecond = function(value) {
-  jspb.Message.setField(this, 3, value);
+  jspb.Message.setField(this, 2, value);
 };
 
 

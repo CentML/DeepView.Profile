@@ -35,10 +35,13 @@ export default class MessageHandler {
   }
 
   _handleProtocolError(message) {
+    const errorCode = message.getErrorCode();
+    if (errorCode === pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION) {
+      console.error('The plugin that you are using is out of date. Please update it before retrying.');
+      return;
+    }
     console.error(
-      `Received a protocol error with code: ${message.getErrorCode()}. ` +
-      'Please file a bug report.'
-    );
+      `Received a protocol error with code: ${errorCode}. Please file a bug report.`);
   }
 
   _handleMemoryUsageResponse(message) {
@@ -65,10 +68,6 @@ export default class MessageHandler {
   _handleAfterInitializationMessage(handler, message) {
     if (!this._connectionState.initialized) {
       console.warn('Connection not initialized, but received a regular protocol message.');
-    }
-    if (!this._connectionState.isResponseCurrent(message.getSequenceNumber())) {
-      // Ignore old responses (e.g., if we make a new analysis request before
-      // the previous one completes).
       return;
     }
     handler(message);
@@ -77,6 +76,13 @@ export default class MessageHandler {
   handleMessage(byteArray) {
     const enclosingMessage = pm.FromServer.deserializeBinary(byteArray);
     const payloadCase = enclosingMessage.getPayloadCase();
+
+    if (!this._connectionState.isResponseCurrent(enclosingMessage.getSequenceNumber())) {
+      // Ignore old responses (e.g., if we make a new analysis request before
+      // the previous one completes).
+      console.log('Ignoring stale response with sequence number:', enclosingMessage.getSequenceNumber());
+      return;
+    }
 
     switch (payloadCase) {
       case pm.FromServer.PayloadCase.PAYLOAD_NOT_SET:

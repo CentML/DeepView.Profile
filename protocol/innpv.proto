@@ -24,9 +24,11 @@ package innpv.protocol;
 // ========== Client Messages ==========
 
 message FromClient {
+  uint32 sequence_number = 1;
+
   oneof payload {
-    InitializeRequest initialize = 1;
-    AnalysisRequest analysis = 2;
+    InitializeRequest initialize = 2;
+    AnalysisRequest analysis = 3;
   }
 }
 
@@ -47,23 +49,23 @@ message InitializeRequest {
 }
 
 message AnalysisRequest {
-  uint32 sequence_number = 1;
-
   // Set this to receive a mock response from the server.
   // This is useful when developing the UI to avoid waiting for the analysis.
-  bool mock_response = 2;
+  bool mock_response = 1;
 }
 
 
 // ========== Server Messages ==========
 
 message FromServer {
+  uint32 sequence_number = 1;
+
   oneof payload {
-    ProtocolError error = 1;
-    InitializeResponse initialize = 2;
-    MemoryUsageResponse memory_usage = 3;
-    AnalysisError analysis_error = 4;
-    ThroughputResponse throughput = 5;
+    ProtocolError error = 2;
+    InitializeResponse initialize = 3;
+    MemoryUsageResponse memory_usage = 4;
+    AnalysisError analysis_error = 5;
+    ThroughputResponse throughput = 6;
   }
 }
 
@@ -73,24 +75,20 @@ message InitializeResponse {
 }
 
 message MemoryUsageResponse {
-  uint32 sequence_number = 1;
-
-  uint64 peak_usage_bytes = 2;
-  uint64 memory_capacity_bytes = 3;
-  repeated WeightEntry weight_entries = 4;
-  repeated ActivationEntry activation_entries = 5;
+  uint64 peak_usage_bytes = 1;
+  uint64 memory_capacity_bytes = 2;
+  repeated WeightEntry weight_entries = 3;
+  repeated ActivationEntry activation_entries = 4;
 }
 
 message AnalysisError {
-  uint32 sequence_number = 1;
-  string error_message = 2;
+  string error_message = 1;
 }
 
 message ThroughputResponse {
-  uint32 sequence_number = 1;
-  float samples_per_second = 2;
+  float samples_per_second = 1;
   // This will be NaN if we cannot make a prediction.
-  float predicted_max_samples_per_second = 3;
+  float predicted_max_samples_per_second = 2;
 }
 
 message ProtocolError {

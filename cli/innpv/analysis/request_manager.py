@@ -1,4 +1,5 @@
 import logging
+import math
 from concurrent.futures import ThreadPoolExecutor
 
 from innpv.analysis.runner import analyze_project
@@ -31,35 +32,23 @@ class AnalysisRequestManager:
         self._nvml.stop()
         self._executor.shutdown()
 
-    def submit_request(self, analysis_request, address):
-        state = self._connection_manager.get_connection_state(address)
-        if not state.is_request_current(analysis_request):
-            logger.debug(
-                'Ignoring stale analysis request %d from (%s:%d).',
-                analysis_request.sequence_number,
-                *address,
-            )
-            return
-
-        state.update_sequence(analysis_request)
-
+    def submit_request(self, analysis_request, context):
         if analysis_request.mock_response:
-            self._handle_mock_analysis_request(analysis_request, address)
+            self._handle_mock_analysis_request(analysis_request, context)
             return
 
         self._executor.submit(
             self._handle_analysis_request,
             analysis_request,
-            state,
-            address,
+            context,
         )
 
-    def _handle_analysis_request(self, analysis_request, state, address):
+    def _handle_analysis_request(self, analysis_request, context):
         try:
             logger.debug(
                 'Processing request %d from (%s:%d).',
-                analysis_request.sequence_number,
-                *address,
+                context.sequence_number,
+                *(context.address),
             )
             analyzer = analyze_project(
                 Config.project_root, Config.entry_point, self._nvml)
@@ -68,25 +57,18 @@ class AnalysisRequestManager:
             self._enqueue_response(
                 self._send_memory_usage_response,
                 memory_usage,
-                analysis_request.sequence_number,
-                address,
+                context,
             )
 
             throughput = next(analyzer)
             self._enqueue_response(
                 self._send_throughput_response,
                 throughput,
-                analysis_request.sequence_number,
-                address,
+                context,
             )
 
         except AnalysisError as ex:
-            self._enqueue_response(
-                self._send_analysis_error,
-                ex,
-                analysis_request.sequence_number,
-                address,
-            )
+            self._enqueue_response(self._send_analysis_error, ex, context)
 
         except:
             logger.exception(
@@ -97,51 +79,48 @@ class AnalysisRequestManager:
                     'An unexpected error occurred when analyzing your model. '
                     'Please file a bug report and then restart INNPV.'
                 ),
-                analysis_request.sequence_number,
-                address,
+                context,
             )
 
-    def _handle_mock_analysis_request(self, analysis_request, address):
+    def _handle_mock_analysis_request(self, analysis_request, context):
         memory_usage = pm.MemoryUsageResponse()
         memory_usage.peak_usage_bytes = 1337
         memory_usage.memory_capacity_bytes = 13337
         self._message_sender.send_memory_usage_response(
             memory_usage,
-            analysis_request.sequence_number,
-            address,
+            context,
         )
+
+        throughput = pm.ThroughputResponse()
+        throughput.samples_per_second = 1337
+        throughput.predicted_max_samples_per_second = math.nan
+        self._message_sender.send_throughput_response(throughput, context)
 
     def _send_memory_usage_response(
         self,
         memory_usage,
-        sequence_number,
-        address,
+        context,
     ):
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_memory_usage_response(
-                memory_usage,
-                sequence_number,
-                address,
-            )
+                memory_usage, context)
         except:
             logger.exception(
                 'Exception occurred when sending a memory usage response.')
 
-    def _send_analysis_error(self, exception, sequence_number, address):
+    def _send_analysis_error(self, exception, context):
         # Called from the main executor. Do not call directly!
         try:
-            self._message_sender.send_analysis_error(
-                str(exception), sequence_number, address)
+            self._message_sender.send_analysis_error(str(exception), context)
         except:
             logger.exception(
                 'Exception occurred when sending an analysis error.')
 
-    def _send_throughput_response(self, throughput, sequence_number, address):
+    def _send_throughput_response(self, throughput, context):
         # Called from the main executor. Do not call directly!
         try:
-            self._message_sender.send_throughput_response(
-                throughput, sequence_number, address)
+            self._message_sender.send_throughput_response(throughput, context)
         except:
             logger.exception(
                 'Exception occurred when sending a throughput response.')
