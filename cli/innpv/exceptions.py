@@ -1,3 +1,4 @@
+import contextlib
 
 
 class AnalysisError(Exception):
@@ -7,3 +8,11 @@ class AnalysisError(Exception):
         else:
             super(AnalysisError, self).__init__(
                 '{}: {}'.format(exception_type.__name__, message))
+
+
+@contextlib.contextmanager
+def exceptions_as_analysis_errors():
+    try:
+        yield
+    except Exception as ex:
+        raise AnalysisError(str(ex), type(ex))

@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 import innpv.protocol_gen.innpv_pb2 as pm
-from innpv.exceptions import AnalysisError
+from innpv.exceptions import AnalysisError, exceptions_as_analysis_errors
 from innpv.profiler.iteration import IterationProfiler
 from innpv.tracking.memory import track_memory_usage
 from innpv.tracking.report import MiscSizeType
@@ -220,9 +220,9 @@ def _validate_providers(model_provider, input_provider, iteration_provider):
 
 def _validate_provider_return_values(
         model_provider, input_provider, iteration_provider):
-    try:
+    with exceptions_as_analysis_errors():
         # We return exceptions instead of raising them here to prevent
-        # them from being caught by the overall exception handler below.
+        # them from being caught by the exception context manager.
         model = model_provider()
         if not callable(model):
             return AnalysisError(
@@ -249,9 +249,3 @@ def _validate_provider_return_values(
             )
 
         return None
-
-    except Exception as ex:
-        # There may be errors when running user code. Catch any exceptions
-        # here and return them as an AnalysisError so that we can inform
-        # the user.
-        return AnalysisError(str(ex), type(ex))

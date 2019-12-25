@@ -4,6 +4,7 @@ import inspect
 
 import torch
 
+from innpv.exceptions import exceptions_as_analysis_errors
 from innpv.tracking.base import TrackerBase
 from innpv.tracking.call_stack import CallStack
 from innpv.tracking.hook_manager import HookManager
@@ -71,7 +72,7 @@ class ActivationsTracker:
 
     def _get_grad_function_contexts(self, model, input_provider):
         grad_function_tracker = GradFunctionTracker()
-        with grad_function_tracker.track():
+        with grad_function_tracker.track(), exceptions_as_analysis_errors():
             out = model(*input_provider())
         return out, grad_function_tracker.grad_function_contexts
 

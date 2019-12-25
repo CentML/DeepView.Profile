@@ -3,7 +3,7 @@ import logging
 
 import torch
 
-from innpv.exceptions import AnalysisError
+from innpv.exceptions import AnalysisError, exceptions_as_analysis_errors
 
 logger = logging.getLogger(__name__)
 
@@ -31,17 +31,19 @@ class IterationProfiler:
         NOTE: This method will raise a RuntimeError if there is not enough GPU
               memory to run the iteration.
         """
-        inputs = self._input_provider(batch_size=batch_size)
+        with exceptions_as_analysis_errors():
+            inputs = self._input_provider(batch_size=batch_size)
+            # Warm up
+            self._iteration(*inputs)
 
-        # Warm up
-        self._iteration(*inputs)
         torch.cuda.synchronize()
 
         def measure(iterations):
-            self._start_event.record()
-            for _ in range(iterations):
-                self._iteration(*inputs)
-            self._end_event.record()
+            with exceptions_as_analysis_errors():
+                self._start_event.record()
+                for _ in range(iterations):
+                    self._iteration(*inputs)
+                self._end_event.record()
             torch.cuda.synchronize()
             return self._start_event.elapsed_time(self._end_event)
 
@@ -77,13 +79,16 @@ class IterationProfiler:
 
         return min(lesser, greater), repetitions
 
-    def safely_measure_run_time_ms(self, batch_size, initial_repetitions=None):
+    def measure_run_time_ms_catch_oom(
+            self, batch_size, initial_repetitions=None):
+        # This function is useful when we want to explicitly handle OOM errors
+        # without aborting the profiling.
         try:
             return (
                 None,
                 self.measure_run_time_ms(batch_size, initial_repetitions),
             )
-        except RuntimeError as ex:
+        except AnalysisError as ex:
             message = str(ex)
             if 'CUDA out of memory' in message:
                 return (ex, None)
@@ -99,10 +104,8 @@ class IterationProfiler:
         samples = []
 
         # 1. Make sure we can measure the run time of the "start" batch size
-        err, start_result = self.safely_measure_run_time_ms(start_batch_size)
-        if err is not None:
-            raise AnalysisError(str(err), type(err))
-        samples.append(IterationSample(start_batch_size, start_result[0]))
+        start_run_time_ms, _ = self.measure_run_time_ms(start_batch_size)
+        samples.append(IterationSample(start_batch_size, start_run_time_ms))
 
         # 2. Perform sampling. We keep a range of "viable" batch sizes, where
         #    the upper limit is a guess on what will fit in memory. We adjust
@@ -151,7 +154,7 @@ class IterationProfiler:
 
             next_size = self._select_batch_size(lower, upper, is_increasing)
             logger.debug("Sampling batch size: %d", next_size)
-            err, result = self.safely_measure_run_time_ms(next_size)
+            err, result = self.measure_run_time_ms_catch_oom(next_size)
             if err is not None:
                 if is_increasing:
                     stack.append((lower, next_size - 1))

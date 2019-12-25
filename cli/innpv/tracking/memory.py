@@ -1,5 +1,6 @@
 import torch
 
+from innpv.exceptions import exceptions_as_analysis_errors
 from innpv.tracking.activations import ActivationsTracker
 from innpv.tracking.report import TrackerReportBuilder, MiscSizeType
 from innpv.tracking.weights import WeightsTracker
@@ -11,13 +12,13 @@ def track_memory_usage(
 
     # Track and record memory usage associated with model creation
     weight_tracker = WeightsTracker()
-    with weight_tracker.track():
+    with weight_tracker.track(), exceptions_as_analysis_errors():
         model = model_provider()
 
-    iteration = iteration_provider(model)
-
-    # Run one iteration to initialize the gradients
-    iteration(*input_provider())
+    with exceptions_as_analysis_errors():
+        iteration = iteration_provider(model)
+        # Run one iteration to initialize the gradients
+        iteration(*input_provider())
 
     # Track and record memory usage associated with stored activations
     activations_tracker = ActivationsTracker()
@@ -25,7 +26,8 @@ def track_memory_usage(
 
     # Record peak memory usage
     torch.cuda.reset_max_memory_allocated()
-    iteration(*input_provider())
+    with exceptions_as_analysis_errors():
+        iteration(*input_provider())
     peak_usage_bytes = torch.cuda.max_memory_allocated()
 
     # Store our tracking results
