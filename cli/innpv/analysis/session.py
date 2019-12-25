@@ -125,9 +125,11 @@ class AnalysisSession:
             self._input_provider,
             self._iteration_provider,
         )
+        num_samples = 3
         samples = profiler.sample_run_time_ms_by_batch_size(
             start_batch_size=self._batch_size,
             memory_usage_percentage=self._memory_usage_percentage,
+            num_samples=num_samples,
         )
         if len(samples) == 0 or samples[0].batch_size != self._batch_size:
             raise AnalysisError(
@@ -140,6 +142,10 @@ class AnalysisSession:
         )
         throughput = pm.ThroughputResponse()
         throughput.samples_per_second = measured_throughput
+        throughput.predicted_max_samples_per_second = math.nan
+
+        if len(samples) != num_samples:
+            return throughput
 
         run_times = np.array(
             list(map(lambda sample: sample.run_time_ms, samples)))
@@ -157,7 +163,6 @@ class AnalysisSession:
         # minimum, a good linear model has a positive slope and coefficient.
         if (slope < 1e-3 or coefficient < 1e-3 or
                 measured_throughput > predicted_max_throughput):
-            throughput.predicted_max_samples_per_second = math.nan
             return throughput
 
         throughput.predicted_max_samples_per_second = predicted_max_throughput
