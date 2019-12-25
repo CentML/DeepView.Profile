@@ -7,6 +7,7 @@ export default class ConnectionState {
     // Therefore for simplicity, we use a boolean to represent these states
     this._initialized = false;
     this._fileTracker = null;
+    this._initializationTimeout = null;
   }
 
   dispose() {
@@ -14,15 +15,28 @@ export default class ConnectionState {
       this._fileTracker.dispose();
       this._fileTracker = null;
     }
+    if (this._initializationTimeout != null) {
+      clearTimeout(this._initializationTimeout);
+      this._initializationTimeout = null;
+    }
   }
 
   get initialized() {
     return this._initialized;
   }
 
+  setInitializationTimeout(fn, timeoutMs = 5000) {
+    this._initializationTimeout = setTimeout(fn, timeoutMs);
+  }
+
   markInitialized(fileTracker) {
     this._initialized = true;
     this._fileTracker = fileTracker;
+
+    if (this._initializationTimeout != null) {
+      clearTimeout(this._initializationTimeout);
+      this._initializationTimeout = null;
+    }
   }
 
   nextAnalysisSequenceNumber() {

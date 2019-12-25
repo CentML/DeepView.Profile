@@ -96,6 +96,14 @@ export default class PerfvisPlugin {
     this._connectToServer(host, port)
       .then(() => {
         this._messageSender.sendInitializeRequest();
+        this._connectionState.setInitializationTimeout(() => {
+          this._disconnectFromServer();
+          INNPVStore.setErrorMessage(
+            'INNPV timed out when establishing a connection with the INNPV server. ' +
+            'Please check that the server is running.'
+          );
+          INNPVStore.setAppState(AppState.OPENED);
+        });
       })
       .catch((err) => {
         this._connection = null;
