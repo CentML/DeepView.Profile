@@ -2,6 +2,7 @@
 
 import net from 'net';
 import { CompositeDisposable } from 'atom';
+import Logger from '../logger';
 
 export default class Connection {
   constructor(dataHandler, onServerClosure) {
@@ -68,7 +69,7 @@ export default class Connection {
 
   _handleServerClosure() {
     // Called when the server initiates the connection closure
-    console.log('Connection closure initiated by the server.');
+    Logger.info('Connection closure initiated by the server.');
     if (this._onServerClosure != null) {
       this._onServerClosure();
     }
@@ -133,7 +134,7 @@ export default class Connection {
     }
 
     // NOTE: We should never reach here!
-    console.error('Reached invalid spot in Connection._readIntoBuffer()');
+    Logger.error('Reached invalid spot in Connection._readIntoBuffer()');
     return null;
   }
 }

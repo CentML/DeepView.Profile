@@ -15,6 +15,7 @@ import BatchSizeStore from './stores/batchsize_store';
 import OperationInfoStore from './stores/operationinfo_store';
 import AnalysisStore from './stores/analysis_store';
 import ProjectStore from './stores/project_store';
+import Logger from './logger';
 
 // Clear the views if an analysis request is pending for more than
 // this many milliseconds.
@@ -84,7 +85,7 @@ export default class INNPVPlugin {
       this._connectionState = null;
     }
 
-    console.log('Disconnected from the server.');
+    Logger.info('Disconnected from the server.');
   }
 
   _getStartedClicked({host, port}) {
@@ -114,7 +115,7 @@ export default class INNPVPlugin {
           );
         } else {
           INNPVStore.setErrorMessage('Unknown error occurred. Please file a bug report!');
-          console.error(err);
+          Logger.error(err);
         }
         INNPVStore.setAppState(AppState.OPENED);
       });

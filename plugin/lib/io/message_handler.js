@@ -6,6 +6,7 @@ import PerfVisState from '../models/PerfVisState';
 import INNPVStore from '../stores/innpv_store';
 import AnalysisStore from '../stores/analysis_store';
 import INNPVFileTracker from '../editor/innpv_file_tracker';
+import Logger from '../logger';
 
 export default class MessageHandler {
   constructor(messageSender, connectionState) {
@@ -15,7 +16,7 @@ export default class MessageHandler {
 
   _handleInitializeResponse(message) {
     if (this._connectionState.initialized) {
-      console.warn('Connection already initialized, but received an initialize response.');
+      Logger.warn('Connection already initialized, but received an initialize response.');
       return;
     }
 
@@ -27,9 +28,9 @@ export default class MessageHandler {
     this._connectionState.markInitialized(
       new INNPVFileTracker(message.getServerProjectRoot(), this._messageSender),
     );
-    console.log('Connected!');
+    Logger.info('Connected!');
 
-    console.log('Sending analysis request...');
+    Logger.info('Sending analysis request...');
     INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
     this._messageSender.sendAnalysisRequest();
   }
@@ -37,16 +38,16 @@ export default class MessageHandler {
   _handleProtocolError(message) {
     const errorCode = message.getErrorCode();
     if (errorCode === pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION) {
-      console.error('The plugin that you are using is out of date. Please update it before retrying.');
+      Logger.error('The plugin that you are using is out of date. Please update it before retrying.');
       return;
     }
-    console.error(
+    Logger.error(
       `Received a protocol error with code: ${errorCode}. Please file a bug report.`);
   }
 
   _handleMemoryUsageResponse(message) {
-    console.log('Received memory usage message.');
-    console.log(`Peak usage: ${message.getPeakUsageBytes()} bytes.`);
+    Logger.info('Received memory usage message.');
+    Logger.info(`Peak usage: ${message.getPeakUsageBytes()} bytes.`);
     AnalysisStore.receivedMemoryUsage(message);
     INNPVStore.clearErrorMessage();
   }
@@ -57,7 +58,7 @@ export default class MessageHandler {
   }
 
   _handleThroughputResponse(message) {
-    console.log(`Received throughput message: ${message.getSamplesPerSecond()} samples/s.`);
+    Logger.info(`Received throughput message: ${message.getSamplesPerSecond()} samples/s.`);
     AnalysisStore.receivedThroughput(message);
     INNPVStore.clearErrorMessage();
     if (INNPVStore.getPerfVisState() !== PerfVisState.MODIFIED) {
@@ -67,7 +68,7 @@ export default class MessageHandler {
 
   _handleAfterInitializationMessage(handler, message) {
     if (!this._connectionState.initialized) {
-      console.warn('Connection not initialized, but received a regular protocol message.');
+      Logger.warn('Connection not initialized, but received a regular protocol message.');
       return;
     }
     handler(message);
@@ -80,13 +81,13 @@ export default class MessageHandler {
     if (!this._connectionState.isResponseCurrent(enclosingMessage.getSequenceNumber())) {
       // Ignore old responses (e.g., if we make a new analysis request before
       // the previous one completes).
-      console.log('Ignoring stale response with sequence number:', enclosingMessage.getSequenceNumber());
+      Logger.info('Ignoring stale response with sequence number:', enclosingMessage.getSequenceNumber());
       return;
     }
 
     switch (payloadCase) {
       case pm.FromServer.PayloadCase.PAYLOAD_NOT_SET:
-        console.warn('Received an empty message from the server.');
+        Logger.warn('Received an empty message from the server.');
         break;
 
       case pm.FromServer.PayloadCase.INITIALIZE:

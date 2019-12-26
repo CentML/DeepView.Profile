@@ -6,6 +6,7 @@ import INNPVStore from '../stores/innpv_store';
 import AnalysisStore from '../stores/analysis_store';
 import ProjectStore from '../stores/project_store';
 import PerfVisState from '../models/PerfVisState';
+import Logger from '../logger';
 
 // The purpose of the INNPVFileTracker is to bind to the stores
 // that we use in INNPV. This allows the FileTracker to remain
@@ -62,11 +63,11 @@ export default class INNPVFileTracker {
           break;
 
         case PerfVisState.MODIFIED:
-          console.warn('Warning: PerfVisState.MODIFIED mismatch (unmodified -> modified).');
+          Logger.warn('Warning: PerfVisState.MODIFIED mismatch (unmodified -> modified).');
           break;
 
         default:
-          console.warn(`Modified change unhandled state: ${perfVisState}`);
+          Logger.warn(`Modified change unhandled state: ${perfVisState}`);
           break;
       }
 
@@ -76,7 +77,7 @@ export default class INNPVFileTracker {
         INNPVStore.setPerfVisState(PerfVisState.READY);
 
       } else {
-        console.warn('Warning: PerfVisState.MODIFIED mismatch (modified -> unmodified).');
+        Logger.warn('Warning: PerfVisState.MODIFIED mismatch (modified -> unmodified).');
       }
     }
   }
