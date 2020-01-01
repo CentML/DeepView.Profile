@@ -7,3 +7,7 @@ __pycache__
 # User-specific CLI development environment files
 cli/env
 cli/innpv.egg-info
+
+# Build files
+cli/build
+cli/dist
