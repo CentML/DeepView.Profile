@@ -30,13 +30,24 @@ INSTALL_REQUIRES = [
     "nvidia-ml-py3",
     "protobuf",
     "numpy",
-    "scipy",
-    "torch",
+    "torch>=1.2.0",
 ]
 
-# TODO: Update package metadata before first release
-KEYWORDS = []
-CLASSIFIERS = []
+KEYWORDS = [
+    "neural networks",
+    "pytorch",
+    "interactive",
+    "performance",
+    "visualization",
+]
+
+CLASSIFIERS = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Debuggers",
+]
 
 ###################################################################
 
@@ -77,4 +88,6 @@ if __name__ == "__main__":
         python_requires=PYTHON_REQUIRES,
         install_requires=INSTALL_REQUIRES,
         entry_points=ENTRY_POINTS,
+        classifiers=CLASSIFIERS,
+        keywords=KEYWORDS,
     )
