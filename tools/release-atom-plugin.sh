@@ -49,10 +49,15 @@ function perform_release() {
   cp -r ../plugin/styles $RELEASE_REPO
   cp ../plugin/package.json $RELEASE_REPO
   cp ../plugin/package-lock.json $RELEASE_REPO
-  cp ../plugin/README.md $RELEASE_REPO
+  cp ../plugin/README-release-repo.md $RELEASE_REPO/README.md
   cp ../plugin/.gitignore $RELEASE_REPO
 
   pushd "$RELEASE_REPO"
+
+  # This is how we use different log levels for development and production
+  rm lib/logger.js
+  mv lib/logger_prod.js lib/logger.js
+
   git add .
   git commit -F- <<EOF
 [$VERSION_TAG] Release up to commit $INNPV_SHORT_HASH
