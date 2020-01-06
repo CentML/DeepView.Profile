@@ -10,18 +10,18 @@ from setuptools import setup, find_packages
 
 ###################################################################
 
-NAME = "innpv"
+NAME = "skyline"
 PACKAGES = find_packages()
-META_PATH = os.path.join("innpv", "__init__.py")
+META_PATH = os.path.join("skyline", "__init__.py")
 PYTHON_REQUIRES = ">=3.6"
 
 PACKAGE_DATA = {
-    'innpv': ['data/hints.yml'],
+    'skyline': ['data/hints.yml'],
 }
 
 ENTRY_POINTS = {
     "console_scripts": [
-        "innpv = innpv.__main__:main",
+        "skyline = skyline.__main__:main",
     ],
 }
 
@@ -39,6 +39,8 @@ KEYWORDS = [
     "interactive",
     "performance",
     "visualization",
+    "profiler",
+    "debugger",
 ]
 
 CLASSIFIERS = [
