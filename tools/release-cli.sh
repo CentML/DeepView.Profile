@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script is used to release a new version of the INNPV CLI.
+# This script is used to release a new version of the Skyline CLI.
 
 set -e
 
@@ -33,7 +33,7 @@ function check_tools() {
   echo_green "✓ Release tooling OK"
 }
 
-function perform_release() {
+function build_release() {
   pushd ../cli
 
   echo_yellow "> Building wheels..."
@@ -41,15 +41,21 @@ function perform_release() {
   python3 -m pep517.build .
   echo_green "✓ Wheels successfully built"
 
+  popd
+}
+
+function upload_release() {
+  pushd ../cli
+
   echo ""
   echo_yellow "> Uploading release to PyPI..."
-  # twine upload -r pypi "dist/innpv-${NEXT_CLI_VERSION}*"
+  twine upload -r pypi "dist/skyline-${NEXT_CLI_VERSION}*"
   echo_green "✓ New release uploaded to PyPI"
 
   echo ""
   echo_yellow "> Creating a release tag..."
-  # git tag -a "$VERSION_TAG" -m ""
-  # git push --follow-tags
+  git tag -a "$VERSION_TAG" -m ""
+  git push --follow-tags
   echo_green "✓ Git release tag created and pushed to GitHub"
 
   popd
@@ -57,11 +63,11 @@ function perform_release() {
 
 function main() {
   echo ""
-  echo "INNPV CLI Release Tool"
-  echo "======================"
+  echo_blue "Skyline CLI Release Tool"
+  echo_blue "========================"
 
   echo ""
-  echo_yellow "> Checking the INNPV monorepo (this repository)..."
+  echo_yellow "> Checking the Skyline monorepo (this repository)..."
   check_monorepo
 
   echo ""
@@ -74,21 +80,29 @@ function main() {
   echo "$(pip3 --version)"
   echo "$(twine --version)"
 
-  NEXT_CLI_VERSION=$(cd ../cli && python3 -c "import innpv; print(innpv.__version__)")
+  NEXT_CLI_VERSION=$(cd ../cli && python3 -c "import skyline; print(skyline.__version__)")
   VERSION_TAG="v$NEXT_CLI_VERSION"
-  INNPV_HASH=$(get_monorepo_hash)
+  REPO_HASH=$(get_monorepo_hash)
 
   echo ""
   echo_yellow "> The next CLI version will be '$VERSION_TAG'."
   prompt_yn "> Is this correct? (y/N) "
 
+  build_release
+  if [ "$1" != "--deploy" ]; then
+    echo ""
+    echo_yellow "Skipping the upload to PyPI and GitHub since the --deploy flag was not used."
+    echo_green "✓ Done!"
+    exit 0
+  fi
+
   echo ""
-  echo_yellow "> This tool will release the CLI code at commit hash '$INNPV_HASH'."
+  echo_yellow "> This tool will release the CLI code at commit hash '$REPO_HASH'."
   prompt_yn "> Do you want to continue? This is the final confirmation step. (y/N) "
 
   echo ""
   echo_yellow "> Releasing $VERSION_TAG of the CLI..."
-  perform_release
+  upload_release
 
   echo_green "✓ Done!"
 }

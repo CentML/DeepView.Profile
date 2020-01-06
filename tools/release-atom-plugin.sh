@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# This script is used to release a new version of the INNPV Atom Plugin.
+# This script is used to release a new version of the Skyline Atom Plugin.
 #
-# Released versions of the INNPV Atom Plugin are stored in a separate release
+# Released versions of the Skyline Atom Plugin are stored in a separate release
 # repository. Users need to clone a copy of the release repository and pass in
 # a path to it when running this tool.
 
@@ -11,7 +11,7 @@ set -e
 function print_usage() {
   echo "Usage: $0 path/to/release/repository"
   echo ""
-  echo "This tool is used to release a new version of the INNPV Atom Plugin."
+  echo "This tool is used to release a new version of the Skyline Atom Plugin."
 }
 
 function check_release_repo() {
@@ -24,8 +24,8 @@ function check_release_repo() {
   fi
 
   # Make sure we're on master
-  RELEASE_REPO_MASTER_HASH=$( git rev-parse master )
-  RELEASE_REPO_HASH=$( git rev-parse HEAD )
+  RELEASE_REPO_MASTER_HASH=$(git rev-parse master)
+  RELEASE_REPO_HASH=$(git rev-parse HEAD)
 
   if [[ $RELEASE_REPO_MASTER_HASH != $RELEASE_REPO_HASH ]]; then
     echo_red "ERROR: The release repository must be on master when releasing."
@@ -59,9 +59,9 @@ function perform_release() {
 
   git add .
   git commit -F- <<EOF
-[$VERSION_TAG] Release up to commit $INNPV_SHORT_HASH
+[$VERSION_TAG] Release up to commit $SHORT_HASH
 
-This release includes the plugin files up to commit $INNPV_HASH in the monorepository.
+This release includes the plugin files up to commit $SKYLINE_HASH in the monorepository.
 EOF
   echo_green "✓ Release repository files updated"
 
@@ -69,7 +69,7 @@ EOF
   git push --follow-tags
   echo_green "✓ Release pushed to GitHub"
 
-  # apm publish --tag $RELEASE_TAG
+  # apm publish --tag $VERSION_TAG
   # echo "✓ Release published to the Atom package index"
   popd
 }
@@ -86,11 +86,11 @@ function main() {
   fi
 
   echo ""
-  echo "INNPV Atom Plugin Release Tool"
-  echo "=============================="
+  echo_blue "Skyline Atom Plugin Release Tool"
+  echo_blue "================================"
 
   echo ""
-  echo_yellow "> Checking the INNPV monorepo (this repository)..."
+  echo_yellow "> Checking the Skyline monorepo (this repository)..."
   check_monorepo
 
   echo ""
@@ -103,15 +103,15 @@ function main() {
 
   NEXT_PLUGIN_VERSION=$(node -p "require('../plugin/package.json').version")
   VERSION_TAG="v$NEXT_PLUGIN_VERSION"
-  INNPV_HASH="$(get_monorepo_hash)"
-  INNPV_SHORT_HASH="$(get_monorepo_short_hash)"
+  SKYLINE_HASH="$(get_monorepo_hash)"
+  SHORT_HASH="$(get_monorepo_short_hash)"
 
   echo ""
   echo_yellow "> The next plugin version will be '$VERSION_TAG'."
   prompt_yn "> Is this correct? (y/N) "
 
   echo ""
-  echo_yellow "> This tool will release the plugin code at commit hash '$INNPV_HASH'."
+  echo_yellow "> This tool will release the plugin code at commit hash '$SKYLINE_HASH'."
   prompt_yn "> Do you want to continue? This is the final confirmation step. (y/N) "
 
   echo ""
