@@ -41,7 +41,7 @@ function perform_release() {
   # Delete everything from the release repository
   pushd "$RELEASE_REPO"
   rm -rf lib styles
-  rm -f package.json package-lock.json README.md .gitignore
+  rm -f package.json package-lock.json .gitignore
   popd
 
   # Move over new copies of the plugin files
@@ -49,7 +49,6 @@ function perform_release() {
   cp -r ../plugin/styles $RELEASE_REPO
   cp ../plugin/package.json $RELEASE_REPO
   cp ../plugin/package-lock.json $RELEASE_REPO
-  cp ../plugin/README-release-repo.md $RELEASE_REPO/README.md
   cp ../plugin/.gitignore $RELEASE_REPO
 
   pushd "$RELEASE_REPO"
