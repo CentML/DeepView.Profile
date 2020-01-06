@@ -24,7 +24,7 @@ def register_command(subparsers):
     )
     parser.add_argument(
         "--port",
-        default=0,
+        default=60120,
         type=int,
         help="The port to listen on.",
     )

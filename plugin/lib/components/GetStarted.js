@@ -10,7 +10,7 @@ class GetStarted extends React.Component {
     this.state = {
       optionsVisible: false,
       host: 'localhost',
-      port: 60606,
+      port: 60120,
     };
 
     this._handleConnectClick = this._handleConnectClick.bind(this);
