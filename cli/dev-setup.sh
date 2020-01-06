@@ -25,5 +25,5 @@ pip3 install --editable .
 
 echo ""
 echo "Done!"
-echo "A development version of INNPV was installed in the 'env' virtualenv."
+echo "A development version of Skyline was installed in the 'env' virtualenv."
 echo "Activate the virtualenv by running 'source env/bin/activate' inside the 'cli' directory."

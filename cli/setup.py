@@ -84,7 +84,13 @@ def find_meta(meta):
 if __name__ == "__main__":
     setup(
         name=NAME,
+        description=find_meta("description"),
+        license=find_meta("license"),
         version=find_meta("version"),
+        author=find_meta("author"),
+        author_email=find_meta("email"),
+        maintainer=find_meta("author"),
+        maintainer_email=find_meta("email"),
         packages=PACKAGES,
         package_data=PACKAGE_DATA,
         python_requires=PYTHON_REQUIRES,
