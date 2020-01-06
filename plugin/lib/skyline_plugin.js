@@ -21,7 +21,7 @@ import Logger from './logger';
 // this many milliseconds.
 const CLEAR_VIEW_AFTER_MS = 200;
 
-export default class INNPVPlugin {
+export default class SkylinePlugin {
   constructor() {
     this._handleMessage = this._handleMessage.bind(this);
     this._getStartedClicked = this._getStartedClicked.bind(this);
@@ -100,7 +100,7 @@ export default class INNPVPlugin {
         this._connectionState.setInitializationTimeout(() => {
           this._disconnectFromServer();
           INNPVStore.setErrorMessage(
-            'INNPV timed out when establishing a connection with the INNPV server. ' +
+            'Skyline timed out when establishing a connection with the Skyline server. ' +
             'Please check that the server is running.'
           );
           INNPVStore.setAppState(AppState.OPENED);
@@ -110,7 +110,7 @@ export default class INNPVPlugin {
         this._connection = null;
         if (err.hasOwnProperty('errno') && err.errno === 'ECONNREFUSED') {
           INNPVStore.setErrorMessage(
-            'INNPV could not connect to the INNPV server. Please check that the server ' +
+            'Skyline could not connect to the Skyline server. Please check that the server ' +
             'is running and that the connection options are correct.'
           );
         } else {
@@ -125,7 +125,7 @@ export default class INNPVPlugin {
     this._disconnectFromServer();
     INNPVStore.setAppState(AppState.OPENED);
     INNPVStore.setErrorMessage(
-      'INNPV has lost its connection to the server. Please check that ' +
+      'Skyline has lost its connection to the server. Please check that ' +
       'the server is running before reconnecting.'
     );
     BatchSizeStore.reset();

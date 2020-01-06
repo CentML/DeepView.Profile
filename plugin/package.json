@@ -1,16 +1,17 @@
 {
-  "name": "innpv",
-  "main": "./lib/innpv",
+  "name": "skyline",
+  "main": "./lib/skyline",
   "version": "0.0.0",
   "description": "",
   "keywords": [],
   "activationCommands": {
     "atom-workspace": [
-      "innpv:start",
-      "innpv:stop"
+      "skyline:open",
+      "skyline:close"
     ]
   },
-  "repository": "https://github.com/geoffxy/innpv",
+  "repository": "https://github.com/geoffxy/skyline",
+  "license": " Apache-2.0",
   "engines": {
     "atom": ">=1.0.0 <2.0.0"
   },
@@ -19,12 +20,5 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.3"
   },
-  "devDependencies": {
-    "eslint": "^4.17.0",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-config-standard": "^11.0.0-beta.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-promise": "^3.6.0",
-    "eslint-plugin-standard": "^3.0.1"
-  }
+  "devDependencies": {}
 }

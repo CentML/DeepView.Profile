@@ -15,7 +15,7 @@ import SourceMarker from '../editor/marker';
 function PerfVisHeader() {
   return (
     <div className="innpv-header">
-      <span className="icon icon-graph"></span>innpv
+      <span className="icon icon-graph"></span>Skyline
     </div>
   );
 }

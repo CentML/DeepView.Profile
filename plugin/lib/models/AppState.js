@@ -2,7 +2,7 @@
 
 export default {
   // When the plugin is activated by Atom but the user has not "opened" it
-  // by running the INNPV:Open command.
+  // by running the Skyline:Open command.
   ACTIVATED: 'activated',
 
   // When the plugin has been opened by the user but they have not clicked

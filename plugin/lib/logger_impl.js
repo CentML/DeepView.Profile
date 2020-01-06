@@ -49,7 +49,7 @@ class Logger {
   }
 
   _log(loggingFn, ...args) {
-    loggingFn('[INNPV]', ...args);
+    loggingFn('[Skyline]', ...args);
   }
 }
 
