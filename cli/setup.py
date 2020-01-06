@@ -10,13 +10,13 @@ from setuptools import setup, find_packages
 
 ###################################################################
 
-NAME = "skyline"
+NAME = "skyline-cli"
 PACKAGES = find_packages()
 META_PATH = os.path.join("skyline", "__init__.py")
 PYTHON_REQUIRES = ">=3.6"
 
 PACKAGE_DATA = {
-    'skyline': ['data/hints.yml'],
+    "skyline": ["data/hints.yml"],
 }
 
 ENTRY_POINTS = {
@@ -30,7 +30,7 @@ INSTALL_REQUIRES = [
     "nvidia-ml-py3",
     "protobuf",
     "numpy",
-    "torch>=1.2.0",
+    "torch>=1.1.0",
 ]
 
 KEYWORDS = [
