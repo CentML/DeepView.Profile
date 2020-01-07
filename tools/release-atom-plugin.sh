@@ -69,8 +69,8 @@ EOF
   git push --follow-tags
   echo_green "✓ Release pushed to GitHub"
 
-  # apm publish --tag $VERSION_TAG
-  # echo "✓ Release published to the Atom package index"
+  apm publish --tag "$VERSION_TAG"
+  echo "✓ Release published to the Atom package index"
   popd
 }
 

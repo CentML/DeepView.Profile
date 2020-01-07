@@ -49,7 +49,7 @@ function upload_release() {
 
   echo ""
   echo_yellow "> Uploading release to PyPI..."
-  twine upload -r pypi "dist/skyline-${NEXT_CLI_VERSION}*"
+  twine upload -r pypi "dist/skyline_cli-${NEXT_CLI_VERSION}*"
   echo_green "✓ New release uploaded to PyPI"
 
   echo ""
