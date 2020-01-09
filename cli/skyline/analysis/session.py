@@ -10,6 +10,7 @@ from skyline.exceptions import AnalysisError, exceptions_as_analysis_errors
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.memory import track_memory_usage
 from skyline.tracking.report import MiscSizeType
+from skyline.user_code_utils import user_code_environment
 
 logger = logging.getLogger(__name__)
 
@@ -172,11 +173,15 @@ class AnalysisSession:
 
 def _run_entry_point(project_root, entry_point):
     file_name = os.path.join(project_root, entry_point)
+    # Note: This is not necessarily the same as project_root because the
+    #       entry_point could be in a subdirectory.
+    path_to_entry_point = os.path.dirname(file_name)
     with open(file_name) as file:
         code_str = file.read()
     code = compile(code_str, file_name, mode="exec")
-    scope = {}
-    exec(code, scope, scope)
+    with user_code_environment(path_to_entry_point):
+        scope = {}
+        exec(code, scope, scope)
     return scope
 
 
