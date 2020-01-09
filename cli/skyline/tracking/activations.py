@@ -4,10 +4,10 @@ import inspect
 
 import torch
 
-from skyline.exceptions import exceptions_as_analysis_errors
 from skyline.tracking.base import TrackerBase
 from skyline.tracking.call_stack import CallStack
 from skyline.tracking.hook_manager import HookManager
+from skyline.user_code_utils import user_code_environment
 
 OperationContext = collections.namedtuple(
     'OperationContext',
@@ -24,11 +24,12 @@ class ActivationsTracker:
     def __init__(self):
         self._activations = []
 
-    def track_memory_usage(self, model, input_provider):
+    def track_memory_usage(self, model, input_provider, user_code_path):
         # 1. Run the forward pass of the model with the given inputs. We keep
         #    track of all the operations that contribute to the autograd graph.
         model_output, grad_function_contexts = \
-            self._get_grad_function_contexts(model, input_provider)
+            self._get_grad_function_contexts(
+                model, input_provider, user_code_path)
 
         # 2. Traverse the autograd graph and get a topological ordering. Filter
         #    the function contexts by the gradient functions in our topological
@@ -70,9 +71,11 @@ class ActivationsTracker:
                 stack_context=entry.stack,
             )
 
-    def _get_grad_function_contexts(self, model, input_provider):
+    def _get_grad_function_contexts(
+            self, model, input_provider, user_code_path):
         grad_function_tracker = GradFunctionTracker()
-        with grad_function_tracker.track(), exceptions_as_analysis_errors():
+        with grad_function_tracker.track(), \
+                user_code_environment(user_code_path):
             out = model(*input_provider())
         return out, grad_function_tracker.grad_function_contexts
 

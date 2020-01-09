@@ -6,7 +6,7 @@ import os
 import numpy as np
 
 import skyline.protocol_gen.innpv_pb2 as pm
-from skyline.exceptions import AnalysisError, exceptions_as_analysis_errors
+from skyline.exceptions import AnalysisError
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.memory import track_memory_usage
 from skyline.tracking.report import MiscSizeType
@@ -24,12 +24,14 @@ class AnalysisSession:
     def __init__(
         self,
         project_root,
+        path_to_entry_point_dir,
         model_provider,
         input_provider,
         iteration_provider,
         batch_size
     ):
         self._project_root = project_root
+        self._path_to_entry_point_dir = path_to_entry_point_dir
         self._model_provider = model_provider
         self._input_provider = input_provider
         self._iteration_provider = iteration_provider
@@ -38,9 +40,17 @@ class AnalysisSession:
 
     @classmethod
     def new_from(cls, project_root, entry_point):
+        path_to_entry_point = os.path.join(project_root, entry_point)
+        # Note: This is not necessarily the same as project_root because the
+        #       entry_point could be in a subdirectory.
+        path_to_entry_point_dir = os.path.dirname(path_to_entry_point)
+
         # 1. Run the entry point file to "load" the model
         try:
-            scope = _run_entry_point(project_root, entry_point)
+            scope = _run_entry_point(
+                path_to_entry_point,
+                path_to_entry_point_dir,
+            )
         except SyntaxError as ex:
             raise AnalysisError(
                 "Syntax error on line {} column {} in {}.".format(
@@ -77,10 +87,15 @@ class AnalysisSession:
         iteration_provider = scope[ITERATION_PROVIDER_NAME]
 
         batch_size = _validate_providers(
-            model_provider, input_provider, iteration_provider)
+            model_provider,
+            input_provider,
+            iteration_provider,
+            path_to_entry_point_dir,
+        )
 
         return cls(
             project_root,
+            path_to_entry_point_dir,
             model_provider,
             input_provider,
             iteration_provider,
@@ -92,6 +107,7 @@ class AnalysisSession:
             self._model_provider,
             self._input_provider,
             self._iteration_provider,
+            self._path_to_entry_point_dir,
         )
 
         memory_usage = pm.MemoryUsageResponse()
@@ -125,6 +141,7 @@ class AnalysisSession:
             self._model_provider,
             self._input_provider,
             self._iteration_provider,
+            self._path_to_entry_point_dir,
         )
         num_samples = 3
         samples = profiler.sample_run_time_ms_by_batch_size(
@@ -171,15 +188,11 @@ class AnalysisSession:
         return throughput
 
 
-def _run_entry_point(project_root, entry_point):
-    file_name = os.path.join(project_root, entry_point)
-    # Note: This is not necessarily the same as project_root because the
-    #       entry_point could be in a subdirectory.
-    path_to_entry_point = os.path.dirname(file_name)
-    with open(file_name) as file:
+def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):
+    with open(path_to_entry_point) as file:
         code_str = file.read()
-    code = compile(code_str, file_name, mode="exec")
-    with user_code_environment(path_to_entry_point):
+    code = compile(code_str, path_to_entry_point, mode="exec")
+    with user_code_environment(path_to_entry_point_dir):
         scope = {}
         exec(code, scope, scope)
     return scope
@@ -195,7 +208,12 @@ def _set_file_context(message, project_root, entry):
         relative_file_path.split(os.sep))
 
 
-def _validate_providers(model_provider, input_provider, iteration_provider):
+def _validate_providers(
+    model_provider,
+    input_provider,
+    iteration_provider,
+    path_to_entry_point_dir,
+):
     model_sig = inspect.signature(model_provider)
     if len(model_sig.parameters) != 0:
         raise AnalysisError(
@@ -221,7 +239,11 @@ def _validate_providers(model_provider, input_provider, iteration_provider):
         )
 
     err = _validate_provider_return_values(
-        model_provider, input_provider, iteration_provider)
+        model_provider,
+        input_provider,
+        iteration_provider,
+        path_to_entry_point_dir,
+    )
     if err is not None:
         raise err
 
@@ -229,10 +251,14 @@ def _validate_providers(model_provider, input_provider, iteration_provider):
 
 
 def _validate_provider_return_values(
-        model_provider, input_provider, iteration_provider):
-    with exceptions_as_analysis_errors():
+    model_provider,
+    input_provider,
+    iteration_provider,
+    path_to_entry_point_dir,
+):
+    with user_code_environment(path_to_entry_point_dir):
         # We return exceptions instead of raising them here to prevent
-        # them from being caught by the exception context manager.
+        # them from being caught by the code environment context manager.
         model = model_provider()
         if not callable(model):
             return AnalysisError(

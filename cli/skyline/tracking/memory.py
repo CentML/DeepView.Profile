@@ -1,32 +1,38 @@
 import torch
 
-from skyline.exceptions import exceptions_as_analysis_errors
 from skyline.tracking.activations import ActivationsTracker
 from skyline.tracking.report import TrackerReportBuilder, MiscSizeType
 from skyline.tracking.weights import WeightsTracker
+from skyline.user_code_utils import user_code_environment
 
 
 def track_memory_usage(
-        model_provider, input_provider, iteration_provider, report_file=None):
+    model_provider,
+    input_provider,
+    iteration_provider,
+    user_code_path,
+    report_file=None,
+):
     _ensure_cuda_initialization()
 
     # Track and record memory usage associated with model creation
     weight_tracker = WeightsTracker()
-    with weight_tracker.track(), exceptions_as_analysis_errors():
+    with weight_tracker.track(), user_code_environment(user_code_path):
         model = model_provider()
 
-    with exceptions_as_analysis_errors():
+    with user_code_environment(user_code_path):
         iteration = iteration_provider(model)
         # Run one iteration to initialize the gradients
         iteration(*input_provider())
 
     # Track and record memory usage associated with stored activations
     activations_tracker = ActivationsTracker()
-    activations_tracker.track_memory_usage(model, input_provider)
+    activations_tracker.track_memory_usage(
+        model, input_provider, user_code_path)
 
     # Record peak memory usage
     torch.cuda.reset_max_memory_allocated()
-    with exceptions_as_analysis_errors():
+    with user_code_environment(user_code_path):
         iteration(*input_provider())
     peak_usage_bytes = torch.cuda.max_memory_allocated()
 
