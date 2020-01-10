@@ -5,17 +5,19 @@ import AppState from '../models/AppState';
 import PerfVisState from '../models/PerfVisState';
 import INNPVStore from '../stores/innpv_store';
 import AnalysisStore from '../stores/analysis_store';
-import INNPVFileTracker from '../editor/innpv_file_tracker';
 import Logger from '../logger';
+import ConnectionActions from '../redux/actions/connection';
 
 export default class MessageHandler {
-  constructor(messageSender, connectionState) {
+  constructor(messageSender, connectionStateView, store, onReceivedProjectRoot) {
     this._messageSender = messageSender;
-    this._connectionState = connectionState;
+    this._connectionStateView = connectionStateView;
+    this._store = store;
+    this._onReceivedProjectRoot = onReceivedProjectRoot;
   }
 
   _handleInitializeResponse(message) {
-    if (this._connectionState.initialized) {
+    if (this._connectionStateView.isInitialized()) {
       Logger.warn('Connection already initialized, but received an initialize response.');
       return;
     }
@@ -23,16 +25,16 @@ export default class MessageHandler {
     // TODO: Validate the project root and entry point paths.
     //       We don't (yet) support remote work, so "trusting" the server is fine
     //       for now because we validate the paths on the server.
-    INNPVStore.clearErrorMessage();
-    INNPVStore.setAppState(AppState.CONNECTED);
-    this._connectionState.markInitialized(
-      new INNPVFileTracker(message.getServerProjectRoot(), this._messageSender),
-    );
+    const projectRoot = message.getServerProjectRoot();
+
+    this._messageSender.clearInitializeTimeout();
+    this._store.dispatch(ConnectionActions.initialized({projectRoot}));
+    this._onReceivedProjectRoot(projectRoot);
     Logger.info('Connected!');
 
-    Logger.info('Sending analysis request...');
-    INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
-    this._messageSender.sendAnalysisRequest();
+    // Logger.info('Sending analysis request...');
+    // INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
+    // this._messageSender.sendAnalysisRequest();
   }
 
   _handleProtocolError(message) {
@@ -67,7 +69,7 @@ export default class MessageHandler {
   }
 
   _handleAfterInitializationMessage(handler, message) {
-    if (!this._connectionState.initialized) {
+    if (!this._connectionStateView.isInitialized()) {
       Logger.warn('Connection not initialized, but received a regular protocol message.');
       return;
     }
@@ -78,7 +80,7 @@ export default class MessageHandler {
     const enclosingMessage = pm.FromServer.deserializeBinary(byteArray);
     const payloadCase = enclosingMessage.getPayloadCase();
 
-    if (!this._connectionState.isResponseCurrent(enclosingMessage.getSequenceNumber())) {
+    if (!this._connectionStateView.isResponseCurrent(enclosingMessage.getSequenceNumber())) {
       // Ignore old responses (e.g., if we make a new analysis request before
       // the previous one completes).
       Logger.info('Ignoring stale response with sequence number:', enclosingMessage.getSequenceNumber());

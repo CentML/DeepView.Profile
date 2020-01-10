@@ -1,6 +1,6 @@
 'use babel';
 
-export function generateEmptyActionCreator(actionType) {
+export function emptyFor(actionType) {
   return function() {
     return {
       type: actionType,
@@ -9,7 +9,7 @@ export function generateEmptyActionCreator(actionType) {
   };
 }
 
-export function generateActionCreatorFromPayloadCreator(actionType, payloadCreator) {
+export function fromPayloadCreator(actionType, payloadCreator) {
   return function(...args) {
     return {
       type: actionType,

@@ -28,15 +28,15 @@ const CONN_NAMESPACE = 'conn';
 export const isConnectionAction = generateActionNamespaceChecker(CONN_NAMESPACE);
 
 // We initiated a connection and we have not heard back from the server yet
-export const CONN_INITIATED = generateActionType(CONN_NAMESPACE, 'initiated');
+export const CONN_CONNECTING = generateActionType(CONN_NAMESPACE, 'connecting');
 // The connection to the server has been established and initialized
 export const CONN_INITIALIZED = generateActionType(CONN_NAMESPACE, 'initialized');
-// We failed to establish and initialize a connection with the server in time
-export const CONN_TIMEOUT = generateActionType(CONN_NAMESPACE, 'timeout');
 // We received an error while connecting to or intializing a connection with the server
 export const CONN_ERROR = generateActionType(CONN_NAMESPACE, 'error');
 // We lost our connection to the server (possibly because the server was shut down)
 export const CONN_LOST = generateActionType(CONN_NAMESPACE, 'lost');
+// Increment the sequence number tracker in the connection state
+export const CONN_INCR_SEQ = generateActionType(CONN_NAMESPACE, 'incr_seq');
 
 // ============================================================================
 

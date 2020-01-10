@@ -2,7 +2,6 @@
 
 import FileTracker from './file_tracker';
 
-import INNPVStore from '../stores/innpv_store';
 import AnalysisStore from '../stores/analysis_store';
 import ProjectStore from '../stores/project_store';
 import PerfVisState from '../models/PerfVisState';
@@ -13,8 +12,9 @@ import Logger from '../logger';
 // generic (i.e. no dependence on INNPV).
 
 export default class INNPVFileTracker {
-  constructor(projectRoot, messageSender) {
+  constructor(projectRoot, messageSender, store) {
     this._messageSender = messageSender;
+    this._store = store;
     this._tracker = new FileTracker({
       projectRoot,
       onOpenFilesChange: this._onOpenFilesChange.bind(this),
@@ -42,16 +42,16 @@ export default class INNPVFileTracker {
 
   _onProjectFileSave() {
     if (this._tracker.isProjectModified() ||
-        INNPVStore.getPerfVisState() === PerfVisState.ANALYZING) {
+        this._store.getState().perfVisState === PerfVisState.ANALYZING) {
       return;
     }
-    INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
-    this._messageSender.sendAnalysisRequest();
+    // INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
+    // this._messageSender.sendAnalysisRequest();
   }
 
   _onProjectModifiedChange() {
     const modified = this._tracker.isProjectModified();
-    const perfVisState = INNPVStore.getPerfVisState();
+    const perfVisState = this._store.getState().perfVisState;
 
     if (modified) {
       // Project went from unmodified -> modified
@@ -59,7 +59,7 @@ export default class INNPVFileTracker {
         case PerfVisState.ANALYZING:
         case PerfVisState.READY:
         case PerfVisState.ERROR:
-          INNPVStore.setPerfVisState(PerfVisState.MODIFIED);
+          // INNPVStore.setPerfVisState(PerfVisState.MODIFIED);
           break;
 
         case PerfVisState.MODIFIED:
@@ -74,7 +74,7 @@ export default class INNPVFileTracker {
     } else {
       // Project went from modified -> unmodified
       if (perfVisState === PerfVisState.MODIFIED) {
-        INNPVStore.setPerfVisState(PerfVisState.READY);
+        // INNPVStore.setPerfVisState(PerfVisState.READY);
 
       } else {
         Logger.warn('Warning: PerfVisState.MODIFIED mismatch (modified -> unmodified).');

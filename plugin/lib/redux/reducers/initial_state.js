@@ -9,8 +9,10 @@ export default {
   errorMessage: '',
   connection: {
     initialized: false,
+    sequenceNumber: 0,
   },
   memoryBreakdown: null,
   throughput: null,
   memoryUsage: null,
+  projectRoot: null,
 };
