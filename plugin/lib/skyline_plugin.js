@@ -2,6 +2,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
 
 import PerfVis from './components/PerfVis';
 import Connection from './io/connection';
@@ -17,46 +18,46 @@ import AnalysisStore from './stores/analysis_store';
 import ProjectStore from './stores/project_store';
 import Logger from './logger';
 
+import storeCreator from './redux/store';
+import AppActions from './redux/actions/app';
+
 // Clear the views if an analysis request is pending for more than
 // this many milliseconds.
 const CLEAR_VIEW_AFTER_MS = 200;
 
 export default class SkylinePlugin {
   constructor() {
+    this._store = storeCreator();
     this._handleMessage = this._handleMessage.bind(this);
     this._getStartedClicked = this._getStartedClicked.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
   }
 
   open() {
-    if (INNPVStore.getAppState() !== AppState.ACTIVATED) {
+    if (this._store.getState().appState !== AppState.ACTIVATED) {
       return;
     }
-    INNPVStore.setAppState(AppState.OPENED);
+    this._store.dispatch(AppActions.appOpened());
 
     this._panel = atom.workspace.addRightPanel({item: document.createElement('div')});
     ReactDOM.render(
-      <PerfVis handleGetStartedClick={this._getStartedClicked} />,
+      <Provider store={this._store}>
+        <PerfVis handleGetStartedClick={this._getStartedClicked} />
+      </Provider>,
       this._panel.getItem(),
     );
   }
 
   close() {
-    if (INNPVStore.getAppState() === AppState.ACTIVATED) {
+    if (this._store.getState().appState === AppState.ACTIVATED) {
       return;
     }
-    INNPVStore.setAppState(AppState.ACTIVATED);
+    this._store.dispatch(AppActions.appClosed());
     this._disconnectFromServer();
 
     ReactDOM.unmountComponentAtNode(this._panel.getItem());
     this._panel.destroy();
     this._panel = null;
-
-    INNPVStore.reset();
-    BatchSizeStore.reset();
-    OperationInfoStore.reset();
-    AnalysisStore.reset();
-    ProjectStore.reset();
   }
 
   _connectToServer(host, port) {

@@ -1,57 +1,32 @@
 'use babel';
 
 import React from 'react';
+import {connect} from 'react-redux';
 
+import AppState from '../models/AppState';
 import GetStarted from './GetStarted';
 import PerfVisMainView from './PerfVisMainView';
 
-import AppState from '../models/AppState';
-import INNPVStore from '../stores/innpv_store';
-
-export default class PerfVis extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      appState: INNPVStore.getAppState(),
-      perfVisState: INNPVStore.getPerfVisState(),
-      errorMessage: INNPVStore.getErrorMessage(),
-    };
-    this._onStoreUpdate = this._onStoreUpdate.bind(this);
-  }
-
-  componentDidMount() {
-    INNPVStore.addListener(this._onStoreUpdate);
-  }
-
-  componentWillUnmount() {
-    INNPVStore.removeListener(this._onStoreUpdate);
-  }
-
-  _onStoreUpdate() {
-    this.setState({
-      appState: INNPVStore.getAppState(),
-      perfVisState: INNPVStore.getPerfVisState(),
-      errorMessage: INNPVStore.getErrorMessage(),
-    });
-  }
-
+class PerfVis extends React.Component {
   _renderContents() {
-    switch (this.state.appState) {
+    const {appState, perfVisState, errorMessage, handleGetStartedClick} = this.props;
+
+    switch (appState) {
       case AppState.OPENED:
       case AppState.CONNECTING:
         return (
           <GetStarted
-            appState={this.state.appState}
-            handleClick={this.props.handleGetStartedClick}
-            errorMessage={this.state.errorMessage}
+            appState={appState}
+            handleClick={handleGetStartedClick}
+            errorMessage={errorMessage}
           />
         );
 
       case AppState.CONNECTED:
         return (
           <PerfVisMainView
-            perfVisState={this.state.perfVisState}
-            errorMessage={this.state.errorMessage}
+            perfVisState={perfVisState}
+            errorMessage={errorMessage}
           />
         );
 
@@ -64,3 +39,11 @@ export default class PerfVis extends React.Component {
     return <div className="innpv-wrap">{this._renderContents()}</div>;
   }
 }
+
+const mapStateToProps = (state) => ({
+  appState: state.appState,
+  perfVisState: state.perfVisState,
+  errorMessage: state.errorMessage,
+});
+
+export default connect(mapStateToProps)(PerfVis);
