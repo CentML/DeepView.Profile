@@ -4,7 +4,6 @@ import React from 'react'
 import ReactDOM from 'react-dom';
 
 import SourceMarker from '../editor/marker';
-import INNPVStore from '../stores/innpv_store';
 import PerfHintState from '../models/PerfHintState';
 
 function Increase() {
@@ -26,7 +25,7 @@ function Decrease() {
 class PerfHint extends React.Component {
   constructor(props) {
     super(props);
-    this._marker = new SourceMarker(INNPVStore.getEditor());
+    this._marker = new SourceMarker(/* TODO: Reference to a TextEditor */);
     this._el = document.createElement('div');
   }
 

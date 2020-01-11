@@ -7,7 +7,6 @@ import PerfHint from './PerfHint';
 import UsageHighlight from './UsageHighlight';
 import SourceMarker from '../editor/marker';
 import PerfHintState from '../models/PerfHintState';
-import INNPVStore from '../stores/innpv_store';
 
 export default class RunTimePerfBar extends React.Component {
   constructor(props) {
