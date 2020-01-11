@@ -52,10 +52,8 @@ export const isAnalysisAction = generateActionNamespaceChecker(ANALYSIS_NAMESPAC
 
 // We issued an analysis request
 export const ANALYSIS_REQ = generateActionType(ANALYSIS_NAMESPACE, 'req');
-// We received a memory breakdown
-export const ANALYSIS_REC_MEM_BREAKDOWN = generateActionType(ANALYSIS_NAMESPACE, 'rec_mem_breakdown');
-// We received memory usage information
-export const ANALYSIS_REC_MEM_USAGE = generateActionType(ANALYSIS_NAMESPACE, 'rec_mem_usage');
+// We received the memory analysis
+export const ANALYSIS_REC_MEM = generateActionType(ANALYSIS_NAMESPACE, 'rec_memory');
 // We received throughput information
 export const ANALYSIS_REC_THPT = generateActionType(ANALYSIS_NAMESPACE, 'rec_thpt');
 // An error occurred during the analysis

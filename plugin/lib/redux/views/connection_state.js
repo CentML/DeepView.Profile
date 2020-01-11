@@ -25,6 +25,6 @@ export default class ConnectionStateView {
     // Since we always increase the sequence number by one, a "current"
     // response is one with a sequence number exactly one less than the next
     // sequence number to be assigned (this._sequenceNumber).
-    return responseSequenceNumber === this.nextSequenceNumber() - 1;
+    return responseSequenceNumber === this._connectionState.sequenceNumber - 1;
   }
 }

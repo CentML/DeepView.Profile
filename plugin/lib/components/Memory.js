@@ -1,12 +1,11 @@
 'use babel';
 
 import React from 'react';
+import {connect} from 'react-redux';
 
 import Subheader from './Subheader';
 import BarSlider from './BarSlider';
 import NumericDisplay from './NumericDisplay';
-import BatchSizeStore from '../stores/batchsize_store';
-import INNPVStore from '../stores/innpv_store';
 import PerfVisState from '../models/PerfVisState';
 
 export default class Memory extends React.Component {
@@ -17,10 +16,6 @@ export default class Memory extends React.Component {
 
   _handleResize(deltaPct, basePct) {
     // TODO: Add in memory predictions again
-    return;
-
-    BatchSizeStore.updateMemoryUsage(deltaPct, basePct);
-    INNPVStore.setPerfVisState(PerfVisState.SHOWING_PREDICTIONS);
   }
 
   render() {
@@ -56,3 +51,9 @@ export default class Memory extends React.Component {
   }
 }
 
+const mapStateToProps = (state, ownProps) => ({
+  model: state.memoryUsage,
+  ...ownProps,
+});
+
+export default connect(mapStateToProps)(Memory);

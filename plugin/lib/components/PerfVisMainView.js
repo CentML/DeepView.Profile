@@ -8,8 +8,6 @@ import MemoryBreakdown from './MemoryBreakdown';
 import PerfVisStatusBar from './PerfVisStatusBar';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
-import AnalysisStore from '../stores/analysis_store';
-import INNPVStore from '../stores/innpv_store';
 import SourceMarker from '../editor/marker';
 
 function PerfVisHeader() {
@@ -23,29 +21,9 @@ function PerfVisHeader() {
 export default class PerfVisMainView extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      overallMemoryUsage: AnalysisStore.getOverallMemoryUsage(),
-      throughput: AnalysisStore.getThroughput(),
-    };
-    this._onStoreUpdate = this._onStoreUpdate.bind(this);
     this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
     this._handleSliderHoverEnter = this._handleSliderHoverEnter.bind(this);
     this._handleSliderHoverExit = this._handleSliderHoverExit.bind(this);
-  }
-
-  componentDidMount() {
-    AnalysisStore.addListener(this._onStoreUpdate);
-  }
-
-  componentWillUnmount() {
-    AnalysisStore.removeListener(this._onStoreUpdate);
-  }
-
-  _onStoreUpdate() {
-    this.setState({
-      overallMemoryUsage: AnalysisStore.getOverallMemoryUsage(),
-      throughput: AnalysisStore.getThroughput(),
-    });
   }
 
   _handleStatusBarClick() {
@@ -61,20 +39,18 @@ export default class PerfVisMainView extends React.Component {
 
   _subrowClasses() {
     const {perfVisState} = this.props;
-    const {throughput, memory} = this.state;
     const mainClass = 'innpv-contents-subrows';
     if (perfVisState === PerfVisState.MODIFIED ||
-        (perfVisState === PerfVisState.ANALYZING &&
-          (throughput == null || memory == null))) {
+        perfVisState === PerfVisState.ANALYZING) {
       return mainClass + ' innpv-no-events';
     }
     return mainClass;
   }
 
   _renderBody() {
-    const {perfVisState, projectRoot} = this.props;
+    const {perfVisState, projectRoot, errorMessage} = this.props;
     if (this.props.errorMessage !== '') {
-      return <ErrorMessage perfVisState={perfVisState} message={this.props.errorMessage} />;
+      return <ErrorMessage perfVisState={perfVisState} message={errorMessage} />;
     } else {
       return (
         <div className="innpv-contents-columns">
@@ -83,12 +59,10 @@ export default class PerfVisMainView extends React.Component {
           </div>
           <div className={this._subrowClasses()}>
             <Throughput
-              model={this.state.throughput}
               handleSliderHoverEnter={this._handleSliderHoverEnter}
               handleSliderHoverExit={this._handleSliderHoverExit}
             />
             <Memory
-              model={this.state.overallMemoryUsage}
               handleSliderHoverEnter={this._handleSliderHoverEnter}
               handleSliderHoverExit={this._handleSliderHoverExit}
             />

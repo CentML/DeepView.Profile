@@ -22,6 +22,6 @@ export default {
 
   // Analysis received
   memoryBreakdown: null,
-  throughput: null,
   memoryUsage: null,
+  throughput: null,
 };

@@ -4,6 +4,7 @@ import FileTracker from './file_tracker';
 
 import PerfVisState from '../models/PerfVisState';
 import Logger from '../logger';
+import AnalysisActions from '../redux/actions/analysis';
 import ProjectActions from '../redux/actions/project';
 
 // The purpose of the INNPVFileTracker is to bind to the store
@@ -40,8 +41,8 @@ export default class INNPVFileTracker {
         this._store.getState().perfVisState === PerfVisState.ANALYZING) {
       return;
     }
-    // INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
-    // this._messageSender.sendAnalysisRequest();
+    this._store.dispatch(AnalysisActions.request());
+    this._messageSender.sendAnalysisRequest();
   }
 
   _onProjectModifiedChange() {

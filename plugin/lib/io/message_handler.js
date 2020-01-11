@@ -3,11 +3,8 @@
 import pm from '../protocol_gen/innpv_pb';
 
 import INNPVFileTracker from '../editor/innpv_file_tracker';
-import AppState from '../models/AppState';
-import PerfVisState from '../models/PerfVisState';
+import AnalysisActions from '../redux/actions/analysis';
 import ConnectionActions from '../redux/actions/connection';
-import INNPVStore from '../stores/innpv_store';
-import AnalysisStore from '../stores/analysis_store';
 import Logger from '../logger';
 
 export default class MessageHandler {
@@ -16,6 +13,12 @@ export default class MessageHandler {
     this._connectionStateView = connectionStateView;
     this._store = store;
     this._disposables = disposables;
+
+    this._handleInitializeResponse = this._handleInitializeResponse.bind(this);
+    this._handleProtocolError = this._handleProtocolError.bind(this);
+    this._handleMemoryUsageResponse = this._handleMemoryUsageResponse.bind(this);
+    this._handleAnalysisError = this._handleAnalysisError.bind(this);
+    this._handleThroughputResponse = this._handleThroughputResponse.bind(this);
   }
 
   _handleInitializeResponse(message) {
@@ -33,9 +36,9 @@ export default class MessageHandler {
     this._disposables.add(new INNPVFileTracker(projectRoot, this._messageSender, this._store));
     Logger.info('Connected!');
 
-    // Logger.info('Sending analysis request...');
-    // INNPVStore.setPerfVisState(PerfVisState.ANALYZING);
-    // this._messageSender.sendAnalysisRequest();
+    Logger.info('Sending analysis request...');
+    this._store.dispatch(AnalysisActions.request());
+    this._messageSender.sendAnalysisRequest();
   }
 
   _handleProtocolError(message) {
@@ -51,22 +54,22 @@ export default class MessageHandler {
   _handleMemoryUsageResponse(message) {
     Logger.info('Received memory usage message.');
     Logger.info(`Peak usage: ${message.getPeakUsageBytes()} bytes.`);
-    AnalysisStore.receivedMemoryUsage(message);
-    INNPVStore.clearErrorMessage();
+    this._store.dispatch(AnalysisActions.receivedMemoryAnalysis({
+      memoryUsageResponse: message,
+    }));
   }
 
   _handleAnalysisError(message) {
-    INNPVStore.setErrorMessage(message.getErrorMessage());
-    INNPVStore.setPerfVisState(PerfVisState.ERROR);
+    this._store.dispatch(AnalysisActions.error({
+      errorMessage: message.getErrorMessage(),
+    }));
   }
 
   _handleThroughputResponse(message) {
     Logger.info(`Received throughput message: ${message.getSamplesPerSecond()} samples/s.`);
-    AnalysisStore.receivedThroughput(message);
-    INNPVStore.clearErrorMessage();
-    if (INNPVStore.getPerfVisState() !== PerfVisState.MODIFIED) {
-      INNPVStore.setPerfVisState(PerfVisState.READY);
-    }
+    this._store.dispatch(AnalysisActions.receivedThroughputAnalysis({
+      throughputResponse: message,
+    }));
   }
 
   _handleAfterInitializationMessage(handler, message) {

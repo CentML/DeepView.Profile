@@ -3,7 +3,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
 
-import AnalysisStore from '../stores/analysis_store';
 import PerfBarContainer from './generic/PerfBarContainer';
 import MemoryEntryLabel from '../models/MemoryEntryLabel';
 import PerfVisState from '../models/PerfVisState';
@@ -41,37 +40,19 @@ const COLORS_BY_LABEL = {
 class MemoryBreakdown extends React.Component {
   constructor(props) {
     super(props);
-    const memoryBreakdown = AnalysisStore.getMemoryBreakdown();
     this.state = {
-      memoryBreakdown,
       expanded: null,
     };
-
     this._onLabelClick = this._onLabelClick.bind(this);
-    this._onAnalysisStoreUpdate = this._onAnalysisStoreUpdate.bind(this);
-  }
-
-  componentDidMount() {
-    AnalysisStore.addListener(this._onAnalysisStoreUpdate);
-  }
-
-  componentWillUnmount() {
-    AnalysisStore.removeListener(this._onAnalysisStoreUpdate);
-  }
-
-  _onAnalysisStoreUpdate() {
-    const memoryBreakdown = AnalysisStore.getMemoryBreakdown();
-    this.setState({
-      memoryBreakdown,
-    });
   }
 
   _getLabels() {
-    const {memoryBreakdown, expanded} = this.state;
+    const {memoryBreakdown} = this.props;
     if (memoryBreakdown == null) {
       return DEFAULT_MEMORY_LABELS;
     }
 
+    const {expanded} = this.state;
     if (expanded != null) {
       return DEFAULT_MEMORY_LABELS.map(({label, ...rest}) => ({
         ...rest,
@@ -105,8 +86,8 @@ class MemoryBreakdown extends React.Component {
   }
 
   _renderPerfBars() {
-    const {editorsByPath, projectRoot} = this.props;
-    const {memoryBreakdown, expanded} = this.state;
+    const {editorsByPath, projectRoot, memoryBreakdown} = this.props;
+    const {expanded} = this.state;
     if (memoryBreakdown == null) {
       return null;
     }
@@ -152,7 +133,6 @@ class MemoryBreakdown extends React.Component {
 
   render() {
     const {perfVisState} = this.props;
-    const {memoryBreakdown} = this.state;
     const disabled = perfVisState === PerfVisState.MODIFIED ||
       perfVisState === PerfVisState.ANALYZING;
 
@@ -170,6 +150,7 @@ class MemoryBreakdown extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
+  memoryBreakdown: state.memoryBreakdown,
   ...ownProps,
 });
 

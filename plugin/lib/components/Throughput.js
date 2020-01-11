@@ -1,16 +1,15 @@
 'use babel';
 
 import React from 'react';
+import {connect} from 'react-redux';
 
 import Subheader from './Subheader';
 import BarSlider from './BarSlider';
 import NumericDisplay from './NumericDisplay';
-import BatchSizeStore from '../stores/batchsize_store';
-import INNPVStore from '../stores/innpv_store';
 import PerfVisState from '../models/PerfVisState';
 import {toPercentage} from '../utils';
 
-export default class Throughput extends React.Component {
+class Throughput extends React.Component {
   constructor(props) {
     super(props);
     this._handleResize = this._handleResize.bind(this);
@@ -18,10 +17,6 @@ export default class Throughput extends React.Component {
 
   _handleResize(deltaPct, basePct) {
     // TODO: Add in throughput predictions again
-    return;
-
-    BatchSizeStore.updateThroughput(deltaPct, basePct);
-    INNPVStore.setPerfVisState(PerfVisState.SHOWING_PREDICTIONS);
   }
 
   _getPercentage() {
@@ -76,3 +71,10 @@ export default class Throughput extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  model: state.throughput,
+  ...ownProps,
+});
+
+export default connect(mapStateToProps)(Throughput);
