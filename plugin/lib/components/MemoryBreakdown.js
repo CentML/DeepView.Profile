@@ -1,9 +1,9 @@
 'use babel';
 
 import React from 'react';
+import {connect} from 'react-redux';
 
 import AnalysisStore from '../stores/analysis_store';
-import ProjectStore from '../stores/project_store';
 import PerfBarContainer from './generic/PerfBarContainer';
 import MemoryEntryLabel from '../models/MemoryEntryLabel';
 import PerfVisState from '../models/PerfVisState';
@@ -38,61 +38,32 @@ const COLORS_BY_LABEL = {
   ],
 }
 
-export default class MemoryPerfBarContainer extends React.Component {
+class MemoryBreakdown extends React.Component {
   constructor(props) {
     super(props);
     const memoryBreakdown = AnalysisStore.getMemoryBreakdown();
     this.state = {
       memoryBreakdown,
-      textEditorMap: this._getTextEditorMap(memoryBreakdown),
       expanded: null,
     };
 
     this._onLabelClick = this._onLabelClick.bind(this);
     this._onAnalysisStoreUpdate = this._onAnalysisStoreUpdate.bind(this);
-    this._onProjectStoreUpdate = this._onProjectStoreUpdate.bind(this);
   }
 
   componentDidMount() {
     AnalysisStore.addListener(this._onAnalysisStoreUpdate);
-    ProjectStore.addListener(this._onProjectStoreUpdate);
   }
 
   componentWillUnmount() {
     AnalysisStore.removeListener(this._onAnalysisStoreUpdate);
-    ProjectStore.removeListener(this._onProjectStoreUpdate);
   }
 
   _onAnalysisStoreUpdate() {
     const memoryBreakdown = AnalysisStore.getMemoryBreakdown();
     this.setState({
       memoryBreakdown,
-      textEditorMap: this._getTextEditorMap(memoryBreakdown),
     });
-  }
-
-  _onProjectStoreUpdate() {
-    this.setState({
-      textEditorMap: this._getTextEditorMap(this.state.memoryBreakdown),
-    });
-  }
-
-  _getTextEditorMap(memoryBreakdown) {
-    const editorMap = new Map();
-    if (memoryBreakdown == null) {
-      return editorMap;
-    }
-
-    [MemoryEntryLabel.Weights, MemoryEntryLabel.Activations].forEach(label => {
-      memoryBreakdown.getEntriesByLabel(label).forEach(entry => {
-        if (entry.filePath == null || editorMap.has(entry.filePath)) {
-          return;
-        }
-        editorMap.set(entry.filePath, ProjectStore.getTextEditorsFor(entry.filePath));
-      });
-    });
-
-    return editorMap;
   }
 
   _getLabels() {
@@ -134,7 +105,8 @@ export default class MemoryPerfBarContainer extends React.Component {
   }
 
   _renderPerfBars() {
-    const {memoryBreakdown, expanded, textEditorMap} = this.state;
+    const {editorsByPath, projectRoot} = this.props;
+    const {memoryBreakdown, expanded} = this.state;
     if (memoryBreakdown == null) {
       return null;
     }
@@ -158,12 +130,13 @@ export default class MemoryPerfBarContainer extends React.Component {
           displayPct = toPercentage(entry.sizeBytes, totalSizeBytes);
         }
 
-        const editors = entry.filePath != null ? textEditorMap.get(entry.filePath) : [];
+        const editors = entry.filePath != null ? editorsByPath.get(entry.filePath) : [];
 
         results.push(
           <MemoryPerfBar
             key={this._entryKey(entry, index)}
             memoryEntry={entry}
+            projectRoot={projectRoot}
             editors={editors}
             overallPct={overallPct}
             resizable={false}
@@ -194,3 +167,10 @@ export default class MemoryPerfBarContainer extends React.Component {
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  editorsByPath: state.editorsByPath,
+  ...ownProps,
+});
+
+export default connect(mapStateToProps)(MemoryBreakdown);

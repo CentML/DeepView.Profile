@@ -5,9 +5,13 @@ function generateActionType(namespace, action) {
 }
 
 function generateActionNamespaceChecker(namespace) {
-  return function(candidateAction) {
-    return candidateAction.type.split(':')[0] === namespace;
+  return function(candidateNamespace) {
+    return candidateNamespace === namespace;
   };
+}
+
+export function getActionNamespace(action) {
+  return action.type.split(':')[0];
 }
 
 // ============================================================================
@@ -56,3 +60,14 @@ export const ANALYSIS_REC_MEM_USAGE = generateActionType(ANALYSIS_NAMESPACE, 're
 export const ANALYSIS_REC_THPT = generateActionType(ANALYSIS_NAMESPACE, 'rec_thpt');
 // An error occurred during the analysis
 export const ANALYSIS_ERROR = generateActionType(ANALYSIS_NAMESPACE, 'error');
+
+// ============================================================================
+
+// Project-related Actions
+const PROJECT_NAMESPACE = 'proj';
+export const isProjectAction = generateActionNamespaceChecker(PROJECT_NAMESPACE);
+
+// The project's modified status has changed (e.g., unmodified -> modified)
+export const PROJECT_MODIFIED_CHANGE = generateActionType(PROJECT_NAMESPACE, 'modified_change');
+// The Atom TextEditors associated with the relevant project files have changed
+export const PROJECT_EDITORS_CHANGE = generateActionType(PROJECT_NAMESPACE, 'editors_change');

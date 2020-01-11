@@ -72,14 +72,14 @@ export default class PerfVisMainView extends React.Component {
   }
 
   _renderBody() {
-    const {perfVisState} = this.props;
+    const {perfVisState, projectRoot} = this.props;
     if (this.props.errorMessage !== '') {
       return <ErrorMessage perfVisState={perfVisState} message={this.props.errorMessage} />;
     } else {
       return (
         <div className="innpv-contents-columns">
           <div className="innpv-perfbar-contents">
-            <MemoryBreakdown perfVisState={perfVisState} />
+            <MemoryBreakdown perfVisState={perfVisState} projectRoot={projectRoot} />
           </div>
           <div className={this._subrowClasses()}>
             <Throughput

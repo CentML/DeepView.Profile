@@ -5,7 +5,6 @@ import React from 'react';
 
 import PerfBar from './generic/PerfBar';
 import UsageHighlight from './UsageHighlight';
-import ProjectStore from '../stores/project_store';
 import {toReadableByteSize} from '../utils';
 
 class MemoryPerfBar extends React.Component {
@@ -36,13 +35,13 @@ class MemoryPerfBar extends React.Component {
   }
 
   _onClick() {
-    const {memoryEntry} = this.props;
-    if (memoryEntry.filePath == null) {
+    const {memoryEntry, projectRoot} = this.props;
+    if (memoryEntry.filePath == null || projectRoot == null) {
       return;
     }
 
     // Atom uses 0-based line numbers, but INNPV uses 1-based line numbers
-    const absoluteFilePath = path.join(ProjectStore.getProjectRoot(), memoryEntry.filePath);
+    const absoluteFilePath = path.join(projectRoot, memoryEntry.filePath);
     atom.workspace.open(absoluteFilePath, {initialLine: memoryEntry.lineNumber - 1});
   }
 

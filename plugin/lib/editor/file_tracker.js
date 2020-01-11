@@ -85,6 +85,10 @@ export default class FileTracker {
     return this._modifiedEditors.size > 0;
   }
 
+  editorsByFilePath() {
+    return new Map(this._editorsByFilePath);
+  }
+
   _onNewEditor(editor) {
     // Subscribe to relevant events on the TextEditor
     const subs = new CompositeDisposable();

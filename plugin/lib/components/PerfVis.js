@@ -9,7 +9,13 @@ import PerfVisMainView from './PerfVisMainView';
 
 class PerfVis extends React.Component {
   _renderContents() {
-    const {appState, perfVisState, errorMessage, handleGetStartedClick} = this.props;
+    const {
+      appState,
+      perfVisState,
+      errorMessage,
+      projectRoot,
+      handleGetStartedClick,
+    } = this.props;
 
     switch (appState) {
       case AppState.OPENED:
@@ -27,6 +33,7 @@ class PerfVis extends React.Component {
           <PerfVisMainView
             perfVisState={perfVisState}
             errorMessage={errorMessage}
+            projectRoot={projectRoot}
           />
         );
 
@@ -40,10 +47,12 @@ class PerfVis extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state, ownProps) => ({
   appState: state.appState,
   perfVisState: state.perfVisState,
   errorMessage: state.errorMessage,
+  projectRoot: state.projectRoot,
+  ...ownProps,
 });
 
 export default connect(mapStateToProps)(PerfVis);

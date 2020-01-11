@@ -2,14 +2,13 @@
 
 import FileTracker from './file_tracker';
 
-import AnalysisStore from '../stores/analysis_store';
-import ProjectStore from '../stores/project_store';
 import PerfVisState from '../models/PerfVisState';
 import Logger from '../logger';
+import ProjectActions from '../redux/actions/project';
 
-// The purpose of the INNPVFileTracker is to bind to the stores
-// that we use in INNPV. This allows the FileTracker to remain
-// generic (i.e. no dependence on INNPV).
+// The purpose of the INNPVFileTracker is to bind to the store
+// that we use in Skyline. This allows the FileTracker to remain
+// generic (i.e. no dependence on Skyline).
 
 export default class INNPVFileTracker {
   constructor(projectRoot, messageSender, store) {
@@ -21,23 +20,19 @@ export default class INNPVFileTracker {
       onProjectFileSave: this._onProjectFileSave.bind(this),
       onProjectModifiedChange: this._onProjectModifiedChange.bind(this),
     });
-
-    this._projectConfig = {
-      getTextEditorsFor: this._tracker.getTextEditorsFor.bind(this._tracker),
-      getProjectRoot: () => projectRoot,
-    };
-    ProjectStore.receivedProjectConfig(this._projectConfig);
   }
 
   dispose() {
     this._tracker.dispose();
     this._tracker = null;
     this._messageSender = null;
-    this._projectConfig = null;
+    this._store = null;
   }
 
   _onOpenFilesChange() {
-    ProjectStore.receivedProjectConfig(this._projectConfig);
+    this._store.dispatch(ProjectActions.editorsChange({
+      editorsByPath: this._tracker.editorsByFilePath(),
+    }));
   }
 
   _onProjectFileSave() {
@@ -50,35 +45,8 @@ export default class INNPVFileTracker {
   }
 
   _onProjectModifiedChange() {
-    const modified = this._tracker.isProjectModified();
-    const perfVisState = this._store.getState().perfVisState;
-
-    if (modified) {
-      // Project went from unmodified -> modified
-      switch (perfVisState) {
-        case PerfVisState.ANALYZING:
-        case PerfVisState.READY:
-        case PerfVisState.ERROR:
-          // INNPVStore.setPerfVisState(PerfVisState.MODIFIED);
-          break;
-
-        case PerfVisState.MODIFIED:
-          Logger.warn('Warning: PerfVisState.MODIFIED mismatch (unmodified -> modified).');
-          break;
-
-        default:
-          Logger.warn(`Modified change unhandled state: ${perfVisState}`);
-          break;
-      }
-
-    } else {
-      // Project went from modified -> unmodified
-      if (perfVisState === PerfVisState.MODIFIED) {
-        // INNPVStore.setPerfVisState(PerfVisState.READY);
-
-      } else {
-        Logger.warn('Warning: PerfVisState.MODIFIED mismatch (modified -> unmodified).');
-      }
-    }
+    this._store.dispatch(ProjectActions.modifiedChange({
+      modified: this._tracker.isProjectModified()
+    }));
   }
 }
