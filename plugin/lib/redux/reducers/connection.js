@@ -4,6 +4,7 @@ import AppState from '../../models/AppState';
 import PerfVisState from '../../models/PerfVisState';
 import {
   CONN_CONNECTING,
+  CONN_INITIALIZING,
   CONN_INITIALIZED,
   CONN_ERROR,
   CONN_LOST,
@@ -19,6 +20,15 @@ export default function(state, action) {
         appState: AppState.CONNECTING,
       };
 
+    case CONN_INITIALIZING:
+      return {
+        ...state,
+        connection: {
+          ...state.connection,
+          onTimeout: action.payload.onTimeout,
+        },
+      };
+
     case CONN_INITIALIZED:
       return {
         ...state,
@@ -28,6 +38,7 @@ export default function(state, action) {
         connection: {
           ...state.connection,
           initialized: true,
+          onTimeout: null,
         },
         projectRoot: action.payload.projectRoot,
       };

@@ -29,6 +29,8 @@ export const isConnectionAction = generateActionNamespaceChecker(CONN_NAMESPACE)
 
 // We initiated a connection and we have not heard back from the server yet
 export const CONN_CONNECTING = generateActionType(CONN_NAMESPACE, 'connecting');
+// The connection to the server has been established and we are now waiting on initialization
+export const CONN_INITIALIZING = generateActionType(CONN_NAMESPACE, 'initializing');
 // The connection to the server has been established and initialized
 export const CONN_INITIALIZED = generateActionType(CONN_NAMESPACE, 'initialized');
 // We received an error while connecting to or intializing a connection with the server

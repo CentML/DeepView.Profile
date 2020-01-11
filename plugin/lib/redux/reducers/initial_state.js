@@ -10,6 +10,7 @@ export default {
   connection: {
     initialized: false,
     sequenceNumber: 0,
+    onTimeout: null,
   },
   memoryBreakdown: null,
   throughput: null,

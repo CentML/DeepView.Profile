@@ -1,19 +1,21 @@
 'use babel';
 
 import pm from '../protocol_gen/innpv_pb';
+
+import INNPVFileTracker from '../editor/innpv_file_tracker';
 import AppState from '../models/AppState';
 import PerfVisState from '../models/PerfVisState';
+import ConnectionActions from '../redux/actions/connection';
 import INNPVStore from '../stores/innpv_store';
 import AnalysisStore from '../stores/analysis_store';
 import Logger from '../logger';
-import ConnectionActions from '../redux/actions/connection';
 
 export default class MessageHandler {
-  constructor(messageSender, connectionStateView, store, onReceivedProjectRoot) {
+  constructor(messageSender, connectionStateView, store, disposables) {
     this._messageSender = messageSender;
     this._connectionStateView = connectionStateView;
     this._store = store;
-    this._onReceivedProjectRoot = onReceivedProjectRoot;
+    this._disposables = disposables;
   }
 
   _handleInitializeResponse(message) {
@@ -27,9 +29,8 @@ export default class MessageHandler {
     //       for now because we validate the paths on the server.
     const projectRoot = message.getServerProjectRoot();
 
-    this._messageSender.clearInitializeTimeout();
     this._store.dispatch(ConnectionActions.initialized({projectRoot}));
-    this._onReceivedProjectRoot(projectRoot);
+    this._disposables.add(new INNPVFileTracker(projectRoot, this._messageSender, this._store));
     Logger.info('Connected!');
 
     // Logger.info('Sending analysis request...');
