@@ -44,7 +44,10 @@ export default class MessageHandler {
   _handleProtocolError(message) {
     const errorCode = message.getErrorCode();
     if (errorCode === pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION) {
-      Logger.error('The plugin that you are using is out of date. Please update it before retrying.');
+      Logger.error(
+        'The plugin and/or server that you are using are out of date. ' +
+        'Please update them before retrying.',
+      );
       return;
     }
     Logger.error(

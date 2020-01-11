@@ -44,15 +44,10 @@ export default function(state, action) {
       };
 
     case CONN_ERROR:
-      return {
-        ...state,
-        appState: AppState.OPENED,
-        errorMessage: action.payload.errorMessage,
-      };
-
     case CONN_LOST:
       return {
         ...initialState,
+        appState: AppState.OPENED,
         errorMessage: action.payload.errorMessage,
       };
 
