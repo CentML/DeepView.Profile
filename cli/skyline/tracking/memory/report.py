@@ -3,7 +3,7 @@ import enum
 import os
 import sqlite3
 
-import skyline.tracking.report_queries as queries
+import skyline.tracking.memory.report_queries as queries
 
 
 WeightEntry = collections.namedtuple(
@@ -26,7 +26,7 @@ class MiscSizeType(enum.Enum):
     PeakUsageBytes = 'peak_usage_bytes'
 
 
-class TrackerReport:
+class MemoryReport:
     def __init__(self, connection):
         self._connection = connection
 
@@ -64,7 +64,7 @@ class TrackerReport:
         return os.path.join(path_prefix, '%')
 
 
-class TrackerReportBuilder:
+class MemoryReportBuilder:
     # This is the memory tracking report file format version that will be
     # created by this builder. When changes are made to the file format, this
     # integer should be increased monotonically.
@@ -113,12 +113,12 @@ class TrackerReportBuilder:
 
     def build(self):
         self._connection.commit()
-        return TrackerReport(self._connection)
+        return MemoryReport(self._connection)
 
     def _create_report_tables(self):
         cursor = self._connection.cursor()
         cursor.execute(queries.set_report_format_version.format(
-            version=TrackerReportBuilder.Version))
+            version=MemoryReportBuilder.Version))
         for creation_query in queries.create_report_tables.values():
             cursor.execute(creation_query)
         cursor.executemany(

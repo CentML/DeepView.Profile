@@ -8,8 +8,8 @@ import numpy as np
 import skyline.protocol_gen.innpv_pb2 as pm
 from skyline.exceptions import AnalysisError
 from skyline.profiler.iteration import IterationProfiler
-from skyline.tracking.memory import track_memory_usage
-from skyline.tracking.report import MiscSizeType
+from skyline.tracking.memory.tracker import track_memory_usage
+from skyline.tracking.memory.report import MiscSizeType
 from skyline.user_code_utils import user_code_environment
 
 logger = logging.getLogger(__name__)

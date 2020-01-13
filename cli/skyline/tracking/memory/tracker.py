@@ -1,8 +1,8 @@
 import torch
 
-from skyline.tracking.activations import ActivationsTracker
-from skyline.tracking.report import TrackerReportBuilder, MiscSizeType
-from skyline.tracking.weights import WeightsTracker
+from skyline.tracking.memory.activations import ActivationsTracker
+from skyline.tracking.memory.report import MemoryReportBuilder, MiscSizeType
+from skyline.tracking.memory.weights import WeightsTracker
 from skyline.user_code_utils import user_code_environment
 
 
@@ -37,7 +37,7 @@ def track_memory_usage(
     peak_usage_bytes = torch.cuda.max_memory_allocated()
 
     # Store our tracking results
-    return (TrackerReportBuilder(report_file)
+    return (MemoryReportBuilder(report_file)
             .process_tracker(weight_tracker)
             .process_tracker(activations_tracker)
             .add_misc_entry(MiscSizeType.PeakUsageBytes, peak_usage_bytes)
