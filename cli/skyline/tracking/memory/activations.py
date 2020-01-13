@@ -1,12 +1,11 @@
 import collections
 import gc
-import inspect
 
 import torch
 
 from skyline.tracking.base import TrackerBase
 from skyline.tracking.call_stack import CallStack
-from skyline.tracking.hook_manager import HookManager
+from skyline.tracking.callable_tracker import CallableTracker
 from skyline.user_code_utils import user_code_environment
 
 OperationContext = collections.namedtuple(
@@ -102,38 +101,18 @@ class ActivationsTracker:
 class GradFunctionTracker(TrackerBase):
     def __init__(self):
         super().__init__()
-        self._hook_manager = HookManager()
+        self._callable_tracker = CallableTracker(self._callable_hook_creator)
         self.grad_function_contexts = {}
         self._processing_hook = False
 
     def start_tracking(self):
         super().start_tracking()
         self.grad_function_contexts.clear()
-        self._hook_manager.attach_hooks_on_module(
-            torch,
-            _is_callable,
-            self._callable_hook_creator,
-        )
-        self._hook_manager.attach_hooks_on_module(
-            torch.Tensor,
-            lambda fn: _is_callable(fn) and fn.__name__ != 'backward',
-            self._callable_hook_creator,
-        )
-        self._hook_manager.attach_hooks_on_module(
-            torch.nn.functional,
-            _is_callable,
-            self._callable_hook_creator,
-        )
-        self._hook_manager.attach_hooks_on_module_using(
-            torch.nn._VF,
-            torch._C._VariableFunctions,
-            _is_callable,
-            self._callable_hook_creator,
-        )
+        self._callable_tracker.start_tracking()
 
     def stop_tracking(self):
         super().stop_tracking()
-        self._hook_manager.remove_hooks()
+        self._callable_tracker.stop_tracking()
 
     def _callable_hook_creator(self, func):
         def hook(*args, **kwargs):
@@ -174,21 +153,6 @@ class GradFunctionTracker(TrackerBase):
         elif isinstance(retval, tuple) or isinstance(retval, list):
             for inner_value in retval:
                 self._handle_callable_result(inner_value, context)
-
-
-def _is_callable(maybe_fn):
-    is_callable = (
-        inspect.isfunction(maybe_fn) or
-        inspect.ismethod(maybe_fn) or
-        inspect.isbuiltin(maybe_fn) or
-        inspect.isroutine(maybe_fn)
-    )
-    if not is_callable:
-        return False
-
-    # By convention, _ prefixed functions in Python should not be
-    # called by users (i.e. they are "private" functions)
-    return maybe_fn.__name__[0] != '_'
 
 
 def _extract_gradient_functions_in_topological_order(model_output):
