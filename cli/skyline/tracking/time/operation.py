@@ -13,7 +13,7 @@ OperationInfo = collections.namedtuple(
     'OperationInfo', ['operation_name', 'stack', 'forward_ms', 'backward_ms'])
 
 
-class IterationTracker(TrackerBase):
+class OperationRunTimeTracker(TrackerBase):
     def __init__(self):
         super().__init__()
         self._callable_tracker = CallableTracker(self._hook_creator)

@@ -1,8 +1,8 @@
-from skyline.tracking.time.iteration import IterationTracker
+from skyline.tracking.time.operation import OperationRunTimeTracker
 from skyline.user_code_utils import user_code_environment
 
 
-def track_iteration_run_time(
+def track_operation_run_time(
     model_provider,
     input_provider,
     user_code_path,
@@ -12,8 +12,8 @@ def track_iteration_run_time(
         inputs = input_provider()
         model = model_provider()
 
-    iteration_tracker = IterationTracker()
-    with iteration_tracker.track(), user_code_environment(user_code_path):
+    operation_tracker = OperationRunTimeTracker()
+    with operation_tracker.track(), user_code_environment(user_code_path):
         out = model(*inputs)
 
-    return iteration_tracker.operations
+    return operation_tracker.operations
