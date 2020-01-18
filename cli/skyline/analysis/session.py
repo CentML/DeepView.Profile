@@ -10,6 +10,7 @@ from skyline.exceptions import AnalysisError
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.memory.tracker import track_memory_usage
 from skyline.tracking.memory.report import MiscSizeType
+from skyline.tracking.time.tracker import track_iteration_run_time
 from skyline.user_code_utils import user_code_environment
 
 logger = logging.getLogger(__name__)
@@ -186,6 +187,14 @@ class AnalysisSession:
         throughput.predicted_max_samples_per_second = predicted_max_throughput
 
         return throughput
+
+    def measure_iteration_run_time_breakdown(self):
+        operations = track_iteration_run_time(
+            self._model_provider,
+            self._input_provider,
+            self._path_to_entry_point_dir,
+        )
+        return operations
 
 
 def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):
