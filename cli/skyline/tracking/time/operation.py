@@ -30,6 +30,15 @@ class OperationRunTimeTracker(TrackerBase):
         super().stop_tracking()
         self._callable_tracker.stop_tracking()
 
+    def populate_report(self, builder):
+        for op_info in self.operations:
+            builder.add_run_time_entry(
+                operation_name=op_info.operation_name,
+                forward_ms=op_info.forward_ms,
+                backward_ms=op_info.backward_ms,
+                stack_context=op_info.stack,
+            )
+
     def _hook_creator(self, func):
         def hook(*args, **kwargs):
             # NOTE: We use self._processing_hook to handle cases where we have

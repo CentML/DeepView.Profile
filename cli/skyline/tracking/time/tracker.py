@@ -1,4 +1,5 @@
 from skyline.tracking.time.operation import OperationRunTimeTracker
+from skyline.tracking.time.report import OperationRunTimeReportBuilder
 from skyline.user_code_utils import user_code_environment
 
 
@@ -16,4 +17,6 @@ def track_operation_run_time(
     with operation_tracker.track(), user_code_environment(user_code_path):
         out = model(*inputs)
 
-    return operation_tracker.operations
+    return (OperationRunTimeReportBuilder(report_file)
+            .process_tracker(operation_tracker)
+            .build())
