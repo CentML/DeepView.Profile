@@ -76,8 +76,13 @@
 }
 
 .innpv-perfbar-contents {
+  display: flex;
   padding: @component-padding;
   border-right: 1px solid @inset-panel-border-color;
   transition-property: opacity;
   transition-duration: @noevents-duration;
+
+  & > *:first-child {
+    margin-right: 15px;
+  }
 }

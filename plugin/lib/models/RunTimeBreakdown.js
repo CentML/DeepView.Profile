@@ -99,8 +99,12 @@ class RunTimeBreakdown {
         totalTimeMs: remainingTimeMs,
       };
     } else {
-      Logger.warn('The total measured iteration run time is less than the sum of the run time entries.');
+      Logger.info('The total measured iteration run time is less than the sum of the run time entries.');
       totalIterationMs = totalForwardMs + totalBackwardMs;
+      entryMap[RunTimeEntryLabel.Other] = {
+        entries: [],
+        totalTimeMs: 0.,
+      };
     }
 
     return new RunTimeBreakdown(totalIterationMs, entryMap);
