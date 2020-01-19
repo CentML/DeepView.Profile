@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='innpv.proto',
   package='innpv.protocol',
   syntax='proto3',
-  serialized_pb=_b('\n\x0binnpv.proto\x12\x0einnpv.protocol\"\x9e\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x42\t\n\x07payload\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\xca\x02\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12;\n\x0cmemory_usage\x18\x04 \x01(\x0b\x32#.innpv.protocol.MemoryUsageResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x42\t\n\x07payload\"\\\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\"\xc0\x01\n\x13MemoryUsageResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x33\n\x0eweight_entries\x18\x03 \x03(\x0b\x32\x1b.innpv.protocol.WeightEntry\x12;\n\x12\x61\x63tivation_entries\x18\x04 \x03(\x0b\x32\x1f.innpv.protocol.ActivationEntry\"&\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\"Z\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"m\n\x0f\x41\x63tivationEntry\x12\x16\n\x0eoperation_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12.\n\x07\x63ontext\x18\x03 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\x7f\n\x0bWeightEntry\x12\x13\n\x0bweight_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x03 \x01(\x04\x12.\n\x07\x63ontext\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.FileReferenceb\x06proto3')
+  serialized_pb=_b('\n\x0binnpv.proto\x12\x0einnpv.protocol\"\x9e\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x42\t\n\x07payload\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\xff\x02\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12;\n\x0cmemory_usage\x18\x04 \x01(\x0b\x32#.innpv.protocol.MemoryUsageResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x33\n\x08run_time\x18\x07 \x01(\x0b\x32\x1f.innpv.protocol.RunTimeResponseH\x00\x42\t\n\x07payload\"\\\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\"\xc0\x01\n\x13MemoryUsageResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x33\n\x0eweight_entries\x18\x03 \x03(\x0b\x32\x1b.innpv.protocol.WeightEntry\x12;\n\x12\x61\x63tivation_entries\x18\x04 \x03(\x0b\x32\x1f.innpv.protocol.ActivationEntry\"h\n\x0fRunTimeResponse\x12\x1d\n\x15iteration_run_time_ms\x18\x01 \x01(\x02\x12\x36\n\x10run_time_entries\x18\x02 \x03(\x0b\x32\x1c.innpv.protocol.RunTimeEntry\"&\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\"Z\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"m\n\x0f\x41\x63tivationEntry\x12\x16\n\x0eoperation_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12.\n\x07\x63ontext\x18\x03 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\x7f\n\x0bWeightEntry\x12\x13\n\x0bweight_name\x18\x01 \x01(\t\x12\x12\n\nsize_bytes\x18\x02 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x03 \x01(\x04\x12.\n\x07\x63ontext\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\x7f\n\x0cRunTimeEntry\x12\x16\n\x0eoperation_name\x18\x01 \x01(\t\x12\x12\n\nforward_ms\x18\x02 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x03 \x01(\x02\x12.\n\x07\x63ontext\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.FileReferenceb\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -50,8 +50,8 @@ _PROTOCOLERROR_ERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1114,
-  serialized_end=1238,
+  serialized_start=1273,
+  serialized_end=1397,
 )
 _sym_db.RegisterEnumDescriptor(_PROTOCOLERROR_ERRORCODE)
 
@@ -215,6 +215,13 @@ _FROMSERVER = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='run_time', full_name='innpv.protocol.FromServer.run_time', index=6,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -231,7 +238,7 @@ _FROMSERVER = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=282,
-  serialized_end=612,
+  serialized_end=665,
 )
 
 
@@ -268,8 +275,8 @@ _INITIALIZERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=614,
-  serialized_end=706,
+  serialized_start=667,
+  serialized_end=759,
 )
 
 
@@ -320,8 +327,46 @@ _MEMORYUSAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=709,
-  serialized_end=901,
+  serialized_start=762,
+  serialized_end=954,
+)
+
+
+_RUNTIMERESPONSE = _descriptor.Descriptor(
+  name='RunTimeResponse',
+  full_name='innpv.protocol.RunTimeResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='iteration_run_time_ms', full_name='innpv.protocol.RunTimeResponse.iteration_run_time_ms', index=0,
+      number=1, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='run_time_entries', full_name='innpv.protocol.RunTimeResponse.run_time_entries', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=956,
+  serialized_end=1060,
 )
 
 
@@ -351,8 +396,8 @@ _ANALYSISERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=903,
-  serialized_end=941,
+  serialized_start=1062,
+  serialized_end=1100,
 )
 
 
@@ -389,8 +434,8 @@ _THROUGHPUTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=943,
-  serialized_end=1033,
+  serialized_start=1102,
+  serialized_end=1192,
 )
 
 
@@ -421,8 +466,8 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1036,
-  serialized_end=1238,
+  serialized_start=1195,
+  serialized_end=1397,
 )
 
 
@@ -452,8 +497,8 @@ _PATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1240,
-  serialized_end=1266,
+  serialized_start=1399,
+  serialized_end=1425,
 )
 
 
@@ -490,8 +535,8 @@ _FILEREFERENCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1268,
-  serialized_end=1345,
+  serialized_start=1427,
+  serialized_end=1504,
 )
 
 
@@ -535,8 +580,8 @@ _ACTIVATIONENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1347,
-  serialized_end=1456,
+  serialized_start=1506,
+  serialized_end=1615,
 )
 
 
@@ -587,8 +632,60 @@ _WEIGHTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1458,
-  serialized_end=1585,
+  serialized_start=1617,
+  serialized_end=1744,
+)
+
+
+_RUNTIMEENTRY = _descriptor.Descriptor(
+  name='RunTimeEntry',
+  full_name='innpv.protocol.RunTimeEntry',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='operation_name', full_name='innpv.protocol.RunTimeEntry.operation_name', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='forward_ms', full_name='innpv.protocol.RunTimeEntry.forward_ms', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='backward_ms', full_name='innpv.protocol.RunTimeEntry.backward_ms', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='context', full_name='innpv.protocol.RunTimeEntry.context', index=3,
+      number=4, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1746,
+  serialized_end=1873,
 )
 
 _FROMCLIENT.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST
@@ -604,6 +701,7 @@ _FROMSERVER.fields_by_name['initialize'].message_type = _INITIALIZERESPONSE
 _FROMSERVER.fields_by_name['memory_usage'].message_type = _MEMORYUSAGERESPONSE
 _FROMSERVER.fields_by_name['analysis_error'].message_type = _ANALYSISERROR
 _FROMSERVER.fields_by_name['throughput'].message_type = _THROUGHPUTRESPONSE
+_FROMSERVER.fields_by_name['run_time'].message_type = _RUNTIMERESPONSE
 _FROMSERVER.oneofs_by_name['payload'].fields.append(
   _FROMSERVER.fields_by_name['error'])
 _FROMSERVER.fields_by_name['error'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
@@ -619,20 +717,26 @@ _FROMSERVER.fields_by_name['analysis_error'].containing_oneof = _FROMSERVER.oneo
 _FROMSERVER.oneofs_by_name['payload'].fields.append(
   _FROMSERVER.fields_by_name['throughput'])
 _FROMSERVER.fields_by_name['throughput'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
+_FROMSERVER.oneofs_by_name['payload'].fields.append(
+  _FROMSERVER.fields_by_name['run_time'])
+_FROMSERVER.fields_by_name['run_time'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
 _INITIALIZERESPONSE.fields_by_name['entry_point'].message_type = _PATH
 _MEMORYUSAGERESPONSE.fields_by_name['weight_entries'].message_type = _WEIGHTENTRY
 _MEMORYUSAGERESPONSE.fields_by_name['activation_entries'].message_type = _ACTIVATIONENTRY
+_RUNTIMERESPONSE.fields_by_name['run_time_entries'].message_type = _RUNTIMEENTRY
 _PROTOCOLERROR.fields_by_name['error_code'].enum_type = _PROTOCOLERROR_ERRORCODE
 _PROTOCOLERROR_ERRORCODE.containing_type = _PROTOCOLERROR
 _FILEREFERENCE.fields_by_name['file_path'].message_type = _PATH
 _ACTIVATIONENTRY.fields_by_name['context'].message_type = _FILEREFERENCE
 _WEIGHTENTRY.fields_by_name['context'].message_type = _FILEREFERENCE
+_RUNTIMEENTRY.fields_by_name['context'].message_type = _FILEREFERENCE
 DESCRIPTOR.message_types_by_name['FromClient'] = _FROMCLIENT
 DESCRIPTOR.message_types_by_name['InitializeRequest'] = _INITIALIZEREQUEST
 DESCRIPTOR.message_types_by_name['AnalysisRequest'] = _ANALYSISREQUEST
 DESCRIPTOR.message_types_by_name['FromServer'] = _FROMSERVER
 DESCRIPTOR.message_types_by_name['InitializeResponse'] = _INITIALIZERESPONSE
 DESCRIPTOR.message_types_by_name['MemoryUsageResponse'] = _MEMORYUSAGERESPONSE
+DESCRIPTOR.message_types_by_name['RunTimeResponse'] = _RUNTIMERESPONSE
 DESCRIPTOR.message_types_by_name['AnalysisError'] = _ANALYSISERROR
 DESCRIPTOR.message_types_by_name['ThroughputResponse'] = _THROUGHPUTRESPONSE
 DESCRIPTOR.message_types_by_name['ProtocolError'] = _PROTOCOLERROR
@@ -640,6 +744,7 @@ DESCRIPTOR.message_types_by_name['Path'] = _PATH
 DESCRIPTOR.message_types_by_name['FileReference'] = _FILEREFERENCE
 DESCRIPTOR.message_types_by_name['ActivationEntry'] = _ACTIVATIONENTRY
 DESCRIPTOR.message_types_by_name['WeightEntry'] = _WEIGHTENTRY
+DESCRIPTOR.message_types_by_name['RunTimeEntry'] = _RUNTIMEENTRY
 
 FromClient = _reflection.GeneratedProtocolMessageType('FromClient', (_message.Message,), dict(
   DESCRIPTOR = _FROMCLIENT,
@@ -682,6 +787,13 @@ MemoryUsageResponse = _reflection.GeneratedProtocolMessageType('MemoryUsageRespo
   # @@protoc_insertion_point(class_scope:innpv.protocol.MemoryUsageResponse)
   ))
 _sym_db.RegisterMessage(MemoryUsageResponse)
+
+RunTimeResponse = _reflection.GeneratedProtocolMessageType('RunTimeResponse', (_message.Message,), dict(
+  DESCRIPTOR = _RUNTIMERESPONSE,
+  __module__ = 'innpv_pb2'
+  # @@protoc_insertion_point(class_scope:innpv.protocol.RunTimeResponse)
+  ))
+_sym_db.RegisterMessage(RunTimeResponse)
 
 AnalysisError = _reflection.GeneratedProtocolMessageType('AnalysisError', (_message.Message,), dict(
   DESCRIPTOR = _ANALYSISERROR,
@@ -731,6 +843,13 @@ WeightEntry = _reflection.GeneratedProtocolMessageType('WeightEntry', (_message.
   # @@protoc_insertion_point(class_scope:innpv.protocol.WeightEntry)
   ))
 _sym_db.RegisterMessage(WeightEntry)
+
+RunTimeEntry = _reflection.GeneratedProtocolMessageType('RunTimeEntry', (_message.Message,), dict(
+  DESCRIPTOR = _RUNTIMEENTRY,
+  __module__ = 'innpv_pb2'
+  # @@protoc_insertion_point(class_scope:innpv.protocol.RunTimeEntry)
+  ))
+_sym_db.RegisterMessage(RunTimeEntry)
 
 
 # @@protoc_insertion_point(module_scope)
