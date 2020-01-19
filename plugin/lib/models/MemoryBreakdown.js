@@ -1,6 +1,5 @@
 'use babel';
 
-import path from 'path';
 import MemoryEntryLabel from './MemoryEntryLabel';
 import {processFileReference, toPercentage} from '../utils';
 

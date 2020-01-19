@@ -11,6 +11,7 @@ import PerfVisState from '../../models/PerfVisState';
 import MemoryBreakdown from '../../models/MemoryBreakdown';
 import MemoryUsage from '../../models/MemoryUsage';
 import Throughput from '../../models/Throughput';
+import RunTimeBreakdown from '../../models/RunTimeBreakdown';
 
 export default function(state, action) {
   switch (action.type) {
@@ -20,8 +21,14 @@ export default function(state, action) {
         perfVisState: PerfVisState.ANALYZING,
       };
 
-    case ANALYSIS_REC_RUN:
-      return state;
+    case ANALYSIS_REC_RUN: {
+      const {runTimeResponse} = action.payload;
+      return {
+        ...state,
+        runTimeBreakdown: RunTimeBreakdown.fromRunTimeResponse(runTimeResponse),
+        errorMessage: '',
+      };
+    }
 
     case ANALYSIS_REC_MEM: {
       const {memoryUsageResponse} = action.payload;
@@ -41,6 +48,7 @@ export default function(state, action) {
         ...state,
         throughput:
           Throughput.fromThroughputResponse(throughputResponse),
+        errorMessage: '',
         perfVisState:
           state.perfVisState !== PerfVisState.MODIFIED
             ? PerfVisState.READY

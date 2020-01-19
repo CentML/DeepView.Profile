@@ -24,4 +24,5 @@ export default {
   memoryBreakdown: null,
   memoryUsage: null,
   throughput: null,
+  runTimeBreakdown: null,
 };
