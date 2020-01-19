@@ -107,13 +107,17 @@ class IterationProfiler:
     def sample_run_time_ms_by_batch_size(
         self,
         start_batch_size,
+        start_batch_size_run_time_ms=None,
         memory_usage_percentage=None,
         num_samples=3,
     ):
         samples = []
 
         # 1. Make sure we can measure the run time of the "start" batch size
-        start_run_time_ms, _ = self.measure_run_time_ms(start_batch_size)
+        if start_batch_size_run_time_ms is None:
+            start_run_time_ms, _ = self.measure_run_time_ms(start_batch_size)
+        else:
+            start_run_time_ms = start_batch_size_run_time_ms
         samples.append(IterationSample(start_batch_size, start_run_time_ms))
 
         # 2. Perform sampling. We keep a range of "viable" batch sizes, where

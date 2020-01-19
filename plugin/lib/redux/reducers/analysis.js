@@ -2,6 +2,7 @@
 
 import {
   ANALYSIS_REQ,
+  ANALYSIS_REC_RUN,
   ANALYSIS_REC_MEM,
   ANALYSIS_REC_THPT,
   ANALYSIS_ERROR,
@@ -18,6 +19,9 @@ export default function(state, action) {
         ...state,
         perfVisState: PerfVisState.ANALYZING,
       };
+
+    case ANALYSIS_REC_RUN:
+      return state;
 
     case ANALYSIS_REC_MEM: {
       const {memoryUsageResponse} = action.payload;

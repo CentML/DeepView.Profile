@@ -37,7 +37,14 @@ class AnalysisSession:
         self._input_provider = input_provider
         self._iteration_provider = iteration_provider
         self._batch_size = batch_size
+        self._profiler = IterationProfiler.new_from(
+            self._model_provider,
+            self._input_provider,
+            self._iteration_provider,
+            self._path_to_entry_point_dir,
+        )
         self._memory_usage_percentage = None
+        self._batch_size_iteration_run_time_ms = None
 
     @classmethod
     def new_from(cls, project_root, entry_point):
@@ -138,16 +145,11 @@ class AnalysisSession:
         return memory_usage
 
     def measure_throughput(self):
-        profiler = IterationProfiler.new_from(
-            self._model_provider,
-            self._input_provider,
-            self._iteration_provider,
-            self._path_to_entry_point_dir,
-        )
         num_samples = 3
-        samples = profiler.sample_run_time_ms_by_batch_size(
+        samples = self._profiler.sample_run_time_ms_by_batch_size(
             start_batch_size=self._batch_size,
             memory_usage_percentage=self._memory_usage_percentage,
+            start_batch_size_run_time_ms=self._batch_size_iteration_run_time_ms,
             num_samples=num_samples,
         )
         if len(samples) == 0 or samples[0].batch_size != self._batch_size:
@@ -189,12 +191,30 @@ class AnalysisSession:
         return throughput
 
     def measure_run_time_breakdown(self):
-        operations = track_operation_run_time(
+        run_time_report = track_operation_run_time(
             self._model_provider,
             self._input_provider,
             self._path_to_entry_point_dir,
         )
-        return operations
+        if self._batch_size_iteration_run_time_ms is None:
+            self._batch_size_iteration_run_time_ms, _ = \
+                self._profiler.measure_run_time_ms(self._batch_size)
+
+        run_time = pm.RunTimeResponse()
+        run_time.iteration_run_time_ms = self._batch_size_iteration_run_time_ms
+
+        for run_time_entry in run_time_report.get_run_time_entries(
+                path_prefix=self._project_root):
+            entry = run_time.run_time_entries.add()
+            entry.operation_name = run_time_entry.operation_name
+            entry.forward_ms = run_time_entry.forward_ms
+            if run_time_entry.backward_ms is not None:
+                entry.backward_ms = run_time_entry.backward_ms
+            else:
+                entry.backward_ms = math.nan
+            _set_file_context(entry, self._project_root, run_time_entry)
+
+        return run_time
 
 
 def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):

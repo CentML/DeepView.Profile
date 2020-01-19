@@ -8,6 +8,7 @@ from skyline.nvml import NVML
 
 def analyze_project(project_root, entry_point, nvml):
     session = AnalysisSession.new_from(project_root, entry_point)
+    yield session.measure_run_time_breakdown()
     yield session.measure_memory_usage(nvml)
     yield session.measure_throughput()
 
@@ -21,6 +22,7 @@ def main():
     project_root = os.getcwd()
     with NVML() as nvml:
         analyzer = analyze_project(project_root, args.entry_point, nvml)
+        run_time = next(analyzer)
         memory = next(analyzer)
         throughput = next(analyzer)
 

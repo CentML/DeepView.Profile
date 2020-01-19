@@ -53,6 +53,13 @@ class AnalysisRequestManager:
             analyzer = analyze_project(
                 Config.project_root, Config.entry_point, self._nvml)
 
+            run_time = next(analyzer)
+            self._enqueue_response(
+                self._send_run_time_response,
+                run_time,
+                context,
+            )
+
             memory_usage = next(analyzer)
             self._enqueue_response(
                 self._send_memory_usage_response,
@@ -124,3 +131,11 @@ class AnalysisRequestManager:
         except:
             logger.exception(
                 'Exception occurred when sending a throughput response.')
+
+    def _send_run_time_response(self, run_time, context):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_run_time_response(run_time, context)
+        except:
+            logger.exception(
+                'Exception occurred when sending a run time response.')

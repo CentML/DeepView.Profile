@@ -35,6 +35,9 @@ class MessageSender:
     def send_throughput_response(self, throughput, context):
         self._send_message(throughput, 'throughput', context)
 
+    def send_run_time_response(self, run_time, context):
+        self._send_message(run_time, 'run_time', context)
+
     def _send_message(self, message, payload_name, context):
         connection = self._connection_manager.get_connection(context.address)
         enclosing_message = pm.FromServer()

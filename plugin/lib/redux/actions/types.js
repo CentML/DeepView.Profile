@@ -52,6 +52,8 @@ export const isAnalysisAction = generateActionNamespaceChecker(ANALYSIS_NAMESPAC
 
 // We issued an analysis request
 export const ANALYSIS_REQ = generateActionType(ANALYSIS_NAMESPACE, 'req');
+// We received the run time analysis (iteration run time breakdown)
+export const ANALYSIS_REC_RUN = generateActionType(ANALYSIS_NAMESPACE, 'rec_run_time');
 // We received the memory analysis
 export const ANALYSIS_REC_MEM = generateActionType(ANALYSIS_NAMESPACE, 'rec_memory');
 // We received throughput information
