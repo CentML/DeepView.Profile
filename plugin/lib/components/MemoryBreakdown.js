@@ -40,25 +40,13 @@ const COLORS_BY_LABEL = {
 class MemoryBreakdown extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      expanded: null,
-    };
-    this._onLabelClick = this._onLabelClick.bind(this);
+    this._renderPerfBars = this._renderPerfBars.bind(this);
   }
 
   _getLabels() {
     const {memoryBreakdown} = this.props;
     if (memoryBreakdown == null) {
       return DEFAULT_MEMORY_LABELS;
-    }
-
-    const {expanded} = this.state;
-    if (expanded != null) {
-      return DEFAULT_MEMORY_LABELS.map(({label, ...rest}) => ({
-        ...rest,
-        label,
-        percentage: expanded === label ? 100 : 0.001,
-      }));
     }
 
     const peakUsageBytes = memoryBreakdown.getPeakUsageBytes();
@@ -69,15 +57,6 @@ class MemoryBreakdown extends React.Component {
     }));
   }
 
-  _onLabelClick(label) {
-    const {expanded} = this.state;
-    if (expanded == null && label !== MemoryEntryLabel.Untracked) {
-      this.setState({expanded: label});
-    } else if (expanded === label) {
-      this.setState({expanded: null});
-    }
-  }
-
   _entryKey(entry, index) {
     if (entry.filePath != null && entry.lineNumber != null) {
       return `${entry.name}-${entry.filePath}-${entry.lineNumber}`;
@@ -85,9 +64,8 @@ class MemoryBreakdown extends React.Component {
     return `${entry.name}-idx${index}`;
   }
 
-  _renderPerfBars() {
+  _renderPerfBars(expanded) {
     const {editorsByPath, projectRoot, memoryBreakdown} = this.props;
-    const {expanded} = this.state;
     if (memoryBreakdown == null) {
       return null;
     }
@@ -140,10 +118,8 @@ class MemoryBreakdown extends React.Component {
       <PerfBarContainer
         disabled={disabled}
         labels={this._getLabels()}
-        onLabelClick={this._onLabelClick}
-      >
-        {this._renderPerfBars()}
-      </PerfBarContainer>
+        renderPerfBars={this._renderPerfBars}
+      />
     );
   }
 }
