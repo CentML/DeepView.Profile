@@ -53,9 +53,13 @@ function perform_release() {
 
   pushd "$RELEASE_REPO"
 
-  # This is how we use different log levels for development and production
-  rm lib/logger.js
-  mv lib/logger_prod.js lib/logger.js
+  # Indicate that this is a production build
+  node -p << EOF
+var fs = require('fs');
+var env = require('./lib/env.json');
+env.development = false;
+fs.writeFileSync('./lib/env.json', JSON.stringify(env, null, 2));
+EOF
 
   git add .
   git commit -F- <<EOF
