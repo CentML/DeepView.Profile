@@ -6,13 +6,15 @@ import INNPVFileTracker from '../editor/innpv_file_tracker';
 import AnalysisActions from '../redux/actions/analysis';
 import ConnectionActions from '../redux/actions/connection';
 import Logger from '../logger';
+import Events from '../telemetry/events';
 
 export default class MessageHandler {
-  constructor(messageSender, connectionStateView, store, disposables) {
+  constructor({messageSender, connectionStateView, store, disposables, telemetryClient}) {
     this._messageSender = messageSender;
     this._connectionStateView = connectionStateView;
     this._store = store;
     this._disposables = disposables;
+    this._telemetryClient = telemetryClient;
 
     this._handleInitializeResponse = this._handleInitializeResponse.bind(this);
     this._handleProtocolError = this._handleProtocolError.bind(this);
@@ -35,6 +37,7 @@ export default class MessageHandler {
 
     this._store.dispatch(ConnectionActions.initialized({projectRoot}));
     this._disposables.add(new INNPVFileTracker(projectRoot, this._messageSender, this._store));
+    this._telemetryClient.record(Events.Skyline.CONNECTED);
     Logger.info('Connected!');
 
     Logger.info('Sending analysis request...');
@@ -53,6 +56,7 @@ export default class MessageHandler {
     }
     Logger.error(
       `Received a protocol error with code: ${errorCode}. Please file a bug report.`);
+    this._telemetryClient.record(Events.Error.PROTOCOL_ERROR);
   }
 
   _handleMemoryUsageResponse(message) {
@@ -67,6 +71,7 @@ export default class MessageHandler {
     this._store.dispatch(AnalysisActions.error({
       errorMessage: message.getErrorMessage(),
     }));
+    this._telemetryClient.record(Events.Error.ANALYSIS_ERROR);
   }
 
   _handleThroughputResponse(message) {
@@ -74,6 +79,7 @@ export default class MessageHandler {
     this._store.dispatch(AnalysisActions.receivedThroughputAnalysis({
       throughputResponse: message,
     }));
+    this._telemetryClient.record(Events.Skyline.RECEIVED_ANALYSIS);
   }
 
   _handleRunTimeResponse(message) {

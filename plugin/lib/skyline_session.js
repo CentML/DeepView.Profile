@@ -9,7 +9,7 @@ import ConnectionActions from './redux/actions/connection';
 import ConnectionStateView from './redux/views/connection_state';
 
 export default class SkylineSession {
-  constructor({store, handleServerClosure, handleInitializationTimeout}) {
+  constructor({store, telemetryClient, handleServerClosure, handleInitializationTimeout}) {
     this._handleMessage = this._handleMessage.bind(this);
     this._invokeTimeout = this._invokeTimeout.bind(this);
     this._handleInitializationTimeout = handleInitializationTimeout;
@@ -19,15 +19,21 @@ export default class SkylineSession {
 
     this._store = store;
     const connectionStateView = new ConnectionStateView(this._store);
+    this._telemetryClient = telemetryClient;
 
     this._connection = new Connection(this._handleMessage, handleServerClosure);
-    this._messageSender = new MessageSender(this._connection, connectionStateView);
-    this._messageHandler = new MessageHandler(
-      this._messageSender,
+    this._messageSender = new MessageSender({
+      connection: this._connection,
       connectionStateView,
-      this._store,
-      this._disposables,
-    );
+      telemetryClient: this._telemetryClient,
+    });
+    this._messageHandler = new MessageHandler({
+      messageSender: this._messageSender,
+      connectionStateView,
+      store: this._store,
+      disposables: this._disposables,
+      telemetryClient: this._telemetryClient,
+    });
   }
 
   connect(host, port, timeoutMs = 5000) {

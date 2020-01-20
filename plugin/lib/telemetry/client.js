@@ -7,14 +7,28 @@ import Logger from '../logger';
 
 export default class TelemetryClient {
   constructor({uaId}) {
-    this._visitor = ua(uaId);
+    if (uaId == null) {
+      // If a universal analytics ID is not provided, or if
+      // the plugin is in development mode, this client will
+      // just log the events to the console.
+      this._visitor = null;
+    } else {
+      this._visitor = ua(uaId);
+    }
   }
 
-  record(eventType) {
-    if (env.development) {
-      Logger.debug('Event:', eventType.name);
+  record(eventType, {label, value} = {}) {
+    if (eventType == null) {
+      Logger.warn('Attempted to record an undefined event type.');
       return;
     }
-    this._visitor.event(eventType.category, eventType.action).send();
+
+    if (env.development || this._visitor == null) {
+      Logger.debug('Event:', eventType.name, '| Label:', label, '| Value:', value);
+      return;
+    }
+
+    this._visitor.event(
+      eventType.category, eventType.action, label, value).send();
   }
 };

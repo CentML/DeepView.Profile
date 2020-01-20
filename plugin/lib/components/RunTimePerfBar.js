@@ -6,7 +6,10 @@ import React from 'react';
 import PerfBar from './generic/PerfBar';
 import UsageHighlight from './UsageHighlight';
 
-export default class RunTimePerfBar extends React.Component {
+import Events from '../telemetry/events';
+import TelemetryClientContext from '../telemetry/react_context';
+
+class RunTimePerfBar extends React.Component {
   constructor(props) {
     super(props);
     this._onClick = this._onClick.bind(this);
@@ -42,6 +45,10 @@ export default class RunTimePerfBar extends React.Component {
     // Atom uses 0-based line numbers, but INNPV uses 1-based line numbers
     const absoluteFilePath = path.join(projectRoot, runTimeEntry.filePath);
     atom.workspace.open(absoluteFilePath, {initialLine: runTimeEntry.lineNumber - 1});
+    this.context.record(
+      Events.Interaction.CLICKED_RUN_TIME_ENTRY,
+      {label: runTimeEntry.name},
+    );
   }
 
   render() {
@@ -57,3 +64,7 @@ export default class RunTimePerfBar extends React.Component {
     );
   }
 }
+
+RunTimePerfBar.contextType = TelemetryClientContext;
+
+export default RunTimePerfBar;

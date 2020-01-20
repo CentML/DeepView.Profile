@@ -8,6 +8,11 @@ import PerfVis from './components/PerfVis';
 import AppState from './models/AppState';
 import SkylineSession from './skyline_session';
 import Logger from './logger';
+import env from './env.json';
+
+import Events from './telemetry/events';
+import TelemetryClientContext from './telemetry/react_context';
+import TelemetryClient from './telemetry/client';
 
 import AppActions from './redux/actions/app';
 import ConnectionActions from './redux/actions/connection';
@@ -18,6 +23,7 @@ export default class SkylinePlugin {
   constructor() {
     this._store = storeCreator();
     this._session = null;
+    this._telemetryClient = new TelemetryClient({uaId: env.uaId});
 
     this._getStartedClicked = this._getStartedClicked.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
@@ -29,11 +35,14 @@ export default class SkylinePlugin {
       return;
     }
     this._store.dispatch(AppActions.appOpened());
+    this._telemetryClient.record(Events.Skyline.OPENED);
 
     this._panel = atom.workspace.addRightPanel({item: document.createElement('div')});
     ReactDOM.render(
       <Provider store={this._store}>
-        <PerfVis handleGetStartedClick={this._getStartedClicked} />
+        <TelemetryClientContext.Provider value={this._telemetryClient}>
+          <PerfVis handleGetStartedClick={this._getStartedClicked} />
+        </TelemetryClientContext.Provider>
       </Provider>,
       this._panel.getItem(),
     );
@@ -68,6 +77,7 @@ export default class SkylinePlugin {
     this._store.dispatch(ConnectionActions.connecting());
     this._session = new SkylineSession({
       store: this._store,
+      telemetryClient: this._telemetryClient,
       handleServerClosure: this._handleServerClosure,
       handleInitializationTimeout: this._handleInitializationTimeout,
     });
@@ -84,6 +94,7 @@ export default class SkylinePlugin {
         }
 
         this._store.dispatch(ConnectionActions.error({errorMessage}));
+        this._telemetryClient.record(Events.Error.CONNECTION_ERROR);
         this._disposeSession();
       });
   }
@@ -101,6 +112,7 @@ export default class SkylinePlugin {
       errorMessage: 'Skyline timed out when establishing a connection ' +
         'with the Skyline server. Please check that the server is running.',
     }));
+    this._telemetryClient.record(Events.Error.CONNECTION_TIMEOUT);
     this._disposeSession();
   }
 }

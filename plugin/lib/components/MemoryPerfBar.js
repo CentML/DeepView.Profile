@@ -7,6 +7,9 @@ import PerfBar from './generic/PerfBar';
 import UsageHighlight from './UsageHighlight';
 import {toReadableByteSize} from '../utils';
 
+import Events from '../telemetry/events';
+import TelemetryClientContext from '../telemetry/react_context';
+
 class MemoryPerfBar extends React.Component {
   constructor(props) {
     super(props);
@@ -43,6 +46,10 @@ class MemoryPerfBar extends React.Component {
     // Atom uses 0-based line numbers, but INNPV uses 1-based line numbers
     const absoluteFilePath = path.join(projectRoot, memoryEntry.filePath);
     atom.workspace.open(absoluteFilePath, {initialLine: memoryEntry.lineNumber - 1});
+    this.context.record(
+      Events.Interaction.CLICKED_MEMORY_ENTRY,
+      {label: memoryEntry.name},
+    );
   }
 
   render() {
@@ -62,5 +69,7 @@ class MemoryPerfBar extends React.Component {
 MemoryPerfBar.defaultProps = {
   editors: [],
 };
+
+MemoryPerfBar.contextType = TelemetryClientContext;
 
 export default MemoryPerfBar;
