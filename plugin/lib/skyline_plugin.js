@@ -23,7 +23,7 @@ export default class SkylinePlugin {
   constructor() {
     this._store = storeCreator();
     this._session = null;
-    this._telemetryClient = new TelemetryClient({uaId: env.uaId});
+    this._telemetryClient = TelemetryClient.from(env.uaId);
 
     this._getStartedClicked = this._getStartedClicked.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
