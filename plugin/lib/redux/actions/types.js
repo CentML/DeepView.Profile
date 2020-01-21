@@ -71,3 +71,12 @@ export const isProjectAction = generateActionNamespaceChecker(PROJECT_NAMESPACE)
 export const PROJECT_MODIFIED_CHANGE = generateActionType(PROJECT_NAMESPACE, 'modified_change');
 // The Atom TextEditors associated with the relevant project files have changed
 export const PROJECT_EDITORS_CHANGE = generateActionType(PROJECT_NAMESPACE, 'editors_change');
+
+// ============================================================================
+
+// Config-related Actions
+const CONFIG_NAMESPACE = 'config';
+export const isConfigAction = generateActionNamespaceChecker(CONFIG_NAMESPACE);
+
+// The user changed a setting
+export const CONFIG_CHANGED = generateActionType(CONFIG_NAMESPACE, 'changed');

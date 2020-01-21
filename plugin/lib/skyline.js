@@ -2,6 +2,7 @@
 
 import {CompositeDisposable, Disposable} from 'atom';
 import SkylinePlugin from './skyline_plugin';
+import configSchema from './config/schema';
 
 export default {
   _plugin: null,
@@ -19,6 +20,8 @@ export default {
   deactivate() {
     this._subscriptions.dispose();
   },
+
+  config: configSchema,
 
   toggle() {
     if (this._plugin == null) {
