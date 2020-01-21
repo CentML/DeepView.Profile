@@ -28,9 +28,11 @@ export default class SkylinePlugin {
     this._getStartedClicked = this._getStartedClicked.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
     this._handleInitializationTimeout = this._handleInitializationTimeout.bind(this);
+
+    this._activate();
   }
 
-  open() {
+  _activate() {
     if (this._store.getState().appState !== AppState.ACTIVATED) {
       return;
     }
@@ -48,7 +50,7 @@ export default class SkylinePlugin {
     );
   }
 
-  close() {
+  dispose() {
     if (this._store.getState().appState === AppState.ACTIVATED) {
       return;
     }

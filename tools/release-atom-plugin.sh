@@ -40,13 +40,14 @@ function check_release_repo() {
 function perform_release() {
   # Delete everything from the release repository
   pushd "$RELEASE_REPO"
-  rm -rf lib styles
+  rm -rf lib styles menus
   rm -f package.json package-lock.json .gitignore
   popd
 
   # Move over new copies of the plugin files
   cp -r ../plugin/lib $RELEASE_REPO
   cp -r ../plugin/styles $RELEASE_REPO
+  cp -r ../plugin/menus $RELEASE_REPO
   cp ../plugin/package.json $RELEASE_REPO
   cp ../plugin/package-lock.json $RELEASE_REPO
   cp ../plugin/.gitignore $RELEASE_REPO

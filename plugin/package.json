@@ -14,8 +14,7 @@
   ],
   "activationCommands": {
     "atom-workspace": [
-      "skyline:open",
-      "skyline:close"
+      "skyline:toggle"
     ]
   },
   "repository": "https://github.com/geoffxy/skyline-atom",

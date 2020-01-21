@@ -1,0 +1,18 @@
+{
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "Skyline",
+          "submenu": [
+            {
+              "label": "Show/Hide Skyline",
+              "command": "skyline:toggle"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
