@@ -53,14 +53,6 @@ function perform_release() {
 
   pushd "$RELEASE_REPO"
 
-  # Indicate that this is a production build
-  node -p << EOF
-var fs = require('fs');
-var env = require('./lib/env.json');
-env.development = false;
-fs.writeFileSync('./lib/env.json', JSON.stringify(env, null, 2));
-EOF
-
   git add .
   git commit -F- <<EOF
 [$VERSION_TAG] Release up to commit $SHORT_HASH
@@ -68,6 +60,29 @@ EOF
 This release includes the plugin files up to commit $SKYLINE_HASH in the monorepository.
 EOF
   echo_green "✓ Release repository files updated"
+
+  # Indicate that this is a production build and set the universal analytics ID
+  node << EOF
+var fs = require('fs');
+var env = require('./lib/env.json');
+env.development = false;
+env.uaId = 'UA-156567771-1';
+fs.writeFileSync('./lib/env.json', JSON.stringify(env, null, 2));
+EOF
+
+  # Force a detached HEAD for the tagged release commit
+  # NOTE: We do this so that users who clone our plugin repository do not
+  #       inadvertently end up with a production-configured plugin.
+  git checkout "$(git rev-parse HEAD)"
+  git add ./lib/env.json
+  git commit -F- <<EOF
+[$VERSION_TAG] APM release for commit $SHORT_HASH
+
+This release includes the plugin files up to commit $SKYLINE_HASH in the monorepository.
+
+The state of the repository at this commit is suitable for installation
+via the Atom Package Manager (APM).
+EOF
 
   git tag -a "$VERSION_TAG" -m ""
   git push --follow-tags
