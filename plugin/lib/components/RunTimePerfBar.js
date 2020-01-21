@@ -65,6 +65,10 @@ class RunTimePerfBar extends React.Component {
   }
 }
 
+RunTimePerfBar.defaultProps = {
+  editors: [],
+};
+
 RunTimePerfBar.contextType = TelemetryClientContext;
 
 export default RunTimePerfBar;
