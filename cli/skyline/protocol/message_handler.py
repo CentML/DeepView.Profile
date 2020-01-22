@@ -2,7 +2,7 @@ import collections
 import logging
 
 from skyline.legacy_analysis.parser import parse_source_code, analyze_code
-from skyline.exceptions import AnalysisError
+from skyline.exceptions import AnalysisError, NoConnectionError
 
 import skyline.protocol_gen.innpv_pb2 as pm
 
@@ -88,6 +88,12 @@ class MessageHandler:
                 # never be reached.
                 raise AssertionError(
                     'Invalid message type "{}".'.format(message_type))
+        except NoConnectionError:
+            logger.debug(
+                'Dropping message from (%s:%d) because it is no longer '
+                'connected.',
+                *address,
+            )
         except:
             logger.exception(
                 'Processing message from (%s:%d) resulted in an exception.',

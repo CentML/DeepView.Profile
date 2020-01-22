@@ -101,6 +101,11 @@ class ConnectionState:
         # As a result for simplicity, we use a boolean to represent the state.
         self.initialized = False
 
+        # The plugin may disconnect from us while we are processing a request.
+        # We use this flag to indicate whether the connection still "exists"
+        # to allow requests to abort early.
+        self.connected = True
+
     def update_sequence(self, request):
         if request.sequence_number <= self.sequence_number:
             return

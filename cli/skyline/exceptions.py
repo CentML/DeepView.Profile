@@ -10,6 +10,11 @@ class AnalysisError(Exception):
                 '{}: {}'.format(exception_type.__name__, message))
 
 
+class NoConnectionError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+
 @contextlib.contextmanager
 def exceptions_as_analysis_errors():
     try:

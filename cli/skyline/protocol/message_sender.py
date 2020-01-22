@@ -1,9 +1,13 @@
 import os
+import logging
 from random import random
 
 from skyline.config import Config
+from skyline.exceptions import NoConnectionError
 
 import skyline.protocol_gen.innpv_pb2 as pm
+
+logger = logging.getLogger(__name__)
 
 
 class MessageSender:
@@ -39,8 +43,16 @@ class MessageSender:
         self._send_message(run_time, 'run_time', context)
 
     def _send_message(self, message, payload_name, context):
-        connection = self._connection_manager.get_connection(context.address)
-        enclosing_message = pm.FromServer()
-        getattr(enclosing_message, payload_name).CopyFrom(message)
-        enclosing_message.sequence_number = context.sequence_number
-        connection.send_bytes(enclosing_message.SerializeToString())
+        try:
+            connection = self._connection_manager.get_connection(
+                context.address)
+            enclosing_message = pm.FromServer()
+            getattr(enclosing_message, payload_name).CopyFrom(message)
+            enclosing_message.sequence_number = context.sequence_number
+            connection.send_bytes(enclosing_message.SerializeToString())
+        except NoConnectionError:
+            logger.debug(
+                'Not sending message to (%s:%d) because it is no longer '
+                'connected.',
+                *context.address,
+            )

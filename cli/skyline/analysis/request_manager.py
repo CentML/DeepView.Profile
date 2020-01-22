@@ -60,12 +60,30 @@ class AnalysisRequestManager:
                 context,
             )
 
+            if not context.state.connected:
+                logger.debug(
+                    'Aborting request %d from (%s:%d) early '
+                    'because the client has disconnected.',
+                    context.sequence_number,
+                    *(context.address),
+                )
+                return
+
             memory_usage = next(analyzer)
             self._enqueue_response(
                 self._send_memory_usage_response,
                 memory_usage,
                 context,
             )
+
+            if not context.state.connected:
+                logger.debug(
+                    'Aborting request %d from (%s:%d) early '
+                    'because the client has disconnected.',
+                    context.sequence_number,
+                    *(context.address),
+                )
+                return
 
             throughput = next(analyzer)
             self._enqueue_response(

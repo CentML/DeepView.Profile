@@ -2,6 +2,7 @@ import logging
 import socket
 
 from skyline.io.connection import Connection, ConnectionState
+from skyline.exceptions import NoConnectionError
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,9 @@ class ConnectionManager:
         self._connections[address][0].start()
 
     def remove_connection(self, address):
-        connection = self.get_connection(address)
+        connection, state = self.get_connection_tuple(address)
         connection.stop()
+        state.connected = False
         del self._connections[address]
         logger.debug("Removed connection to (%s:%d).", *address)
 
@@ -39,7 +41,7 @@ class ConnectionManager:
     def get_connection_tuple(self, address):
         if address not in self._connections:
             host, port = address
-            raise ValueError(
+            raise NoConnectionError(
                 "Connection to ({}:{}) does not exist.".format(host, port))
         return self._connections[address]
 
@@ -53,6 +55,7 @@ class ConnectionManager:
         self.register_connection(new_socket, (host, port))
 
     def stop(self):
-        for _, (connection, _) in self._connections.items():
+        for _, (connection, state) in self._connections.items():
             connection.stop()
+            state.connected = False
         self._connections.clear()
