@@ -58,9 +58,7 @@ class RunTimeBreakdown extends React.Component {
   }
 
   _entryKey(entry, index) {
-    if (entry.filePath != null && entry.lineNumber != null) {
-      return `${entry.name}-${entry.filePath}-${entry.lineNumber}`;
-    }
+    // TODO: Use a stable identifier (presumably an id from the report database)
     return `${entry.name}-idx${index}`;
   }
 
