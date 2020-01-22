@@ -216,6 +216,23 @@ class AnalysisSession:
 
         return run_time
 
+    def generate_memory_usage_report(self, save_report_to):
+        track_memory_usage(
+            self._model_provider,
+            self._input_provider,
+            self._iteration_provider,
+            self._path_to_entry_point_dir,
+            report_file=save_report_to,
+        )
+
+    def generate_run_time_breakdown_report(self, save_report_to):
+        track_operation_run_time(
+            self._model_provider,
+            self._input_provider,
+            self._path_to_entry_point_dir,
+            report_file=save_report_to,
+        )
+
 
 def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):
     with open(path_to_entry_point) as file:
