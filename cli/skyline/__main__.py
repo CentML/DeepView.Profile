@@ -3,7 +3,7 @@ import enum
 import sys
 
 import skyline
-import skyline.interactive
+import skyline.commands.interactive
 
 
 def main():
@@ -18,7 +18,7 @@ def main():
         help="Print the version and exit.",
     )
     subparsers = parser.add_subparsers(title="Commands")
-    skyline.interactive.register_command(subparsers)
+    skyline.commands.interactive.register_command(subparsers)
     args = parser.parse_args()
 
     if args.version:
