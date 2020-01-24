@@ -5,6 +5,7 @@ import torch
 from skyline.tracking.call_stack import CallStack
 from skyline.tracking.base import TrackerBase
 from skyline.tracking.callable_tracker import CallableTracker
+from skyline.tracking.utils import remove_dunder
 from skyline.profiler.operation import OperationProfiler
 from skyline.user_code_utils import user_code_environment
 
@@ -32,7 +33,7 @@ class OperationRunTimeTracker(TrackerBase):
     def populate_report(self, builder):
         for op_info in self.operations:
             builder.add_run_time_entry(
-                operation_name=op_info.operation_name,
+                operation_name=remove_dunder(op_info.operation_name),
                 forward_ms=op_info.forward_ms,
                 backward_ms=op_info.backward_ms,
                 stack_context=op_info.stack,

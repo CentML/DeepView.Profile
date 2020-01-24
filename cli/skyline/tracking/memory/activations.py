@@ -6,6 +6,7 @@ import torch
 from skyline.tracking.base import TrackerBase
 from skyline.tracking.call_stack import CallStack
 from skyline.tracking.callable_tracker import CallableTracker
+from skyline.tracking.utils import remove_dunder
 from skyline.user_code_utils import user_code_environment
 
 OperationContext = collections.namedtuple(
@@ -65,7 +66,7 @@ class ActivationsTracker:
     def populate_report(self, report_builder):
         for entry in self._activations:
             report_builder.add_activation_entry(
-                name=entry.operation_name,
+                name=remove_dunder(entry.operation_name),
                 size_bytes=entry.size_bytes,
                 stack_context=entry.stack,
             )
