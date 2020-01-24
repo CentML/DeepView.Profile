@@ -6,7 +6,6 @@ from skyline.tracking.call_stack import CallStack
 from skyline.tracking.base import TrackerBase
 from skyline.tracking.callable_tracker import CallableTracker
 from skyline.profiler.operation import OperationProfiler
-from skyline.tracking.utils import flatten_operation_retval
 from skyline.user_code_utils import user_code_environment
 
 OperationInfo = collections.namedtuple(
@@ -48,18 +47,8 @@ class OperationRunTimeTracker(TrackerBase):
 
             self._processing_hook = True
             try:
-                forward_ms = self._profiler.measure_operation_ms(
+                forward_ms, backward_ms = self._profiler.measure_operation_ms(
                     func, args, kwargs)
-                retval = func(*args, **kwargs)
-
-                grad_fn = self._get_grad_fn(retval)
-                if grad_fn is not None:
-                    grad_fn_inputs = flatten_operation_retval(retval)
-                    backward_ms = self._profiler.measure_operation_ms(
-                        grad_fn, grad_fn_inputs, {})
-                else:
-                    backward_ms = None
-
                 self.operations.append(OperationInfo(
                     operation_name=func.__name__,
                     stack=CallStack.from_here(start_from=2),
@@ -67,19 +56,9 @@ class OperationRunTimeTracker(TrackerBase):
                     backward_ms=backward_ms,
                 ))
 
+                # Actually run the hooked function
+                return func(*args, **kwargs)
             finally:
                 self._processing_hook = False
 
-            return retval
         return hook
-
-    def _get_grad_fn(self, retval):
-        if isinstance(retval, torch.Tensor) and retval.grad_fn is not None:
-            return retval.grad_fn
-        elif isinstance(retval, tuple) or isinstance(retval, list):
-            for inner_value in retval:
-                grad_fn = self._get_grad_fn(inner_value)
-                if grad_fn is not None:
-                    return grad_fn
-        else:
-            return None
