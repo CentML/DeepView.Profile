@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from skyline.initialization import (
     check_skyline_preconditions,
@@ -43,9 +44,13 @@ def actual_main(args):
         session.generate_memory_usage_report(
             save_report_to=args.output,
         )
-    except AnalysisError:
-        logger.exception(
-            "Skyline encountered an error when profiling your model.")
+    except AnalysisError as ex:
+        print(
+            "Skyline encountered an error when profiling your model:",
+            file=sys.stderr,
+        )
+        print("->", str(ex), file=sys.stderr)
+        sys.exit(1)
 
 
 def main(args):
