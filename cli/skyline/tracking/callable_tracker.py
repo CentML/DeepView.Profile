@@ -16,23 +16,28 @@ class CallableTracker(TrackerBase):
         super().start_tracking()
         self._hook_manager.attach_hooks_on_module(
             torch,
-            _is_callable,
+            _is_callable_and_public,
             self._hook_creator,
         )
         self._hook_manager.attach_hooks_on_module(
             torch.Tensor,
-            lambda fn: _is_callable(fn) and fn.__name__ != 'backward',
+            lambda fn: _is_callable_and_public(fn) and fn.__name__ != 'backward',
+            self._hook_creator,
+        )
+        self._hook_manager.attach_hooks_on_module(
+            torch.Tensor,
+            _is_callable_dunder,
             self._hook_creator,
         )
         self._hook_manager.attach_hooks_on_module(
             torch.nn.functional,
-            _is_callable,
+            _is_callable_and_public,
             self._hook_creator,
         )
         self._hook_manager.attach_hooks_on_module_using(
             torch.nn._VF,
             torch._C._VariableFunctions,
-            _is_callable,
+            _is_callable_and_public,
             self._hook_creator,
         )
 
@@ -41,16 +46,29 @@ class CallableTracker(TrackerBase):
         self._hook_manager.remove_hooks()
 
 
+def _is_callable_and_public(maybe_fn):
+    # By convention, _ prefixed functions in Python should not be
+    # called by users (i.e. they are "private" functions)
+    return _is_callable(maybe_fn) and maybe_fn.__name__[0] != '_'
+
+
+def _is_callable_dunder(maybe_fn):
+    """
+    Returns True if maybe_fn is a callable dunder (callable named with double
+    underscores) (e.g., __add__)
+    """
+    return (
+        _is_callable(maybe_fn) and
+        len(maybe_fn.__name__) > 4 and
+        maybe_fn.__name__[:2] == '__' and
+        maybe_fn.__name__[-2:] == '__'
+    )
+
+
 def _is_callable(maybe_fn):
-    is_callable = (
+    return (
         inspect.isfunction(maybe_fn) or
         inspect.ismethod(maybe_fn) or
         inspect.isbuiltin(maybe_fn) or
         inspect.isroutine(maybe_fn)
     )
-    if not is_callable:
-        return False
-
-    # By convention, _ prefixed functions in Python should not be
-    # called by users (i.e. they are "private" functions)
-    return maybe_fn.__name__[0] != '_'
