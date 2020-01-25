@@ -86,11 +86,14 @@ via the Atom Package Manager (APM).
 EOF
 
   git tag -a "$VERSION_TAG" -m ""
-  git push --follow-tags
+  git push origin "$VERSION_TAG"
+  git push origin master
   echo_green "✓ Release pushed to GitHub"
 
   apm publish --tag "$VERSION_TAG"
   echo "✓ Release published to the Atom package index"
+
+  git checkout master
   popd
 }
 
