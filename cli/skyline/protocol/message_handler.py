@@ -32,13 +32,19 @@ class MessageHandler:
                 context,
             )
             return
-        if message.protocol_version != 1:
-            # We only support version 1 of the protocol.
+        if message.protocol_version != 2:
+            # We only support version 2 of the protocol. We do not guarantee
+            # backward compatibility for v0.x.x releases.
+            # Version 1 - v0.1.x
             self._message_sender.send_protocol_error(
                 pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION,
                 context,
             )
             self._connection_manager.remove_connection(context.address)
+            logger.error(
+                'Skyline is out of date. Please update to the latest versions '
+                'of the Skyline command line interface and plugin.'
+            )
             return
 
         context.state.initialized = True

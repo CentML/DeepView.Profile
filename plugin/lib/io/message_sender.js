@@ -12,8 +12,8 @@ export default class MessageSender {
 
   sendInitializeRequest() {
     const message = new pm.InitializeRequest();
-    // For now, we only have one version of the protocol
-    message.setProtocolVersion(1);
+    // Version 1 - v0.1.x
+    message.setProtocolVersion(2);
     this._sendMessage(message, 'Initialize');
   }
 
