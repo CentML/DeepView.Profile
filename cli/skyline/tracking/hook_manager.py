@@ -1,6 +1,3 @@
-import logging
-
-logger = logging.getLogger(__name__)
 
 
 class HookManager:
@@ -24,7 +21,6 @@ class HookManager:
 
     def attach_hook(self, module, prop, hook_creator):
         target = getattr(module, prop)
-        logger.debug('Adding hook to callable: %s', target.__name__)
         self._maybe_store_callable(module, prop, target)
         setattr(module, prop, hook_creator(target))
 

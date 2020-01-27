@@ -37,12 +37,7 @@ class AnalysisSession:
         self._input_provider = input_provider
         self._iteration_provider = iteration_provider
         self._batch_size = batch_size
-        self._profiler = IterationProfiler.new_from(
-            self._model_provider,
-            self._input_provider,
-            self._iteration_provider,
-            self._path_to_entry_point_dir,
-        )
+        self._profiler = None
         self._memory_usage_percentage = None
         self._batch_size_iteration_run_time_ms = None
 
@@ -111,6 +106,8 @@ class AnalysisSession:
         )
 
     def measure_memory_usage(self, nvml):
+        self._prepare_for_memory_profiling()
+
         report = track_memory_usage(
             self._model_provider,
             self._input_provider,
@@ -145,6 +142,9 @@ class AnalysisSession:
         return memory_usage
 
     def measure_throughput(self):
+        if self._profiler is None:
+            self._initialize_iteration_profiler()
+
         num_samples = 3
         samples = self._profiler.sample_run_time_ms_by_batch_size(
             start_batch_size=self._batch_size,
@@ -197,6 +197,9 @@ class AnalysisSession:
             self._path_to_entry_point_dir,
         )
         if self._batch_size_iteration_run_time_ms is None:
+            if self._profiler is None:
+                self._initialize_iteration_profiler()
+
             self._batch_size_iteration_run_time_ms, _ = \
                 self._profiler.measure_run_time_ms(self._batch_size)
 
@@ -217,6 +220,8 @@ class AnalysisSession:
         return run_time
 
     def generate_memory_usage_report(self, save_report_to):
+        self._prepare_for_memory_profiling()
+
         track_memory_usage(
             self._model_provider,
             self._input_provider,
@@ -232,6 +237,22 @@ class AnalysisSession:
             self._path_to_entry_point_dir,
             report_file=save_report_to,
         )
+
+    def _initialize_iteration_profiler(self):
+        self._profiler = IterationProfiler.new_from(
+            self._model_provider,
+            self._input_provider,
+            self._iteration_provider,
+            self._path_to_entry_point_dir,
+        )
+
+    def _prepare_for_memory_profiling(self):
+        if self._profiler is not None:
+            # It's important that the IterationProfiler is uninitialized here
+            # because it stores a copy of the model, which takes up GPU memory.
+            # This would skew our memory profiling results.
+            del self._profiler
+            self._profiler = None
 
 
 def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):

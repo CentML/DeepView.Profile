@@ -1,9 +1,13 @@
+import logging
+
 import torch
 
 from skyline.tracking.memory.activations import ActivationsTracker
 from skyline.tracking.memory.report import MemoryReportBuilder, MiscSizeType
 from skyline.tracking.memory.weights import WeightsTracker
 from skyline.user_code_utils import user_code_environment
+
+logger = logging.getLogger(__name__)
 
 
 def track_memory_usage(
@@ -14,6 +18,15 @@ def track_memory_usage(
     report_file=None,
 ):
     _ensure_cuda_initialization()
+
+    # Sanity check: For accurate profiling numbers, the initial memory usage
+    # should be zero bytes.
+    initial_memory_bytes = torch.cuda.memory_allocated()
+    if initial_memory_bytes != 0:
+        logger.debug(
+            'Non-zero initial memory usage during memory tracking: %d bytes',
+            initial_memory_bytes,
+        )
 
     # Track and record memory usage associated with model creation
     weight_tracker = WeightsTracker()
