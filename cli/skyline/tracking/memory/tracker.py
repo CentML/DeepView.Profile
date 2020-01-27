@@ -34,9 +34,8 @@ def track_memory_usage(
         model = model_provider()
 
     with user_code_environment(user_code_path):
-        iteration = iteration_provider(model)
         # Run one iteration to initialize the gradients
-        iteration(*input_provider())
+        model(*input_provider()).backward()
 
     # Track and record memory usage associated with stored activations
     activations_tracker = ActivationsTracker()
@@ -46,6 +45,7 @@ def track_memory_usage(
     # Record peak memory usage
     torch.cuda.reset_max_memory_allocated()
     with user_code_environment(user_code_path):
+        iteration = iteration_provider(model)
         iteration(*input_provider())
     peak_usage_bytes = torch.cuda.max_memory_allocated()
 
