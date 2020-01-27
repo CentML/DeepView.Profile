@@ -93,7 +93,7 @@ def _flatten_operation_output(operation_output):
 
     flattened = []
     for value in operation_output:
-        flattened.extend(flatten_operation_retval(value))
+        flattened.extend(_flatten_operation_output(value))
     return flattened
 
 
