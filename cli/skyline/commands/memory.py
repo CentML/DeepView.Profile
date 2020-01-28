@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 from skyline.initialization import (
@@ -37,6 +38,13 @@ def actual_main(args):
     from skyline.analysis.session import AnalysisSession
     from skyline.config import Config
     from skyline.exceptions import AnalysisError
+
+    if os.path.exists(args.output):
+        print(
+            "ERROR: The specified output file already exists.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     try:
         session = AnalysisSession.new_from(
