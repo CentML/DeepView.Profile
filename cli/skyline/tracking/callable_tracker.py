@@ -51,6 +51,55 @@ def _is_callable_and_public(maybe_fn):
     # called by users (i.e. they are "private" functions)
     return _is_callable(maybe_fn) and maybe_fn.__name__[0] != '_'
 
+# Original source of this blacklist:
+# https://github.com/NVIDIA/apex/blob/master/apex/pyprof/nvtx/nvmarker.py
+BLACKLISTED_DUNDERS = {
+    '__all__',
+    '__array__',
+    '__array_priority__',
+    '__array_wrap__',
+    '__bool__',
+    '__builtins__',
+    '__cached__',
+    '__class__',
+    '__deepcopy__',
+    '__delattr__',
+    '__delitem__',
+    '__dict__',
+    '__dir__',
+    '__doc__',
+    '__file__',
+    '__format__',
+    '__getattribute__',
+    '__getitem__',
+    '__hash__',
+    '__index__',
+    '__init__',
+    '__init_subclass__',
+    '__iter__',
+    '__len__',
+    '__loader__',
+    '__module__',
+    '__name__',
+    '__new__',
+    '__nonzero__',
+    '__package__',
+    '__path__',
+    '__reduce__',
+    '__reduce_ex__',
+    '__repr__',
+    '__reversed__',
+    '__setattr__',
+    '__setitem__',
+    '__setstate__',
+    '__sizeof__',
+    '__spec__',
+    '__str__',
+    '__subclasshook__',
+    '__version__',
+    '__weakref__',
+}
+
 
 def _is_callable_dunder(maybe_fn):
     """
@@ -61,7 +110,8 @@ def _is_callable_dunder(maybe_fn):
         _is_callable(maybe_fn) and
         len(maybe_fn.__name__) > 4 and
         maybe_fn.__name__[:2] == '__' and
-        maybe_fn.__name__[-2:] == '__'
+        maybe_fn.__name__[-2:] == '__' and
+        maybe_fn.__name__ not in BLACKLISTED_DUNDERS
     )
 
 
