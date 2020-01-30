@@ -112,7 +112,8 @@ class AnalysisSession:
             self._model_provider,
             self._input_provider,
             self._iteration_provider,
-            self._path_to_entry_point_dir,
+            project_root=self._project_root,
+            user_code_path=self._path_to_entry_point_dir,
         )
 
         memory_usage = pm.MemoryUsageResponse()
@@ -194,7 +195,8 @@ class AnalysisSession:
         run_time_report = track_operation_run_time(
             self._model_provider,
             self._input_provider,
-            self._path_to_entry_point_dir,
+            project_root=self._project_root,
+            user_code_path=self._path_to_entry_point_dir,
         )
         if self._batch_size_iteration_run_time_ms is None:
             if self._profiler is None:
@@ -226,7 +228,8 @@ class AnalysisSession:
             self._model_provider,
             self._input_provider,
             self._iteration_provider,
-            self._path_to_entry_point_dir,
+            project_root=self._project_root,
+            user_code_path=self._path_to_entry_point_dir,
             report_file=save_report_to,
         )
 
@@ -234,7 +237,8 @@ class AnalysisSession:
         track_operation_run_time(
             self._model_provider,
             self._input_provider,
-            self._path_to_entry_point_dir,
+            project_root=self._project_root,
+            user_code_path=self._path_to_entry_point_dir,
             report_file=save_report_to,
         )
 
@@ -270,9 +274,7 @@ def _set_file_context(message, project_root, entry):
         return
 
     message.context.line_number = entry.line_number
-    relative_file_path = os.path.relpath(entry.file_path, start=project_root)
-    message.context.file_path.components.extend(
-        relative_file_path.split(os.sep))
+    message.context.file_path.components.extend(entry.file_path.split(os.sep))
 
 
 def _validate_providers(

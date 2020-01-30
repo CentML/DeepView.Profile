@@ -9,10 +9,11 @@ from skyline.tracking.utils import tensor_size_bytes
 
 
 class WeightsTracker(TrackerBase):
-    def __init__(self):
+    def __init__(self, project_root):
         super().__init__()
         self._hook_manager = HookManager()
         self._module_parameters = weakref.WeakKeyDictionary()
+        self._project_root = project_root
 
     def start_tracking(self):
         super().start_tracking()
@@ -45,7 +46,7 @@ class WeightsTracker(TrackerBase):
             if parameter is not None:
                 self._module_parameters[parameter] = (
                     name,
-                    CallStack.from_here(start_from=2),
+                    CallStack.from_here(self._project_root, start_from=2),
                 )
             return retval
         return hook

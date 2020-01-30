@@ -34,31 +34,20 @@ class MemoryReport(ReportBase):
         cursor = self._connection.cursor()
         return map(
             lambda row: WeightEntry(*row),
-            cursor.execute(
-                queries.get_weight_entries_with_context,
-                (self._to_search_prefix(path_prefix),),
-            ),
+            cursor.execute(queries.get_weight_entries_with_context),
         )
 
     def get_activation_entries(self, path_prefix=None):
         cursor = self._connection.cursor()
         return map(
             lambda row: ActivationEntry(*row),
-            cursor.execute(
-                queries.get_activation_entries_with_context,
-                (self._to_search_prefix(path_prefix),),
-            )
+            cursor.execute(queries.get_activation_entries_with_context),
         )
 
     def get_misc_entry(self, misc_size_type: MiscSizeType):
         cursor = self._connection.cursor()
         cursor.execute(queries.get_misc_entry, (misc_size_type.value,))
         return cursor.fetchone()[0]
-
-    def _to_search_prefix(self, path_prefix):
-        if path_prefix is None:
-            return '%'
-        return os.path.join(path_prefix, '%')
 
 
 class MemoryReportBuilder(ReportBuilderBase):

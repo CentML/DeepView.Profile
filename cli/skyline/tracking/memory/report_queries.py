@@ -93,8 +93,7 @@ get_code_context_subquery = """
       FROM stack_frames AS s JOIN stack_correlation AS c
         ON s.correlation_id == c.correlation_id
       WHERE
-        c.entry_type = {:d} AND
-        s.file_path LIKE ?
+        c.entry_type = {:d}
       GROUP BY s.correlation_id HAVING s.ordering == MIN(s.ordering)
   )
 """

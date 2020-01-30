@@ -21,8 +21,9 @@ ActivationEntry = collections.namedtuple(
 
 
 class ActivationsTracker:
-    def __init__(self):
+    def __init__(self, project_root):
         self._activations = []
+        self._project_root = project_root
 
     def track_memory_usage(self, model, input_provider, user_code_path):
         # 1. Run the forward pass of the model with the given inputs. We keep
@@ -73,7 +74,7 @@ class ActivationsTracker:
 
     def _get_grad_function_contexts(
             self, model, input_provider, user_code_path):
-        grad_function_tracker = GradFunctionTracker()
+        grad_function_tracker = GradFunctionTracker(self._project_root)
         with grad_function_tracker.track(), \
                 user_code_environment(user_code_path):
             out = model(*input_provider())
@@ -100,9 +101,10 @@ class ActivationsTracker:
 
 
 class GradFunctionTracker(TrackerBase):
-    def __init__(self):
+    def __init__(self, project_root):
         super().__init__()
         self._callable_tracker = CallableTracker(self._callable_hook_creator)
+        self._project_root = project_root
         self.grad_function_contexts = {}
         self._processing_hook = False
 
@@ -140,7 +142,7 @@ class GradFunctionTracker(TrackerBase):
 
             context = OperationContext(
                 operation_name=func.__name__,
-                stack=CallStack.from_here(start_from=2),
+                stack=CallStack.from_here(self._project_root, start_from=2),
             )
             self._handle_callable_result(retval, context)
             return retval

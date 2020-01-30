@@ -35,7 +35,6 @@ add_run_time_entry = """
 get_run_time_entries_with_context = """
   WITH code_contexts AS (
     SELECT entry_id, file_path, line_number FROM stack_frames
-    WHERE file_path LIKE ?
     GROUP BY entry_id HAVING ordering == MIN(ordering)
   )
   SELECT

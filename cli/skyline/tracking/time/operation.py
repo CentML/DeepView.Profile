@@ -14,10 +14,11 @@ OperationInfo = collections.namedtuple(
 
 
 class OperationRunTimeTracker(TrackerBase):
-    def __init__(self):
+    def __init__(self, project_root):
         super().__init__()
         self._callable_tracker = CallableTracker(self._hook_creator)
         self._profiler = OperationProfiler()
+        self._project_root = project_root
         self._processing_hook = False
 
         self.operations = []
@@ -52,7 +53,8 @@ class OperationRunTimeTracker(TrackerBase):
                     func, args, kwargs)
                 self.operations.append(OperationInfo(
                     operation_name=func.__name__,
-                    stack=CallStack.from_here(start_from=2),
+                    stack=CallStack.from_here(
+                        self._project_root, start_from=2),
                     forward_ms=forward_ms,
                     backward_ms=backward_ms,
                 ))

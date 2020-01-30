@@ -22,16 +22,8 @@ class OperationRunTimeReport(ReportBase):
         cursor = self._connection.cursor()
         return map(
             lambda row: RunTimeEntry(*row),
-            cursor.execute(
-                queries.get_run_time_entries_with_context,
-                (self._to_search_prefix(path_prefix),),
-            )
+            cursor.execute(queries.get_run_time_entries_with_context),
         )
-
-    def _to_search_prefix(self, path_prefix):
-        if path_prefix is None:
-            return '%'
-        return os.path.join(path_prefix, '%')
 
 
 class OperationRunTimeReportBuilder(ReportBuilderBase):

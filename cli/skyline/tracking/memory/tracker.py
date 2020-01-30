@@ -14,6 +14,7 @@ def track_memory_usage(
     model_provider,
     input_provider,
     iteration_provider,
+    project_root,
     user_code_path,
     report_file=None,
 ):
@@ -29,7 +30,7 @@ def track_memory_usage(
         )
 
     # Track and record memory usage associated with model creation
-    weight_tracker = WeightsTracker()
+    weight_tracker = WeightsTracker(project_root)
     with weight_tracker.track(), user_code_environment(user_code_path):
         model = model_provider()
 
@@ -38,7 +39,7 @@ def track_memory_usage(
         model(*input_provider()).backward()
 
     # Track and record memory usage associated with stored activations
-    activations_tracker = ActivationsTracker()
+    activations_tracker = ActivationsTracker(project_root)
     activations_tracker.track_memory_usage(
         model, input_provider, user_code_path)
 
