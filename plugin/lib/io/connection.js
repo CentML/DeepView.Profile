@@ -1,6 +1,8 @@
 'use babel';
 
 import net from 'net';
+import process from 'process';
+
 import { CompositeDisposable } from 'atom';
 import Logger from '../logger';
 
@@ -77,24 +79,35 @@ export default class Connection {
 
   _handleData(chunk) {
     this._incomingBuffers.push(chunk);
+    const totalBytes = this._incomingBuffers.reduce(
+      (accum, buf) => accum + buf.length, 0);
 
-    if (this._nextMessageLength <= 0) {
-      // We have not received a complete message length yet
-      const lengthResult = this._readIntoBuffer(4);
-      if (lengthResult === null) {
+    // This should work even if the loop was implemented using while (true) {}.
+    // We limit the number of iterations in case there is a bug so that we do
+    // not run into an infinite loop.
+    for (let i = 0; i < totalBytes; i++) {
+      if (this._nextMessageLength <= 0) {
+        // We have not received a complete message length yet
+        const lengthResult = this._readIntoBuffer(4);
+        if (lengthResult === null) {
+          return;
+        }
+        this._nextMessageLength = lengthResult.readUInt32BE();
+      }
+
+      const messageResult = this._readIntoBuffer(this._nextMessageLength);
+      if (messageResult === null) {
         return;
       }
-      this._nextMessageLength = lengthResult.readUInt32BE();
+
+      this._nextMessageLength = -1;
+      process.nextTick(this._dataHandler, messageResult);
     }
 
-    const messageResult = this._readIntoBuffer(this._nextMessageLength);
-    if (messageResult === null) {
-      return;
-    }
-
-    this._nextMessageLength = -1;
-
-    this._dataHandler(messageResult);
+    throw new Error(
+      'Skyline ran into a problem when handling your profiling data. ' +
+      'Please file a bug report.'
+    );
   }
 
   _readIntoBuffer(size) {

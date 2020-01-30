@@ -70,19 +70,24 @@ class Connection:
 
                 buffer += data
 
-                if message_length <= 0:
-                    if len(buffer) < 4:
-                        continue
-                    # Network byte order 32-bit unsigned integer
-                    message_length = struct.unpack('!I', buffer[:4])[0]
-                    buffer = buffer[4:]
+                # Process all messages that exist in the buffer
+                while True:
+                    if message_length <= 0:
+                        if len(buffer) < 4:
+                            break
+                        # Network byte order 32-bit unsigned integer
+                        message_length = struct.unpack('!I', buffer[:4])[0]
+                        buffer = buffer[4:]
 
-                if len(buffer) < message_length:
-                    continue
+                    if len(buffer) < message_length:
+                        break
 
-                self._handler_function(buffer[:message_length], self.address)
-                buffer = buffer[message_length:]
-                message_length = -1
+                    try:
+                        self._handler_function(
+                            buffer[:message_length], self.address)
+                    finally:
+                        buffer = buffer[message_length:]
+                        message_length = -1
 
         except:
             logger.exception("Connection unexpectedly stopping...")
