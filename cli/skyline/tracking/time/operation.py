@@ -43,7 +43,7 @@ class OperationRunTimeTracker(TrackerBase):
     def populate_breakdown(self, builder):
         # The HierarchicalBreakdownBuilder uses the same run time entry API as
         # the OperationRunTimeReportBuilder.
-        self.populate_report(self, builder)
+        self.populate_report(builder)
 
     def _hook_creator(self, func):
         def hook(*args, **kwargs):

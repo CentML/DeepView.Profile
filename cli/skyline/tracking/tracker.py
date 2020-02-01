@@ -3,6 +3,7 @@ import logging
 
 import torch
 
+from skyline.tracking.breakdown import HierarchicalBreakdownBuilder
 from skyline.tracking.memory.activations import ActivationsTracker
 from skyline.tracking.memory.report import MemoryReportBuilder, MiscSizeType
 from skyline.tracking.memory.weights import WeightsTracker
@@ -135,7 +136,7 @@ class Tracker:
                 .for_model(self._model)
                 .process_tracker(self._operation_tracker)
                 .process_tracker(self._activations_tracker)
-                .process_tracker(self._weights_tracker)
+                .process_tracker(self._weight_tracker)
                 .build())
 
 

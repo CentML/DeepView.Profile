@@ -21,7 +21,7 @@ class HierarchicalBreakdownBuilder:
 
     def add_run_time_entry(
             self, operation_name, forward_ms, backward_ms, stack_context):
-        if len(stack_context) == 0:
+        if len(stack_context.frames) == 0:
             raise ValueError(
                 'Adding run time entry with no context to the breakdown.')
 
@@ -32,7 +32,7 @@ class HierarchicalBreakdownBuilder:
         return self
 
     def add_activation_entry(self, operation_name, size_bytes, stack_context):
-        if len(stack_context) == 0:
+        if len(stack_context.frames) == 0:
             raise ValueError(
                 'Adding activation entry with no context to the breakdown.')
 
@@ -44,7 +44,7 @@ class HierarchicalBreakdownBuilder:
 
     def add_weight_entry(
             self, weight_name, size_bytes, grad_size_bytes, stack_context):
-        if len(stack_context) == 0:
+        if len(stack_context.frames) == 0:
             raise ValueError(
                 'Adding weight entry with no context to the breakdown.')
 
@@ -68,9 +68,10 @@ class HierarchicalBreakdownBuilder:
         """
         parent = root
         node_constructor = type(root)
+        stack_frames = stack_context.frames
 
-        for idx, frame in enumerate(reversed(stack_context)):
-            is_last_frame = idx == len(stack_context) - 1
+        for idx, frame in enumerate(reversed(stack_frames)):
+            is_last_frame = idx == len(stack_frames) - 1
             context = (frame.file_path, frame.line_number)
 
             if context not in parent.children:
@@ -100,7 +101,7 @@ class HierarchicalBreakdownBuilder:
             if len(node.children) == 1 and parent is not None:
                 # Remove "node" from the tree and have the parent
                 # point directly to node's only child
-                child = next(node.children.values())
+                child = next(iter(node.children.values()))
                 child.add_context(key)
                 parent.children[key] = child
                 node.children.clear()
@@ -168,7 +169,7 @@ class WeightNode(BreakdownNode):
         self._size_bytes = 0
         self._grad_size_bytes = 0
 
-    def add_weight_size(self, size_bytes, grad_bytes):
+    def add_weight_size(self, size_bytes, grad_size_bytes):
         self._size_bytes += size_bytes
         self._grad_size_bytes += grad_size_bytes
 
