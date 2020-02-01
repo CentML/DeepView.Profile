@@ -63,10 +63,12 @@ class MemoryReportBuilder(ReportBuilderBase):
         super().__init__(file)
 
     def add_weight_entry(
-            self, name, size_bytes, grad_size_bytes, stack_context):
+            self, weight_name, size_bytes, grad_size_bytes, stack_context):
         cursor = self._connection.cursor()
         cursor.execute(
-            queries.add_weight_entry, (name, size_bytes, grad_size_bytes))
+            queries.add_weight_entry,
+            (weight_name, size_bytes, grad_size_bytes),
+        )
         self._add_stack_frames(
             cursor=cursor,
             entry_id=cursor.lastrowid,

@@ -27,20 +27,21 @@ class WeightsTracker(TrackerBase):
         super().stop_tracking()
         self._hook_manager.remove_hooks()
 
-    def populate_report(self, report_builder):
+    def populate_report(self, builder):
         for param, (name, stack) in self._module_parameters.items():
             if not param.is_cuda:
                 continue
-            report_builder.add_weight_entry(
-                name=name,
+            builder.add_weight_entry(
+                weight_name=name,
                 size_bytes=tensor_size_bytes(param),
                 grad_size_bytes=tensor_size_bytes(param.grad),
                 stack_context=stack,
             )
 
     def populate_breakdown(self, builder):
-        # TODO: Add weight information to the HierarchicalBreakdownBuilder
-        pass
+        # The HierarchicalBreakdownBuilder uses the same API as the
+        # MemoryReportBuilder.
+        self.populate_report(builder)
 
     def _register_parameter_hook_creator(self, func):
         def hook(*args, **kwargs):
