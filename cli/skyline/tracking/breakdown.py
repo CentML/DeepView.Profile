@@ -36,13 +36,13 @@ class HierarchicalBreakdownBuilder:
         return self
 
     def build(self):
-        # TODO: Remove interior nodes with one child
+        self._prune_tree()
         return self._root
 
     def _traverse_and_insert(self, operation_name, stack_context):
         """
         A generator that, given a list of relevant stack frames, traverses (and
-        inserts entries, if needed) the hierarchial breakdown tree, yielding
+        inserts entries, if needed) the hierarchical breakdown tree, yielding
         each node along its path.
         """
         parent = self._root
@@ -64,6 +64,28 @@ class HierarchicalBreakdownBuilder:
             parent = parent.children[context]
 
         yield parent
+
+    def _prune_tree(self):
+        # Current node, key to node from parent, parent node
+        stack = [(self._root, None, None)]
+
+        # Depth first traversal. Prune interior nodes with only one child:
+        #   e.g. ... -> parent -> node -> child -> ... becomes
+        #        ... -> parent -> child -> ...
+        while len(stack) != 0:
+            node, key, parent = stack.pop()
+
+            if len(node.children) == 1 and parent is not None:
+                # Remove "node" from the tree and have the parent
+                # point directly to node's only child
+                child = next(node.children.values())
+                child.add_context(key)
+                parent.children[key] = child
+                node.children.clear()
+                stack.append((child, key, parent))
+            else:
+                for key_to_child, child in node.children.items():
+                    stack.append((child, key_to_child, node))
 
 
 class BreakdownEntry:
