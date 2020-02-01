@@ -8,9 +8,8 @@ import numpy as np
 import skyline.protocol_gen.innpv_pb2 as pm
 from skyline.exceptions import AnalysisError
 from skyline.profiler.iteration import IterationProfiler
-from skyline.tracking.memory.tracker import track_memory_usage
+from skyline.tracking.tracker import Tracker
 from skyline.tracking.memory.report import MiscSizeType
-from skyline.tracking.time.tracker import track_operation_run_time
 from skyline.user_code_utils import user_code_environment
 
 logger = logging.getLogger(__name__)
@@ -107,14 +106,10 @@ class AnalysisSession:
 
     def measure_memory_usage(self, nvml):
         self._prepare_for_memory_profiling()
-
-        report = track_memory_usage(
-            self._model_provider,
-            self._input_provider,
-            self._iteration_provider,
-            project_root=self._project_root,
-            user_code_path=self._path_to_entry_point_dir,
-        )
+        tracker = self._get_tracker_instance()
+        tracker.track_memory()
+        report = tracker.get_memory_report()
+        del tracker
 
         memory_usage = pm.MemoryUsageResponse()
         memory_usage.peak_usage_bytes = report.get_misc_entry(
@@ -192,12 +187,11 @@ class AnalysisSession:
         return throughput
 
     def measure_run_time_breakdown(self):
-        run_time_report = track_operation_run_time(
-            self._model_provider,
-            self._input_provider,
-            project_root=self._project_root,
-            user_code_path=self._path_to_entry_point_dir,
-        )
+        tracker = self._get_tracker_instance()
+        tracker.track_run_time()
+        run_time_report = tracker.get_run_time_report()
+        del tracker
+
         if self._batch_size_iteration_run_time_ms is None:
             if self._profiler is None:
                 self._initialize_iteration_profiler()
@@ -223,24 +217,14 @@ class AnalysisSession:
 
     def generate_memory_usage_report(self, save_report_to):
         self._prepare_for_memory_profiling()
-
-        track_memory_usage(
-            self._model_provider,
-            self._input_provider,
-            self._iteration_provider,
-            project_root=self._project_root,
-            user_code_path=self._path_to_entry_point_dir,
-            report_file=save_report_to,
-        )
+        tracker = self._get_tracker_instance()
+        tracker.track_memory()
+        tracker.get_memory_report(report_file=save_report_to)
 
     def generate_run_time_breakdown_report(self, save_report_to):
-        track_operation_run_time(
-            self._model_provider,
-            self._input_provider,
-            project_root=self._project_root,
-            user_code_path=self._path_to_entry_point_dir,
-            report_file=save_report_to,
-        )
+        tracker = self._get_tracker_instance()
+        tracker.track_run_time()
+        tracker.get_run_time_report(report_file=save_report_to)
 
     def _initialize_iteration_profiler(self):
         self._profiler = IterationProfiler.new_from(
@@ -257,6 +241,16 @@ class AnalysisSession:
             # This would skew our memory profiling results.
             del self._profiler
             self._profiler = None
+
+    def _get_tracker_instance(self):
+        # TODO: This is temporary until we change the AnalysisSession API
+        return Tracker(
+            model_provider=self._model_provider,
+            iteration_provider=self._iteration_provider,
+            input_provider=self._input_provider,
+            project_root=self._project_root,
+            user_code_path=self._path_to_entry_point_dir
+        )
 
 
 def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):

@@ -75,9 +75,10 @@ class MemoryReportBuilder(ReportBuilderBase):
         )
         return self
 
-    def add_activation_entry(self, name, size_bytes, stack_context):
+    def add_activation_entry(self, operation_name, size_bytes, stack_context):
         cursor = self._connection.cursor()
-        cursor.execute(queries.add_activation_entry, (name, size_bytes))
+        cursor.execute(
+            queries.add_activation_entry, (operation_name, size_bytes))
         self._add_stack_frames(
             cursor=cursor,
             entry_id=cursor.lastrowid,

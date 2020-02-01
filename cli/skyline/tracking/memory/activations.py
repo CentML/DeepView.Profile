@@ -64,13 +64,18 @@ class ActivationsTracker:
                 size_bytes=-delta,
             ))
 
-    def populate_report(self, report_builder):
+    def populate_report(self, builder):
         for entry in self._activations:
-            report_builder.add_activation_entry(
-                name=remove_dunder(entry.operation_name),
+            builder.add_activation_entry(
+                operation_name=remove_dunder(entry.operation_name),
                 size_bytes=entry.size_bytes,
                 stack_context=entry.stack,
             )
+
+    def populate_breakdown(self, builder):
+        # The HierarchicalReportBuilder uses the same activation entry API as
+        # the MemoryReportBuilder
+        self.populate_report(builder)
 
     def _get_grad_function_contexts(
             self, model, input_provider, user_code_path):

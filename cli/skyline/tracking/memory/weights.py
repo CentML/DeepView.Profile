@@ -38,6 +38,10 @@ class WeightsTracker(TrackerBase):
                 stack_context=stack,
             )
 
+    def populate_breakdown(self, builder):
+        # TODO: Add weight information to the HierarchicalBreakdownBuilder
+        pass
+
     def _register_parameter_hook_creator(self, func):
         def hook(*args, **kwargs):
             name = args[1]
