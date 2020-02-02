@@ -22,6 +22,7 @@ export default class MessageHandler {
     this._handleAnalysisError = this._handleAnalysisError.bind(this);
     this._handleThroughputResponse = this._handleThroughputResponse.bind(this);
     this._handleRunTimeResponse = this._handleRunTimeResponse.bind(this);
+    this._handleBreakdownResponse = this._handleBreakdownResponse.bind(this);
   }
 
   _handleInitializeResponse(message) {
@@ -89,6 +90,13 @@ export default class MessageHandler {
     }));
   }
 
+  _handleBreakdownResponse(message) {
+    Logger.info('Received breakdown message.');
+    this._store.dispatch(AnalysisActions.receivedBreakdown({
+      breakdownResponse: message,
+    }));
+  }
+
   _handleAfterInitializationMessage(handler, message) {
     if (!this._connectionStateView.isInitialized()) {
       Logger.warn('Connection not initialized, but received a regular protocol message.');
@@ -132,6 +140,13 @@ export default class MessageHandler {
         this._handleAfterInitializationMessage(
           this._handleThroughputResponse,
           enclosingMessage.getThroughput(),
+        );
+        break;
+
+      case pm.FromServer.PayloadCase.BREAKDOWN:
+        this._handleAfterInitializationMessage(
+          this._handleBreakdownResponse,
+          enclosingMessage.getBreakdown(),
         );
         break;
     }

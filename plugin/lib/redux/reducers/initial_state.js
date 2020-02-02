@@ -25,4 +25,9 @@ export default {
   memoryUsage: null,
   throughput: null,
   runTimeBreakdown: null,
+
+  breakdown: {
+    model: null,
+    currentView: null,
+  },
 };

@@ -56,6 +56,8 @@ export const ANALYSIS_REQ = generateActionType(ANALYSIS_NAMESPACE, 'req');
 export const ANALYSIS_REC_RUN = generateActionType(ANALYSIS_NAMESPACE, 'rec_run_time');
 // We received the memory analysis
 export const ANALYSIS_REC_MEM = generateActionType(ANALYSIS_NAMESPACE, 'rec_memory');
+// We received the weight and operation breakdown
+export const ANALYSIS_REC_BRK = generateActionType(ANALYSIS_NAMESPACE, 'rec_breakdown');
 // We received throughput information
 export const ANALYSIS_REC_THPT = generateActionType(ANALYSIS_NAMESPACE, 'rec_thpt');
 // An error occurred during the analysis

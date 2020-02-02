@@ -5,6 +5,7 @@ import {
   ANALYSIS_REQ,
   ANALYSIS_REC_RUN,
   ANALYSIS_REC_MEM,
+  ANALYSIS_REC_BRK,
   ANALYSIS_REC_THPT,
   ANALYSIS_ERROR,
 } from './types';
@@ -18,6 +19,10 @@ export default {
   receivedMemoryAnalysis: fromPayloadCreator(
     ANALYSIS_REC_MEM,
     ({memoryUsageResponse}) => ({memoryUsageResponse}),
+  ),
+  receivedBreakdown: fromPayloadCreator(
+    ANALYSIS_REC_BRK,
+    ({breakdownResponse}) => ({breakdownResponse}),
   ),
   receivedThroughputAnalysis: fromPayloadCreator(
     ANALYSIS_REC_THPT,

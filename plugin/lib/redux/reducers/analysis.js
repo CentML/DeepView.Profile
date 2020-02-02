@@ -4,6 +4,7 @@ import {
   ANALYSIS_REQ,
   ANALYSIS_REC_RUN,
   ANALYSIS_REC_MEM,
+  ANALYSIS_REC_BRK,
   ANALYSIS_REC_THPT,
   ANALYSIS_ERROR,
 } from '../actions/types';
@@ -12,6 +13,7 @@ import MemoryBreakdown from '../../models/MemoryBreakdown';
 import MemoryUsage from '../../models/MemoryUsage';
 import Throughput from '../../models/Throughput';
 import RunTimeBreakdown from '../../models/RunTimeBreakdown';
+import Breakdown from '../../models/Breakdown';
 
 export default function(state, action) {
   switch (action.type) {
@@ -39,6 +41,17 @@ export default function(state, action) {
         memoryUsage:
           MemoryUsage.fromMemoryUsageResponse(memoryUsageResponse),
         errorMessage: '',
+      };
+    }
+
+    case ANALYSIS_REC_BRK: {
+      const {breakdownResponse} = action.payload;
+      return {
+        ...state,
+        breakdown: {
+          model: Breakdown.fromBreakdownResponse(breakdownResponse),
+          currentView: null,
+        },
       };
     }
 
