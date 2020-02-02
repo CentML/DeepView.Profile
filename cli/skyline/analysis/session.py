@@ -9,7 +9,6 @@ import skyline.protocol_gen.innpv_pb2 as pm
 from skyline.exceptions import AnalysisError
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
-from skyline.tracking.memory.report import MiscSizeType
 from skyline.user_code_utils import user_code_environment
 
 logger = logging.getLogger(__name__)
@@ -104,38 +103,37 @@ class AnalysisSession:
             batch_size,
         )
 
-    def measure_memory_usage(self, nvml):
+    def measure_breakdown(self, nvml):
+        # 1. Measure the breakdown entries
         self._prepare_for_memory_profiling()
         tracker = self._get_tracker_instance()
         tracker.track_memory()
-        report = tracker.get_memory_report()
+        tracker.track_run_time()
+        breakdown = tracker.get_hierarchical_breakdown()
         del tracker
 
-        memory_usage = pm.MemoryUsageResponse()
-        memory_usage.peak_usage_bytes = report.get_misc_entry(
-            MiscSizeType.PeakUsageBytes)
-        memory_usage.memory_capacity_bytes = nvml.get_memory_capacity().total
+        # 2. Measure the overall iteration run time
+        if self._batch_size_iteration_run_time_ms is None:
+            if self._profiler is None:
+                self._initialize_iteration_profiler()
 
-        for weight_entry in report.get_weight_entries(
-                path_prefix=self._project_root):
-            entry = memory_usage.weight_entries.add()
-            entry.weight_name = weight_entry.weight_name
-            entry.size_bytes = weight_entry.size_bytes
-            entry.grad_size_bytes = weight_entry.grad_size_bytes
-            _set_file_context(entry, self._project_root, weight_entry)
+            self._batch_size_iteration_run_time_ms, _ = \
+                self._profiler.measure_run_time_ms(self._batch_size)
 
-        for activation_entry in report.get_activation_entries(
-                path_prefix=self._project_root):
-            entry = memory_usage.activation_entries.add()
-            entry.operation_name = activation_entry.operation_name
-            entry.size_bytes = activation_entry.size_bytes
-            _set_file_context(entry, self._project_root, activation_entry)
+        # 3. Serialize the measured data
+        bm = pm.BreakdownResponse()
+        bm.peak_usage_bytes = breakdown.peak_usage_bytes
+        bm.memory_capacity_bytes = nvml.get_memory_capacity().total
+        bm.iteration_run_time_ms = self._batch_size_iteration_run_time_ms
+        breakdown.operations.serialize_to_protobuf(bm.operation_tree)
+        breakdown.weights.serialize_to_protobuf(bm.weight_tree)
 
+        # 4. Bookkeeping for the throughput measurements
         self._memory_usage_percentage = (
-            memory_usage.peak_usage_bytes / memory_usage.memory_capacity_bytes
+            bm.peak_usage_bytes / bm.memory_capacity_bytes
         )
 
-        return memory_usage
+        return bm
 
     def measure_throughput(self):
         if self._profiler is None:
@@ -186,35 +184,6 @@ class AnalysisSession:
 
         return throughput
 
-    def measure_run_time_breakdown(self):
-        tracker = self._get_tracker_instance()
-        tracker.track_run_time()
-        run_time_report = tracker.get_run_time_report()
-        del tracker
-
-        if self._batch_size_iteration_run_time_ms is None:
-            if self._profiler is None:
-                self._initialize_iteration_profiler()
-
-            self._batch_size_iteration_run_time_ms, _ = \
-                self._profiler.measure_run_time_ms(self._batch_size)
-
-        run_time = pm.RunTimeResponse()
-        run_time.iteration_run_time_ms = self._batch_size_iteration_run_time_ms
-
-        for run_time_entry in run_time_report.get_run_time_entries(
-                path_prefix=self._project_root):
-            entry = run_time.run_time_entries.add()
-            entry.operation_name = run_time_entry.operation_name
-            entry.forward_ms = run_time_entry.forward_ms
-            if run_time_entry.backward_ms is not None:
-                entry.backward_ms = run_time_entry.backward_ms
-            else:
-                entry.backward_ms = math.nan
-            _set_file_context(entry, self._project_root, run_time_entry)
-
-        return run_time
-
     def generate_memory_usage_report(self, save_report_to):
         self._prepare_for_memory_profiling()
         tracker = self._get_tracker_instance()
@@ -243,7 +212,6 @@ class AnalysisSession:
             self._profiler = None
 
     def _get_tracker_instance(self):
-        # TODO: This is temporary until we change the AnalysisSession API
         return Tracker(
             model_provider=self._model_provider,
             iteration_provider=self._iteration_provider,
@@ -261,14 +229,6 @@ def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):
         scope = {}
         exec(code, scope, scope)
     return scope
-
-
-def _set_file_context(message, project_root, entry):
-    if entry.file_path is None or entry.line_number is None:
-        return
-
-    message.context.line_number = entry.line_number
-    message.context.file_path.components.extend(entry.file_path.split(os.sep))
 
 
 def _validate_providers(

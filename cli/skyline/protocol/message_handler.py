@@ -59,10 +59,7 @@ class MessageHandler:
             )
             return
 
-        self._message_sender.send_analysis_error(
-            'This version of Skyline is unable to handle analysis requests.',
-            context,
-        )
+        self._analysis_request_manager.submit_request(message, context)
 
     def handle_message(self, raw_data, address):
         try:

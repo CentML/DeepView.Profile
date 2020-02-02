@@ -134,6 +134,7 @@ class Tracker:
 
         return (HierarchicalBreakdownBuilder()
                 .for_model(self._model)
+                .set_peak_usage_bytes(self._peak_usage_bytes)
                 .process_tracker(self._operation_tracker)
                 .process_tracker(self._activations_tracker)
                 .process_tracker(self._weight_tracker)

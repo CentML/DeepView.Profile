@@ -8,8 +8,7 @@ from skyline.nvml import NVML
 
 def analyze_project(project_root, entry_point, nvml):
     session = AnalysisSession.new_from(project_root, entry_point)
-    yield session.measure_run_time_breakdown()
-    yield session.measure_memory_usage(nvml)
+    yield session.measure_breakdown(nvml)
     yield session.measure_throughput()
 
 
@@ -22,14 +21,13 @@ def main():
     project_root = os.getcwd()
     with NVML() as nvml:
         analyzer = analyze_project(project_root, args.entry_point, nvml)
-        run_time = next(analyzer)
-        memory = next(analyzer)
+        breakdown = next(analyzer)
         throughput = next(analyzer)
 
-    print('Peak usage:   ', memory.peak_usage_bytes, 'bytes')
-    print('Max. capacity:', memory.memory_capacity_bytes, 'bytes')
-    print('No. of weight entries:', len(memory.weight_entries))
-    print('No. of activ. entries:', len(memory.activation_entries))
+    print('Peak usage:   ', breakdown.peak_usage_bytes, 'bytes')
+    print('Max. capacity:', breakdown.memory_capacity_bytes, 'bytes')
+    print('No. of weight breakdown nodes:   ', len(breakdown.operation_tree))
+    print('No. of operation breakdown nodes:', len(breakdown.weight_tree))
     print('Throughput:', throughput.samples_per_second, 'samples/s')
 
 

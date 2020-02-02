@@ -1,7 +1,9 @@
 import collections
+import math
+import os
 
 HierarchicalBreakdown = collections.namedtuple(
-    'HierarchicalBreakdown', ['operations', 'weights'])
+    'HierarchicalBreakdown', ['operations', 'weights', 'peak_usage_bytes'])
 
 
 class HierarchicalBreakdownBuilder:
@@ -9,6 +11,7 @@ class HierarchicalBreakdownBuilder:
         self._module_names_by_id = {}
         self._operation_root = OperationNode('root', -1)
         self._weight_root = WeightNode('root', -1)
+        self._peak_usage_bytes = None
 
     def for_model(self, model):
         for name, module in model.named_modules():
@@ -54,11 +57,22 @@ class HierarchicalBreakdownBuilder:
 
         return self
 
+    def set_peak_usage_bytes(self, peak_usage_bytes):
+        self._peak_usage_bytes = peak_usage_bytes
+        return self
+
     def build(self):
+        if self._peak_usage_bytes is None:
+            raise RuntimeError(
+                'Missing peak usage when constructing the breakdown.')
+
         self._prune_tree(self._operation_root)
         self._prune_tree(self._weight_root)
         return HierarchicalBreakdown(
-            operations=self._operation_root, weights=self._weight_root)
+            operations=self._operation_root,
+            weights=self._weight_root,
+            peak_usage_bytes=self._peak_usage_bytes,
+        )
 
     def _traverse_and_insert(self, root, leaf_name, stack_context):
         """
@@ -130,6 +144,28 @@ class BreakdownNode:
     def children(self):
         return self._children
 
+    def serialize_data_to_protobuf(self, entry):
+        # Template method, must be implemented by subclasses
+        raise NotImplementedError
+
+    def serialize_to_protobuf(self, array):
+        # Serialize using a preorder traversal
+        stack = [self]
+        while len(stack) != 0:
+            node = stack.pop()
+
+            entry = array.add()
+            entry.name = self.name
+            entry.num_children = len(self.children)
+            for file_path, line_number in self._contexts:
+                file_ref = entry.contexts.add()
+                file_ref.line_number = line_number
+                file_ref.file_path.components.extend(file_path.split(os.sep))
+            self.serialize_data_to_protobuf(entry)
+
+            for child in node.children.values():
+                stack.append(child)
+
 
 class OperationNode(BreakdownNode):
     def __init__(self, name, module_id):
@@ -162,6 +198,14 @@ class OperationNode(BreakdownNode):
     def size_bytes(self):
         return self._size_bytes
 
+    def serialize_data_to_protobuf(self, entry):
+        entry.operation.forward_ms = self.forward_ms
+        entry.operation.backward_ms = (
+            self.backward_ms if self.backward_ms is not None
+            else math.nan
+        )
+        entry.operation.size_bytes = self.size_bytes
+
 
 class WeightNode(BreakdownNode):
     def __init__(self, name, module_id):
@@ -180,3 +224,7 @@ class WeightNode(BreakdownNode):
     @property
     def grad_size_bytes(self):
         return self._grad_size_bytes
+
+    def serialize_data_to_protobuf(self, entry):
+        entry.weight.size_bytes = self.size_bytes
+        entry.weight.grad_size_bytes = self.grad_size_bytes

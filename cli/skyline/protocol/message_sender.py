@@ -25,11 +25,11 @@ class MessageSender:
         message.error_code = error_code
         self._send_message(message, 'error', context)
 
-    def send_memory_usage_response(self, memory_usage, context):
+    def send_breakdown_response(self, breakdown, context):
         # Ideally, MessageSender users should not need to know about the INNPV
         # protocol messages. However, to avoid extraneous copies, sometimes
         # callers will pass in constructed messages for sending.
-        self._send_message(memory_usage, 'memory_usage', context)
+        self._send_message(breakdown, 'breakdown', context)
 
     def send_analysis_error(self, error_message, context):
         message = pm.AnalysisError()
@@ -38,9 +38,6 @@ class MessageSender:
 
     def send_throughput_response(self, throughput, context):
         self._send_message(throughput, 'throughput', context)
-
-    def send_run_time_response(self, run_time, context):
-        self._send_message(run_time, 'run_time', context)
 
     def _send_message(self, message, payload_name, context):
         try:

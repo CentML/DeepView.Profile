@@ -53,13 +53,7 @@ class AnalysisRequestManager:
             analyzer = analyze_project(
                 Config.project_root, Config.entry_point, self._nvml)
 
-            run_time = next(analyzer)
-            self._enqueue_response(
-                self._send_run_time_response,
-                run_time,
-                context,
-            )
-
+            # Abort early if the connection has been closed
             if not context.state.connected:
                 logger.debug(
                     'Aborting request %d from (%s:%d) early '
@@ -69,10 +63,10 @@ class AnalysisRequestManager:
                 )
                 return
 
-            memory_usage = next(analyzer)
+            breakdown = next(analyzer)
             self._enqueue_response(
-                self._send_memory_usage_response,
-                memory_usage,
+                self._send_breakdown_response,
+                breakdown,
                 context,
             )
 
@@ -108,31 +102,25 @@ class AnalysisRequestManager:
             )
 
     def _handle_mock_analysis_request(self, analysis_request, context):
-        memory_usage = pm.MemoryUsageResponse()
-        memory_usage.peak_usage_bytes = 1337
-        memory_usage.memory_capacity_bytes = 13337
-        self._message_sender.send_memory_usage_response(
-            memory_usage,
-            context,
-        )
+        # This runs on the main executor
+        breakdown = pm.BreakdownResponse()
+        breakdown.peak_usage_bytes = 1337
+        breakdown.memory_capacity_bytes = 13337
+        breakdown.iteration_run_time_ms = 133.7
+        self._message_sender.send_breakdown_response(breakdown, context)
 
         throughput = pm.ThroughputResponse()
         throughput.samples_per_second = 1337
         throughput.predicted_max_samples_per_second = math.nan
         self._message_sender.send_throughput_response(throughput, context)
 
-    def _send_memory_usage_response(
-        self,
-        memory_usage,
-        context,
-    ):
+    def _send_breakdown_response(self, breakdown, context):
         # Called from the main executor. Do not call directly!
         try:
-            self._message_sender.send_memory_usage_response(
-                memory_usage, context)
+            self._message_sender.send_breakdown_response(breakdown, context)
         except:
             logger.exception(
-                'Exception occurred when sending a memory usage response.')
+                'Exception occurred when sending a breakdown response.')
 
     def _send_analysis_error(self, exception, context):
         # Called from the main executor. Do not call directly!
@@ -149,11 +137,3 @@ class AnalysisRequestManager:
         except:
             logger.exception(
                 'Exception occurred when sending a throughput response.')
-
-    def _send_run_time_response(self, run_time, context):
-        # Called from the main executor. Do not call directly!
-        try:
-            self._message_sender.send_run_time_response(run_time, context)
-        except:
-            logger.exception(
-                'Exception occurred when sending a run time response.')
