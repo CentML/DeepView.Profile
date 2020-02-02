@@ -13,7 +13,8 @@ export default class MessageSender {
   sendInitializeRequest() {
     const message = new pm.InitializeRequest();
     // Version 1 - v0.1.x
-    message.setProtocolVersion(2);
+    // Version 2 - v0.2.x
+    message.setProtocolVersion(3);
     this._sendMessage(message, 'Initialize');
   }
 

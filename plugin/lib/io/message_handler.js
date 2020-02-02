@@ -121,13 +121,6 @@ export default class MessageHandler {
         this._handleProtocolError(enclosingMessage.getError());
         break;
 
-      case pm.FromServer.PayloadCase.MEMORY_USAGE:
-        this._handleAfterInitializationMessage(
-          this._handleMemoryUsageResponse,
-          enclosingMessage.getMemoryUsage(),
-        );
-        break;
-
       case pm.FromServer.PayloadCase.ANALYSIS_ERROR:
         this._handleAfterInitializationMessage(
           this._handleAnalysisError,
@@ -139,13 +132,6 @@ export default class MessageHandler {
         this._handleAfterInitializationMessage(
           this._handleThroughputResponse,
           enclosingMessage.getThroughput(),
-        );
-        break;
-
-      case pm.FromServer.PayloadCase.RUN_TIME:
-        this._handleAfterInitializationMessage(
-          this._handleRunTimeResponse,
-          enclosingMessage.getRunTime(),
         );
         break;
     }

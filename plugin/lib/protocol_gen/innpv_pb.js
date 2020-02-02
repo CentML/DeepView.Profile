@@ -12,18 +12,22 @@ var global = Function('return this')();
 goog.exportSymbol('proto.innpv.protocol.ActivationEntry', null, global);
 goog.exportSymbol('proto.innpv.protocol.AnalysisError', null, global);
 goog.exportSymbol('proto.innpv.protocol.AnalysisRequest', null, global);
+goog.exportSymbol('proto.innpv.protocol.BreakdownNode', null, global);
+goog.exportSymbol('proto.innpv.protocol.BreakdownResponse', null, global);
 goog.exportSymbol('proto.innpv.protocol.FileReference', null, global);
 goog.exportSymbol('proto.innpv.protocol.FromClient', null, global);
 goog.exportSymbol('proto.innpv.protocol.FromServer', null, global);
 goog.exportSymbol('proto.innpv.protocol.InitializeRequest', null, global);
 goog.exportSymbol('proto.innpv.protocol.InitializeResponse', null, global);
 goog.exportSymbol('proto.innpv.protocol.MemoryUsageResponse', null, global);
+goog.exportSymbol('proto.innpv.protocol.OperationData', null, global);
 goog.exportSymbol('proto.innpv.protocol.Path', null, global);
 goog.exportSymbol('proto.innpv.protocol.ProtocolError', null, global);
 goog.exportSymbol('proto.innpv.protocol.ProtocolError.ErrorCode', null, global);
 goog.exportSymbol('proto.innpv.protocol.RunTimeEntry', null, global);
 goog.exportSymbol('proto.innpv.protocol.RunTimeResponse', null, global);
 goog.exportSymbol('proto.innpv.protocol.ThroughputResponse', null, global);
+goog.exportSymbol('proto.innpv.protocol.WeightData', null, global);
 goog.exportSymbol('proto.innpv.protocol.WeightEntry', null, global);
 
 /**
@@ -644,7 +648,7 @@ if (goog.DEBUG && !COMPILED) {
  * @private {!Array<!Array<number>>}
  * @const
  */
-proto.innpv.protocol.FromServer.oneofGroups_ = [[2,3,4,5,6,7]];
+proto.innpv.protocol.FromServer.oneofGroups_ = [[2,3,5,6,8]];
 
 /**
  * @enum {number}
@@ -653,10 +657,9 @@ proto.innpv.protocol.FromServer.PayloadCase = {
   PAYLOAD_NOT_SET: 0,
   ERROR: 2,
   INITIALIZE: 3,
-  MEMORY_USAGE: 4,
   ANALYSIS_ERROR: 5,
   THROUGHPUT: 6,
-  RUN_TIME: 7
+  BREAKDOWN: 8
 };
 
 /**
@@ -697,10 +700,9 @@ proto.innpv.protocol.FromServer.toObject = function(includeInstance, msg) {
     sequenceNumber: msg.getSequenceNumber(),
     error: (f = msg.getError()) && proto.innpv.protocol.ProtocolError.toObject(includeInstance, f),
     initialize: (f = msg.getInitialize()) && proto.innpv.protocol.InitializeResponse.toObject(includeInstance, f),
-    memoryUsage: (f = msg.getMemoryUsage()) && proto.innpv.protocol.MemoryUsageResponse.toObject(includeInstance, f),
     analysisError: (f = msg.getAnalysisError()) && proto.innpv.protocol.AnalysisError.toObject(includeInstance, f),
     throughput: (f = msg.getThroughput()) && proto.innpv.protocol.ThroughputResponse.toObject(includeInstance, f),
-    runTime: (f = msg.getRunTime()) && proto.innpv.protocol.RunTimeResponse.toObject(includeInstance, f)
+    breakdown: (f = msg.getBreakdown()) && proto.innpv.protocol.BreakdownResponse.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -751,11 +753,6 @@ proto.innpv.protocol.FromServer.deserializeBinaryFromReader = function(msg, read
       reader.readMessage(value,proto.innpv.protocol.InitializeResponse.deserializeBinaryFromReader);
       msg.setInitialize(value);
       break;
-    case 4:
-      var value = new proto.innpv.protocol.MemoryUsageResponse;
-      reader.readMessage(value,proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader);
-      msg.setMemoryUsage(value);
-      break;
     case 5:
       var value = new proto.innpv.protocol.AnalysisError;
       reader.readMessage(value,proto.innpv.protocol.AnalysisError.deserializeBinaryFromReader);
@@ -766,10 +763,10 @@ proto.innpv.protocol.FromServer.deserializeBinaryFromReader = function(msg, read
       reader.readMessage(value,proto.innpv.protocol.ThroughputResponse.deserializeBinaryFromReader);
       msg.setThroughput(value);
       break;
-    case 7:
-      var value = new proto.innpv.protocol.RunTimeResponse;
-      reader.readMessage(value,proto.innpv.protocol.RunTimeResponse.deserializeBinaryFromReader);
-      msg.setRunTime(value);
+    case 8:
+      var value = new proto.innpv.protocol.BreakdownResponse;
+      reader.readMessage(value,proto.innpv.protocol.BreakdownResponse.deserializeBinaryFromReader);
+      msg.setBreakdown(value);
       break;
     default:
       reader.skipField();
@@ -832,14 +829,6 @@ proto.innpv.protocol.FromServer.prototype.serializeBinaryToWriter = function (wr
       proto.innpv.protocol.InitializeResponse.serializeBinaryToWriter
     );
   }
-  f = this.getMemoryUsage();
-  if (f != null) {
-    writer.writeMessage(
-      4,
-      f,
-      proto.innpv.protocol.MemoryUsageResponse.serializeBinaryToWriter
-    );
-  }
   f = this.getAnalysisError();
   if (f != null) {
     writer.writeMessage(
@@ -856,12 +845,12 @@ proto.innpv.protocol.FromServer.prototype.serializeBinaryToWriter = function (wr
       proto.innpv.protocol.ThroughputResponse.serializeBinaryToWriter
     );
   }
-  f = this.getRunTime();
+  f = this.getBreakdown();
   if (f != null) {
     writer.writeMessage(
-      7,
+      8,
       f,
-      proto.innpv.protocol.RunTimeResponse.serializeBinaryToWriter
+      proto.innpv.protocol.BreakdownResponse.serializeBinaryToWriter
     );
   }
 };
@@ -952,36 +941,6 @@ proto.innpv.protocol.FromServer.prototype.hasInitialize = function() {
 
 
 /**
- * optional MemoryUsageResponse memory_usage = 4;
- * @return {proto.innpv.protocol.MemoryUsageResponse}
- */
-proto.innpv.protocol.FromServer.prototype.getMemoryUsage = function() {
-  return /** @type{proto.innpv.protocol.MemoryUsageResponse} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.MemoryUsageResponse, 4));
-};
-
-
-/** @param {proto.innpv.protocol.MemoryUsageResponse|undefined} value  */
-proto.innpv.protocol.FromServer.prototype.setMemoryUsage = function(value) {
-  jspb.Message.setOneofWrapperField(this, 4, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
-};
-
-
-proto.innpv.protocol.FromServer.prototype.clearMemoryUsage = function() {
-  this.setMemoryUsage(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.innpv.protocol.FromServer.prototype.hasMemoryUsage = function() {
-  return jspb.Message.getField(this, 4) != null;
-};
-
-
-/**
  * optional AnalysisError analysis_error = 5;
  * @return {proto.innpv.protocol.AnalysisError}
  */
@@ -1042,23 +1001,23 @@ proto.innpv.protocol.FromServer.prototype.hasThroughput = function() {
 
 
 /**
- * optional RunTimeResponse run_time = 7;
- * @return {proto.innpv.protocol.RunTimeResponse}
+ * optional BreakdownResponse breakdown = 8;
+ * @return {proto.innpv.protocol.BreakdownResponse}
  */
-proto.innpv.protocol.FromServer.prototype.getRunTime = function() {
-  return /** @type{proto.innpv.protocol.RunTimeResponse} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.RunTimeResponse, 7));
+proto.innpv.protocol.FromServer.prototype.getBreakdown = function() {
+  return /** @type{proto.innpv.protocol.BreakdownResponse} */ (
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.BreakdownResponse, 8));
 };
 
 
-/** @param {proto.innpv.protocol.RunTimeResponse|undefined} value  */
-proto.innpv.protocol.FromServer.prototype.setRunTime = function(value) {
-  jspb.Message.setOneofWrapperField(this, 7, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
+/** @param {proto.innpv.protocol.BreakdownResponse|undefined} value  */
+proto.innpv.protocol.FromServer.prototype.setBreakdown = function(value) {
+  jspb.Message.setOneofWrapperField(this, 8, proto.innpv.protocol.FromServer.oneofGroups_[0], value);
 };
 
 
-proto.innpv.protocol.FromServer.prototype.clearRunTime = function() {
-  this.setRunTime(undefined);
+proto.innpv.protocol.FromServer.prototype.clearBreakdown = function() {
+  this.setBreakdown(undefined);
 };
 
 
@@ -1066,8 +1025,8 @@ proto.innpv.protocol.FromServer.prototype.clearRunTime = function() {
  * Returns whether this field is set.
  * @return{!boolean}
  */
-proto.innpv.protocol.FromServer.prototype.hasRunTime = function() {
-  return jspb.Message.getField(this, 7) != null;
+proto.innpv.protocol.FromServer.prototype.hasBreakdown = function() {
+  return jspb.Message.getField(this, 8) != null;
 };
 
 
@@ -1271,482 +1230,6 @@ proto.innpv.protocol.InitializeResponse.prototype.clearEntryPoint = function() {
  */
 proto.innpv.protocol.InitializeResponse.prototype.hasEntryPoint = function() {
   return jspb.Message.getField(this, 2) != null;
-};
-
-
-
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.innpv.protocol.MemoryUsageResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.innpv.protocol.MemoryUsageResponse.repeatedFields_, null);
-};
-goog.inherits(proto.innpv.protocol.MemoryUsageResponse, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  proto.innpv.protocol.MemoryUsageResponse.displayName = 'proto.innpv.protocol.MemoryUsageResponse';
-}
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.innpv.protocol.MemoryUsageResponse.repeatedFields_ = [3,4];
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto suitable for use in Soy templates.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
- * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
- *     for transitional soy proto support: http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.toObject = function(opt_includeInstance) {
-  return proto.innpv.protocol.MemoryUsageResponse.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Whether to include the JSPB
- *     instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.innpv.protocol.MemoryUsageResponse} msg The msg instance to transform.
- * @return {!Object}
- */
-proto.innpv.protocol.MemoryUsageResponse.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    peakUsageBytes: msg.getPeakUsageBytes(),
-    memoryCapacityBytes: msg.getMemoryCapacityBytes(),
-    weightEntriesList: jspb.Message.toObjectList(msg.getWeightEntriesList(),
-    proto.innpv.protocol.WeightEntry.toObject, includeInstance),
-    activationEntriesList: jspb.Message.toObjectList(msg.getActivationEntriesList(),
-    proto.innpv.protocol.ActivationEntry.toObject, includeInstance)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.innpv.protocol.MemoryUsageResponse}
- */
-proto.innpv.protocol.MemoryUsageResponse.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.innpv.protocol.MemoryUsageResponse;
-  return proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.innpv.protocol.MemoryUsageResponse} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.innpv.protocol.MemoryUsageResponse}
- */
-proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setPeakUsageBytes(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setMemoryCapacityBytes(value);
-      break;
-    case 3:
-      var value = new proto.innpv.protocol.WeightEntry;
-      reader.readMessage(value,proto.innpv.protocol.WeightEntry.deserializeBinaryFromReader);
-      msg.getWeightEntriesList().push(value);
-      msg.setWeightEntriesList(msg.getWeightEntriesList());
-      break;
-    case 4:
-      var value = new proto.innpv.protocol.ActivationEntry;
-      reader.readMessage(value,proto.innpv.protocol.ActivationEntry.deserializeBinaryFromReader);
-      msg.getActivationEntriesList().push(value);
-      msg.setActivationEntriesList(msg.getActivationEntriesList());
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.innpv.protocol.MemoryUsageResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.innpv.protocol.MemoryUsageResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
- * @param {!jspb.BinaryWriter} writer
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinaryToWriter = function (writer) {
-  var f = undefined;
-  f = this.getPeakUsageBytes();
-  if (f !== 0) {
-    writer.writeUint64(
-      1,
-      f
-    );
-  }
-  f = this.getMemoryCapacityBytes();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = this.getWeightEntriesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      3,
-      f,
-      proto.innpv.protocol.WeightEntry.serializeBinaryToWriter
-    );
-  }
-  f = this.getActivationEntriesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      4,
-      f,
-      proto.innpv.protocol.ActivationEntry.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.innpv.protocol.MemoryUsageResponse} The clone.
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.innpv.protocol.MemoryUsageResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional uint64 peak_usage_bytes = 1;
- * @return {number}
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.getPeakUsageBytes = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.setPeakUsageBytes = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional uint64 memory_capacity_bytes = 2;
- * @return {number}
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.getMemoryCapacityBytes = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.setMemoryCapacityBytes = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * repeated WeightEntry weight_entries = 3;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.innpv.protocol.WeightEntry>}
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.getWeightEntriesList = function() {
-  return /** @type{!Array.<!proto.innpv.protocol.WeightEntry>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.WeightEntry, 3));
-};
-
-
-/** @param {Array.<!proto.innpv.protocol.WeightEntry>} value  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.setWeightEntriesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 3, value);
-};
-
-
-proto.innpv.protocol.MemoryUsageResponse.prototype.clearWeightEntriesList = function() {
-  this.setWeightEntriesList([]);
-};
-
-
-/**
- * repeated ActivationEntry activation_entries = 4;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.innpv.protocol.ActivationEntry>}
- */
-proto.innpv.protocol.MemoryUsageResponse.prototype.getActivationEntriesList = function() {
-  return /** @type{!Array.<!proto.innpv.protocol.ActivationEntry>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.ActivationEntry, 4));
-};
-
-
-/** @param {Array.<!proto.innpv.protocol.ActivationEntry>} value  */
-proto.innpv.protocol.MemoryUsageResponse.prototype.setActivationEntriesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 4, value);
-};
-
-
-proto.innpv.protocol.MemoryUsageResponse.prototype.clearActivationEntriesList = function() {
-  this.setActivationEntriesList([]);
-};
-
-
-
-/**
- * Generated by JsPbCodeGenerator.
- * @param {Array=} opt_data Optional initial data array, typically from a
- * server response, or constructed directly in Javascript. The array is used
- * in place and becomes part of the constructed object. It is not cloned.
- * If no data is provided, the constructed object will be empty, but still
- * valid.
- * @extends {jspb.Message}
- * @constructor
- */
-proto.innpv.protocol.RunTimeResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.innpv.protocol.RunTimeResponse.repeatedFields_, null);
-};
-goog.inherits(proto.innpv.protocol.RunTimeResponse, jspb.Message);
-if (goog.DEBUG && !COMPILED) {
-  proto.innpv.protocol.RunTimeResponse.displayName = 'proto.innpv.protocol.RunTimeResponse';
-}
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.innpv.protocol.RunTimeResponse.repeatedFields_ = [2];
-
-
-
-if (jspb.Message.GENERATE_TO_OBJECT) {
-/**
- * Creates an object representation of this proto suitable for use in Soy templates.
- * Field names that are reserved in JavaScript and will be renamed to pb_name.
- * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
- * For the list of reserved names please see:
- *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
- * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
- *     for transitional soy proto support: http://goto/soy-param-migration
- * @return {!Object}
- */
-proto.innpv.protocol.RunTimeResponse.prototype.toObject = function(opt_includeInstance) {
-  return proto.innpv.protocol.RunTimeResponse.toObject(opt_includeInstance, this);
-};
-
-
-/**
- * Static version of the {@see toObject} method.
- * @param {boolean|undefined} includeInstance Whether to include the JSPB
- *     instance for transitional soy proto support:
- *     http://goto/soy-param-migration
- * @param {!proto.innpv.protocol.RunTimeResponse} msg The msg instance to transform.
- * @return {!Object}
- */
-proto.innpv.protocol.RunTimeResponse.toObject = function(includeInstance, msg) {
-  var f, obj = {
-    iterationRunTimeMs: msg.getIterationRunTimeMs(),
-    runTimeEntriesList: jspb.Message.toObjectList(msg.getRunTimeEntriesList(),
-    proto.innpv.protocol.RunTimeEntry.toObject, includeInstance)
-  };
-
-  if (includeInstance) {
-    obj.$jspbMessageInstance = msg;
-  }
-  return obj;
-};
-}
-
-
-/**
- * Deserializes binary data (in protobuf wire format).
- * @param {jspb.ByteSource} bytes The bytes to deserialize.
- * @return {!proto.innpv.protocol.RunTimeResponse}
- */
-proto.innpv.protocol.RunTimeResponse.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes);
-  var msg = new proto.innpv.protocol.RunTimeResponse;
-  return proto.innpv.protocol.RunTimeResponse.deserializeBinaryFromReader(msg, reader);
-};
-
-
-/**
- * Deserializes binary data (in protobuf wire format) from the
- * given reader into the given message object.
- * @param {!proto.innpv.protocol.RunTimeResponse} msg The message object to deserialize into.
- * @param {!jspb.BinaryReader} reader The BinaryReader to use.
- * @return {!proto.innpv.protocol.RunTimeResponse}
- */
-proto.innpv.protocol.RunTimeResponse.deserializeBinaryFromReader = function(msg, reader) {
-  while (reader.nextField()) {
-    if (reader.isEndGroup()) {
-      break;
-    }
-    var field = reader.getFieldNumber();
-    switch (field) {
-    case 1:
-      var value = /** @type {number} */ (reader.readFloat());
-      msg.setIterationRunTimeMs(value);
-      break;
-    case 2:
-      var value = new proto.innpv.protocol.RunTimeEntry;
-      reader.readMessage(value,proto.innpv.protocol.RunTimeEntry.deserializeBinaryFromReader);
-      msg.getRunTimeEntriesList().push(value);
-      msg.setRunTimeEntriesList(msg.getRunTimeEntriesList());
-      break;
-    default:
-      reader.skipField();
-      break;
-    }
-  }
-  return msg;
-};
-
-
-/**
- * Class method variant: serializes the given message to binary data
- * (in protobuf wire format), writing to the given BinaryWriter.
- * @param {!proto.innpv.protocol.RunTimeResponse} message
- * @param {!jspb.BinaryWriter} writer
- */
-proto.innpv.protocol.RunTimeResponse.serializeBinaryToWriter = function(message, writer) {
-  message.serializeBinaryToWriter(writer);
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format).
- * @return {!Uint8Array}
- */
-proto.innpv.protocol.RunTimeResponse.prototype.serializeBinary = function() {
-  var writer = new jspb.BinaryWriter();
-  this.serializeBinaryToWriter(writer);
-  return writer.getResultBuffer();
-};
-
-
-/**
- * Serializes the message to binary data (in protobuf wire format),
- * writing to the given BinaryWriter.
- * @param {!jspb.BinaryWriter} writer
- */
-proto.innpv.protocol.RunTimeResponse.prototype.serializeBinaryToWriter = function (writer) {
-  var f = undefined;
-  f = this.getIterationRunTimeMs();
-  if (f !== 0.0) {
-    writer.writeFloat(
-      1,
-      f
-    );
-  }
-  f = this.getRunTimeEntriesList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      2,
-      f,
-      proto.innpv.protocol.RunTimeEntry.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * Creates a deep clone of this proto. No data is shared with the original.
- * @return {!proto.innpv.protocol.RunTimeResponse} The clone.
- */
-proto.innpv.protocol.RunTimeResponse.prototype.cloneMessage = function() {
-  return /** @type {!proto.innpv.protocol.RunTimeResponse} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional float iteration_run_time_ms = 1;
- * @return {number}
- */
-proto.innpv.protocol.RunTimeResponse.prototype.getIterationRunTimeMs = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.RunTimeResponse.prototype.setIterationRunTimeMs = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * repeated RunTimeEntry run_time_entries = 2;
- * If you change this array by adding, removing or replacing elements, or if you
- * replace the array itself, then you must call the setter to update it.
- * @return {!Array.<!proto.innpv.protocol.RunTimeEntry>}
- */
-proto.innpv.protocol.RunTimeResponse.prototype.getRunTimeEntriesList = function() {
-  return /** @type{!Array.<!proto.innpv.protocol.RunTimeEntry>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.RunTimeEntry, 2));
-};
-
-
-/** @param {Array.<!proto.innpv.protocol.RunTimeEntry>} value  */
-proto.innpv.protocol.RunTimeResponse.prototype.setRunTimeEntriesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 2, value);
-};
-
-
-proto.innpv.protocol.RunTimeResponse.prototype.clearRunTimeEntriesList = function() {
-  this.setRunTimeEntriesList([]);
 };
 
 
@@ -2092,6 +1575,304 @@ proto.innpv.protocol.ThroughputResponse.prototype.getPredictedMaxSamplesPerSecon
 /** @param {number} value  */
 proto.innpv.protocol.ThroughputResponse.prototype.setPredictedMaxSamplesPerSecond = function(value) {
   jspb.Message.setField(this, 2, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.innpv.protocol.BreakdownResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.innpv.protocol.BreakdownResponse.repeatedFields_, null);
+};
+goog.inherits(proto.innpv.protocol.BreakdownResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.innpv.protocol.BreakdownResponse.displayName = 'proto.innpv.protocol.BreakdownResponse';
+}
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.innpv.protocol.BreakdownResponse.repeatedFields_ = [4,5];
+
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.innpv.protocol.BreakdownResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.innpv.protocol.BreakdownResponse} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.innpv.protocol.BreakdownResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    peakUsageBytes: msg.getPeakUsageBytes(),
+    memoryCapacityBytes: msg.getMemoryCapacityBytes(),
+    iterationRunTimeMs: msg.getIterationRunTimeMs(),
+    operationTreeList: jspb.Message.toObjectList(msg.getOperationTreeList(),
+    proto.innpv.protocol.BreakdownNode.toObject, includeInstance),
+    weightTreeList: jspb.Message.toObjectList(msg.getWeightTreeList(),
+    proto.innpv.protocol.BreakdownNode.toObject, includeInstance)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.innpv.protocol.BreakdownResponse}
+ */
+proto.innpv.protocol.BreakdownResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.innpv.protocol.BreakdownResponse;
+  return proto.innpv.protocol.BreakdownResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.innpv.protocol.BreakdownResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.innpv.protocol.BreakdownResponse}
+ */
+proto.innpv.protocol.BreakdownResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setPeakUsageBytes(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setMemoryCapacityBytes(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setIterationRunTimeMs(value);
+      break;
+    case 4:
+      var value = new proto.innpv.protocol.BreakdownNode;
+      reader.readMessage(value,proto.innpv.protocol.BreakdownNode.deserializeBinaryFromReader);
+      msg.getOperationTreeList().push(value);
+      msg.setOperationTreeList(msg.getOperationTreeList());
+      break;
+    case 5:
+      var value = new proto.innpv.protocol.BreakdownNode;
+      reader.readMessage(value,proto.innpv.protocol.BreakdownNode.deserializeBinaryFromReader);
+      msg.getWeightTreeList().push(value);
+      msg.setWeightTreeList(msg.getWeightTreeList());
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.innpv.protocol.BreakdownResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.BreakdownResponse.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getPeakUsageBytes();
+  if (f !== 0) {
+    writer.writeUint64(
+      1,
+      f
+    );
+  }
+  f = this.getMemoryCapacityBytes();
+  if (f !== 0) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+  f = this.getIterationRunTimeMs();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      3,
+      f
+    );
+  }
+  f = this.getOperationTreeList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      4,
+      f,
+      proto.innpv.protocol.BreakdownNode.serializeBinaryToWriter
+    );
+  }
+  f = this.getWeightTreeList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      5,
+      f,
+      proto.innpv.protocol.BreakdownNode.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * Creates a deep clone of this proto. No data is shared with the original.
+ * @return {!proto.innpv.protocol.BreakdownResponse} The clone.
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.cloneMessage = function() {
+  return /** @type {!proto.innpv.protocol.BreakdownResponse} */ (jspb.Message.cloneMessage(this));
+};
+
+
+/**
+ * optional uint64 peak_usage_bytes = 1;
+ * @return {number}
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.getPeakUsageBytes = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.BreakdownResponse.prototype.setPeakUsageBytes = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional uint64 memory_capacity_bytes = 2;
+ * @return {number}
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.getMemoryCapacityBytes = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.BreakdownResponse.prototype.setMemoryCapacityBytes = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * optional float iteration_run_time_ms = 3;
+ * @return {number}
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.getIterationRunTimeMs = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.BreakdownResponse.prototype.setIterationRunTimeMs = function(value) {
+  jspb.Message.setField(this, 3, value);
+};
+
+
+/**
+ * repeated BreakdownNode operation_tree = 4;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<!proto.innpv.protocol.BreakdownNode>}
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.getOperationTreeList = function() {
+  return /** @type{!Array.<!proto.innpv.protocol.BreakdownNode>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.BreakdownNode, 4));
+};
+
+
+/** @param {Array.<!proto.innpv.protocol.BreakdownNode>} value  */
+proto.innpv.protocol.BreakdownResponse.prototype.setOperationTreeList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 4, value);
+};
+
+
+proto.innpv.protocol.BreakdownResponse.prototype.clearOperationTreeList = function() {
+  this.setOperationTreeList([]);
+};
+
+
+/**
+ * repeated BreakdownNode weight_tree = 5;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<!proto.innpv.protocol.BreakdownNode>}
+ */
+proto.innpv.protocol.BreakdownResponse.prototype.getWeightTreeList = function() {
+  return /** @type{!Array.<!proto.innpv.protocol.BreakdownNode>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.BreakdownNode, 5));
+};
+
+
+/** @param {Array.<!proto.innpv.protocol.BreakdownNode>} value  */
+proto.innpv.protocol.BreakdownResponse.prototype.setWeightTreeList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 5, value);
+};
+
+
+proto.innpv.protocol.BreakdownResponse.prototype.clearWeightTreeList = function() {
+  this.setWeightTreeList([]);
 };
 
 
@@ -2652,6 +2433,1017 @@ proto.innpv.protocol.FileReference.prototype.setLineNumber = function(value) {
  * @extends {jspb.Message}
  * @constructor
  */
+proto.innpv.protocol.BreakdownNode = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.innpv.protocol.BreakdownNode.repeatedFields_, proto.innpv.protocol.BreakdownNode.oneofGroups_);
+};
+goog.inherits(proto.innpv.protocol.BreakdownNode, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.innpv.protocol.BreakdownNode.displayName = 'proto.innpv.protocol.BreakdownNode';
+}
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.innpv.protocol.BreakdownNode.repeatedFields_ = [3];
+
+/**
+ * Oneof group definitions for this message. Each group defines the field
+ * numbers belonging to that group. When of these fields' value is set, all
+ * other fields in the group are cleared. During deserialization, if multiple
+ * fields are encountered for a group, only the last value seen will be kept.
+ * @private {!Array<!Array<number>>}
+ * @const
+ */
+proto.innpv.protocol.BreakdownNode.oneofGroups_ = [[4,5]];
+
+/**
+ * @enum {number}
+ */
+proto.innpv.protocol.BreakdownNode.DataCase = {
+  DATA_NOT_SET: 0,
+  OPERATION: 4,
+  WEIGHT: 5
+};
+
+/**
+ * @return {proto.innpv.protocol.BreakdownNode.DataCase}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.getDataCase = function() {
+  return /** @type {proto.innpv.protocol.BreakdownNode.DataCase} */(jspb.Message.computeOneofCase(this, proto.innpv.protocol.BreakdownNode.oneofGroups_[0]));
+};
+
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.toObject = function(opt_includeInstance) {
+  return proto.innpv.protocol.BreakdownNode.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.innpv.protocol.BreakdownNode} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.innpv.protocol.BreakdownNode.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    name: msg.getName(),
+    numChildren: msg.getNumChildren(),
+    contextsList: jspb.Message.toObjectList(msg.getContextsList(),
+    proto.innpv.protocol.FileReference.toObject, includeInstance),
+    operation: (f = msg.getOperation()) && proto.innpv.protocol.OperationData.toObject(includeInstance, f),
+    weight: (f = msg.getWeight()) && proto.innpv.protocol.WeightData.toObject(includeInstance, f)
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.innpv.protocol.BreakdownNode}
+ */
+proto.innpv.protocol.BreakdownNode.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.innpv.protocol.BreakdownNode;
+  return proto.innpv.protocol.BreakdownNode.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.innpv.protocol.BreakdownNode} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.innpv.protocol.BreakdownNode}
+ */
+proto.innpv.protocol.BreakdownNode.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setName(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setNumChildren(value);
+      break;
+    case 3:
+      var value = new proto.innpv.protocol.FileReference;
+      reader.readMessage(value,proto.innpv.protocol.FileReference.deserializeBinaryFromReader);
+      msg.getContextsList().push(value);
+      msg.setContextsList(msg.getContextsList());
+      break;
+    case 4:
+      var value = new proto.innpv.protocol.OperationData;
+      reader.readMessage(value,proto.innpv.protocol.OperationData.deserializeBinaryFromReader);
+      msg.setOperation(value);
+      break;
+    case 5:
+      var value = new proto.innpv.protocol.WeightData;
+      reader.readMessage(value,proto.innpv.protocol.WeightData.deserializeBinaryFromReader);
+      msg.setWeight(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.innpv.protocol.BreakdownNode} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.BreakdownNode.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.BreakdownNode.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getName();
+  if (f.length > 0) {
+    writer.writeString(
+      1,
+      f
+    );
+  }
+  f = this.getNumChildren();
+  if (f !== 0) {
+    writer.writeUint32(
+      2,
+      f
+    );
+  }
+  f = this.getContextsList();
+  if (f.length > 0) {
+    writer.writeRepeatedMessage(
+      3,
+      f,
+      proto.innpv.protocol.FileReference.serializeBinaryToWriter
+    );
+  }
+  f = this.getOperation();
+  if (f != null) {
+    writer.writeMessage(
+      4,
+      f,
+      proto.innpv.protocol.OperationData.serializeBinaryToWriter
+    );
+  }
+  f = this.getWeight();
+  if (f != null) {
+    writer.writeMessage(
+      5,
+      f,
+      proto.innpv.protocol.WeightData.serializeBinaryToWriter
+    );
+  }
+};
+
+
+/**
+ * Creates a deep clone of this proto. No data is shared with the original.
+ * @return {!proto.innpv.protocol.BreakdownNode} The clone.
+ */
+proto.innpv.protocol.BreakdownNode.prototype.cloneMessage = function() {
+  return /** @type {!proto.innpv.protocol.BreakdownNode} */ (jspb.Message.cloneMessage(this));
+};
+
+
+/**
+ * optional string name = 1;
+ * @return {string}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.getName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
+};
+
+
+/** @param {string} value  */
+proto.innpv.protocol.BreakdownNode.prototype.setName = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional uint32 num_children = 2;
+ * @return {number}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.getNumChildren = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.BreakdownNode.prototype.setNumChildren = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * repeated FileReference contexts = 3;
+ * If you change this array by adding, removing or replacing elements, or if you
+ * replace the array itself, then you must call the setter to update it.
+ * @return {!Array.<!proto.innpv.protocol.FileReference>}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.getContextsList = function() {
+  return /** @type{!Array.<!proto.innpv.protocol.FileReference>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.innpv.protocol.FileReference, 3));
+};
+
+
+/** @param {Array.<!proto.innpv.protocol.FileReference>} value  */
+proto.innpv.protocol.BreakdownNode.prototype.setContextsList = function(value) {
+  jspb.Message.setRepeatedWrapperField(this, 3, value);
+};
+
+
+proto.innpv.protocol.BreakdownNode.prototype.clearContextsList = function() {
+  this.setContextsList([]);
+};
+
+
+/**
+ * optional OperationData operation = 4;
+ * @return {proto.innpv.protocol.OperationData}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.getOperation = function() {
+  return /** @type{proto.innpv.protocol.OperationData} */ (
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.OperationData, 4));
+};
+
+
+/** @param {proto.innpv.protocol.OperationData|undefined} value  */
+proto.innpv.protocol.BreakdownNode.prototype.setOperation = function(value) {
+  jspb.Message.setOneofWrapperField(this, 4, proto.innpv.protocol.BreakdownNode.oneofGroups_[0], value);
+};
+
+
+proto.innpv.protocol.BreakdownNode.prototype.clearOperation = function() {
+  this.setOperation(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return{!boolean}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.hasOperation = function() {
+  return jspb.Message.getField(this, 4) != null;
+};
+
+
+/**
+ * optional WeightData weight = 5;
+ * @return {proto.innpv.protocol.WeightData}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.getWeight = function() {
+  return /** @type{proto.innpv.protocol.WeightData} */ (
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.WeightData, 5));
+};
+
+
+/** @param {proto.innpv.protocol.WeightData|undefined} value  */
+proto.innpv.protocol.BreakdownNode.prototype.setWeight = function(value) {
+  jspb.Message.setOneofWrapperField(this, 5, proto.innpv.protocol.BreakdownNode.oneofGroups_[0], value);
+};
+
+
+proto.innpv.protocol.BreakdownNode.prototype.clearWeight = function() {
+  this.setWeight(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return{!boolean}
+ */
+proto.innpv.protocol.BreakdownNode.prototype.hasWeight = function() {
+  return jspb.Message.getField(this, 5) != null;
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.innpv.protocol.OperationData = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.innpv.protocol.OperationData, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.innpv.protocol.OperationData.displayName = 'proto.innpv.protocol.OperationData';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.innpv.protocol.OperationData.prototype.toObject = function(opt_includeInstance) {
+  return proto.innpv.protocol.OperationData.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.innpv.protocol.OperationData} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.innpv.protocol.OperationData.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    forwardMs: msg.getForwardMs(),
+    backwardMs: msg.getBackwardMs(),
+    sizeBytes: msg.getSizeBytes()
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.innpv.protocol.OperationData}
+ */
+proto.innpv.protocol.OperationData.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.innpv.protocol.OperationData;
+  return proto.innpv.protocol.OperationData.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.innpv.protocol.OperationData} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.innpv.protocol.OperationData}
+ */
+proto.innpv.protocol.OperationData.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setForwardMs(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readFloat());
+      msg.setBackwardMs(value);
+      break;
+    case 3:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setSizeBytes(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.innpv.protocol.OperationData} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.OperationData.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.innpv.protocol.OperationData.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.OperationData.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getForwardMs();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      1,
+      f
+    );
+  }
+  f = this.getBackwardMs();
+  if (f !== 0.0) {
+    writer.writeFloat(
+      2,
+      f
+    );
+  }
+  f = this.getSizeBytes();
+  if (f !== 0) {
+    writer.writeUint64(
+      3,
+      f
+    );
+  }
+};
+
+
+/**
+ * Creates a deep clone of this proto. No data is shared with the original.
+ * @return {!proto.innpv.protocol.OperationData} The clone.
+ */
+proto.innpv.protocol.OperationData.prototype.cloneMessage = function() {
+  return /** @type {!proto.innpv.protocol.OperationData} */ (jspb.Message.cloneMessage(this));
+};
+
+
+/**
+ * optional float forward_ms = 1;
+ * @return {number}
+ */
+proto.innpv.protocol.OperationData.prototype.getForwardMs = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.OperationData.prototype.setForwardMs = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional float backward_ms = 2;
+ * @return {number}
+ */
+proto.innpv.protocol.OperationData.prototype.getBackwardMs = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.OperationData.prototype.setBackwardMs = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+/**
+ * optional uint64 size_bytes = 3;
+ * @return {number}
+ */
+proto.innpv.protocol.OperationData.prototype.getSizeBytes = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.OperationData.prototype.setSizeBytes = function(value) {
+  jspb.Message.setField(this, 3, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.innpv.protocol.WeightData = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.innpv.protocol.WeightData, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.innpv.protocol.WeightData.displayName = 'proto.innpv.protocol.WeightData';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.innpv.protocol.WeightData.prototype.toObject = function(opt_includeInstance) {
+  return proto.innpv.protocol.WeightData.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.innpv.protocol.WeightData} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.innpv.protocol.WeightData.toObject = function(includeInstance, msg) {
+  var f, obj = {
+    sizeBytes: msg.getSizeBytes(),
+    gradSizeBytes: msg.getGradSizeBytes()
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.innpv.protocol.WeightData}
+ */
+proto.innpv.protocol.WeightData.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.innpv.protocol.WeightData;
+  return proto.innpv.protocol.WeightData.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.innpv.protocol.WeightData} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.innpv.protocol.WeightData}
+ */
+proto.innpv.protocol.WeightData.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    case 1:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setSizeBytes(value);
+      break;
+    case 2:
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setGradSizeBytes(value);
+      break;
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.innpv.protocol.WeightData} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.WeightData.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.innpv.protocol.WeightData.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.WeightData.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+  f = this.getSizeBytes();
+  if (f !== 0) {
+    writer.writeUint64(
+      1,
+      f
+    );
+  }
+  f = this.getGradSizeBytes();
+  if (f !== 0) {
+    writer.writeUint64(
+      2,
+      f
+    );
+  }
+};
+
+
+/**
+ * Creates a deep clone of this proto. No data is shared with the original.
+ * @return {!proto.innpv.protocol.WeightData} The clone.
+ */
+proto.innpv.protocol.WeightData.prototype.cloneMessage = function() {
+  return /** @type {!proto.innpv.protocol.WeightData} */ (jspb.Message.cloneMessage(this));
+};
+
+
+/**
+ * optional uint64 size_bytes = 1;
+ * @return {number}
+ */
+proto.innpv.protocol.WeightData.prototype.getSizeBytes = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 1, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.WeightData.prototype.setSizeBytes = function(value) {
+  jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional uint64 grad_size_bytes = 2;
+ * @return {number}
+ */
+proto.innpv.protocol.WeightData.prototype.getGradSizeBytes = function() {
+  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
+};
+
+
+/** @param {number} value  */
+proto.innpv.protocol.WeightData.prototype.setGradSizeBytes = function(value) {
+  jspb.Message.setField(this, 2, value);
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.innpv.protocol.MemoryUsageResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.innpv.protocol.MemoryUsageResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.innpv.protocol.MemoryUsageResponse.displayName = 'proto.innpv.protocol.MemoryUsageResponse';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.innpv.protocol.MemoryUsageResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.innpv.protocol.MemoryUsageResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.innpv.protocol.MemoryUsageResponse} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.innpv.protocol.MemoryUsageResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.innpv.protocol.MemoryUsageResponse}
+ */
+proto.innpv.protocol.MemoryUsageResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.innpv.protocol.MemoryUsageResponse;
+  return proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.innpv.protocol.MemoryUsageResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.innpv.protocol.MemoryUsageResponse}
+ */
+proto.innpv.protocol.MemoryUsageResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.innpv.protocol.MemoryUsageResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.MemoryUsageResponse.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.MemoryUsageResponse.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+};
+
+
+/**
+ * Creates a deep clone of this proto. No data is shared with the original.
+ * @return {!proto.innpv.protocol.MemoryUsageResponse} The clone.
+ */
+proto.innpv.protocol.MemoryUsageResponse.prototype.cloneMessage = function() {
+  return /** @type {!proto.innpv.protocol.MemoryUsageResponse} */ (jspb.Message.cloneMessage(this));
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
+proto.innpv.protocol.RunTimeResponse = function(opt_data) {
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+};
+goog.inherits(proto.innpv.protocol.RunTimeResponse, jspb.Message);
+if (goog.DEBUG && !COMPILED) {
+  proto.innpv.protocol.RunTimeResponse.displayName = 'proto.innpv.protocol.RunTimeResponse';
+}
+
+
+if (jspb.Message.GENERATE_TO_OBJECT) {
+/**
+ * Creates an object representation of this proto suitable for use in Soy templates.
+ * Field names that are reserved in JavaScript and will be renamed to pb_name.
+ * To access a reserved field use, foo.pb_<name>, eg, foo.pb_default.
+ * For the list of reserved names please see:
+ *     com.google.apps.jspb.JsClassTemplate.JS_RESERVED_WORDS.
+ * @param {boolean=} opt_includeInstance Whether to include the JSPB instance
+ *     for transitional soy proto support: http://goto/soy-param-migration
+ * @return {!Object}
+ */
+proto.innpv.protocol.RunTimeResponse.prototype.toObject = function(opt_includeInstance) {
+  return proto.innpv.protocol.RunTimeResponse.toObject(opt_includeInstance, this);
+};
+
+
+/**
+ * Static version of the {@see toObject} method.
+ * @param {boolean|undefined} includeInstance Whether to include the JSPB
+ *     instance for transitional soy proto support:
+ *     http://goto/soy-param-migration
+ * @param {!proto.innpv.protocol.RunTimeResponse} msg The msg instance to transform.
+ * @return {!Object}
+ */
+proto.innpv.protocol.RunTimeResponse.toObject = function(includeInstance, msg) {
+  var f, obj = {
+
+  };
+
+  if (includeInstance) {
+    obj.$jspbMessageInstance = msg;
+  }
+  return obj;
+};
+}
+
+
+/**
+ * Deserializes binary data (in protobuf wire format).
+ * @param {jspb.ByteSource} bytes The bytes to deserialize.
+ * @return {!proto.innpv.protocol.RunTimeResponse}
+ */
+proto.innpv.protocol.RunTimeResponse.deserializeBinary = function(bytes) {
+  var reader = new jspb.BinaryReader(bytes);
+  var msg = new proto.innpv.protocol.RunTimeResponse;
+  return proto.innpv.protocol.RunTimeResponse.deserializeBinaryFromReader(msg, reader);
+};
+
+
+/**
+ * Deserializes binary data (in protobuf wire format) from the
+ * given reader into the given message object.
+ * @param {!proto.innpv.protocol.RunTimeResponse} msg The message object to deserialize into.
+ * @param {!jspb.BinaryReader} reader The BinaryReader to use.
+ * @return {!proto.innpv.protocol.RunTimeResponse}
+ */
+proto.innpv.protocol.RunTimeResponse.deserializeBinaryFromReader = function(msg, reader) {
+  while (reader.nextField()) {
+    if (reader.isEndGroup()) {
+      break;
+    }
+    var field = reader.getFieldNumber();
+    switch (field) {
+    default:
+      reader.skipField();
+      break;
+    }
+  }
+  return msg;
+};
+
+
+/**
+ * Class method variant: serializes the given message to binary data
+ * (in protobuf wire format), writing to the given BinaryWriter.
+ * @param {!proto.innpv.protocol.RunTimeResponse} message
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.RunTimeResponse.serializeBinaryToWriter = function(message, writer) {
+  message.serializeBinaryToWriter(writer);
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format).
+ * @return {!Uint8Array}
+ */
+proto.innpv.protocol.RunTimeResponse.prototype.serializeBinary = function() {
+  var writer = new jspb.BinaryWriter();
+  this.serializeBinaryToWriter(writer);
+  return writer.getResultBuffer();
+};
+
+
+/**
+ * Serializes the message to binary data (in protobuf wire format),
+ * writing to the given BinaryWriter.
+ * @param {!jspb.BinaryWriter} writer
+ */
+proto.innpv.protocol.RunTimeResponse.prototype.serializeBinaryToWriter = function (writer) {
+  var f = undefined;
+};
+
+
+/**
+ * Creates a deep clone of this proto. No data is shared with the original.
+ * @return {!proto.innpv.protocol.RunTimeResponse} The clone.
+ */
+proto.innpv.protocol.RunTimeResponse.prototype.cloneMessage = function() {
+  return /** @type {!proto.innpv.protocol.RunTimeResponse} */ (jspb.Message.cloneMessage(this));
+};
+
+
+
+/**
+ * Generated by JsPbCodeGenerator.
+ * @param {Array=} opt_data Optional initial data array, typically from a
+ * server response, or constructed directly in Javascript. The array is used
+ * in place and becomes part of the constructed object. It is not cloned.
+ * If no data is provided, the constructed object will be empty, but still
+ * valid.
+ * @extends {jspb.Message}
+ * @constructor
+ */
 proto.innpv.protocol.ActivationEntry = function(opt_data) {
   jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
@@ -2687,9 +3479,7 @@ proto.innpv.protocol.ActivationEntry.prototype.toObject = function(opt_includeIn
  */
 proto.innpv.protocol.ActivationEntry.toObject = function(includeInstance, msg) {
   var f, obj = {
-    operationName: msg.getOperationName(),
-    sizeBytes: msg.getSizeBytes(),
-    context: (f = msg.getContext()) && proto.innpv.protocol.FileReference.toObject(includeInstance, f)
+
   };
 
   if (includeInstance) {
@@ -2726,19 +3516,6 @@ proto.innpv.protocol.ActivationEntry.deserializeBinaryFromReader = function(msg,
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setOperationName(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setSizeBytes(value);
-      break;
-    case 3:
-      var value = new proto.innpv.protocol.FileReference;
-      reader.readMessage(value,proto.innpv.protocol.FileReference.deserializeBinaryFromReader);
-      msg.setContext(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -2777,28 +3554,6 @@ proto.innpv.protocol.ActivationEntry.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.ActivationEntry.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getOperationName();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = this.getSizeBytes();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = this.getContext();
-  if (f != null) {
-    writer.writeMessage(
-      3,
-      f,
-      proto.innpv.protocol.FileReference.serializeBinaryToWriter
-    );
-  }
 };
 
 
@@ -2808,66 +3563,6 @@ proto.innpv.protocol.ActivationEntry.prototype.serializeBinaryToWriter = functio
  */
 proto.innpv.protocol.ActivationEntry.prototype.cloneMessage = function() {
   return /** @type {!proto.innpv.protocol.ActivationEntry} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string operation_name = 1;
- * @return {string}
- */
-proto.innpv.protocol.ActivationEntry.prototype.getOperationName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
-};
-
-
-/** @param {string} value  */
-proto.innpv.protocol.ActivationEntry.prototype.setOperationName = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional uint64 size_bytes = 2;
- * @return {number}
- */
-proto.innpv.protocol.ActivationEntry.prototype.getSizeBytes = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.ActivationEntry.prototype.setSizeBytes = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * optional FileReference context = 3;
- * @return {proto.innpv.protocol.FileReference}
- */
-proto.innpv.protocol.ActivationEntry.prototype.getContext = function() {
-  return /** @type{proto.innpv.protocol.FileReference} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.FileReference, 3));
-};
-
-
-/** @param {proto.innpv.protocol.FileReference|undefined} value  */
-proto.innpv.protocol.ActivationEntry.prototype.setContext = function(value) {
-  jspb.Message.setWrapperField(this, 3, value);
-};
-
-
-proto.innpv.protocol.ActivationEntry.prototype.clearContext = function() {
-  this.setContext(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.innpv.protocol.ActivationEntry.prototype.hasContext = function() {
-  return jspb.Message.getField(this, 3) != null;
 };
 
 
@@ -2917,10 +3612,7 @@ proto.innpv.protocol.WeightEntry.prototype.toObject = function(opt_includeInstan
  */
 proto.innpv.protocol.WeightEntry.toObject = function(includeInstance, msg) {
   var f, obj = {
-    weightName: msg.getWeightName(),
-    sizeBytes: msg.getSizeBytes(),
-    gradSizeBytes: msg.getGradSizeBytes(),
-    context: (f = msg.getContext()) && proto.innpv.protocol.FileReference.toObject(includeInstance, f)
+
   };
 
   if (includeInstance) {
@@ -2957,23 +3649,6 @@ proto.innpv.protocol.WeightEntry.deserializeBinaryFromReader = function(msg, rea
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setWeightName(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setSizeBytes(value);
-      break;
-    case 3:
-      var value = /** @type {number} */ (reader.readUint64());
-      msg.setGradSizeBytes(value);
-      break;
-    case 4:
-      var value = new proto.innpv.protocol.FileReference;
-      reader.readMessage(value,proto.innpv.protocol.FileReference.deserializeBinaryFromReader);
-      msg.setContext(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -3012,35 +3687,6 @@ proto.innpv.protocol.WeightEntry.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.WeightEntry.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getWeightName();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = this.getSizeBytes();
-  if (f !== 0) {
-    writer.writeUint64(
-      2,
-      f
-    );
-  }
-  f = this.getGradSizeBytes();
-  if (f !== 0) {
-    writer.writeUint64(
-      3,
-      f
-    );
-  }
-  f = this.getContext();
-  if (f != null) {
-    writer.writeMessage(
-      4,
-      f,
-      proto.innpv.protocol.FileReference.serializeBinaryToWriter
-    );
-  }
 };
 
 
@@ -3050,81 +3696,6 @@ proto.innpv.protocol.WeightEntry.prototype.serializeBinaryToWriter = function (w
  */
 proto.innpv.protocol.WeightEntry.prototype.cloneMessage = function() {
   return /** @type {!proto.innpv.protocol.WeightEntry} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string weight_name = 1;
- * @return {string}
- */
-proto.innpv.protocol.WeightEntry.prototype.getWeightName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
-};
-
-
-/** @param {string} value  */
-proto.innpv.protocol.WeightEntry.prototype.setWeightName = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional uint64 size_bytes = 2;
- * @return {number}
- */
-proto.innpv.protocol.WeightEntry.prototype.getSizeBytes = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.WeightEntry.prototype.setSizeBytes = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * optional uint64 grad_size_bytes = 3;
- * @return {number}
- */
-proto.innpv.protocol.WeightEntry.prototype.getGradSizeBytes = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.WeightEntry.prototype.setGradSizeBytes = function(value) {
-  jspb.Message.setField(this, 3, value);
-};
-
-
-/**
- * optional FileReference context = 4;
- * @return {proto.innpv.protocol.FileReference}
- */
-proto.innpv.protocol.WeightEntry.prototype.getContext = function() {
-  return /** @type{proto.innpv.protocol.FileReference} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.FileReference, 4));
-};
-
-
-/** @param {proto.innpv.protocol.FileReference|undefined} value  */
-proto.innpv.protocol.WeightEntry.prototype.setContext = function(value) {
-  jspb.Message.setWrapperField(this, 4, value);
-};
-
-
-proto.innpv.protocol.WeightEntry.prototype.clearContext = function() {
-  this.setContext(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.innpv.protocol.WeightEntry.prototype.hasContext = function() {
-  return jspb.Message.getField(this, 4) != null;
 };
 
 
@@ -3174,10 +3745,7 @@ proto.innpv.protocol.RunTimeEntry.prototype.toObject = function(opt_includeInsta
  */
 proto.innpv.protocol.RunTimeEntry.toObject = function(includeInstance, msg) {
   var f, obj = {
-    operationName: msg.getOperationName(),
-    forwardMs: msg.getForwardMs(),
-    backwardMs: msg.getBackwardMs(),
-    context: (f = msg.getContext()) && proto.innpv.protocol.FileReference.toObject(includeInstance, f)
+
   };
 
   if (includeInstance) {
@@ -3214,23 +3782,6 @@ proto.innpv.protocol.RunTimeEntry.deserializeBinaryFromReader = function(msg, re
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setOperationName(value);
-      break;
-    case 2:
-      var value = /** @type {number} */ (reader.readFloat());
-      msg.setForwardMs(value);
-      break;
-    case 3:
-      var value = /** @type {number} */ (reader.readFloat());
-      msg.setBackwardMs(value);
-      break;
-    case 4:
-      var value = new proto.innpv.protocol.FileReference;
-      reader.readMessage(value,proto.innpv.protocol.FileReference.deserializeBinaryFromReader);
-      msg.setContext(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -3269,35 +3820,6 @@ proto.innpv.protocol.RunTimeEntry.prototype.serializeBinary = function() {
  */
 proto.innpv.protocol.RunTimeEntry.prototype.serializeBinaryToWriter = function (writer) {
   var f = undefined;
-  f = this.getOperationName();
-  if (f.length > 0) {
-    writer.writeString(
-      1,
-      f
-    );
-  }
-  f = this.getForwardMs();
-  if (f !== 0.0) {
-    writer.writeFloat(
-      2,
-      f
-    );
-  }
-  f = this.getBackwardMs();
-  if (f !== 0.0) {
-    writer.writeFloat(
-      3,
-      f
-    );
-  }
-  f = this.getContext();
-  if (f != null) {
-    writer.writeMessage(
-      4,
-      f,
-      proto.innpv.protocol.FileReference.serializeBinaryToWriter
-    );
-  }
 };
 
 
@@ -3307,81 +3829,6 @@ proto.innpv.protocol.RunTimeEntry.prototype.serializeBinaryToWriter = function (
  */
 proto.innpv.protocol.RunTimeEntry.prototype.cloneMessage = function() {
   return /** @type {!proto.innpv.protocol.RunTimeEntry} */ (jspb.Message.cloneMessage(this));
-};
-
-
-/**
- * optional string operation_name = 1;
- * @return {string}
- */
-proto.innpv.protocol.RunTimeEntry.prototype.getOperationName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldProto3(this, 1, ""));
-};
-
-
-/** @param {string} value  */
-proto.innpv.protocol.RunTimeEntry.prototype.setOperationName = function(value) {
-  jspb.Message.setField(this, 1, value);
-};
-
-
-/**
- * optional float forward_ms = 2;
- * @return {number}
- */
-proto.innpv.protocol.RunTimeEntry.prototype.getForwardMs = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 2, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.RunTimeEntry.prototype.setForwardMs = function(value) {
-  jspb.Message.setField(this, 2, value);
-};
-
-
-/**
- * optional float backward_ms = 3;
- * @return {number}
- */
-proto.innpv.protocol.RunTimeEntry.prototype.getBackwardMs = function() {
-  return /** @type {number} */ (jspb.Message.getFieldProto3(this, 3, 0));
-};
-
-
-/** @param {number} value  */
-proto.innpv.protocol.RunTimeEntry.prototype.setBackwardMs = function(value) {
-  jspb.Message.setField(this, 3, value);
-};
-
-
-/**
- * optional FileReference context = 4;
- * @return {proto.innpv.protocol.FileReference}
- */
-proto.innpv.protocol.RunTimeEntry.prototype.getContext = function() {
-  return /** @type{proto.innpv.protocol.FileReference} */ (
-    jspb.Message.getWrapperField(this, proto.innpv.protocol.FileReference, 4));
-};
-
-
-/** @param {proto.innpv.protocol.FileReference|undefined} value  */
-proto.innpv.protocol.RunTimeEntry.prototype.setContext = function(value) {
-  jspb.Message.setWrapperField(this, 4, value);
-};
-
-
-proto.innpv.protocol.RunTimeEntry.prototype.clearContext = function() {
-  this.setContext(undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return{!boolean}
- */
-proto.innpv.protocol.RunTimeEntry.prototype.hasContext = function() {
-  return jspb.Message.getField(this, 4) != null;
 };
 
 
