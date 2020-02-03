@@ -2,61 +2,6 @@
 
 import {processFileReference} from '../utils';
 
-export class Breakdown {
-  constructor({
-    operationTree,
-    weightTree,
-    peakUsageBytes,
-    memoryCapacityBytes,
-    iterationRunTimeMs,
-  }) {
-    this._operationTree = operationTree;
-    this._weightTree = weightTree;
-    this._peakUsageBytes = peakUsageBytes;
-    this._memoryCapacityBytes = memoryCapacityBytes;
-    this._iterationRunTimeMs = iterationRunTimeMs;
-  }
-
-  get operationTree() {
-    return this._operationTree;
-  }
-
-  get weightTree() {
-    return this._weightTree;
-  }
-
-  get peakUsageBytes() {
-    return this._peakUsageBytes;
-  }
-
-  get memoryCapacityBytes() {
-    return this._memoryCapacityBytes;
-  }
-
-  get iterationRunTimeMs() {
-    return this._iterationRunTimeMs;
-  }
-
-  static fromBreakdownResponse(breakdownResponse) {
-    return new Breakdown({
-      operationTree: constructTree(
-        breakdownResponse.getOperationTreeList(),
-        OperationNode.fromProtobuf,
-      ),
-      weightTree: constructTree(
-        breakdownResponse.getWeightTreeList(),
-        WeightNode.fromProtobuf,
-      ),
-      peakUsageBytes:
-        breakdownResponse.getPeakUsageBytes(),
-      memoryCapacityBytes:
-        breakdownResponse.getMemoryCapacityBytes(),
-      iterationRunTimeMs:
-        breakdownResponse.getIterationRunTimeMs(),
-    });
-  }
-};
-
 class BreakdownNode {
   constructor({id, name, contexts}) {
     this._id = id;
@@ -114,7 +59,14 @@ export class OperationNode extends BreakdownNode {
     return this._sizeBytes;
   }
 
-  static fromProtobuf(protobufBreakdownNode, id) {
+  static fromProtobufNodeList(operationNodeList) {
+    return constructTree(
+      operationNodeList,
+      OperationNode._fromProtobufNode,
+    );
+  }
+
+  static _fromProtobufNode(protobufBreakdownNode, id) {
     return new OperationNode({
       id,
       name: protobufBreakdownNode.getName(),
@@ -139,7 +91,14 @@ export class WeightNode extends BreakdownNode {
     return this._gradSizeBytes;
   }
 
-  static fromProtobuf(protobufBreakdownNode, id) {
+  static fromProtobufNodeList(weightNodeList) {
+    return constructTree(
+      weightNodeList,
+      WeightNode._fromProtobuf,
+    );
+  }
+
+  static _fromProtobuf(protobufBreakdownNode, id) {
     return new WeightNode({
       id,
       name: protobufBreakdownNode.getName(),

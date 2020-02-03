@@ -24,10 +24,16 @@ export default class Memory extends React.Component {
   }
 
   render() {
-    const {breakdown, handleSliderHoverEnter, handleSliderHoverExit} = this.props;
-    const notReady = breakdown == null;
-    const percentage = notReady ? 0 : toPercentage(
-      breakdown.peakUsageBytes, breakdown.memoryCapacityBytes);
+    const {
+      peakUsageBytes,
+      memoryCapacityBytes,
+      handleSliderHoverEnter,
+      handleSliderHoverExit,
+    } = this.props;
+    const notReady = peakUsageBytes == null;
+    const percentage = notReady
+      ? 0
+      : toPercentage(peakUsageBytes, memoryCapacityBytes);
 
     return (
       <div className="innpv-memory innpv-subpanel">
@@ -42,13 +48,13 @@ export default class Memory extends React.Component {
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay
               top="Peak Usage"
-              number={notReady ? '---' : this._toMb(breakdown.peakUsageBytes)}
+              number={notReady ? '---' : this._toMb(peakUsageBytes)}
               bottom="Megabytes"
             />
             <div className="innpv-separator" />
             <NumericDisplay
               top="Maximum Capacity"
-              number={notReady ? '---' : this._toMb(breakdown.memoryCapacityBytes)}
+              number={notReady ? '---' : this._toMb(memoryCapacityBytes)}
               bottom="Megabytes"
             />
           </div>
@@ -59,7 +65,8 @@ export default class Memory extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  breakdown: state.breakdown.model,
+  peakUsageBytes: state.peakUsageBytes,
+  memoryCapacityBytes: state.memoryCapacityBytes,
   ...ownProps,
 });
 

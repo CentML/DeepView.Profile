@@ -13,7 +13,10 @@ import MemoryBreakdown from '../../models/MemoryBreakdown';
 import MemoryUsage from '../../models/MemoryUsage';
 import Throughput from '../../models/Throughput';
 import RunTimeBreakdown from '../../models/RunTimeBreakdown';
-import {Breakdown} from '../../models/Breakdown';
+import {
+  OperationNode,
+  WeightNode,
+} from '../../models/Breakdown';
 
 export default function(state, action) {
   switch (action.type) {
@@ -46,12 +49,54 @@ export default function(state, action) {
 
     case ANALYSIS_REC_BRK: {
       const {breakdownResponse} = action.payload;
+
+      // Build the trees
+      const operationTree = OperationNode.fromProtobufNodeList(
+        breakdownResponse.getOperationTreeList(),
+      );
+      const weightTree = WeightNode.fromProtobufNodeList(
+        breakdownResponse.getWeightTreeList(),
+      );
+
+      // Memory limits
+      const peakUsageBytes = breakdownResponse.getPeakUsageBytes();
+      const trackedBytes = operationTree.sizeBytes +
+        weightTree.sizeBytes + weightTree.gradSizeBytes;
+      const untrackedBytes = Math.max(0, peakUsageBytes - trackedBytes);
+
+      // Run time limits
+      const iterationRunTimeMs = breakdownResponse.getIterationRunTimeMs();
+      const untrackedMs = Math.max(
+        0.,
+        iterationRunTimeMs - operationTree.runTimeMs,
+      );
+
       return {
         ...state,
         breakdown: {
-          model: Breakdown.fromBreakdownResponse(breakdownResponse),
+          operationTree,
+          weightTree,
           currentView: null,
+          runTime: {
+            trackedMs: operationTree.runTimeMs,
+            untrackedMs,
+            untrackedNode:
+              untrackedMs > 0
+                ? createUntrackedOperationNode({forwardMs: untrackedMs})
+                : null,
+          },
+          memory: {
+            trackedBytes,
+            untrackedBytes,
+            untrackedNode:
+              untrackedBytes > 0
+                ? createUntrackedOperationNode({sizeBytes: untrackedBytes})
+                : null,
+          },
         },
+        peakUsageBytes,
+        memoryCapacityBytes: breakdownResponse.getMemoryCapacityBytes(),
+        iterationRunTimeMs,
       };
     }
 
@@ -80,3 +125,15 @@ export default function(state, action) {
       return state;
   }
 };
+
+function createUntrackedOperationNode(overrides) {
+  return new OperationNode({
+    id: -1,
+    name: 'Untracked',
+    forwardMs: 0.,
+    backwardMs: 0.,
+    sizeBytes: 0,
+    contexts: [],
+    ...overrides,
+  });
+}

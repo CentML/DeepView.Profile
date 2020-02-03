@@ -27,7 +27,21 @@ export default {
   runTimeBreakdown: null,
 
   breakdown: {
-    model: null,
+    operationTree: null,
+    weightTree: null,
     currentView: null,
   },
+  runTime: {
+    trackedMs: null,
+    otherMs: null,
+    otherNode: null,
+  },
+  memory: {
+    trackedBytes: null,
+    untrackedBytes: null,
+    untrackedNode: null,
+  },
+  peakUsageBytes: null,
+  memoryCapacityBytes: null,
+  iterationRunTimeMs: null,
 };
