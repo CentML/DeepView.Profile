@@ -155,13 +155,13 @@ class BreakdownNode:
             node = stack.pop()
 
             entry = array.add()
-            entry.name = self.name
-            entry.num_children = len(self.children)
-            for file_path, line_number in self._contexts:
+            entry.name = node.name
+            entry.num_children = len(node.children)
+            for file_path, line_number in node._contexts:
                 file_ref = entry.contexts.add()
                 file_ref.line_number = line_number
                 file_ref.file_path.components.extend(file_path.split(os.sep))
-            self.serialize_data_to_protobuf(entry)
+            node.serialize_data_to_protobuf(entry)
 
             for child in node.children.values():
                 stack.append(child)
