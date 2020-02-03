@@ -2,7 +2,7 @@
 
 import {processFileReference} from '../utils';
 
-export default class Breakdown {
+export class Breakdown {
   constructor({
     operationTree,
     weightTree,
@@ -58,11 +58,16 @@ export default class Breakdown {
 };
 
 class BreakdownNode {
-  constructor({name, contexts}) {
+  constructor({id, name, contexts}) {
+    this._id = id;
     this._name = name;
     this._contexts = contexts;
     this._parent = null;
     this._children = [];
+  }
+
+  get id() {
+    return this._id;
   }
 
   get name() {
@@ -82,12 +87,19 @@ class BreakdownNode {
   }
 }
 
-class OperationNode extends BreakdownNode {
-  constructor({name, contexts, forwardMs, backwardMs, sizeBytes}) {
-    super({name, contexts});
+export class OperationNode extends BreakdownNode {
+  constructor({id, name, contexts, forwardMs, backwardMs, sizeBytes}) {
+    super({id, name, contexts});
     this._forwardMs = forwardMs;
     this._backwardMs = backwardMs;
     this._sizeBytes = sizeBytes;
+  }
+
+  get runTimeMs() {
+    if (isNaN(this._backwardMs)) {
+      return this._forwardMs;
+    }
+    return this._forwardMs + this._backwardMs;
   }
 
   get forwardMs() {
@@ -102,18 +114,19 @@ class OperationNode extends BreakdownNode {
     return this._sizeBytes;
   }
 
-  static fromProtobuf(protobufBreakdownNode) {
+  static fromProtobuf(protobufBreakdownNode, id) {
     return new OperationNode({
+      id,
       name: protobufBreakdownNode.getName(),
       contexts: protobufBreakdownNode.getContextsList().map(processFileReference),
       ...parseOperationData(protobufBreakdownNode),
     });
   }
-}
+};
 
-class WeightNode extends BreakdownNode {
-  constructor({name, contexts, sizeBytes, gradSizeBytes}) {
-    super({name, contexts});
+export class WeightNode extends BreakdownNode {
+  constructor({id, name, contexts, sizeBytes, gradSizeBytes}) {
+    super({id, name, contexts});
     this._sizeBytes = sizeBytes;
     this._gradSizeBytes = gradSizeBytes;
   }
@@ -126,14 +139,15 @@ class WeightNode extends BreakdownNode {
     return this._gradSizeBytes;
   }
 
-  static fromProtobuf(protobufBreakdownNode) {
+  static fromProtobuf(protobufBreakdownNode, id) {
     return new WeightNode({
+      id,
       name: protobufBreakdownNode.getName(),
       contexts: protobufBreakdownNode.getContextsList().map(processFileReference),
       ...parseWeightData(protobufBreakdownNode),
     });
   }
-}
+};
 
 function constructTree(protobufArray, constructNode) {
   if (protobufArray.length == 0) {
@@ -145,11 +159,12 @@ function constructTree(protobufArray, constructNode) {
   const numChildrenStack = [1];
 
   // The nodes were placed into the array based on a preorder traversal of the tree
-  for (const protobufNode of protobufArray) {
+  protobufArray.forEach((protobufNode, index) => {
     const parent = parentNodeStack.pop();
     const numChildren = numChildrenStack.pop();
 
-    const node = constructNode(protobufNode);
+    // We use the serialization index as an identifier for the node
+    const node = constructNode(protobufNode, index);
     node._parent = parent;
     parent._children.push(node);
 
@@ -162,7 +177,7 @@ function constructTree(protobufArray, constructNode) {
       parentNodeStack.push(node);
       numChildrenStack.push(protobufNode.getNumChildren());
     }
-  }
+  });
 
   const root = helperRoot._children[0];
   root._parent = null;

@@ -7,30 +7,23 @@ import RunTimePerfBar from './RunTimePerfBar';
 import RunTimeEntryLabel from '../models/RunTimeEntryLabel';
 import PerfBarContainer from './generic/PerfBarContainer';
 import PerfVisState from '../models/PerfVisState';
+import {OperationNode} from '../models/Breakdown';
 import {toPercentage} from '../utils';
 
 const DEFAULT_LABELS = [
-  {label: RunTimeEntryLabel.Forward, percentage: 30, clickable: true},
-  {label: RunTimeEntryLabel.Backward, percentage: 60, clickable: true},
+  {label: RunTimeEntryLabel.ForwardBackward, percentage: 90, clickable: true},
   {label: RunTimeEntryLabel.Other, percentage: 10, clickable: false},
 ];
 
 const LABEL_ORDER = DEFAULT_LABELS.map(({label}) => label);
 
 const COLORS_BY_LABEL = {
-  [RunTimeEntryLabel.Forward]: [
+  [RunTimeEntryLabel.ForwardBackward]: [
     'innpv-green-color-1',
     'innpv-green-color-2',
     'innpv-green-color-3',
     'innpv-green-color-4',
     'innpv-green-color-5',
-  ],
-  [RunTimeEntryLabel.Backward]: [
-    'innpv-blue-color-1',
-    'innpv-blue-color-2',
-    'innpv-blue-color-3',
-    'innpv-blue-color-4',
-    'innpv-blue-color-5',
   ],
   [RunTimeEntryLabel.Other]: [
     'innpv-untracked-color',
@@ -44,65 +37,83 @@ class RunTimeBreakdown extends React.Component {
   }
 
   _getLabels() {
-    const {runTimeBreakdown} = this.props;
-    if (runTimeBreakdown == null) {
+    const {breakdown} = this.props;
+    if (breakdown == null) {
       return DEFAULT_LABELS;
     }
 
-    const iterationRunTimeMs = runTimeBreakdown.getIterationRunTimeMs();
+    const {operationTree, iterationRunTimeMs} = breakdown;
+    const leftoverMs = Math.max(0., iterationRunTimeMs - operationTree.runTimeMs);
+
     return DEFAULT_LABELS.map(({label, ...rest}) => ({
       ...rest,
       label,
-      percentage: toPercentage(runTimeBreakdown.getTotalTimeMsByLabel(label), iterationRunTimeMs),
+      percentage: label === RunTimeEntryLabel.ForwardBackward
+        ? toPercentage(operationTree.runTimeMs, iterationRunTimeMs)
+        : toPercentage(leftoverMs, iterationRunTimeMs),
     }));
   }
 
-  _entryKey(entry, index) {
-    // TODO: Use a stable identifier (presumably an id from the report database)
-    return `${entry.name}-idx${index}`;
-  }
-
   _renderPerfBars(expanded) {
-    const {editorsByPath, projectRoot, runTimeBreakdown} = this.props;
-    if (runTimeBreakdown == null) {
+    const {editorsByPath, projectRoot, breakdown} = this.props;
+    if (breakdown == null) {
       return null;
     }
 
-    const results = [];
-    const iterationRunTimeMs = runTimeBreakdown.getIterationRunTimeMs();
+    const {operationTree, iterationRunTimeMs} = breakdown;
+    const colors = COLORS_BY_LABEL[RunTimeEntryLabel.ForwardBackward];
 
-    // [].flatMap() is a nicer way to do this, but it is not yet available.
-    LABEL_ORDER.forEach(label => {
-      const totalTimeMs = runTimeBreakdown.getTotalTimeMsByLabel(label);
-      const colors = COLORS_BY_LABEL[label];
+    const results = operationTree.children.map((operationNode, index) => {
+      const overallPct = toPercentage(operationNode.runTimeMs, iterationRunTimeMs);
 
-      runTimeBreakdown.getEntriesByLabel(label).forEach((entry, index) => {
-        const overallPct = toPercentage(entry.runTimeMs, iterationRunTimeMs);
+      // This helps account for "expanded" labels
+      let displayPct = 0.001;
+      if (expanded == null) {
+        displayPct = overallPct;
+      } else if (expanded === RunTimeEntryLabel.ForwardBackward) {
+        displayPct = toPercentage(operationNode.runTimeMs, operationTree.runTimeMs);
+      }
 
-        // This helps account for "expanded" labels
-        let displayPct = 0.001;
-        if (expanded == null) {
-          displayPct = overallPct;
-        } else if (label === expanded) {
-          displayPct = toPercentage(entry.runTimeMs, totalTimeMs);
-        }
-
-        const editors = entry.filePath != null ? editorsByPath.get(entry.filePath) : [];
-
-        results.push(
-          <RunTimePerfBar
-            key={this._entryKey(entry, index)}
-            runTimeEntry={entry}
-            projectRoot={projectRoot}
-            editors={editors}
-            overallPct={overallPct}
-            resizable={false}
-            percentage={displayPct}
-            colorClass={colors[index % colors.length]}
-          />
-        );
-      })
+      return (
+        <RunTimePerfBar
+          key={operationNode.id}
+          operationNode={operationNode}
+          projectRoot={projectRoot}
+          editorsByPath={editorsByPath}
+          overallPct={overallPct}
+          resizable={false}
+          percentage={displayPct}
+          colorClass={colors[index % colors.length]}
+        />
+      );
     });
+
+    const leftoverMs = Math.max(0., iterationRunTimeMs - operationTree.runTimeMs);
+    if (leftoverMs === 0.) {
+      return results;
+    }
+
+    // Append the extra "Other" category
+    // Note we create a "fake" operationNode here
+    const otherPct = toPercentage(leftoverMs, iterationRunTimeMs);
+    results.push(
+      <RunTimePerfBar
+        key={'other'}
+        operationNode={new OperationNode({
+          id: -1,
+          name: 'Other',
+          forwardMs: leftoverMs,
+          backwardMs: 0.,
+          sizeBytes: 0,
+          contexts: [],
+        })}
+        projectRoot={projectRoot}
+        overallPct={otherPct}
+        resizable={false}
+        percentage={otherPct}
+        colorClass={COLORS_BY_LABEL[RunTimeEntryLabel.Other][0]}
+      />
+    );
 
     return results;
   }
@@ -124,7 +135,7 @@ class RunTimeBreakdown extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
-  runTimeBreakdown: state.runTimeBreakdown,
+  breakdown: state.breakdown.model,
   ...ownProps,
 });
 

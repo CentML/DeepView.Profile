@@ -1,7 +1,6 @@
 'use babel';
 
 export default {
-  Forward: 'Forward',
-  Backward: 'Backward',
+  ForwardBackward: 'Forward and Backward',
   Other: 'Other',
 };

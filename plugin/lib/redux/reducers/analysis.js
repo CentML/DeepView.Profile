@@ -13,7 +13,7 @@ import MemoryBreakdown from '../../models/MemoryBreakdown';
 import MemoryUsage from '../../models/MemoryUsage';
 import Throughput from '../../models/Throughput';
 import RunTimeBreakdown from '../../models/RunTimeBreakdown';
-import Breakdown from '../../models/Breakdown';
+import {Breakdown} from '../../models/Breakdown';
 
 export default function(state, action) {
   switch (action.type) {

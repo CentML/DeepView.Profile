@@ -17,45 +17,51 @@ class RunTimePerfBar extends React.Component {
   }
 
   _generateTooltipHTML() {
-    const {runTimeEntry, overallPct} = this.props;
-    return `<strong>${runTimeEntry.name}</strong><br/>` +
-      `${runTimeEntry.runTimeMs.toFixed(2)} ms<br/>` +
+    const {operationNode, overallPct} = this.props;
+    return `<strong>${operationNode.name}</strong><br/>` +
+      `${operationNode.runTimeMs.toFixed(2)} ms<br/>` +
       `${overallPct.toFixed(2)}%`;
   }
 
   _renderPerfHints(isActive, perfHintState) {
-    const {editors, runTimeEntry} = this.props;
+    const {editorsByPath, operationNode} = this.props;
 
-    return editors.map(editor => (
-      <UsageHighlight
-        key={editor.id}
-        editor={editor}
-        lineNumber={runTimeEntry.lineNumber}
-        show={isActive}
-      />
-    ));
+    return operationNode.contexts.flatMap(({filePath, lineNumber}) => {
+      if (!editorsByPath.has(filePath)) {
+        return [];
+      }
+      return editorsByPath.get(filePath).map((editor) => (
+        <UsageHighlight
+          key={editor.id}
+          editor={editor}
+          lineNumber={lineNumber}
+          show={isActive}
+        />
+      ));
+    });
   }
 
   _onClick() {
-    const {runTimeEntry, projectRoot} = this.props;
-    if (runTimeEntry.filePath == null || projectRoot == null) {
+    const {operationNode, projectRoot} = this.props;
+    if (operationNode.contexts.length == 0 || projectRoot == null) {
       return;
     }
 
     // Atom uses 0-based line numbers, but INNPV uses 1-based line numbers
-    const absoluteFilePath = path.join(projectRoot, runTimeEntry.filePath);
-    atom.workspace.open(absoluteFilePath, {initialLine: runTimeEntry.lineNumber - 1});
+    const context = operationNode.contexts[0];
+    const absoluteFilePath = path.join(projectRoot, context.filePath);
+    atom.workspace.open(absoluteFilePath, {initialLine: context.lineNumber - 1});
     this.context.record(
       Events.Interaction.CLICKED_RUN_TIME_ENTRY,
-      {label: runTimeEntry.name},
+      {label: operationNode.name},
     );
   }
 
   render() {
-    const {runTimeEntry, editors, ...rest} = this.props;
+    const {operationNode, editorsByPath, ...rest} = this.props;
     return (
       <PerfBar
-        clickable={runTimeEntry.filePath != null}
+        clickable={operationNode.contexts.length > 0}
         renderPerfHints={this._renderPerfHints}
         tooltipHTML={this._generateTooltipHTML()}
         onClick={this._onClick}
@@ -66,7 +72,7 @@ class RunTimePerfBar extends React.Component {
 }
 
 RunTimePerfBar.defaultProps = {
-  editors: [],
+  editorsByPath: new Map(),
 };
 
 RunTimePerfBar.contextType = TelemetryClientContext;
