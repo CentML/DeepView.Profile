@@ -5,11 +5,14 @@ import React from 'react';
 import Elastic from './Elastic';
 import PerfHintState from '../../models/PerfHintState';
 
+const DOUBLE_CLICK_DELAY_MS = 500;
+
 class PerfBar extends React.Component {
   constructor(props) {
     super(props);
     this._tooltip = null;
     this._barRef = React.createRef();
+    this._lastClick = 0;
 
     this.state = {
       // Keeps track of how this PerfBar is being manipulated.
@@ -26,6 +29,8 @@ class PerfBar extends React.Component {
     this._handleIncrease = this._handleIncrease.bind(this);
     this._handleDecrease = this._handleDecrease.bind(this);
     this._handleRestore = this._handleRestore.bind(this);
+
+    this._handleClick = this._handleClick.bind(this);
   }
 
   componentDidMount() {
@@ -103,6 +108,18 @@ class PerfBar extends React.Component {
     this.setState({perfHintState: PerfHintState.NONE});
   }
 
+  _handleClick(event) {
+    const now = Date.now();
+    const diff = now - this._lastClick;
+    if (diff <= DOUBLE_CLICK_DELAY_MS) {
+      this._lastClick = 0;
+      this.props.onDoubleClick(event);
+    } else {
+      this._lastClick = now;
+      this.props.onClick(event);
+    }
+  }
+
   _className() {
     const {resizable, clickable} = this.props;
     const mainClass = 'innpv-perfbar-wrap';
@@ -123,7 +140,6 @@ class PerfBar extends React.Component {
       percentage,
       updateMarginTop,
       colorClass,
-      onClick,
     } = this.props;
     const {isActive, perfHintState} = this.state;
 
@@ -142,7 +158,7 @@ class PerfBar extends React.Component {
           className={`innpv-perfbar ${colorClass}`}
           onMouseEnter={this._handleHoverEnter}
           onMouseLeave={this._handleHoverExit}
-          onClick={onClick}
+          onClick={this._handleClick}
         />
         {renderPerfHints(isActive, perfHintState)}
       </Elastic>
@@ -155,7 +171,8 @@ PerfBar.defaultProps = {
   clickable: false,
   renderPerfHints: (isActive, perfHintState) => null,
   tooltipHTML: null,
-  onClick: () => {},
+  onClick: (event) => {},
+  onDoubleClick: (event) => {},
 };
 
 export default PerfBar;
