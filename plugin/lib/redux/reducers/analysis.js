@@ -60,8 +60,7 @@ export default function(state, action) {
 
       // Memory limits
       const peakUsageBytes = breakdownResponse.getPeakUsageBytes();
-      const trackedBytes = operationTree.sizeBytes +
-        weightTree.sizeBytes + weightTree.gradSizeBytes;
+      const trackedBytes = operationTree.sizeBytes + weightTree.sizeBytes;
       const untrackedBytes = Math.max(0, peakUsageBytes - trackedBytes);
 
       // Run time limits
@@ -77,22 +76,20 @@ export default function(state, action) {
           operationTree,
           weightTree,
           currentView: null,
-          runTime: {
-            trackedMs: operationTree.runTimeMs,
-            untrackedMs,
-            untrackedNode:
-              untrackedMs > 0
-                ? createUntrackedOperationNode({forwardMs: untrackedMs})
-                : null,
-          },
-          memory: {
-            trackedBytes,
-            untrackedBytes,
-            untrackedNode:
-              untrackedBytes > 0
-                ? createUntrackedOperationNode({sizeBytes: untrackedBytes})
-                : null,
-          },
+        },
+        runTime: {
+          untrackedMs,
+          untrackedNode:
+            untrackedMs > 0
+              ? createUntrackedOperationNode({forwardMs: untrackedMs})
+              : null,
+        },
+        memory: {
+          untrackedBytes,
+          untrackedNode:
+            untrackedBytes > 0
+              ? createUntrackedOperationNode({sizeBytes: untrackedBytes})
+              : null,
         },
         peakUsageBytes,
         memoryCapacityBytes: breakdownResponse.getMemoryCapacityBytes(),

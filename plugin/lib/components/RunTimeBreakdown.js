@@ -128,7 +128,7 @@ class RunTimeBreakdown extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
   operationTree: state.breakdown.operationTree,
-  runTime: state.breakdown.runTime,
+  runTime: state.runTime,
   iterationRunTimeMs: state.iterationRunTimeMs,
   ...ownProps,
 });

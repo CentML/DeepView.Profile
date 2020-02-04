@@ -44,65 +44,94 @@ class MemoryBreakdown extends React.Component {
   }
 
   _getLabels() {
-    const {memoryBreakdown} = this.props;
-    if (memoryBreakdown == null) {
+    const {operationTree, weightTree} = this.props;
+    if (operationTree == null || weightTree == null) {
       return DEFAULT_MEMORY_LABELS;
     }
 
-    const peakUsageBytes = memoryBreakdown.getPeakUsageBytes();
-    return DEFAULT_MEMORY_LABELS.map(({label, ...rest}) => ({
-      ...rest,
-      label,
-      percentage: toPercentage(memoryBreakdown.getTotalSizeBytesByLabel(label), peakUsageBytes),
-    }));
-  }
+    const {peakUsageBytes, memory} = this.props;
+    const {untrackedBytes} = memory;
 
-  _entryKey(entry, index) {
-    // TODO: Use a stable identifier (presumably an id from the report database)
-    return `${entry.name}-idx${index}`;
+    return DEFAULT_MEMORY_LABELS.map(({label, ...rest}) => {
+      let percentage = 0.;
+      if (label === MemoryEntryLabel.Weights) {
+        percentage = toPercentage(weightTree.sizeBytes, peakUsageBytes);
+      } else if (label === MemoryEntryLabel.Activations) {
+        percentage = toPercentage(operationTree.sizeBytes, peakUsageBytes);
+      } else {
+        percentage = toPercentage(untrackedBytes, peakUsageBytes);
+      }
+      return {
+        ...rest,
+        label,
+        percentage,
+      };
+    });
   }
 
   _renderPerfBars(expanded) {
-    const {editorsByPath, projectRoot, memoryBreakdown} = this.props;
-    if (memoryBreakdown == null) {
+    const {operationTree, weightTree} = this.props;
+    if (operationTree == null || weightTree == null) {
       return null;
     }
 
-    const results = [];
-    const peakUsageBytes = memoryBreakdown.getPeakUsageBytes();
+    const {editorsByPath, projectRoot, peakUsageBytes} = this.props;
 
-    // [].flatMap() is a nicer way to do this, but it is not yet available.
-    MEMORY_LABEL_ORDER.forEach(label => {
-      const totalSizeBytes = memoryBreakdown.getTotalSizeBytesByLabel(label);
+    const results = [weightTree, operationTree].flatMap((tree, idx) => {
+      const label = idx == 0
+        ? MemoryEntryLabel.Weights
+        : MemoryEntryLabel.Activations;
       const colors = COLORS_BY_LABEL[label];
 
-      memoryBreakdown.getEntriesByLabel(label).forEach((entry, index) => {
-        const overallPct = toPercentage(entry.sizeBytes, peakUsageBytes);
+      return tree.children.map((node, index) => {
+        const overallPct = toPercentage(node.sizeBytes, peakUsageBytes);
 
         // This helps account for "expanded" labels
         let displayPct = 0.001;
         if (expanded == null) {
           displayPct = overallPct;
         } else if (label === expanded) {
-          displayPct = toPercentage(entry.sizeBytes, totalSizeBytes);
+          displayPct = toPercentage(
+            node.sizeBytes,
+            label === MemoryEntryLabel.Weights
+              ? weightTree.sizeBytes
+              : operationTree.sizeBytes,
+          );
         }
 
-        const editors = entry.filePath != null ? editorsByPath.get(entry.filePath) : [];
-
-        results.push(
+        return (
           <MemoryPerfBar
-            key={this._entryKey(entry, index)}
-            memoryEntry={entry}
+            key={`${label}-${node.id}`}
+            memoryNode={node}
             projectRoot={projectRoot}
-            editors={editors}
+            editorsByPath={editorsByPath}
             overallPct={overallPct}
             resizable={false}
             percentage={displayPct}
             colorClass={colors[index % colors.length]}
           />
         );
-      })
+      });
     });
+
+    const {untrackedBytes, untrackedNode} = this.props.memory;
+    if (untrackedNode == null) {
+      return results;
+    }
+
+    const untrackedPct = toPercentage(untrackedBytes, peakUsageBytes);
+    results.push(
+      <MemoryPerfBar
+        key={`Untracked-${untrackedNode.id}`}
+        memoryNode={untrackedNode}
+        projectRoot={projectRoot}
+        editorsByPath={editorsByPath}
+        overallPct={untrackedPct}
+        resizable={false}
+        percentage={untrackedPct}
+        colorClass={COLORS_BY_LABEL[MemoryEntryLabel.Untracked][0]}
+      />
+    );
 
     return results;
   }
@@ -124,7 +153,10 @@ class MemoryBreakdown extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
-  memoryBreakdown: state.memoryBreakdown,
+  operationTree: state.breakdown.operationTree,
+  weightTree: state.breakdown.weightTree,
+  memory: state.memory,
+  peakUsageBytes: state.peakUsageBytes,
   ...ownProps,
 });
 

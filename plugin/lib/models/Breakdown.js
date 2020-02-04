@@ -77,18 +77,13 @@ export class OperationNode extends BreakdownNode {
 };
 
 export class WeightNode extends BreakdownNode {
-  constructor({id, name, contexts, sizeBytes, gradSizeBytes}) {
+  constructor({id, name, contexts, sizeBytes}) {
     super({id, name, contexts});
     this._sizeBytes = sizeBytes;
-    this._gradSizeBytes = gradSizeBytes;
   }
 
   get sizeBytes() {
     return this._sizeBytes;
-  }
-
-  get gradSizeBytes() {
-    return this._gradSizeBytes;
   }
 
   static fromProtobufNodeList(weightNodeList) {
@@ -155,7 +150,6 @@ function parseOperationData(protobufNode) {
 function parseWeightData(protobufNode) {
   const data = protobufNode.getWeight();
   return {
-    sizeBytes: data.getSizeBytes(),
-    gradSizeBytes: data.getGradSizeBytes(),
+    sizeBytes: data.getSizeBytes() + data.getGradSizeBytes(),
   };
 }

@@ -18,45 +18,51 @@ class MemoryPerfBar extends React.Component {
   }
 
   _generateTooltipHTML() {
-    const {memoryEntry, overallPct} = this.props;
-    return `<strong>${memoryEntry.name}</strong><br/>` +
-      `${toReadableByteSize(memoryEntry.sizeBytes)}<br/>` +
+    const {memoryNode, overallPct} = this.props;
+    return `<strong>${memoryNode.name}</strong><br/>` +
+      `${toReadableByteSize(memoryNode.sizeBytes)}<br/>` +
       `${overallPct.toFixed(2)}%`;
   }
 
   _renderPerfHints(isActive, perfHintState) {
-    const {editors, memoryEntry} = this.props;
+    const {editorsByPath, memoryNode} = this.props;
 
-    return editors.map(editor => (
-      <UsageHighlight
-        key={editor.id}
-        editor={editor}
-        lineNumber={memoryEntry.lineNumber}
-        show={isActive}
-      />
-    ));
+    return memoryNode.contexts.flatMap(({filePath, lineNumber}) => {
+      if (!editorsByPath.has(filePath)) {
+        return [];
+      }
+      return editorsByPath.get(filePath).map((editor) => (
+        <UsageHighlight
+          key={`memory-${editor.id}-${filePath}-${lineNumber}`}
+          editor={editor}
+          lineNumber={lineNumber}
+          show={isActive}
+        />
+      ));
+    });
   }
 
   _onClick() {
-    const {memoryEntry, projectRoot} = this.props;
-    if (memoryEntry.filePath == null || projectRoot == null) {
+    const {memoryNode, projectRoot} = this.props;
+    if (memoryNode.contexts.length === 0 || projectRoot == null) {
       return;
     }
 
     // Atom uses 0-based line numbers, but INNPV uses 1-based line numbers
-    const absoluteFilePath = path.join(projectRoot, memoryEntry.filePath);
-    atom.workspace.open(absoluteFilePath, {initialLine: memoryEntry.lineNumber - 1});
+    const context = memoryNode.contexts[0];
+    const absoluteFilePath = path.join(projectRoot, context.filePath);
+    atom.workspace.open(absoluteFilePath, {initialLine: context.lineNumber - 1});
     this.context.record(
       Events.Interaction.CLICKED_MEMORY_ENTRY,
-      {label: memoryEntry.name},
+      {label: memoryNode.name},
     );
   }
 
   render() {
-    const {memoryEntry, editors, ...rest} = this.props;
+    const {memoryNode, editorsByPath, ...rest} = this.props;
     return (
       <PerfBar
-        clickable={memoryEntry.filePath != null}
+        clickable={memoryNode.contexts.length > 0}
         renderPerfHints={this._renderPerfHints}
         tooltipHTML={this._generateTooltipHTML()}
         onClick={this._onClick}

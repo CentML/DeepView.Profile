@@ -32,7 +32,7 @@ class RunTimePerfBar extends React.Component {
       }
       return editorsByPath.get(filePath).map((editor) => (
         <UsageHighlight
-          key={editor.id}
+          key={`time-${editor.id}-${filePath}-${lineNumber}`}
           editor={editor}
           lineNumber={lineNumber}
           show={isActive}
