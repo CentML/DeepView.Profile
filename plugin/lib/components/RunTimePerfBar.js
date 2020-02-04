@@ -2,9 +2,11 @@
 
 import path from 'path';
 import React from 'react';
+import {connect} from 'react-redux';
 
 import PerfBar from './generic/PerfBar';
 import UsageHighlight from './UsageHighlight';
+import AnalysisActions from '../redux/actions/analysis';
 
 import Events from '../telemetry/events';
 import TelemetryClientContext from '../telemetry/react_context';
@@ -13,6 +15,7 @@ class RunTimePerfBar extends React.Component {
   constructor(props) {
     super(props);
     this._onClick = this._onClick.bind(this);
+    this._onDoubleClick = this._onDoubleClick.bind(this);
     this._renderPerfHints = this._renderPerfHints.bind(this);
   }
 
@@ -57,6 +60,16 @@ class RunTimePerfBar extends React.Component {
     );
   }
 
+  _onDoubleClick() {
+    const {operationNode} = this.props;
+    if (operationNode.children.length === 0) {
+      return;
+    }
+    this.props.dispatch(
+      AnalysisActions.exploreOperation({newView: operationNode}),
+    );
+  }
+
   render() {
     const {operationNode, editorsByPath, ...rest} = this.props;
     return (
@@ -65,6 +78,7 @@ class RunTimePerfBar extends React.Component {
         renderPerfHints={this._renderPerfHints}
         tooltipHTML={this._generateTooltipHTML()}
         onClick={this._onClick}
+        onDoubleClick={this._onDoubleClick}
         {...rest}
       />
     );
@@ -77,4 +91,4 @@ RunTimePerfBar.defaultProps = {
 
 RunTimePerfBar.contextType = TelemetryClientContext;
 
-export default RunTimePerfBar;
+export default connect(null)(RunTimePerfBar);

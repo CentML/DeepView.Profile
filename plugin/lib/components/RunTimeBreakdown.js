@@ -37,6 +37,20 @@ class RunTimeBreakdown extends React.Component {
   }
 
   _getLabels() {
+    const {perfVisState} = this.props;
+    if (perfVisState !== PerfVisState.EXPLORING_OPERATIONS) {
+      return this._getOverviewLabels();
+    }
+
+    const {currentView} = this.props;
+    return [{
+      label: `${currentView.name} (Run Time)`,
+      clickable: false,
+      percentage: 100,
+    }];
+  }
+
+  _getOverviewLabels() {
     const {operationTree} = this.props;
     if (operationTree == null) {
       return DEFAULT_LABELS;
@@ -55,6 +69,42 @@ class RunTimeBreakdown extends React.Component {
   }
 
   _renderPerfBars(expanded) {
+    const {perfVisState} = this.props;
+    if (perfVisState !== PerfVisState.EXPLORING_WEIGHTS &&
+        perfVisState !== PerfVisState.EXPLORING_OPERATIONS) {
+      return this._renderOverviewPerfBars(expanded);
+    }
+    if (perfVisState === PerfVisState.EXPLORING_WEIGHTS) {
+      return null;
+    }
+
+    const {
+      currentView,
+      iterationRunTimeMs,
+      projectRoot,
+      editorsByPath,
+    } = this.props;
+    const colors = COLORS_BY_LABEL[RunTimeEntryLabel.ForwardBackward];
+
+    return currentView.children.map((node, index) => {
+      const overallPct = toPercentage(node.runTimeMs, iterationRunTimeMs);
+      const displayPct = toPercentage(node.runTimeMs, currentView.runTimeMs);
+      return (
+        <RunTimePerfBar
+          key={node.id}
+          operationNode={node}
+          projectRoot={projectRoot}
+          editorsByPath={editorsByPath}
+          overallPct={overallPct}
+          resizable={false}
+          percentage={displayPct}
+          colorClass={colors[index % colors.length]}
+        />
+      );
+    });
+  }
+
+  _renderOverviewPerfBars(expanded) {
     const {operationTree} = this.props;
     if (operationTree == null) {
       return null;
@@ -113,7 +163,8 @@ class RunTimeBreakdown extends React.Component {
   render() {
     const {perfVisState} = this.props;
     const disabled = perfVisState === PerfVisState.MODIFIED ||
-      perfVisState === PerfVisState.ANALYZING;
+      perfVisState === PerfVisState.ANALYZING ||
+      perfVisState === PerfVisState.EXPLORING_WEIGHTS;
 
     return (
       <PerfBarContainer
@@ -128,6 +179,7 @@ class RunTimeBreakdown extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
   operationTree: state.breakdown.operationTree,
+  currentView: state.breakdown.currentView,
   runTime: state.runTime,
   iterationRunTimeMs: state.iterationRunTimeMs,
   ...ownProps,
