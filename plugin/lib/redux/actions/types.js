@@ -62,6 +62,9 @@ export const ANALYSIS_REC_BRK = generateActionType(ANALYSIS_NAMESPACE, 'rec_brea
 export const ANALYSIS_REC_THPT = generateActionType(ANALYSIS_NAMESPACE, 'rec_thpt');
 // An error occurred during the analysis
 export const ANALYSIS_ERROR = generateActionType(ANALYSIS_NAMESPACE, 'error');
+// The user is navigating through the hierarchical breakdown
+export const ANALYSIS_EXPLORE_OP = generateActionType(ANALYSIS_NAMESPACE, 'explore_op');
+export const ANALYSIS_EXPLORE_WEIGHT = generateActionType(ANALYSIS_NAMESPACE, 'explore_weight');
 
 // ============================================================================
 

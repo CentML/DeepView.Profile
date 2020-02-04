@@ -7,6 +7,8 @@ import {
   ANALYSIS_REC_BRK,
   ANALYSIS_REC_THPT,
   ANALYSIS_ERROR,
+  ANALYSIS_EXPLORE_OP,
+  ANALYSIS_EXPLORE_WEIGHT,
 } from '../actions/types';
 import PerfVisState from '../../models/PerfVisState';
 import MemoryBreakdown from '../../models/MemoryBreakdown';
@@ -94,6 +96,46 @@ export default function(state, action) {
         peakUsageBytes,
         memoryCapacityBytes: breakdownResponse.getMemoryCapacityBytes(),
         iterationRunTimeMs,
+      };
+    }
+
+    case ANALYSIS_EXPLORE_OP: {
+      const {newView} = action.payload;
+      let nextCurrentView = newView;
+      let nextPerfVisState = PerfVisState.EXPLORING_OPERATIONS;
+
+      if (newView === state.breakdown.operationTree) {
+        nextCurrentView = null;
+        perfVisState = PerfVisState.READY;
+      }
+
+      return {
+        ...state,
+        perfVisState: nextPerfVisState,
+        breakdown: {
+          ...state.breakdown,
+          currentView: nextCurrentView,
+        },
+      };
+    }
+
+    case ANALYSIS_EXPLORE_WEIGHT: {
+      const {newView} = action.payload;
+      let nextCurrentView = newView;
+      let nextPerfVisState = PerfVisState.EXPLORING_WEIGHTS;
+
+      if (newView === state.breakdown.weightTree) {
+        nextCurrentView = null;
+        perfVisState = PerfVisState.READY;
+      }
+
+      return {
+        ...state,
+        perfVisState: nextPerfVisState,
+        breakdown: {
+          ...state.breakdown,
+          currentView: nextCurrentView,
+        },
       };
     }
 

@@ -8,6 +8,8 @@ import {
   ANALYSIS_REC_BRK,
   ANALYSIS_REC_THPT,
   ANALYSIS_ERROR,
+  ANALYSIS_EXPLORE_OP,
+  ANALYSIS_EXPLORE_WEIGHT,
 } from './types';
 
 export default {
@@ -28,6 +30,17 @@ export default {
     ANALYSIS_REC_THPT,
     ({throughputResponse}) => ({throughputResponse}),
   ),
-  error: fromPayloadCreator(ANALYSIS_ERROR, ({errorMessage}) => ({errorMessage})),
+  error: fromPayloadCreator(
+    ANALYSIS_ERROR,
+    ({errorMessage}) => ({errorMessage}),
+  ),
+  exploreOperation: fromPayloadCreator(
+    ANALYSIS_EXPLORE_OP,
+    ({newView}) => ({newView}),
+  ),
+  exploreWeight: fromPayloadCreator(
+    ANALYSIS_EXPLORE_WEIGHT,
+    ({newView}) => ({newView}),
+  ),
 };
 

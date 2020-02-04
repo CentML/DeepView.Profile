@@ -2,10 +2,13 @@
 
 import path from 'path';
 import React from 'react';
+import {connect} from 'react-redux';
 
 import PerfBar from './generic/PerfBar';
 import UsageHighlight from './UsageHighlight';
 import {toReadableByteSize} from '../utils';
+import MemoryEntryLabel from '../models/MemoryEntryLabel';
+import AnalysisActions from '../redux/actions/analysis';
 
 import Events from '../telemetry/events';
 import TelemetryClientContext from '../telemetry/react_context';
@@ -15,6 +18,7 @@ class MemoryPerfBar extends React.Component {
     super(props);
     this._renderPerfHints = this._renderPerfHints.bind(this);
     this._onClick = this._onClick.bind(this);
+    this._onDoubleClick = this._onDoubleClick.bind(this);
   }
 
   _generateTooltipHTML() {
@@ -58,6 +62,22 @@ class MemoryPerfBar extends React.Component {
     );
   }
 
+  _onDoubleClick() {
+    const {memoryNode, label} = this.props;
+    if (memoryNode.children.length === 0) {
+      return;
+    }
+    if (label === MemoryEntryLabel.Weights) {
+      this.props.dispatch(
+        AnalysisActions.exploreWeight({newView: memoryNode}),
+      );
+    } else {
+      this.props.dispatch(
+        AnalysisActions.exploreOperation({newView: memoryNode}),
+      );
+    }
+  }
+
   render() {
     const {memoryNode, editorsByPath, ...rest} = this.props;
     return (
@@ -66,6 +86,7 @@ class MemoryPerfBar extends React.Component {
         renderPerfHints={this._renderPerfHints}
         tooltipHTML={this._generateTooltipHTML()}
         onClick={this._onClick}
+        onDoubleClick={this._onDoubleClick}
         {...rest}
       />
     );
@@ -78,4 +99,4 @@ MemoryPerfBar.defaultProps = {
 
 MemoryPerfBar.contextType = TelemetryClientContext;
 
-export default MemoryPerfBar;
+export default connect(null)(MemoryPerfBar);

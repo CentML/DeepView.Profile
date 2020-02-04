@@ -45,6 +45,10 @@ class PerfVisStatusBar extends React.Component {
 
       case PerfVisState.MODIFIED:
         return 'Unsaved changes; save to re-enable interactivity';
+
+      case PerfVisState.EXPLORING_WEIGHTS:
+      case PerfVisState.EXPLORING_OPERATIONS:
+        return 'Showing breakdown details';
     }
   }
 

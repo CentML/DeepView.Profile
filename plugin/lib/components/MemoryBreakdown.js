@@ -15,8 +15,6 @@ const DEFAULT_MEMORY_LABELS = [
   {label: MemoryEntryLabel.Untracked, percentage: 15, clickable: false},
 ];
 
-const MEMORY_LABEL_ORDER = DEFAULT_MEMORY_LABELS.map(({label}) => label);
-
 const COLORS_BY_LABEL = {
   [MemoryEntryLabel.Weights]: [
     'innpv-green-color-1',
@@ -44,6 +42,28 @@ class MemoryBreakdown extends React.Component {
   }
 
   _getLabels() {
+    const {perfVisState, currentView} = this.props;
+
+    if (perfVisState === PerfVisState.EXPLORING_WEIGHTS) {
+      return [{
+        label: `${currentView.name} (Weights)`,
+        percentage: 100,
+        clickable: false,
+      }];
+
+    } else if (perfVisState === PerfVisState.EXPLORING_OPERATIONS) {
+      return [{
+        label: `${currentView.name} (Activations)`,
+        percentage: 100,
+        clickable: false,
+      }];
+
+    } else {
+      return this._getOverviewLabels();
+    }
+  }
+
+  _getOverviewLabels() {
     const {operationTree, weightTree} = this.props;
     if (operationTree == null || weightTree == null) {
       return DEFAULT_MEMORY_LABELS;
@@ -70,6 +90,35 @@ class MemoryBreakdown extends React.Component {
   }
 
   _renderPerfBars(expanded) {
+    const {perfVisState} = this.props;
+    if (perfVisState !== PerfVisState.EXPLORING_WEIGHTS &&
+        perfVisState !== PerfVisState.EXPLORING_OPERATIONS) {
+      return this._renderOverviewPerfBars(expanded);
+    }
+
+    const {currentView, peakUsageBytes} = this.props;
+    const label = perfVisState === PerfVisState.EXPLORING_WEIGHTS
+      ? MemoryEntryLabel.Weights
+      : MemoryEntryLabel.Activations;
+    const colors = COLORS_BY_LABEL[label];
+
+    return currentView.children
+      .filter((node) => node.sizeBytes > 0)
+      .map((node, index) => {
+        const overallPct = toPercentage(node.sizeBytes, peakUsageBytes);
+        const displayPct = toPercentage(node.sizeBytes, currentView.sizeBytes);
+
+        return this._renderPerfBarFrom({
+          node,
+          label,
+          overallPct,
+          displayPct,
+          color: colors[index % colors.length],
+        });
+      });
+  }
+
+  _renderOverviewPerfBars(expanded) {
     const {operationTree, weightTree} = this.props;
     if (operationTree == null || weightTree == null) {
       return null;
@@ -78,7 +127,7 @@ class MemoryBreakdown extends React.Component {
     const {editorsByPath, projectRoot, peakUsageBytes} = this.props;
 
     const results = [weightTree, operationTree].flatMap((tree, idx) => {
-      const label = idx == 0
+      const label = idx === 0
         ? MemoryEntryLabel.Weights
         : MemoryEntryLabel.Activations;
       const colors = COLORS_BY_LABEL[label];
@@ -99,18 +148,13 @@ class MemoryBreakdown extends React.Component {
           );
         }
 
-        return (
-          <MemoryPerfBar
-            key={`${label}-${node.id}`}
-            memoryNode={node}
-            projectRoot={projectRoot}
-            editorsByPath={editorsByPath}
-            overallPct={overallPct}
-            resizable={false}
-            percentage={displayPct}
-            colorClass={colors[index % colors.length]}
-          />
-        );
+        return this._renderPerfBarFrom({
+          node,
+          label,
+          overallPct,
+          displayPct,
+          color: colors[index % colors.length],
+        });
       });
     });
 
@@ -120,20 +164,32 @@ class MemoryBreakdown extends React.Component {
     }
 
     const untrackedPct = toPercentage(untrackedBytes, peakUsageBytes);
-    results.push(
-      <MemoryPerfBar
-        key={`Untracked-${untrackedNode.id}`}
-        memoryNode={untrackedNode}
-        projectRoot={projectRoot}
-        editorsByPath={editorsByPath}
-        overallPct={untrackedPct}
-        resizable={false}
-        percentage={untrackedPct}
-        colorClass={COLORS_BY_LABEL[MemoryEntryLabel.Untracked][0]}
-      />
-    );
+    results.push(this._renderPerfBarFrom({
+      node: untrackedNode,
+      label: 'Untracked',
+      overallPct: untrackedPct,
+      displayPct: untrackedPct,
+      color: COLORS_BY_LABEL[MemoryEntryLabel.Untracked][0],
+    }));
 
     return results;
+  }
+
+  _renderPerfBarFrom({node, label, overallPct, displayPct, color}) {
+    const {projectRoot, editorsByPath} = this.props;
+    return (
+      <MemoryPerfBar
+        key={`${label}-${node.id}`}
+        label={label}
+        memoryNode={node}
+        projectRoot={projectRoot}
+        editorsByPath={editorsByPath}
+        overallPct={overallPct}
+        resizable={false}
+        percentage={displayPct}
+        colorClass={color}
+      />
+    );
   }
 
   render() {
@@ -155,6 +211,7 @@ const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
   operationTree: state.breakdown.operationTree,
   weightTree: state.breakdown.weightTree,
+  currentView: state.breakdown.currentView,
   memory: state.memory,
   peakUsageBytes: state.peakUsageBytes,
   ...ownProps,
