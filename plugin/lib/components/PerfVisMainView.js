@@ -22,13 +22,8 @@ function PerfVisHeader() {
 export default class PerfVisMainView extends React.Component {
   constructor(props) {
     super(props);
-    this._handleStatusBarClick = this._handleStatusBarClick.bind(this);
     this._handleSliderHoverEnter = this._handleSliderHoverEnter.bind(this);
     this._handleSliderHoverExit = this._handleSliderHoverExit.bind(this);
-  }
-
-  _handleStatusBarClick() {
-    // TODO: Handle status bar clicks (currently only to undo predictions)
   }
 
   _handleSliderHoverEnter() {
@@ -79,10 +74,7 @@ export default class PerfVisMainView extends React.Component {
       <div className="innpv-main">
         <PerfVisHeader />
         <div className="innpv-contents">{this._renderBody()}</div>
-        <PerfVisStatusBar
-          handleClick={this._handleStatusBarClick}
-          perfVisState={this.props.perfVisState}
-        />
+        <PerfVisStatusBar perfVisState={this.props.perfVisState} />
       </div>
     );
   }

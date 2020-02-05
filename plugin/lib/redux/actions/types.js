@@ -65,6 +65,8 @@ export const ANALYSIS_ERROR = generateActionType(ANALYSIS_NAMESPACE, 'error');
 // The user is navigating through the hierarchical breakdown
 export const ANALYSIS_EXPLORE_OP = generateActionType(ANALYSIS_NAMESPACE, 'explore_op');
 export const ANALYSIS_EXPLORE_WEIGHT = generateActionType(ANALYSIS_NAMESPACE, 'explore_weight');
+export const ANALYSIS_EXPLORE_PREV = generateActionType(ANALYSIS_NAMESPACE, 'explore_prev');
+export const ANALYSIS_EXPLORE_CLEAR = generateActionType(ANALYSIS_NAMESPACE, 'explore_clear');
 
 // ============================================================================
 

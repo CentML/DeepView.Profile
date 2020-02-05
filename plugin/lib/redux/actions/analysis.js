@@ -10,6 +10,8 @@ import {
   ANALYSIS_ERROR,
   ANALYSIS_EXPLORE_OP,
   ANALYSIS_EXPLORE_WEIGHT,
+  ANALYSIS_EXPLORE_PREV,
+  ANALYSIS_EXPLORE_CLEAR,
 } from './types';
 
 export default {
@@ -42,5 +44,7 @@ export default {
     ANALYSIS_EXPLORE_WEIGHT,
     ({newView}) => ({newView}),
   ),
+  explorePrevious: emptyFor(ANALYSIS_EXPLORE_PREV),
+  clearExplored: emptyFor(ANALYSIS_EXPLORE_CLEAR),
 };
 

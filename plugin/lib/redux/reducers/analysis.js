@@ -9,6 +9,8 @@ import {
   ANALYSIS_ERROR,
   ANALYSIS_EXPLORE_OP,
   ANALYSIS_EXPLORE_WEIGHT,
+  ANALYSIS_EXPLORE_CLEAR,
+  ANALYSIS_EXPLORE_PREV,
 } from '../actions/types';
 import PerfVisState from '../../models/PerfVisState';
 import MemoryBreakdown from '../../models/MemoryBreakdown';
@@ -99,42 +101,52 @@ export default function(state, action) {
       };
     }
 
-    case ANALYSIS_EXPLORE_OP: {
+    case ANALYSIS_EXPLORE_OP:
+    case ANALYSIS_EXPLORE_WEIGHT: {
       const {newView} = action.payload;
-      let nextCurrentView = newView;
-      let nextPerfVisState = PerfVisState.EXPLORING_OPERATIONS;
-
-      if (newView === state.breakdown.operationTree) {
-        nextCurrentView = null;
-        perfVisState = PerfVisState.READY;
-      }
-
+      const perfVisState = action.type === ANALYSIS_EXPLORE_OP
+        ? PerfVisState.EXPLORING_OPERATIONS
+        : PerfVisState.EXPLORING_WEIGHTS;
       return {
         ...state,
-        perfVisState: nextPerfVisState,
+        perfVisState,
         breakdown: {
           ...state.breakdown,
-          currentView: nextCurrentView,
+          currentView: newView,
         },
       };
     }
 
-    case ANALYSIS_EXPLORE_WEIGHT: {
-      const {newView} = action.payload;
-      let nextCurrentView = newView;
-      let nextPerfVisState = PerfVisState.EXPLORING_WEIGHTS;
+    case ANALYSIS_EXPLORE_CLEAR: {
+      return {
+        ...state,
+        perfVisState: PerfVisState.READY,
+        breakdown: {
+          ...state.breakdown,
+          currentView: null,
+        },
+      };
+    }
 
-      if (newView === state.breakdown.weightTree) {
-        nextCurrentView = null;
-        perfVisState = PerfVisState.READY;
+    case ANALYSIS_EXPLORE_PREV: {
+      const currentView = state.breakdown.currentView;
+      if (currentView.parent !== state.breakdown.operationTree &&
+          currentView.parent !== state.breakdown.weightTree) {
+        return {
+          ...state,
+          breakdown: {
+            ...state.breakdown,
+            currentView: currentView.parent,
+          },
+        };
       }
 
       return {
         ...state,
-        perfVisState: nextPerfVisState,
+        perfVisState: PerfVisState.READY,
         breakdown: {
           ...state.breakdown,
-          currentView: nextCurrentView,
+          currentView: null,
         },
       };
     }

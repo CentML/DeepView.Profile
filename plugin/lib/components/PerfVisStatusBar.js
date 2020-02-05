@@ -1,8 +1,10 @@
 'use babel';
 
 import React from 'react';
+import {connect} from 'react-redux';
 
 import PerfVisState from '../models/PerfVisState';
+import AnalysisActions from '../redux/actions/analysis';
 
 function LoadingIcon() {
   return (
@@ -22,8 +24,28 @@ function ErrorIcon() {
 
 function SyncButton(props) {
   return (
-    <div onClick={props.handleClick} className="innpv-statusbar-icon innpv-clickable">
+    <div className="innpv-statusbar-icon innpv-clickable">
       <span className="icon icon-x" />
+    </div>
+  );
+}
+
+function ExplorationButton(props) {
+  const {Fragment} = React;
+  return (
+    <div className="innpv-statusbar-iconbar">
+      <div
+        onClick={props.explorePrevious}
+        className="innpv-statusbar-icon innpv-clickable"
+      >
+        <span className="icon icon-arrow-left" />
+      </div>
+      <div
+        onClick={props.clearExplored}
+        className="innpv-statusbar-icon innpv-clickable"
+      >
+        <span className="icon icon-x" />
+      </div>
     </div>
   );
 }
@@ -47,8 +69,10 @@ class PerfVisStatusBar extends React.Component {
         return 'Unsaved changes; save to re-enable interactivity';
 
       case PerfVisState.EXPLORING_WEIGHTS:
+        return 'Showing weight breakdown details';
+
       case PerfVisState.EXPLORING_OPERATIONS:
-        return 'Showing breakdown details';
+        return 'Showing operation breakdown details';
     }
   }
 
@@ -61,7 +85,16 @@ class PerfVisStatusBar extends React.Component {
         return <LoadingIcon />;
 
       case PerfVisState.SHOWING_PREDICTIONS:
-        return <SyncButton handleClick={this.props.handleClick} />;
+        return <SyncButton />;
+
+      case PerfVisState.EXPLORING_WEIGHTS:
+      case PerfVisState.EXPLORING_OPERATIONS:
+        return (
+          <ExplorationButton
+            explorePrevious={this.props.explorePrevious}
+            clearExplored={this.props.clearExplored}
+          />
+        );
 
       default:
         return null;
@@ -82,4 +115,9 @@ PerfVisStatusBar.defaultProps = {
   handleClick: () => {},
 };
 
-export default PerfVisStatusBar;
+const mapDispatchToProps = (dispatch) => ({
+  explorePrevious: () => dispatch(AnalysisActions.explorePrevious()),
+  clearExplored: () => dispatch(AnalysisActions.clearExplored()),
+});
+
+export default connect(null, mapDispatchToProps)(PerfVisStatusBar);
