@@ -83,6 +83,7 @@ class RunTimeBreakdown extends React.Component {
       iterationRunTimeMs,
       projectRoot,
       editorsByPath,
+      currentlyActive,
     } = this.props;
     const colors = COLORS_BY_LABEL[RunTimeEntryLabel.ForwardBackward];
 
@@ -92,6 +93,7 @@ class RunTimeBreakdown extends React.Component {
       return (
         <RunTimePerfBar
           key={node.id}
+          isActive={node === currentlyActive}
           operationNode={node}
           projectRoot={projectRoot}
           editorsByPath={editorsByPath}
@@ -110,7 +112,12 @@ class RunTimeBreakdown extends React.Component {
       return null;
     }
 
-    const {editorsByPath, projectRoot, iterationRunTimeMs} = this.props;
+    const {
+      editorsByPath,
+      projectRoot,
+      iterationRunTimeMs,
+      currentlyActive,
+    } = this.props;
     const colors = COLORS_BY_LABEL[RunTimeEntryLabel.ForwardBackward];
 
     const results = operationTree.children.map((operationNode, index) => {
@@ -127,6 +134,7 @@ class RunTimeBreakdown extends React.Component {
       return (
         <RunTimePerfBar
           key={operationNode.id}
+          isActive={operationNode === currentlyActive}
           operationNode={operationNode}
           projectRoot={projectRoot}
           editorsByPath={editorsByPath}
@@ -180,6 +188,7 @@ const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
   operationTree: state.breakdown.operationTree,
   currentView: state.breakdown.currentView,
+  currentlyActive: state.breakdown.currentlyActive,
   runTime: state.runTime,
   iterationRunTimeMs: state.iterationRunTimeMs,
   ...ownProps,

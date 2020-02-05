@@ -19,6 +19,7 @@ class MemoryPerfBar extends React.Component {
     this._renderPerfHints = this._renderPerfHints.bind(this);
     this._onClick = this._onClick.bind(this);
     this._onDoubleClick = this._onDoubleClick.bind(this);
+    this._onActiveChange = this._onActiveChange.bind(this);
   }
 
   _generateTooltipHTML() {
@@ -28,8 +29,8 @@ class MemoryPerfBar extends React.Component {
       `${overallPct.toFixed(2)}%`;
   }
 
-  _renderPerfHints(isActive, perfHintState) {
-    const {editorsByPath, memoryNode} = this.props;
+  _renderPerfHints(perfHintState) {
+    const {editorsByPath, memoryNode, isActive} = this.props;
 
     return memoryNode.contexts.flatMap(({filePath, lineNumber}) => {
       if (!editorsByPath.has(filePath)) {
@@ -78,6 +79,14 @@ class MemoryPerfBar extends React.Component {
     }
   }
 
+  _onActiveChange(isActive) {
+    const {dispatch, memoryNode} = this.props;
+    const currentlyActive = isActive ? memoryNode : null;
+    dispatch(
+      AnalysisActions.setActive({currentlyActive}),
+    );
+  }
+
   render() {
     const {memoryNode, editorsByPath, ...rest} = this.props;
     return (
@@ -87,6 +96,7 @@ class MemoryPerfBar extends React.Component {
         tooltipHTML={this._generateTooltipHTML()}
         onClick={this._onClick}
         onDoubleClick={this._onDoubleClick}
+        onActiveChange={this._onActiveChange}
         {...rest}
       />
     );

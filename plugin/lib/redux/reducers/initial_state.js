@@ -29,7 +29,9 @@ export default {
   breakdown: {
     operationTree: null,
     weightTree: null,
+
     currentView: null,
+    currentlyActive: null,
   },
   runTime: {
     trackedMs: null,

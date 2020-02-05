@@ -17,6 +17,7 @@ class RunTimePerfBar extends React.Component {
     this._onClick = this._onClick.bind(this);
     this._onDoubleClick = this._onDoubleClick.bind(this);
     this._renderPerfHints = this._renderPerfHints.bind(this);
+    this._onActiveChange = this._onActiveChange.bind(this);
   }
 
   _generateTooltipHTML() {
@@ -26,8 +27,8 @@ class RunTimePerfBar extends React.Component {
       `${overallPct.toFixed(2)}%`;
   }
 
-  _renderPerfHints(isActive, perfHintState) {
-    const {editorsByPath, operationNode} = this.props;
+  _renderPerfHints(perfHintState) {
+    const {editorsByPath, operationNode, isActive} = this.props;
 
     return operationNode.contexts.flatMap(({filePath, lineNumber}) => {
       if (!editorsByPath.has(filePath)) {
@@ -70,6 +71,14 @@ class RunTimePerfBar extends React.Component {
     );
   }
 
+  _onActiveChange(isActive) {
+    const {dispatch, operationNode} = this.props;
+    const currentlyActive = isActive ? operationNode : null;
+    dispatch(
+      AnalysisActions.setActive({currentlyActive}),
+    );
+  }
+
   render() {
     const {operationNode, editorsByPath, ...rest} = this.props;
     return (
@@ -79,6 +88,7 @@ class RunTimePerfBar extends React.Component {
         tooltipHTML={this._generateTooltipHTML()}
         onClick={this._onClick}
         onDoubleClick={this._onDoubleClick}
+        onActiveChange={this._onActiveChange}
         {...rest}
       />
     );

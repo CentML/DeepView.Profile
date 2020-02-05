@@ -12,6 +12,7 @@ import {
   ANALYSIS_EXPLORE_WEIGHT,
   ANALYSIS_EXPLORE_PREV,
   ANALYSIS_EXPLORE_CLEAR,
+  ANALYSIS_SET_ACTIVE,
 } from './types';
 
 export default {
@@ -46,5 +47,9 @@ export default {
   ),
   explorePrevious: emptyFor(ANALYSIS_EXPLORE_PREV),
   clearExplored: emptyFor(ANALYSIS_EXPLORE_CLEAR),
+  setActive: fromPayloadCreator(
+    ANALYSIS_SET_ACTIVE,
+    ({currentlyActive}) => ({currentlyActive}),
+  ),
 };
 

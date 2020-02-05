@@ -67,6 +67,8 @@ export const ANALYSIS_EXPLORE_OP = generateActionType(ANALYSIS_NAMESPACE, 'explo
 export const ANALYSIS_EXPLORE_WEIGHT = generateActionType(ANALYSIS_NAMESPACE, 'explore_weight');
 export const ANALYSIS_EXPLORE_PREV = generateActionType(ANALYSIS_NAMESPACE, 'explore_prev');
 export const ANALYSIS_EXPLORE_CLEAR = generateActionType(ANALYSIS_NAMESPACE, 'explore_clear');
+// When the user hovers over a breakdown node
+export const ANALYSIS_SET_ACTIVE = generateActionType(ANALYSIS_NAMESPACE, 'set_active');
 
 // ============================================================================
 

@@ -11,6 +11,7 @@ import {
   ANALYSIS_EXPLORE_WEIGHT,
   ANALYSIS_EXPLORE_CLEAR,
   ANALYSIS_EXPLORE_PREV,
+  ANALYSIS_SET_ACTIVE,
 } from '../actions/types';
 import PerfVisState from '../../models/PerfVisState';
 import MemoryBreakdown from '../../models/MemoryBreakdown';
@@ -80,6 +81,7 @@ export default function(state, action) {
           operationTree,
           weightTree,
           currentView: null,
+          currentlyActive: null,
         },
         runTime: {
           untrackedMs,
@@ -147,6 +149,17 @@ export default function(state, action) {
         breakdown: {
           ...state.breakdown,
           currentView: null,
+        },
+      };
+    }
+
+    case ANALYSIS_SET_ACTIVE: {
+      const {currentlyActive} = action.payload;
+      return {
+        ...state,
+        breakdown: {
+          ...state.breakdown,
+          currentlyActive,
         },
       };
     }

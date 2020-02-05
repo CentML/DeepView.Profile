@@ -17,10 +17,6 @@ class PerfBar extends React.Component {
     this.state = {
       // Keeps track of how this PerfBar is being manipulated.
       perfHintState: PerfHintState.NONE,
-
-      // Keeps track of whether this PerfBar is "active". Right now, "active"
-      // means the user's cursor is hovering over this PerfBar.
-      isActive: false,
     };
 
     this._handleHoverEnter = this._handleHoverEnter.bind(this);
@@ -80,11 +76,11 @@ class PerfBar extends React.Component {
   }
 
   _handleHoverEnter() {
-    this.setState({isActive: true});
+    this.props.onActiveChange(true);
   }
 
   _handleHoverExit() {
-    this.setState({isActive: false});
+    this.props.onActiveChange(false);
   }
 
   _handleIncrease() {
@@ -121,8 +117,12 @@ class PerfBar extends React.Component {
   }
 
   _className() {
-    const {resizable, clickable} = this.props;
-    const mainClass = 'innpv-perfbar-wrap';
+    const {resizable, clickable, isActive} = this.props;
+    let mainClass = 'innpv-perfbar-wrap';
+
+    if (isActive) {
+      mainClass += ' innpv-perfbar-active';
+    }
 
     if (resizable) {
       return mainClass + ' innpv-perfbar-resizable';
@@ -141,7 +141,7 @@ class PerfBar extends React.Component {
       updateMarginTop,
       colorClass,
     } = this.props;
-    const {isActive, perfHintState} = this.state;
+    const {perfHintState} = this.state;
 
     return (
       <Elastic
@@ -160,19 +160,21 @@ class PerfBar extends React.Component {
           onMouseLeave={this._handleHoverExit}
           onClick={this._handleClick}
         />
-        {renderPerfHints(isActive, perfHintState)}
+        {renderPerfHints(perfHintState)}
       </Elastic>
     );
   }
 }
 
 PerfBar.defaultProps = {
+  isActive: false,
   resizable: false,
   clickable: false,
-  renderPerfHints: (isActive, perfHintState) => null,
+  renderPerfHints: (perfHintState) => null,
   tooltipHTML: null,
   onClick: (event) => {},
   onDoubleClick: (event) => {},
+  onActiveChange: (isActive) => {},
 };
 
 export default PerfBar;

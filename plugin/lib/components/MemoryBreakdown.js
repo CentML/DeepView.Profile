@@ -176,10 +176,11 @@ class MemoryBreakdown extends React.Component {
   }
 
   _renderPerfBarFrom({node, label, overallPct, displayPct, color}) {
-    const {projectRoot, editorsByPath} = this.props;
+    const {projectRoot, editorsByPath, currentlyActive} = this.props;
     return (
       <MemoryPerfBar
         key={`${label}-${node.id}`}
+        isActive={node === currentlyActive}
         label={label}
         memoryNode={node}
         projectRoot={projectRoot}
@@ -212,6 +213,7 @@ const mapStateToProps = (state, ownProps) => ({
   operationTree: state.breakdown.operationTree,
   weightTree: state.breakdown.weightTree,
   currentView: state.breakdown.currentView,
+  currentlyActive: state.breakdown.currentlyActive,
   memory: state.memory,
   peakUsageBytes: state.peakUsageBytes,
   ...ownProps,
