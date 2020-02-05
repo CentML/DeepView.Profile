@@ -91,7 +91,8 @@ class HierarchicalBreakdownBuilder:
             if context not in parent.children:
                 name = (
                     leaf_name if is_last_frame
-                    else self._module_names_by_id[frame.module_id]
+                    else self._module_names_by_id[
+                        stack_frames[-idx-2].module_id]
                 )
                 new_entry = node_constructor(name, frame.module_id)
                 new_entry.add_context(context)
