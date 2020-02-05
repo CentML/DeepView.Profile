@@ -30,6 +30,21 @@ class BreakdownNode {
   get children() {
     return this._children;
   }
+
+  sort() {
+    const stack = [this];
+    while (stack.length > 0) {
+      const node = stack.pop();
+      node._sortChildren();
+      for (const child of node.children) {
+        stack.push(child);
+      }
+    }
+  }
+
+  _sortChildren() {
+    throw new Error('Not implemented!');
+  }
 }
 
 export class OperationNode extends BreakdownNode {
@@ -38,6 +53,8 @@ export class OperationNode extends BreakdownNode {
     this._forwardMs = forwardMs;
     this._backwardMs = backwardMs;
     this._sizeBytes = sizeBytes;
+    this._childrenByTime = null;
+    this._childrenBySize = null;
   }
 
   get runTimeMs() {
@@ -59,11 +76,28 @@ export class OperationNode extends BreakdownNode {
     return this._sizeBytes;
   }
 
+  get childrenByTime() {
+    return this._childrenByTime;
+  }
+
+  get childrenBySize() {
+    return this._childrenBySize;
+  }
+
+  _sortChildren() {
+    this._childrenByTime = this.children.slice();
+    this._childrenByTime.sort(runTimeComparator);
+    this._childrenBySize = this.children.slice();
+    this._childrenBySize.sort(sizeComparator);
+  }
+
   static fromProtobufNodeList(operationNodeList) {
-    return constructTree(
+    const tree = constructTree(
       operationNodeList,
       OperationNode._fromProtobufNode,
     );
+    tree.sort();
+    return tree;
   }
 
   static _fromProtobufNode(protobufBreakdownNode, id) {
@@ -80,17 +114,29 @@ export class WeightNode extends BreakdownNode {
   constructor({id, name, contexts, sizeBytes}) {
     super({id, name, contexts});
     this._sizeBytes = sizeBytes;
+    this._childrenBySize = null;
   }
 
   get sizeBytes() {
     return this._sizeBytes;
   }
 
+  get childrenBySize() {
+    return this._childrenBySize;
+  }
+
+  _sortChildren() {
+    this._childrenBySize = this.children.slice();
+    this._childrenBySize.sort(sizeComparator);
+  }
+
   static fromProtobufNodeList(weightNodeList) {
-    return constructTree(
+    const tree = constructTree(
       weightNodeList,
       WeightNode._fromProtobuf,
     );
+    tree.sort();
+    return tree;
   }
 
   static _fromProtobuf(protobufBreakdownNode, id) {
@@ -152,4 +198,14 @@ function parseWeightData(protobufNode) {
   return {
     sizeBytes: data.getSizeBytes() + data.getGradSizeBytes(),
   };
+}
+
+function runTimeComparator(nodeLeft, nodeRight) {
+  // We want to sort in descending order
+  return -(nodeLeft.runTimeMs - nodeRight.runTimeMs);
+}
+
+function sizeComparator(nodeLeft, nodeRight) {
+  // We want to sort in descending order
+  return -(nodeLeft.sizeBytes - nodeRight.sizeBytes);
 }

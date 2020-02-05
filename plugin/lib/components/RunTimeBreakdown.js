@@ -87,7 +87,7 @@ class RunTimeBreakdown extends React.Component {
     } = this.props;
     const colors = COLORS_BY_LABEL[RunTimeEntryLabel.ForwardBackward];
 
-    return currentView.children.map((node, index) => {
+    return currentView.childrenByTime.map((node, index) => {
       const overallPct = toPercentage(node.runTimeMs, iterationRunTimeMs);
       const displayPct = toPercentage(node.runTimeMs, currentView.runTimeMs);
       return (
@@ -120,7 +120,7 @@ class RunTimeBreakdown extends React.Component {
     } = this.props;
     const colors = COLORS_BY_LABEL[RunTimeEntryLabel.ForwardBackward];
 
-    const results = operationTree.children.map((operationNode, index) => {
+    const results = operationTree.childrenByTime.map((operationNode, index) => {
       const overallPct = toPercentage(operationNode.runTimeMs, iterationRunTimeMs);
 
       // This helps account for "expanded" labels

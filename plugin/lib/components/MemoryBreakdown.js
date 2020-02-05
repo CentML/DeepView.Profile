@@ -102,7 +102,7 @@ class MemoryBreakdown extends React.Component {
       : MemoryEntryLabel.Activations;
     const colors = COLORS_BY_LABEL[label];
 
-    return currentView.children
+    return currentView.childrenBySize
       .filter((node) => node.sizeBytes > 0)
       .map((node, index) => {
         const overallPct = toPercentage(node.sizeBytes, peakUsageBytes);
@@ -132,7 +132,7 @@ class MemoryBreakdown extends React.Component {
         : MemoryEntryLabel.Activations;
       const colors = COLORS_BY_LABEL[label];
 
-      return tree.children.map((node, index) => {
+      return tree.childrenBySize.map((node, index) => {
         const overallPct = toPercentage(node.sizeBytes, peakUsageBytes);
 
         // This helps account for "expanded" labels
