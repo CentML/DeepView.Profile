@@ -24,9 +24,12 @@ class PerfBarContainer extends React.Component {
   }
 
   _classes() {
-    const mainClass = 'innpv-perfbarcontainer-wrap';
+    let mainClass = 'innpv-perfbarcontainer-wrap';
     if (this.props.disabled) {
-      return mainClass + ' innpv-no-events';
+      mainClass += ' innpv-no-events';
+    }
+    if (this.props.focusing) {
+      mainClass += ' innpv-perfbarcontainer-focusing';
     }
     return mainClass;
   }
@@ -55,6 +58,7 @@ class PerfBarContainer extends React.Component {
 }
 
 PerfBarContainer.defaultProps = {
+  focusing: false,
   disabled: false,
   labels: [],
   marginTop: 0,

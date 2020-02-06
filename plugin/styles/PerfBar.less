@@ -3,13 +3,17 @@
 @import "syntax-variables";
 
 .innpv-perfbar-wrap {
-  opacity: 0.7;
+  opacity: 0.75;
   transition-property: opacity, height;
   transition-duration: @perfbar-duration;
   transition-timing-function: @perfbar-easing;
 
   &.innpv-perfbar-active {
-    opacity: 1;
+    opacity: 1 !important;
+  }
+
+  .innpv-perfbarcontainer-focusing & {
+    opacity: 0.25;
   }
 }
 

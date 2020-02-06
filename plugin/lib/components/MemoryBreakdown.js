@@ -194,13 +194,14 @@ class MemoryBreakdown extends React.Component {
   }
 
   render() {
-    const {perfVisState} = this.props;
+    const {perfVisState, currentlyActive} = this.props;
     const disabled = perfVisState === PerfVisState.MODIFIED ||
       perfVisState === PerfVisState.ANALYZING;
 
     return (
       <PerfBarContainer
         disabled={disabled}
+        focusing={currentlyActive != null}
         labels={this._getLabels()}
         renderPerfBars={this._renderPerfBars}
       />
