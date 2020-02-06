@@ -140,11 +140,21 @@ message BreakdownNode {
   }
 }
 
+message ContextInfo {
+  FileReference context = 1;
+  float run_time_ms = 2;
+  uint64 size_bytes = 3;
+  uint32 invocations = 4;
+}
+
 message OperationData {
   float forward_ms = 1;
   // This will be NaN if this operation is not used in the backward pass
   float backward_ms = 2;
   uint64 size_bytes = 3;
+  // TODO: This contains many repeated FileReferences. We should store them
+  //       more efficiently.
+  repeated ContextInfo context_info_map = 4;
 }
 
 message WeightData {

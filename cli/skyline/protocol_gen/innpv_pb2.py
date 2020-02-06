@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='innpv.proto',
   package='innpv.protocol',
   syntax='proto3',
-  serialized_pb=_b('\n\x0binnpv.proto\x12\x0einnpv.protocol\"\x9e\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x42\t\n\x07payload\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\xe9\x02\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"\\\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\"&\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\"Z\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\"\xd6\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"L\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65\x62\x06proto3')
+  serialized_pb=_b('\n\x0binnpv.proto\x12\x0einnpv.protocol\"\x9e\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x42\t\n\x07payload\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\xe9\x02\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"\\\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\"&\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\"Z\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\"\xd6\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"{\n\x0b\x43ontextInfo\x12.\n\x07\x63ontext\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x13\n\x0brun_time_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x13\n\x0binvocations\x18\x04 \x01(\r\"\x83\x01\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x35\n\x10\x63ontext_info_map\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.ContextInfo\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -564,6 +564,58 @@ _BREAKDOWNNODE = _descriptor.Descriptor(
 )
 
 
+_CONTEXTINFO = _descriptor.Descriptor(
+  name='ContextInfo',
+  full_name='innpv.protocol.ContextInfo',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='context', full_name='innpv.protocol.ContextInfo.context', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='run_time_ms', full_name='innpv.protocol.ContextInfo.run_time_ms', index=1,
+      number=2, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='size_bytes', full_name='innpv.protocol.ContextInfo.size_bytes', index=2,
+      number=3, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='invocations', full_name='innpv.protocol.ContextInfo.invocations', index=3,
+      number=4, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1609,
+  serialized_end=1732,
+)
+
+
 _OPERATIONDATA = _descriptor.Descriptor(
   name='OperationData',
   full_name='innpv.protocol.OperationData',
@@ -592,6 +644,13 @@ _OPERATIONDATA = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='context_info_map', full_name='innpv.protocol.OperationData.context_info_map', index=3,
+      number=4, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -604,8 +663,8 @@ _OPERATIONDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1609,
-  serialized_end=1685,
+  serialized_start=1735,
+  serialized_end=1866,
 )
 
 
@@ -642,8 +701,8 @@ _WEIGHTDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1687,
-  serialized_end=1744,
+  serialized_start=1868,
+  serialized_end=1925,
 )
 
 
@@ -666,8 +725,8 @@ _MEMORYUSAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1746,
-  serialized_end=1773,
+  serialized_start=1927,
+  serialized_end=1954,
 )
 
 
@@ -690,8 +749,8 @@ _RUNTIMERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1775,
-  serialized_end=1798,
+  serialized_start=1956,
+  serialized_end=1979,
 )
 
 
@@ -714,8 +773,8 @@ _ACTIVATIONENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1800,
-  serialized_end=1823,
+  serialized_start=1981,
+  serialized_end=2004,
 )
 
 
@@ -738,8 +797,8 @@ _WEIGHTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1825,
-  serialized_end=1844,
+  serialized_start=2006,
+  serialized_end=2025,
 )
 
 
@@ -762,8 +821,8 @@ _RUNTIMEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1846,
-  serialized_end=1866,
+  serialized_start=2027,
+  serialized_end=2047,
 )
 
 _FROMCLIENT.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST
@@ -809,6 +868,8 @@ _BREAKDOWNNODE.fields_by_name['operation'].containing_oneof = _BREAKDOWNNODE.one
 _BREAKDOWNNODE.oneofs_by_name['data'].fields.append(
   _BREAKDOWNNODE.fields_by_name['weight'])
 _BREAKDOWNNODE.fields_by_name['weight'].containing_oneof = _BREAKDOWNNODE.oneofs_by_name['data']
+_CONTEXTINFO.fields_by_name['context'].message_type = _FILEREFERENCE
+_OPERATIONDATA.fields_by_name['context_info_map'].message_type = _CONTEXTINFO
 DESCRIPTOR.message_types_by_name['FromClient'] = _FROMCLIENT
 DESCRIPTOR.message_types_by_name['InitializeRequest'] = _INITIALIZEREQUEST
 DESCRIPTOR.message_types_by_name['AnalysisRequest'] = _ANALYSISREQUEST
@@ -821,6 +882,7 @@ DESCRIPTOR.message_types_by_name['ProtocolError'] = _PROTOCOLERROR
 DESCRIPTOR.message_types_by_name['Path'] = _PATH
 DESCRIPTOR.message_types_by_name['FileReference'] = _FILEREFERENCE
 DESCRIPTOR.message_types_by_name['BreakdownNode'] = _BREAKDOWNNODE
+DESCRIPTOR.message_types_by_name['ContextInfo'] = _CONTEXTINFO
 DESCRIPTOR.message_types_by_name['OperationData'] = _OPERATIONDATA
 DESCRIPTOR.message_types_by_name['WeightData'] = _WEIGHTDATA
 DESCRIPTOR.message_types_by_name['MemoryUsageResponse'] = _MEMORYUSAGERESPONSE
@@ -912,6 +974,13 @@ BreakdownNode = _reflection.GeneratedProtocolMessageType('BreakdownNode', (_mess
   # @@protoc_insertion_point(class_scope:innpv.protocol.BreakdownNode)
   ))
 _sym_db.RegisterMessage(BreakdownNode)
+
+ContextInfo = _reflection.GeneratedProtocolMessageType('ContextInfo', (_message.Message,), dict(
+  DESCRIPTOR = _CONTEXTINFO,
+  __module__ = 'innpv_pb2'
+  # @@protoc_insertion_point(class_scope:innpv.protocol.ContextInfo)
+  ))
+_sym_db.RegisterMessage(ContextInfo)
 
 OperationData = _reflection.GeneratedProtocolMessageType('OperationData', (_message.Message,), dict(
   DESCRIPTOR = _OPERATIONDATA,
