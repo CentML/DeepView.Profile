@@ -48,11 +48,20 @@ class BreakdownNode {
 }
 
 export class OperationNode extends BreakdownNode {
-  constructor({id, name, contexts, forwardMs, backwardMs, sizeBytes}) {
+  constructor({
+    id,
+    name,
+    contexts,
+    forwardMs,
+    backwardMs,
+    sizeBytes,
+    contextInfos,
+  }) {
     super({id, name, contexts});
     this._forwardMs = forwardMs;
     this._backwardMs = backwardMs;
     this._sizeBytes = sizeBytes;
+    this._contextInfos = contextInfos;
     this._childrenByTime = null;
     this._childrenBySize = null;
   }
@@ -82,6 +91,10 @@ export class OperationNode extends BreakdownNode {
 
   get childrenBySize() {
     return this._childrenBySize;
+  }
+
+  get contextInfos() {
+    return this._contextInfos;
   }
 
   _sortChildren() {
@@ -190,6 +203,7 @@ function parseOperationData(protobufNode) {
     forwardMs: data.getForwardMs(),
     backwardMs: data.getBackwardMs(),
     sizeBytes: data.getSizeBytes(),
+    contextInfos: data.getContextInfoMapList().map(parseContextInfoMap),
   };
 }
 
@@ -197,6 +211,15 @@ function parseWeightData(protobufNode) {
   const data = protobufNode.getWeight();
   return {
     sizeBytes: data.getSizeBytes() + data.getGradSizeBytes(),
+  };
+}
+
+function parseContextInfoMap(protobufContextInfo) {
+  return {
+    context: processFileReference(protobufContextInfo.getContext()),
+    runTimeMs: protobufContextInfo.getRunTimeMs(),
+    sizeBytes: protobufContextInfo.getSizeBytes(),
+    invocations: protobufContextInfo.getInvocations(),
   };
 }
 

@@ -159,10 +159,9 @@ class BreakdownNode:
             entry = array.add()
             entry.name = node.name
             entry.num_children = len(node.children)
-            for file_path, line_number in reversed(node._contexts):
+            for context in reversed(node._contexts):
                 file_ref = entry.contexts.add()
-                file_ref.line_number = line_number
-                file_ref.file_path.components.extend(file_path.split(os.sep))
+                _serialize_file_ref(file_ref, context)
             node.serialize_data_to_protobuf(entry)
 
             for child in node.children.values():
@@ -208,6 +207,10 @@ class OperationNode(BreakdownNode):
             else math.nan
         )
         entry.operation.size_bytes = self.size_bytes
+        for context, context_info in self._context_info_map.items():
+            map_entry = entry.operation.context_info_map.add()
+            _serialize_file_ref(map_entry.context, context)
+            context_info.serialize_to_protobuf(map_entry)
 
     def build_context_info_map(self):
         """
@@ -304,3 +307,14 @@ class ContextInfo:
                 destination[key] += value
             else:
                 destination[key] = value
+
+    def serialize_to_protobuf(self, entry):
+        entry.run_time_ms = self.run_time_ms
+        entry.size_bytes = self.size_bytes
+        entry.invocations = self.invocations
+
+
+def _serialize_file_ref(file_ref, context):
+    file_path, line_number = context
+    file_ref.line_number = line_number
+    file_ref.file_path.components.extend(file_path.split(os.sep))
