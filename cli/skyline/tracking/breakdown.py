@@ -132,10 +132,10 @@ class BreakdownNode:
         self._module_id = module_id
 
         self._children = {}
-        self._contexts = set()
+        self._contexts = []
 
     def add_context(self, context):
-        self._contexts.add(context)
+        self._contexts.append(context)
 
     @property
     def name(self):
@@ -158,7 +158,7 @@ class BreakdownNode:
             entry = array.add()
             entry.name = node.name
             entry.num_children = len(node.children)
-            for file_path, line_number in node._contexts:
+            for file_path, line_number in reversed(node._contexts):
                 file_ref = entry.contexts.add()
                 file_ref.line_number = line_number
                 file_ref.file_path.components.extend(file_path.split(os.sep))
