@@ -156,6 +156,7 @@ class RunTimeBreakdown extends React.Component {
     results.push(
       <RunTimePerfBar
         key={untrackedNode.id}
+        isActive={untrackedNode === currentlyActive}
         operationNode={untrackedNode}
         projectRoot={projectRoot}
         overallPct={otherPct}
