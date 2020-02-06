@@ -68,6 +68,7 @@ class HierarchicalBreakdownBuilder:
 
         self._prune_tree(self._operation_root)
         self._prune_tree(self._weight_root)
+        self._operation_root.build_context_info_map()
         return HierarchicalBreakdown(
             operations=self._operation_root,
             weights=self._weight_root,
@@ -174,6 +175,7 @@ class OperationNode(BreakdownNode):
         self._forward_ms = 0.
         self._backward_ms = None
         self._size_bytes = 0
+        self._context_info_map = None
 
     def add_run_time(self, forward_ms, backward_ms):
         self._forward_ms += forward_ms
@@ -207,6 +209,35 @@ class OperationNode(BreakdownNode):
         )
         entry.operation.size_bytes = self.size_bytes
 
+    def build_context_info_map(self):
+        """
+        Builds aggregate memory/run time usage information for each tracked
+        line of code.
+        """
+        stack = [(self, 0)]
+        while len(stack) > 0:
+            node, visit_count = stack.pop()
+
+            if visit_count > 0:
+                for child in node.children.values():
+                    ContextInfo.merge_map(
+                        node._context_info_map,
+                        child._context_info_map,
+                    )
+            else:
+                node._context_info_map = {}
+                for context in node._contexts:
+                    node._context_info_map[context] = ContextInfo(
+                        size_bytes=node.size_bytes,
+                        run_time_ms=(
+                            node.forward_ms if node.backward_ms is None
+                            else node.forward_ms + node.backward_ms
+                        ),
+                    )
+                stack.append((node, 1))
+                for child in node.children.values():
+                    stack.append((child, 0))
+
 
 class WeightNode(BreakdownNode):
     def __init__(self, name, module_id):
@@ -229,3 +260,47 @@ class WeightNode(BreakdownNode):
     def serialize_data_to_protobuf(self, entry):
         entry.weight.size_bytes = self.size_bytes
         entry.weight.grad_size_bytes = self.grad_size_bytes
+
+
+class ContextInfo:
+    def __init__(self, size_bytes, run_time_ms, invocations=1):
+        self._size_bytes = size_bytes
+        self._run_time_ms = run_time_ms
+        self._invocations = invocations
+
+    def __add__(self, other):
+        return ContextInfo(
+            size_bytes=self.size_bytes + other.size_bytes,
+            run_time_ms=self.run_time_ms + other.run_time_ms,
+            invocations=self.invocations + other.invocations,
+        )
+
+    def __iadd__(self, other):
+        return self.__add__(other)
+
+    def __repr__(self):
+        return (
+            'ContextInfo(invocations={:d}, size_bytes={:d}, '
+            'run_time_ms={:.4f})'.format(
+                self.invocations, self.size_bytes, self.run_time_ms)
+        )
+
+    @property
+    def size_bytes(self):
+        return self._size_bytes
+
+    @property
+    def run_time_ms(self):
+        return self._run_time_ms
+
+    @property
+    def invocations(self):
+        return self._invocations
+
+    @staticmethod
+    def merge_map(destination, to_merge):
+        for key, value in to_merge.items():
+            if key in destination:
+                destination[key] += value
+            else:
+                destination[key] = value
