@@ -4,7 +4,7 @@ export default class SourceMarker {
   constructor(editor) {
     this._editor = editor;
     this._marker = null;
-    this._decoration = null;
+    this._decorations = [];
   }
 
   register({lineNumber, column}) {
@@ -33,20 +33,27 @@ export default class SourceMarker {
     }
     this._marker.destroy();
     this._marker = null;
+    this._decorations = [];
   }
 
-  showDecoration(options) {
-    if (this._marker == null || this._decoration != null) {
+  showDecorations(decorationOptions) {
+    if (this._marker == null || this._decorations.length !== 0) {
       return;
     }
-    this._decoration = this._editor.decorateMarker(this._marker, options);
+    for (const options of decorationOptions) {
+      this._decorations.push(
+        this._editor.decorateMarker(this._marker, options),
+      );
+    }
   }
 
-  hideDecoration() {
-    if (this._decoration == null) {
+  hideDecorations() {
+    if (this._decorations.length === 0) {
       return;
     }
-    this._decoration.destroy();
-    this._decoration = null;
+    for (const decoration of this._decorations) {
+      decoration.destroy();
+    }
+    this._decorations = [];
   }
 }
