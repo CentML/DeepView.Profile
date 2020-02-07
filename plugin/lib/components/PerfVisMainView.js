@@ -2,6 +2,7 @@
 
 import React from 'react';
 
+import ContextHighlightManager from './ContextHighlightManager';
 import ErrorMessage from './ErrorMessage';
 import Memory from './Memory';
 import MemoryBreakdown from './MemoryBreakdown';
@@ -75,6 +76,7 @@ export default class PerfVisMainView extends React.Component {
         <PerfVisHeader />
         <div className="innpv-contents">{this._renderBody()}</div>
         <PerfVisStatusBar perfVisState={this.props.perfVisState} />
+        <ContextHighlightManager />
       </div>
     );
   }

@@ -1,0 +1,16 @@
+@highlight-color: #449dd1;
+
+.innpv-contexthighlight-linenum {
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+    margin-top: -3px;
+    border-radius: 50%;
+    background-color: @highlight-color;
+  }
+}
