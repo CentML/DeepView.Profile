@@ -115,6 +115,7 @@ export default function(state, action) {
         breakdown: {
           ...state.breakdown,
           currentView: newView,
+          currentlyActive: null,
         },
       };
     }
