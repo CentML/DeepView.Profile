@@ -65,8 +65,8 @@ atom-overlay.innpv-contexthighlight-overlay {
   z-index: 2;
   background-color: @app-background-color;
   border-radius: 5px;
-  width: 250px;
-  padding: 8px;
+  width: 280px;
+  padding: 10px;
 }
 
 .innpv-contextmarker-displaypointer {
@@ -90,7 +90,6 @@ atom-overlay.innpv-contexthighlight-overlay {
 .innpv-contextmarker-barlabel {
   width: 70px;
   text-align: left;
-  font-weight: bold;
 }
 
 .innpv-contextmarker-bararea {
@@ -115,9 +114,20 @@ atom-overlay.innpv-contexthighlight-overlay {
 }
 
 .innpv-contextmarker-perfview {
+  margin-bottom: 15px;
+
   & > div:last-child {
     margin-top: 5px;
   }
+
+  &.innpv-contextmarker-faded {
+    opacity: 0.25;
+  }
+}
+
+.innpv-contextmarker-perfview-title {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
 .innpv-contextmarker-displayinfo {

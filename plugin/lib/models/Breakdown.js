@@ -203,7 +203,7 @@ function parseOperationData(protobufNode) {
     forwardMs: data.getForwardMs(),
     backwardMs: data.getBackwardMs(),
     sizeBytes: data.getSizeBytes(),
-    contextInfos: data.getContextInfoMapList().map(parseContextInfoMap),
+    contextInfos: parseContextInfoMapList(data.getContextInfoMapList()),
   };
 }
 
@@ -212,6 +212,18 @@ function parseWeightData(protobufNode) {
   return {
     sizeBytes: data.getSizeBytes() + data.getGradSizeBytes(),
   };
+}
+
+function parseContextInfoMapList(protobufContextInfoList) {
+  const map = new Map();
+  for (const protobufContextInfo of protobufContextInfoList) {
+    const parsed = parseContextInfoMap(protobufContextInfo);
+    map.set(
+      `${parsed.context.filePath}-${parsed.context.lineNumber}`,
+      parsed,
+    );
+  }
+  return map;
 }
 
 function parseContextInfoMap(protobufContextInfo) {

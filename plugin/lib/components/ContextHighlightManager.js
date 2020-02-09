@@ -4,7 +4,6 @@ import React from 'react';
 import {connect} from 'react-redux';
 
 import ContextHighlight from './ContextHighlight';
-import {toPercentage} from '../utils';
 
 class ContextHighlightManager extends React.Component {
   render() {
@@ -13,31 +12,44 @@ class ContextHighlightManager extends React.Component {
       return null;
     }
 
-    const {iterationRunTimeMs, peakUsageBytes} = this.props;
-    return operationTree.contextInfos.flatMap((contextInfo) => {
+    const {iterationRunTimeMs, peakUsageBytes, currentView} = this.props;
+    const results = [];
+
+    operationTree.contextInfos.forEach((contextInfo, contextKey) => {
       const {context} = contextInfo;
       if (!editorsByPath.has(context.filePath)) {
-        return [];
+        return;
       }
 
-      const {runTimeMs, sizeBytes, invocations} = contextInfo;
-      return editorsByPath.get(context.filePath).map((editor) => (
-        <ContextHighlight
-          key={`${editor.id}-${context.filePath}-${context.lineNumber}`}
-          editor={editor}
-          lineNumber={context.lineNumber}
-          invocations={invocations}
-          runTimePct={toPercentage(runTimeMs, iterationRunTimeMs)}
-          memoryPct={toPercentage(sizeBytes, peakUsageBytes)}
-        />
-      ));
+      const isScoped = currentView != null;
+      const scopedContextInfo = isScoped
+        ? currentView.contextInfos.get(contextKey)
+        : null;
+
+      editorsByPath.get(context.filePath).forEach((editor) => {
+        results.push(
+          <ContextHighlight
+            key={`${editor.id}-${context.filePath}-${context.lineNumber}`}
+            editor={editor}
+            lineNumber={context.lineNumber}
+            iterationRunTimeMs={iterationRunTimeMs}
+            peakUsageBytes={peakUsageBytes}
+            isScoped={isScoped}
+            contextInfo={contextInfo}
+            scopedContextInfo={scopedContextInfo}
+          />
+        );
+      });
     });
+
+    return results;
   }
 }
 
 const mapStateToProps = (state) => ({
   editorsByPath: state.editorsByPath,
   operationTree: state.breakdown.operationTree,
+  currentView: state.breakdown.currentView,
   iterationRunTimeMs: state.iterationRunTimeMs,
   peakUsageBytes: state.peakUsageBytes,
 });

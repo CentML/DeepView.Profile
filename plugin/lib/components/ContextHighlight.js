@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import InlineHighlight from './generic/InlineHighlight';
+import {toPercentage} from '../utils';
 
 export default class ContextHighlight extends React.Component {
   constructor(props) {
@@ -67,21 +68,60 @@ export default class ContextHighlight extends React.Component {
   }
 };
 
-function ContextDisplay(props) {
-  const {runTimePct, memoryPct, invocations} = props;
-  return (
-    <div className="innpv-contextmarker-displaywrap">
-      <div className="innpv-contextmarker-display">
-        <div className="innpv-contextmarker-displaypointer" />
-        <div className="innpv-contextmarker-displaycontent">
-          <ContextPerfView runTimePct={runTimePct} memoryPct={memoryPct} />
-          <div className="innpv-contextmarker-displayinfo">
-            <strong>Invocations:</strong> {invocations}
+class ContextDisplay extends React.Component {
+  _renderDisplayInfo() {
+    const {isScoped, scopedContextInfo, contextInfo} = this.props;
+    return (
+      <div className="innpv-contextmarker-displayinfo">
+        <span><strong>Overall Invocations: </strong>{contextInfo.invocations}</span>
+        {
+          isScoped ? (
+            <span>
+              {" "}
+              | <strong>Within Scope: </strong>
+              {scopedContextInfo != null ? scopedContextInfo.invocations : 0}
+            </span>
+          ) : null
+        }
+      </div>
+    );
+  }
+
+  render() {
+    const {
+      contextInfo,
+      scopedContextInfo,
+      iterationRunTimeMs,
+      peakUsageBytes,
+      isScoped,
+    } = this.props;
+    return (
+      <div className="innpv-contextmarker-displaywrap">
+        <div className="innpv-contextmarker-display">
+          <div className="innpv-contextmarker-displaypointer" />
+          <div className="innpv-contextmarker-displaycontent">
+            {scopedContextInfo != null
+              ? <ContextPerfView
+                  title="Within Scope"
+                  contextInfo={scopedContextInfo}
+                  iterationRunTimeMs={iterationRunTimeMs}
+                  peakUsageBytes={peakUsageBytes}
+                />
+              : null
+            }
+            <ContextPerfView
+              title="Overall"
+              contextInfo={contextInfo}
+              iterationRunTimeMs={iterationRunTimeMs}
+              peakUsageBytes={peakUsageBytes}
+              faded={isScoped}
+            />
+            {this._renderDisplayInfo()}
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
 
 function ContextBar(props) {
@@ -103,9 +143,18 @@ function ContextBar(props) {
 }
 
 function ContextPerfView(props) {
-  const {runTimePct, memoryPct} = props;
+  const {iterationRunTimeMs, peakUsageBytes, title} = props;
+  const {runTimeMs, sizeBytes} = props.contextInfo;
+  const runTimePct = toPercentage(runTimeMs, iterationRunTimeMs);
+  const memoryPct = toPercentage(sizeBytes, peakUsageBytes);
+  let className = 'innpv-contextmarker-perfview';
+  if (props.faded) {
+    className += ' innpv-contextmarker-faded';
+  }
+
   return (
-    <div className="innpv-contextmarker-perfview">
+    <div className={className}>
+      <div className="innpv-contextmarker-perfview-title">{title}</div>
       <ContextBar label="Run Time" percentage={runTimePct} />
       {memoryPct > 0.
         ? <ContextBar label="Memory" percentage={memoryPct} />
