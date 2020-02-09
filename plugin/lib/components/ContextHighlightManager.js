@@ -4,10 +4,11 @@ import React from 'react';
 import {connect} from 'react-redux';
 
 import ContextHighlight from './ContextHighlight';
+import PerfVisState from '../models/PerfVisState';
 
 class ContextHighlightManager extends React.Component {
   render() {
-    const {editorsByPath, operationTree} = this.props;
+    const {editorsByPath, operationTree, perfVisState} = this.props;
     if (operationTree == null) {
       return null;
     }
@@ -21,7 +22,8 @@ class ContextHighlightManager extends React.Component {
         return;
       }
 
-      const isScoped = currentView != null;
+      const isScoped = currentView != null &&
+        perfVisState === PerfVisState.EXPLORING_OPERATIONS;
       const scopedContextInfo = isScoped
         ? currentView.contextInfos.get(contextKey)
         : null;
@@ -46,12 +48,13 @@ class ContextHighlightManager extends React.Component {
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
   operationTree: state.breakdown.operationTree,
   currentView: state.breakdown.currentView,
   iterationRunTimeMs: state.iterationRunTimeMs,
   peakUsageBytes: state.peakUsageBytes,
+  ...ownProps,
 });
 
 export default connect(mapStateToProps)(ContextHighlightManager);

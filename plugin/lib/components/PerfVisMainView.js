@@ -70,12 +70,13 @@ export default class PerfVisMainView extends React.Component {
   }
 
   render() {
+    const {perfVisState} = this.props;
     return (
       <div className="innpv-main">
         <PerfVisHeader />
         <div className="innpv-contents">{this._renderBody()}</div>
-        <PerfVisStatusBar perfVisState={this.props.perfVisState} />
-        <ContextHighlightManager />
+        <PerfVisStatusBar perfVisState={perfVisState} />
+        <ContextHighlightManager perfVisState={perfVisState} />
       </div>
     );
   }
