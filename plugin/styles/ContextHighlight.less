@@ -28,7 +28,7 @@
     width: 100%;
     height: 100%;
     background-color: @highlight-color;
-    transition-property: opacity;
+    transition-property: opacity, background-color;
     transition-duration: @perfbar-duration;
     transition-timing-function: @perfbar-easing;
 
@@ -37,6 +37,10 @@
 
   &:hover > div {
     opacity: 1;
+  }
+
+  &.innpv-contexthighlight-guttermarker-inactive > div {
+    background-color: @text-color-subtle;
   }
 }
 
@@ -127,7 +131,7 @@ atom-overlay.innpv-contexthighlight-overlay {
   }
 
   &.innpv-contextmarker-faded {
-    opacity: 0.25;
+    opacity: 0.5;
   }
 }
 

@@ -39,7 +39,19 @@ export default class ContextHighlight extends React.Component {
 
   render() {
     const {Fragment} = React;
-    const {editor, lineNumber, ...rest} = this.props;
+    const {
+      editor,
+      lineNumber,
+      isScoped,
+      scopedContextInfo,
+      ...rest,
+    } = this.props;
+    // We make this gutter marker "inactive" (greyed out) if the user is
+    // currently exploring a specific "scope" (part of the breakdown tree) AND
+    // we do not have specific scoped information for this particular line of
+    // code.
+    const inactiveGutterMarker = isScoped && scopedContextInfo == null;
+
     return (
       <Fragment>
         <InlineHighlight
@@ -51,7 +63,11 @@ export default class ContextHighlight extends React.Component {
         />
         {this.state.showDisplay
           ? ReactDOM.createPortal(
-              <ContextDisplay {...rest} />,
+              <ContextDisplay
+                isScoped={isScoped}
+                scopedContextInfo={scopedContextInfo}
+                {...rest}
+              />,
               this._overlayElement,
             )
           : null}
@@ -59,6 +75,7 @@ export default class ContextHighlight extends React.Component {
           <GutterMarker
             onMouseEnter={this._onMouseEnter}
             onMouseLeave={this._onMouseLeave}
+            inactive={inactiveGutterMarker}
           />,
           this._gutterElement,
         )}
@@ -163,10 +180,14 @@ function ContextPerfView(props) {
 }
 
 function GutterMarker(props) {
-  const {onMouseEnter, onMouseLeave} = props;
+  const {onMouseEnter, onMouseLeave, inactive} = props;
+  let className = 'innpv-contexthighlight-guttermarker';
+  if (inactive) {
+    className += ' innpv-contexthighlight-guttermarker-inactive';
+  }
   return (
     <div
-      className="innpv-contexthighlight-guttermarker"
+      className={className}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
