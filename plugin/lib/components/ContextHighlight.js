@@ -56,8 +56,7 @@ export default class ContextHighlight extends React.Component {
             )
           : null}
         {ReactDOM.createPortal(
-          <div
-            className="innpv-contexthighlight-guttermarker"
+          <GutterMarker
             onMouseEnter={this._onMouseEnter}
             onMouseLeave={this._onMouseLeave}
           />,
@@ -159,6 +158,19 @@ function ContextPerfView(props) {
       {memoryPct > 0.
         ? <ContextBar label="Memory" percentage={memoryPct} />
         : null}
+    </div>
+  );
+}
+
+function GutterMarker(props) {
+  const {onMouseEnter, onMouseLeave} = props;
+  return (
+    <div
+      className="innpv-contexthighlight-guttermarker"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      <div/>
     </div>
   );
 }
