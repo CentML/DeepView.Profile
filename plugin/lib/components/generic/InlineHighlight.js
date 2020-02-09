@@ -2,7 +2,7 @@
 
 import React from 'react'
 
-import SourceMarker from '../../editor/marker';
+import {SourceMarker} from '../../editor/marker';
 
 class InlineHighlight extends React.Component {
   componentDidMount() {

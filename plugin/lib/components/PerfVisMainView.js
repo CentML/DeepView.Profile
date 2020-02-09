@@ -10,7 +10,6 @@ import PerfVisStatusBar from './PerfVisStatusBar';
 import RunTimeBreakdown from './RunTimeBreakdown';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
-import SourceMarker from '../editor/marker';
 
 function PerfVisHeader() {
   return (

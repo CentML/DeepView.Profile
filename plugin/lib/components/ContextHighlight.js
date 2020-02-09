@@ -5,49 +5,22 @@ import ReactDOM from 'react-dom';
 
 import InlineHighlight from './generic/InlineHighlight';
 
-const LINE_NUMBER_DECORATION = {
-  type: 'line-number',
-  class: 'innpv-contexthighlight-linenum',
-};
-
 export default class ContextHighlight extends React.Component {
   constructor(props) {
     super(props);
-    this._element = document.createElement('div');
-    this._overlayDecorationOption = {
-      type: 'overlay',
-      item: this._element,
-      class: 'innpv-contexthighlight-overlay',
-    };
-  }
-
-  render() {
-    const {Fragment} = React;
-    const {editor, lineNumber, ...rest} = this.props;
-    return (
-      <Fragment>
-        <InlineHighlight
-          editor={editor}
-          decorations={[
-            LINE_NUMBER_DECORATION,
-            this._overlayDecorationOption,
-          ]}
-          lineNumber={lineNumber}
-          column={999 /* HACK: Atom places this at the "end" of the line. */}
-          show={true}
-        />
-        {ReactDOM.createPortal(
-          <ContextMarker {...rest} />,
-          this._element,
-        )}
-      </Fragment>
-    );
-  }
-};
-
-class ContextMarker extends React.Component {
-  constructor(props) {
-    super(props);
+    this._gutterElement = document.createElement('div');
+    this._overlayElement = document.createElement('div');
+    this._decorationOptions = [
+      {
+        type: 'overlay',
+        item: this._overlayElement,
+        class: 'innpv-contexthighlight-overlay',
+      },
+      {
+        type: 'gutter',
+        item: this._gutterElement,
+      },
+    ];
     this.state = {
       showDisplay: false,
     };
@@ -63,36 +36,52 @@ class ContextMarker extends React.Component {
     this.setState({showDisplay: false});
   }
 
-  _renderDisplay() {
-    const {runTimePct, memoryPct, invocations} = this.props;
+  render() {
+    const {Fragment} = React;
+    const {editor, lineNumber, ...rest} = this.props;
     return (
-      <div className="innpv-contextmarker-displaywrap">
-        <div className="innpv-contextmarker-display">
-          <div className="innpv-contextmarker-displaypointer" />
-          <div className="innpv-contextmarker-displaycontent">
-            <ContextPerfView runTimePct={runTimePct} memoryPct={memoryPct} />
-            <div className="innpv-contextmarker-displayinfo">
-              <strong>Invocations:</strong> {invocations}
-            </div>
+      <Fragment>
+        <InlineHighlight
+          editor={editor}
+          decorations={this._decorationOptions}
+          lineNumber={lineNumber}
+          column={999 /* HACK: Atom places this at the "end" of the line. */}
+          show={true}
+        />
+        {this.state.showDisplay
+          ? ReactDOM.createPortal(
+              <ContextDisplay {...rest} />,
+              this._overlayElement,
+            )
+          : null}
+        {ReactDOM.createPortal(
+          <div
+            className="innpv-contexthighlight-guttermarker"
+            onMouseEnter={this._onMouseEnter}
+            onMouseLeave={this._onMouseLeave}
+          />,
+          this._gutterElement,
+        )}
+      </Fragment>
+    );
+  }
+};
+
+function ContextDisplay(props) {
+  const {runTimePct, memoryPct, invocations} = props;
+  return (
+    <div className="innpv-contextmarker-displaywrap">
+      <div className="innpv-contextmarker-display">
+        <div className="innpv-contextmarker-displaypointer" />
+        <div className="innpv-contextmarker-displaycontent">
+          <ContextPerfView runTimePct={runTimePct} memoryPct={memoryPct} />
+          <div className="innpv-contextmarker-displayinfo">
+            <strong>Invocations:</strong> {invocations}
           </div>
         </div>
       </div>
-    );
-  }
-
-  render() {
-    const {showDisplay} = this.state;
-    return (
-      <div className="innpv-contextmarker-wrap">
-        <div
-          className="innpv-contextmarker"
-          onMouseEnter={this._onMouseEnter}
-          onMouseLeave={this._onMouseLeave}
-        />
-        {showDisplay ? this._renderDisplay() : null}
-      </div>
-    );
-  }
+    </div>
+  );
 }
 
 function ContextBar(props) {

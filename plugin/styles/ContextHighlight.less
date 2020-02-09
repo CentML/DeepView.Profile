@@ -1,10 +1,6 @@
 @import "ui-variables";
+@import "innpv-animation";
 @highlight-color: #449dd1;
-
-.innpv-contextmarker-wrap {
-  font-family: system-ui;
-  font-size: 0.9em;
-}
 
 .innpv-contextmarker {
   width: 22px;
@@ -16,18 +12,25 @@
   cursor: pointer;
 }
 
-.innpv-contexthighlight-linenum {
-  &::after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 5px;
-    width: 6px;
-    height: 6px;
-    margin-top: -3px;
-    border-radius: 50%;
-    background-color: @highlight-color;
+.innpv-contexthighlight-guttermarker {
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background-color: @highlight-color;
+  cursor: pointer;
+
+  transition-property: opacity;
+  transition-duration: @perfbar-duration;
+  transition-timing-function: @perfbar-easing;
+
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
   }
 }
 
@@ -48,8 +51,10 @@ atom-overlay.innpv-contexthighlight-overlay {
 .innpv-contextmarker-displaywrap {
   position: absolute;
   top: 9px;
-  left: 55px;
+  left: 20px;
   transform: translateY(-50%);
+  font-family: system-ui;
+  font-size: 12px;
 }
 
 .innpv-contextmarker-display {

@@ -3,7 +3,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 
-import SourceMarker from '../editor/marker';
+import {SourceMarker} from '../editor/marker';
 import PerfHintState from '../models/PerfHintState';
 
 function Increase() {

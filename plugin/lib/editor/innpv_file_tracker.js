@@ -1,6 +1,7 @@
 'use babel';
 
 import FileTracker from './file_tracker';
+import {SKYLINE_GUTTER_NAME} from './marker';
 
 import PerfVisState from '../models/PerfVisState';
 import Logger from '../logger';
@@ -24,6 +25,13 @@ export default class INNPVFileTracker {
   }
 
   dispose() {
+    for (const editor of this._tracker.editors()) {
+      const gutter = editor.gutterWithName(SKYLINE_GUTTER_NAME);
+      if (gutter == null) {
+        continue;
+      }
+      gutter.destroy();
+    }
     this._tracker.dispose();
     this._tracker = null;
     this._messageSender = null;
@@ -31,6 +39,16 @@ export default class INNPVFileTracker {
   }
 
   _onOpenFilesChange() {
+    for (const editor of this._tracker.editors()) {
+      if (editor.gutterWithName(SKYLINE_GUTTER_NAME) != null) {
+        continue;
+      }
+      editor.addGutter({
+        name: SKYLINE_GUTTER_NAME,
+        type: 'decoration',
+      });
+    }
+
     this._store.dispatch(ProjectActions.editorsChange({
       editorsByPath: this._tracker.editorsByFilePath(),
     }));

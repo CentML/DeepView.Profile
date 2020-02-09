@@ -1,6 +1,10 @@
 'use babel';
 
-export default class SourceMarker {
+import Logger from '../logger';
+
+export const SKYLINE_GUTTER_NAME = 'skyline';
+
+export class SourceMarker {
   constructor(editor) {
     this._editor = editor;
     this._marker = null;
@@ -41,9 +45,21 @@ export default class SourceMarker {
       return;
     }
     for (const options of decorationOptions) {
-      this._decorations.push(
-        this._editor.decorateMarker(this._marker, options),
-      );
+      if (options.type === 'gutter') {
+        const gutter = this._editor.gutterWithName(SKYLINE_GUTTER_NAME);
+        if (gutter == null) {
+          Logger.warn('Missing Skyline gutter in tracked editor.');
+          continue;
+        }
+        this._decorations.push(
+          gutter.decorateMarker(this._marker, options),
+        );
+
+      } else {
+        this._decorations.push(
+          this._editor.decorateMarker(this._marker, options),
+        );
+      }
     }
   }
 
@@ -56,4 +72,4 @@ export default class SourceMarker {
     }
     this._decorations = [];
   }
-}
+};
