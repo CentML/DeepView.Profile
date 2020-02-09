@@ -110,6 +110,7 @@ class ContextDisplay extends React.Component {
       iterationRunTimeMs,
       peakUsageBytes,
       isScoped,
+      scopeName,
     } = this.props;
     return (
       <div className="innpv-contextmarker-displaywrap">
@@ -118,7 +119,7 @@ class ContextDisplay extends React.Component {
           <div className="innpv-contextmarker-displaycontent">
             {scopedContextInfo != null
               ? <ContextPerfView
-                  title="Within Scope"
+                  title={`Within Scope: ${scopeName}`}
                   contextInfo={scopedContextInfo}
                   iterationRunTimeMs={iterationRunTimeMs}
                   peakUsageBytes={peakUsageBytes}

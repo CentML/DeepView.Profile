@@ -39,6 +39,7 @@ class ContextHighlightManager extends React.Component {
             isScoped={isScoped}
             contextInfo={contextInfo}
             scopedContextInfo={scopedContextInfo}
+            scopeName={isScoped ? currentView.name : null}
           />
         );
       });
