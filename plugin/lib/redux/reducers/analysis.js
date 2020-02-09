@@ -69,11 +69,11 @@ export default function(state, action) {
       const untrackedBytes = Math.max(0, peakUsageBytes - trackedBytes);
 
       // Run time limits
-      const iterationRunTimeMs = breakdownResponse.getIterationRunTimeMs();
-      const untrackedMs = Math.max(
-        0.,
-        iterationRunTimeMs - operationTree.runTimeMs,
+      const iterationRunTimeMs = Math.max(
+        breakdownResponse.getIterationRunTimeMs(),
+        operationTree.runTimeMs,
       );
+      const untrackedMs = iterationRunTimeMs - operationTree.runTimeMs;
 
       return {
         ...state,
