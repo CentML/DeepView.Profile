@@ -38,7 +38,7 @@ function ExplorationButton(props) {
         onClick={props.explorePrevious}
         className="innpv-statusbar-icon innpv-clickable"
       >
-        <span className="icon icon-arrow-left" />
+        <span className="icon icon-chevron-left" />
       </div>
       <div
         onClick={props.clearExplored}
