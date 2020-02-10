@@ -2,8 +2,6 @@
 
 import {
   ANALYSIS_REQ,
-  ANALYSIS_REC_RUN,
-  ANALYSIS_REC_MEM,
   ANALYSIS_REC_BRK,
   ANALYSIS_REC_THPT,
   ANALYSIS_ERROR,
@@ -14,10 +12,7 @@ import {
   ANALYSIS_SET_ACTIVE,
 } from '../actions/types';
 import PerfVisState from '../../models/PerfVisState';
-import MemoryBreakdown from '../../models/MemoryBreakdown';
-import MemoryUsage from '../../models/MemoryUsage';
 import Throughput from '../../models/Throughput';
-import RunTimeBreakdown from '../../models/RunTimeBreakdown';
 import {
   OperationNode,
   WeightNode,
@@ -30,27 +25,6 @@ export default function(state, action) {
         ...state,
         perfVisState: PerfVisState.ANALYZING,
       };
-
-    case ANALYSIS_REC_RUN: {
-      const {runTimeResponse} = action.payload;
-      return {
-        ...state,
-        runTimeBreakdown: RunTimeBreakdown.fromRunTimeResponse(runTimeResponse),
-        errorMessage: '',
-      };
-    }
-
-    case ANALYSIS_REC_MEM: {
-      const {memoryUsageResponse} = action.payload;
-      return {
-        ...state,
-        memoryBreakdown:
-          MemoryBreakdown.fromMemoryUsageResponse(memoryUsageResponse),
-        memoryUsage:
-          MemoryUsage.fromMemoryUsageResponse(memoryUsageResponse),
-        errorMessage: '',
-      };
-    }
 
     case ANALYSIS_REC_BRK: {
       const {breakdownResponse} = action.payload;

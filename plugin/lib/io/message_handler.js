@@ -18,10 +18,8 @@ export default class MessageHandler {
 
     this._handleInitializeResponse = this._handleInitializeResponse.bind(this);
     this._handleProtocolError = this._handleProtocolError.bind(this);
-    this._handleMemoryUsageResponse = this._handleMemoryUsageResponse.bind(this);
     this._handleAnalysisError = this._handleAnalysisError.bind(this);
     this._handleThroughputResponse = this._handleThroughputResponse.bind(this);
-    this._handleRunTimeResponse = this._handleRunTimeResponse.bind(this);
     this._handleBreakdownResponse = this._handleBreakdownResponse.bind(this);
   }
 
@@ -60,14 +58,6 @@ export default class MessageHandler {
     this._telemetryClient.record(Events.Error.PROTOCOL_ERROR);
   }
 
-  _handleMemoryUsageResponse(message) {
-    Logger.info('Received memory usage message.');
-    Logger.info(`Peak usage: ${message.getPeakUsageBytes()} bytes.`);
-    this._store.dispatch(AnalysisActions.receivedMemoryAnalysis({
-      memoryUsageResponse: message,
-    }));
-  }
-
   _handleAnalysisError(message) {
     this._store.dispatch(AnalysisActions.error({
       errorMessage: message.getErrorMessage(),
@@ -81,13 +71,6 @@ export default class MessageHandler {
       throughputResponse: message,
     }));
     this._telemetryClient.record(Events.Skyline.RECEIVED_ANALYSIS);
-  }
-
-  _handleRunTimeResponse(message) {
-    Logger.info('Received run time message.');
-    this._store.dispatch(AnalysisActions.receivedRunTimeAnalysis({
-      runTimeResponse: message,
-    }));
   }
 
   _handleBreakdownResponse(message) {
