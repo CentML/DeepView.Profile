@@ -23,12 +23,25 @@ export default {
 
   config: configSchema,
 
+  handleURI(uri) {
+    if (this._plugin == null) {
+      this._createPlugin(uri.query.host, uri.query.port);
+    }
+  },
+
   toggle() {
     if (this._plugin == null) {
-      this._plugin = new SkylinePlugin();
+      this._createPlugin();
     } else {
       this._disposePlugin();
     }
+  },
+
+  _createPlugin(initialHost = null, initialPort = null) {
+    if (this._plugin != null) {
+      return;
+    }
+    this._plugin = new SkylinePlugin(initialHost, initialPort);
   },
 
   _disposePlugin() {

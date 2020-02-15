@@ -17,6 +17,9 @@
       "skyline:toggle"
     ]
   },
+  "uriHandler": {
+    "method": "handleURI"
+  },
   "repository": "https://github.com/geoffxy/skyline-atom",
   "license": " Apache-2.0",
   "engines": {

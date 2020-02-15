@@ -15,6 +15,8 @@ class PerfVis extends React.Component {
       errorMessage,
       projectRoot,
       handleGetStartedClick,
+      initialHost,
+      initialPort,
     } = this.props;
 
     switch (appState) {
@@ -25,6 +27,8 @@ class PerfVis extends React.Component {
             appState={appState}
             handleClick={handleGetStartedClick}
             errorMessage={errorMessage}
+            initialHost={initialHost}
+            initialPort={initialPort}
           />
         );
 

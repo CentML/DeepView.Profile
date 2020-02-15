@@ -21,11 +21,14 @@ import storeCreator from './redux/store';
 import ConnectionStateView from './redux/views/connection_state';
 
 export default class SkylinePlugin {
-  constructor() {
+  constructor(initialHost = null, initialPort = null) {
     this._store = storeCreator();
     this._session = null;
     this._telemetryClient = TelemetryClient.from(env.uaId, this._store);
     this._configManager = new ConfigManager(this._store);
+
+    this._initialHost = initialHost;
+    this._initialPort = initialPort;
 
     this._getStartedClicked = this._getStartedClicked.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
@@ -45,7 +48,11 @@ export default class SkylinePlugin {
     ReactDOM.render(
       <Provider store={this._store}>
         <TelemetryClientContext.Provider value={this._telemetryClient}>
-          <PerfVis handleGetStartedClick={this._getStartedClicked} />
+          <PerfVis
+            handleGetStartedClick={this._getStartedClicked}
+            initialHost={this._initialHost}
+            initialPort={this._initialPort}
+          />
         </TelemetryClientContext.Provider>
       </Provider>,
       this._panel.getItem(),
