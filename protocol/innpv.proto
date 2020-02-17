@@ -86,6 +86,15 @@ message ThroughputResponse {
   float samples_per_second = 1;
   // This will be NaN if we cannot make a prediction.
   float predicted_max_samples_per_second = 2;
+
+  // These models will not be set if we cannot take
+  // a sufficient number of samples.
+  //
+  // Additionally, the run time model will not be set
+  // if the predicted maximum samples per second
+  // (above) is NaN.
+  LinearModel run_time_ms = 3;
+  LinearModel peak_usage_bytes = 4;
 }
 
 message BreakdownResponse {
@@ -160,6 +169,12 @@ message OperationData {
 message WeightData {
   uint64 size_bytes = 1;
   uint64 grad_size_bytes = 2;
+}
+
+message LinearModel {
+  // y = slope * x + bias
+  double slope = 1;
+  double bias = 2;
 }
 
 // ========== Deprecated messages ==========
