@@ -24,7 +24,10 @@ function ErrorIcon() {
 
 function SyncButton(props) {
   return (
-    <div className="innpv-statusbar-icon innpv-clickable">
+    <div
+      onClick={props.clearPredictions}
+      className="innpv-statusbar-icon innpv-clickable"
+    >
       <span className="icon icon-x" />
     </div>
   );
@@ -85,7 +88,7 @@ class PerfVisStatusBar extends React.Component {
         return <LoadingIcon />;
 
       case PerfVisState.SHOWING_PREDICTIONS:
-        return <SyncButton />;
+        return <SyncButton clearPredictions={this.props.clearPredictions} />;
 
       case PerfVisState.EXPLORING_WEIGHTS:
       case PerfVisState.EXPLORING_OPERATIONS:
@@ -118,6 +121,7 @@ PerfVisStatusBar.defaultProps = {
 const mapDispatchToProps = (dispatch) => ({
   explorePrevious: () => dispatch(AnalysisActions.explorePrevious()),
   clearExplored: () => dispatch(AnalysisActions.clearExplored()),
+  clearPredictions: () => dispatch(AnalysisActions.clearPredictions()),
 });
 
 export default connect(null, mapDispatchToProps)(PerfVisStatusBar);

@@ -11,6 +11,9 @@ import {
   ANALYSIS_EXPLORE_PREV,
   ANALYSIS_EXPLORE_CLEAR,
   ANALYSIS_SET_ACTIVE,
+  ANALYSIS_DRAG_THPT,
+  ANALYSIS_DRAG_MEM,
+  ANALYSIS_PRED_CLEAR,
 } from './types';
 
 export default {
@@ -41,5 +44,14 @@ export default {
     ANALYSIS_SET_ACTIVE,
     ({currentlyActive}) => ({currentlyActive}),
   ),
+  dragThroughput: fromPayloadCreator(
+    ANALYSIS_DRAG_THPT,
+    ({deltaPct, basePct}) => ({deltaPct, basePct}),
+  ),
+  dragMemory: fromPayloadCreator(
+    ANALYSIS_DRAG_MEM,
+    ({deltaPct, basePct}) => ({deltaPct, basePct}),
+  ),
+  clearPredictions: emptyFor(ANALYSIS_PRED_CLEAR),
 };
 

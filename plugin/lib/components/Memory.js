@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 import Subheader from './Subheader';
 import BarSlider from './BarSlider';
 import NumericDisplay from './NumericDisplay';
-import PerfVisState from '../models/PerfVisState';
+import AnalysisActions from '../redux/actions/analysis';
 import {toPercentage} from '../utils';
 
 export default class Memory extends React.Component {
@@ -16,7 +16,18 @@ export default class Memory extends React.Component {
   }
 
   _handleResize(deltaPct, basePct) {
-    // TODO: Add in memory predictions again
+    this.props.dispatch(AnalysisActions.dragMemory({deltaPct, basePct}));
+  }
+
+  _getCurrentPeakUsageBytes() {
+    const {peakUsageBytes, peakUsageBytesModel, currentBatchSize} = this.props;
+    if (peakUsageBytesModel != null && currentBatchSize != null) {
+      // This is showing a prediction
+      return peakUsageBytesModel.evaluate(currentBatchSize);
+
+    } else {
+      return peakUsageBytes;
+    }
   }
 
   _toMb(bytes) {
@@ -31,9 +42,10 @@ export default class Memory extends React.Component {
       handleSliderHoverExit,
     } = this.props;
     const notReady = peakUsageBytes == null;
+    const currentPeakUsageBytes = this._getCurrentPeakUsageBytes();
     const percentage = notReady
       ? 0
-      : toPercentage(peakUsageBytes, memoryCapacityBytes);
+      : toPercentage(currentPeakUsageBytes, memoryCapacityBytes);
 
     return (
       <div className="innpv-memory innpv-subpanel">
@@ -48,7 +60,7 @@ export default class Memory extends React.Component {
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay
               top="Peak Usage"
-              number={notReady ? '---' : this._toMb(peakUsageBytes)}
+              number={notReady ? '---' : this._toMb(currentPeakUsageBytes)}
               bottom="Megabytes"
             />
             <div className="innpv-separator" />

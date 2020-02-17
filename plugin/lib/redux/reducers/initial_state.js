@@ -26,6 +26,8 @@ export default {
   throughput: null,
   runTimeBreakdown: null,
 
+  // State associated with the breakdowns
+  // (display and navigation)
   breakdown: {
     operationTree: null,
     weightTree: null,
@@ -47,9 +49,11 @@ export default {
   memoryCapacityBytes: null,
   iterationRunTimeMs: null,
 
+  // Linear models that enable the interactive views
   predictionModels: {
     runTimeMs: null,
     peakUsageBytes: null,
     currentBatchSize: null,
+    maxBatchSize: null,
   },
 };

@@ -6,7 +6,7 @@ import {connect} from 'react-redux';
 import Subheader from './Subheader';
 import BarSlider from './BarSlider';
 import NumericDisplay from './NumericDisplay';
-import PerfVisState from '../models/PerfVisState';
+import AnalysisActions from '../redux/actions/analysis';
 import {toPercentage} from '../utils';
 
 class Throughput extends React.Component {
@@ -16,17 +16,23 @@ class Throughput extends React.Component {
   }
 
   _handleResize(deltaPct, basePct) {
-    // TODO: Add in throughput predictions again
+    const {runTimeMsModel, dispatch} = this.props;
+    if (runTimeMsModel == null) {
+      // We won't always have a run time model available. If that
+      // happens, we do not allow the user to manipulate this view.
+      return;
+    }
+    dispatch(AnalysisActions.dragThroughput({deltaPct, basePct}));
   }
 
-  _getPercentage() {
+  _getPercentage(samplesPerSecond) {
     const {model} = this.props;
     if (!model.hasMaxThroughputPrediction) {
       return 100;
     }
 
     return toPercentage(
-      model.samplesPerSecond,
+      samplesPerSecond,
       model.predictedMaxSamplesPerSecond,
     );
   }
@@ -39,16 +45,33 @@ class Throughput extends React.Component {
     return model.predictedMaxSamplesPerSecond;
   }
 
+  _getSamplesPerSecond() {
+    if (this.props.model == null) {
+      return null;
+    }
+
+    const {currentBatchSize, runTimeMsModel} = this.props;
+    if (currentBatchSize != null && runTimeMsModel != null) {
+      // This is a predicted throughput
+      return currentBatchSize /
+        runTimeMsModel.evaluate(currentBatchSize) * 1000;
+
+    } else {
+      return this.props.model.samplesPerSecond;
+    }
+  }
+
   render() {
     const {model, handleSliderHoverEnter, handleSliderHoverExit} = this.props;
     const notReady = model == null;
+    const samplesPerSecond = this._getSamplesPerSecond();
 
     return (
       <div className="innpv-throughput innpv-subpanel">
         <Subheader icon="flame">Training Throughput</Subheader>
         <div className="innpv-subpanel-content">
           <BarSlider
-            percentage={notReady ? 0 : this._getPercentage()}
+            percentage={notReady ? 0 : this._getPercentage(samplesPerSecond)}
             handleResize={this._handleResize}
             onMouseEnter={handleSliderHoverEnter}
             onMouseLeave={handleSliderHoverExit}
@@ -56,7 +79,7 @@ class Throughput extends React.Component {
           <div className="innpv-subpanel-sidecontent">
             <NumericDisplay
               top="Throughput"
-              number={notReady ? '---' : model.samplesPerSecond}
+              number={notReady ? '---' : samplesPerSecond}
               bottom="samples/second"
             />
             <div className="innpv-separator" />

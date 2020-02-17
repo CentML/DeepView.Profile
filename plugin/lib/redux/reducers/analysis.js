@@ -10,9 +10,13 @@ import {
   ANALYSIS_EXPLORE_CLEAR,
   ANALYSIS_EXPLORE_PREV,
   ANALYSIS_SET_ACTIVE,
+  ANALYSIS_DRAG_THPT,
+  ANALYSIS_DRAG_MEM,
+  ANALYSIS_PRED_CLEAR,
 } from '../actions/types';
 import PerfVisState from '../../models/PerfVisState';
 import Throughput from '../../models/Throughput';
+import LinearModel from '../../models/LinearModel';
 import {
   OperationNode,
   WeightNode,
@@ -86,6 +90,10 @@ export default function(state, action) {
       return {
         ...state,
         perfVisState,
+        predictionModels: {
+          ...state.predictionModels,
+          currentBatchSize: null,
+        },
         breakdown: {
           ...state.breakdown,
           currentView: newView,
@@ -141,16 +149,24 @@ export default function(state, action) {
 
     case ANALYSIS_REC_THPT: {
       const {throughputResponse} = action.payload;
-      const runTimeMsModel = throughputResponse.getRunTimeMs();
-      const peakUsageBytesModel = throughputResponse.getPeakUsageBytes();
+      const runTimeMsModel = LinearModel.fromProtobuf(
+        throughputResponse.getRunTimeMs(),
+      );
+      const peakUsageBytesModel = LinearModel.fromProtobuf(
+        throughputResponse.getPeakUsageBytes(),
+      );
       return {
         ...state,
         throughput:
           Throughput.fromThroughputResponse(throughputResponse),
         predictionModels: {
-          runTimeMs: parseLinearModel(runTimeMsModel),
-          peakUsageBytes: parseLinearModel(peakUsageBytesModel),
+          runTimeMs: runTimeMsModel,
+          peakUsageBytes: peakUsageBytesModel,
           currentBatchSize: null,
+          maxBatchSize: Math.max(getBatchSizeFromUsage(
+            peakUsageBytesModel,
+            state.memoryCapacityBytes,
+          ), 1),
         },
         errorMessage: '',
         perfVisState:
@@ -166,6 +182,92 @@ export default function(state, action) {
         errorMessage: action.payload.errorMessage,
         perfVisState: PerfVisState.ERROR,
       };
+
+    case ANALYSIS_DRAG_THPT: {
+      if (!state.throughput.hasMaxThroughputPrediction) {
+        return state;
+      }
+
+      // Map the drag delta to a throughput value
+      // NOTE: We clamp the values (upper bound for throughput, lower bound for
+      //       batch size)
+      const {basePct, deltaPct} = action.payload;
+      const updatedPct = basePct + deltaPct;
+      const updatedThroughputSeconds = Math.max(Math.min(
+        updatedPct / 100 * state.throughput.predictedMaxSamplesPerSecond,
+        state.throughput.predictedMaxSamplesPerSecond,
+      ), 0);
+      const throughputBatchSize = getBatchSizeFromThroughput(
+        state.predictionModels.runTimeMs,
+        updatedThroughputSeconds,
+      );
+
+      let predictedBatchSize;
+      if (throughputBatchSize < 0) {
+        // NOTE: The throughput batch size may be so large that it overflows
+        predictedBatchSize = state.predictionModels.maxBatchSize;
+      } else {
+        predictedBatchSize = Math.max(Math.min(
+          throughputBatchSize, state.predictionModels.maxBatchSize), 1);
+      }
+
+      return {
+        ...state,
+        perfVisState: PerfVisState.SHOWING_PREDICTIONS,
+        breakdown: {
+          ...state.breakdown,
+          currentView: null,
+        },
+        predictionModels: {
+          ...state.predictionModels,
+          currentBatchSize: predictedBatchSize,
+        },
+      };
+    }
+
+    case ANALYSIS_DRAG_MEM: {
+      // Map the drag delta to a usage value
+      // NOTE: We clamp the values (upper bound for usage, lower bound for
+      //       batch size)
+      const {deltaPct, basePct} = action.payload;
+      const updatedPct = basePct + deltaPct;
+      const updatedUsageBytes = Math.min(
+        updatedPct / 100 * state.memoryCapacityBytes,
+        state.memoryCapacityBytes,
+      );
+
+      const predictedBatchSize = Math.min(Math.max(
+        getBatchSizeFromUsage(
+          state.predictionModels.peakUsageBytes,
+          updatedUsageBytes,
+        ),
+        1,
+      ), state.predictionModels.maxBatchSize);
+
+      return {
+        ...state,
+        perfVisState: PerfVisState.SHOWING_PREDICTIONS,
+        breakdown: {
+          ...state.breakdown,
+          currentView: null,
+        },
+        predictionModels: {
+          ...state.predictionModels,
+          currentBatchSize: predictedBatchSize,
+        },
+      };
+    }
+
+    case ANALYSIS_PRED_CLEAR: {
+      return {
+        ...state,
+        perfVisState: PerfVisState.READY,
+        predictionModels: {
+          ...state.predictionModels,
+          currentBatchSize: null,
+        },
+      };
+    }
 
     default:
       return state;
@@ -184,12 +286,12 @@ function createUntrackedOperationNode(overrides) {
   });
 }
 
-function parseLinearModel(protobufLinearModel) {
-  if (protobufLinearModel == null) {
-    return null;
-  }
-  return {
-    slope: protobufLinearModel.getSlope(),
-    bias: protobufLinearModel.getBias(),
-  };
+function getBatchSizeFromUsage(peakUsageBytesModel, usageBytes) {
+  return (usageBytes - peakUsageBytesModel.bias) / peakUsageBytesModel.slope;
+}
+
+function getBatchSizeFromThroughput(runTimeMsModel, samplesPerSecond) {
+  const throughputMs = samplesPerSecond / 1000;
+  return (throughputMs * runTimeMsModel.bias) /
+    (1 - throughputMs * runTimeMsModel.slope);
 }

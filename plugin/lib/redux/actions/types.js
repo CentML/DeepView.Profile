@@ -65,6 +65,10 @@ export const ANALYSIS_EXPLORE_PREV = generateActionType(ANALYSIS_NAMESPACE, 'exp
 export const ANALYSIS_EXPLORE_CLEAR = generateActionType(ANALYSIS_NAMESPACE, 'explore_clear');
 // When the user hovers over a breakdown node
 export const ANALYSIS_SET_ACTIVE = generateActionType(ANALYSIS_NAMESPACE, 'set_active');
+// When the user drags the key performance metrics
+export const ANALYSIS_DRAG_THPT = generateActionType(ANALYSIS_NAMESPACE, 'drag_thpt');
+export const ANALYSIS_DRAG_MEM = generateActionType(ANALYSIS_NAMESPACE, 'drag_memory');
+export const ANALYSIS_PRED_CLEAR = generateActionType(ANALYSIS_NAMESPACE, 'clear_predictions');
 
 // ============================================================================
 
