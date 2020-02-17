@@ -67,6 +67,8 @@ export default class Memory extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
   peakUsageBytes: state.peakUsageBytes,
   memoryCapacityBytes: state.memoryCapacityBytes,
+  peakUsageBytesModel: state.predictionModels.peakUsageBytes,
+  currentBatchSize: state.predictionModels.currentBatchSize,
   ...ownProps,
 });
 

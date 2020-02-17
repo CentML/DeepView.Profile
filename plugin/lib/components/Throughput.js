@@ -74,6 +74,8 @@ class Throughput extends React.Component {
 
 const mapStateToProps = (state, ownProps) => ({
   model: state.throughput,
+  runTimeMsModel: state.predictionModels.runTimeMs,
+  currentBatchSize: state.predictionModels.currentBatchSize,
   ...ownProps,
 });
 

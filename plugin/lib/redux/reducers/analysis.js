@@ -141,10 +141,17 @@ export default function(state, action) {
 
     case ANALYSIS_REC_THPT: {
       const {throughputResponse} = action.payload;
+      const runTimeMsModel = throughputResponse.getRunTimeMs();
+      const peakUsageBytesModel = throughputResponse.getPeakUsageBytes();
       return {
         ...state,
         throughput:
           Throughput.fromThroughputResponse(throughputResponse),
+        predictionModels: {
+          runTimeMs: parseLinearModel(runTimeMsModel),
+          peakUsageBytes: parseLinearModel(peakUsageBytesModel),
+          currentBatchSize: null,
+        },
         errorMessage: '',
         perfVisState:
           state.perfVisState !== PerfVisState.MODIFIED
@@ -175,4 +182,14 @@ function createUntrackedOperationNode(overrides) {
     contexts: [],
     ...overrides,
   });
+}
+
+function parseLinearModel(protobufLinearModel) {
+  if (protobufLinearModel == null) {
+    return null;
+  }
+  return {
+    slope: protobufLinearModel.getSlope(),
+    bias: protobufLinearModel.getBias(),
+  };
 }

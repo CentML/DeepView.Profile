@@ -46,4 +46,10 @@ export default {
   peakUsageBytes: null,
   memoryCapacityBytes: null,
   iterationRunTimeMs: null,
+
+  predictionModels: {
+    runTimeMs: null,
+    peakUsageBytes: null,
+    currentBatchSize: null,
+  },
 };
