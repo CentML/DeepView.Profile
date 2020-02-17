@@ -172,13 +172,16 @@ class AnalysisSession:
         peak_usage_model = _fit_linear_model(batches, usages)
 
         logger.debug(
-            "Run time model - Slope: %f, Coefficient: %f (ms)",
+            "Run time model - Slope: %f, Bias: %f (ms)",
             *run_time_model,
         )
         logger.debug(
-            "Peak usage model - Slope: %f, Coefficient: %f (bytes)",
+            "Peak usage model - Slope: %f, Bias: %f (bytes)",
             *peak_usage_model,
         )
+
+        throughput.peak_usage_bytes.slope = peak_usage_model[0]
+        throughput.peak_usage_bytes.bias = peak_usage_model[1]
 
         predicted_max_throughput = 1000.0 / run_time_model[0]
 
@@ -190,6 +193,8 @@ class AnalysisSession:
             return throughput
 
         throughput.predicted_max_samples_per_second = predicted_max_throughput
+        throughput.run_time_ms.slope = run_time_model[0]
+        throughput.run_time_ms.bias = run_time_model[1]
 
         return throughput
 
