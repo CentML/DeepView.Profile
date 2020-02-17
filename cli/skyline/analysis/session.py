@@ -38,6 +38,7 @@ class AnalysisSession:
         self._profiler = None
         self._memory_usage_percentage = None
         self._batch_size_iteration_run_time_ms = None
+        self._batch_size_peak_usage_bytes = None
 
     @classmethod
     def new_from(cls, project_root, entry_point):
@@ -117,8 +118,9 @@ class AnalysisSession:
             if self._profiler is None:
                 self._initialize_iteration_profiler()
 
-            self._batch_size_iteration_run_time_ms, _ = \
-                self._profiler.measure_run_time_ms(self._batch_size)
+            (self._batch_size_iteration_run_time_ms,
+             self._batch_size_peak_usage_bytes,
+             _) = self._profiler.measure_run_time_ms(self._batch_size)
 
         # 3. Serialize the measured data
         bm = pm.BreakdownResponse()
@@ -162,21 +164,28 @@ class AnalysisSession:
         if len(samples) != num_samples:
             return throughput
 
-        run_times = np.array(
-            list(map(lambda sample: sample.run_time_ms, samples)))
-        batches = np.array(
-            list(map(lambda sample: sample.batch_size, samples)))
-        stacked = np.vstack([batches, np.ones(len(batches))]).T
-        slope, coefficient = np.linalg.lstsq(stacked, run_times, rcond=None)[0]
-        logger.debug(
-            "Run time model - Slope: %f, Coefficient: %f", slope, coefficient)
+        batches = list(map(lambda sample: sample.batch_size, samples))
+        run_times = list(map(lambda sample: sample.run_time_ms, samples))
+        usages = list(map(lambda sample: sample.peak_usage_bytes, samples))
 
-        predicted_max_throughput = 1000.0 / slope
+        run_time_model = _fit_linear_model(batches, run_times)
+        peak_usage_model = _fit_linear_model(batches, usages)
+
+        logger.debug(
+            "Run time model - Slope: %f, Coefficient: %f (ms)",
+            *run_time_model,
+        )
+        logger.debug(
+            "Peak usage model - Slope: %f, Coefficient: %f (bytes)",
+            *peak_usage_model,
+        )
+
+        predicted_max_throughput = 1000.0 / run_time_model[0]
 
         # Our prediction can be inaccurate due to sampling error or incorrect
         # assumptions. In these cases, we ignore our prediction. At the very
-        # minimum, a good linear model has a positive slope and coefficient.
-        if (slope < 1e-3 or coefficient < 1e-3 or
+        # minimum, a good linear model has a positive slope and bias.
+        if (run_time_model[0] < 1e-3 or run_time_model[1] < 1e-3 or
                 measured_throughput > predicted_max_throughput):
             return throughput
 
@@ -308,3 +317,12 @@ def _validate_provider_return_values(
             )
 
         return None
+
+
+def _fit_linear_model(x, y):
+    y_np = np.array(y)
+    x_np = np.array(x)
+    stacked = np.vstack([x_np, np.ones(len(x_np))]).T
+    slope, bias = np.linalg.lstsq(stacked, y_np, rcond=None)[0]
+    # Linear model: y = slope * x + bias
+    return slope, bias

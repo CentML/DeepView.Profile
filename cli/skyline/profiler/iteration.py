@@ -9,7 +9,7 @@ from skyline.user_code_utils import user_code_environment
 logger = logging.getLogger(__name__)
 
 IterationSample = collections.namedtuple(
-    "IterationSample", ["batch_size", "run_time_ms"])
+    "IterationSample", ["batch_size", "run_time_ms", "peak_usage_bytes"])
 
 
 class IterationProfiler:
@@ -72,7 +72,11 @@ class IterationProfiler:
         max_repetitions = (
             50 if initial_repetitions is None else max(50, initial_repetitions)
         )
+
+        torch.cuda.reset_max_memory_allocated()
         lesser = measure(repetitions) / repetitions
+        peak_usage_bytes = torch.cuda.max_memory_allocated()
+
         logger.debug("Iters: %d, Measured: %f", repetitions, lesser)
         while repetitions <= max_repetitions:
             doubled = repetitions * 2
@@ -86,7 +90,7 @@ class IterationProfiler:
             repetitions = doubled
             lesser = greater
 
-        return min(lesser, greater), repetitions
+        return min(lesser, greater), peak_usage_bytes, repetitions
 
     def measure_run_time_ms_catch_oom(
             self, batch_size, initial_repetitions=None):
@@ -108,17 +112,23 @@ class IterationProfiler:
         self,
         start_batch_size,
         start_batch_size_run_time_ms=None,
+        start_batch_size_peak_usage_bytes=None,
         memory_usage_percentage=None,
         num_samples=3,
     ):
         samples = []
 
         # 1. Make sure we can measure the run time of the "start" batch size
-        if start_batch_size_run_time_ms is None:
-            start_run_time_ms, _ = self.measure_run_time_ms(start_batch_size)
+        if (start_batch_size_run_time_ms is None or
+                start_batch_size_peak_usage_bytes is None):
+            start_run_time_ms, start_peak_usage_bytes, _ = \
+                self.measure_run_time_ms(start_batch_size)
         else:
             start_run_time_ms = start_batch_size_run_time_ms
-        samples.append(IterationSample(start_batch_size, start_run_time_ms))
+            start_peak_usage_bytes = start_batch_size_peak_usage_bytes
+
+        samples.append(IterationSample(
+            start_batch_size, start_run_time_ms, start_peak_usage_bytes))
 
         # 2. Perform sampling. We keep a range of "viable" batch sizes, where
         #    the upper limit is a guess on what will fit in memory. We adjust
@@ -173,7 +183,7 @@ class IterationProfiler:
                 stack.append((lower, next_size - 1))
                 continue
 
-            samples.append(IterationSample(next_size, result[0]))
+            samples.append(IterationSample(next_size, result[0], result[1]))
 
             # Change the order in which we explore each range
             if is_increasing:
