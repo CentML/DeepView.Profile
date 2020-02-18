@@ -62,7 +62,12 @@ class Throughput extends React.Component {
   }
 
   render() {
-    const {model, handleSliderHoverEnter, handleSliderHoverExit} = this.props;
+    const {
+      model,
+      handleSliderHoverEnter,
+      handleSliderHoverExit,
+      handleSliderClick,
+    } = this.props;
     const notReady = model == null;
     const samplesPerSecond = this._getSamplesPerSecond();
 
@@ -73,6 +78,7 @@ class Throughput extends React.Component {
           <BarSlider
             percentage={notReady ? 0 : this._getPercentage(samplesPerSecond)}
             handleResize={this._handleResize}
+            onClick={handleSliderClick}
             onMouseEnter={handleSliderHoverEnter}
             onMouseLeave={handleSliderHoverExit}
           />

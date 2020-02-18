@@ -25,6 +25,8 @@ export default {
   memoryUsage: null,
   throughput: null,
   runTimeBreakdown: null,
+  batchSize: null,
+  batchSizeContext: null,
 
   // State associated with the breakdowns
   // (display and navigation)
@@ -55,5 +57,6 @@ export default {
     peakUsageBytes: null,
     currentBatchSize: null,
     maxBatchSize: null,
+    batchSizeManipulatable: false,
   },
 };

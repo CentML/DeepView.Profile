@@ -1,6 +1,8 @@
 'use babel';
 
+import path from 'path';
 import React from 'react';
+import {connect} from 'react-redux';
 
 import ContextHighlightManager from './ContextHighlightManager';
 import ErrorMessage from './ErrorMessage';
@@ -10,6 +12,7 @@ import PerfVisStatusBar from './PerfVisStatusBar';
 import RunTimeBreakdown from './RunTimeBreakdown';
 import Throughput from './Throughput';
 import PerfVisState from '../models/PerfVisState';
+import UsageHighlight from './UsageHighlight';
 
 function PerfVisHeader() {
   return (
@@ -19,18 +22,41 @@ function PerfVisHeader() {
   );
 }
 
-export default class PerfVisMainView extends React.Component {
+class PerfVisMainView extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      showBatchSizeHighlight: false,
+    };
     this._handleSliderHoverEnter = this._handleSliderHoverEnter.bind(this);
     this._handleSliderHoverExit = this._handleSliderHoverExit.bind(this);
+    this._handleSliderClick = this._handleSliderClick.bind(this);
   }
 
   _handleSliderHoverEnter() {
-    // TODO: Use these event handling functions to highlight the batch size
+    this.setState({
+      showBatchSizeHighlight: true,
+    });
   }
 
   _handleSliderHoverExit() {
+    this.setState({
+      showBatchSizeHighlight: false,
+    });
+  }
+
+  _handleSliderClick() {
+    const {batchSizeContext, projectRoot} = this.props;
+    if (batchSizeContext == null || projectRoot == null) {
+      return;
+    }
+
+    // Atom uses 0-based line numbers, but Skyline uses 1-based line numbers
+    const absoluteFilePath = path.join(projectRoot, batchSizeContext.filePath);
+    atom.workspace.open(
+      absoluteFilePath,
+      {initialLine: batchSizeContext.lineNumber - 1},
+    );
   }
 
   _subrowClasses() {
@@ -41,6 +67,24 @@ export default class PerfVisMainView extends React.Component {
       return mainClass + ' innpv-no-events';
     }
     return mainClass;
+  }
+
+  _batchSizeUsageHighlight() {
+    const {editorsByPath, batchSizeContext} = this.props;
+    if (batchSizeContext == null ||
+        !editorsByPath.has(batchSizeContext.filePath)) {
+      return null;
+    }
+
+    const {showBatchSizeHighlight} = this.state;
+    return editorsByPath.get(batchSizeContext.filePath).map((editor) => (
+      <UsageHighlight
+        key={editor.id}
+        editor={editor}
+        show={showBatchSizeHighlight}
+        lineNumber={batchSizeContext.lineNumber}
+      />
+    ));
   }
 
   _renderBody() {
@@ -56,10 +100,12 @@ export default class PerfVisMainView extends React.Component {
           </div>
           <div className={this._subrowClasses()}>
             <Throughput
+              handleSliderClick={this._handleSliderClick}
               handleSliderHoverEnter={this._handleSliderHoverEnter}
               handleSliderHoverExit={this._handleSliderHoverExit}
             />
             <Memory
+              handleSliderClick={this._handleSliderClick}
               handleSliderHoverEnter={this._handleSliderHoverEnter}
               handleSliderHoverExit={this._handleSliderHoverExit}
             />
@@ -77,7 +123,16 @@ export default class PerfVisMainView extends React.Component {
         <div className="innpv-contents">{this._renderBody()}</div>
         <PerfVisStatusBar perfVisState={perfVisState} />
         <ContextHighlightManager perfVisState={perfVisState} />
+        {this._batchSizeUsageHighlight()}
       </div>
     );
   }
 }
+
+const mapStateToProps = (state, ownProps) => ({
+  editorsByPath: state.editorsByPath,
+  batchSizeContext: state.batchSizeContext,
+  ...ownProps,
+});
+
+export default connect(mapStateToProps)(PerfVisMainView);

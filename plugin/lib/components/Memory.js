@@ -40,6 +40,7 @@ export default class Memory extends React.Component {
       memoryCapacityBytes,
       handleSliderHoverEnter,
       handleSliderHoverExit,
+      handleSliderClick,
     } = this.props;
     const notReady = peakUsageBytes == null;
     const currentPeakUsageBytes = this._getCurrentPeakUsageBytes();
@@ -54,6 +55,7 @@ export default class Memory extends React.Component {
           <BarSlider
             percentage={percentage}
             handleResize={this._handleResize}
+            onClick={handleSliderClick}
             onMouseEnter={handleSliderHoverEnter}
             onMouseLeave={handleSliderHoverExit}
           />

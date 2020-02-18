@@ -21,6 +21,7 @@ import {
   OperationNode,
   WeightNode,
 } from '../../models/Breakdown';
+import {processFileReference} from '../../utils';
 
 export default function(state, action) {
   switch (action.type) {
@@ -78,6 +79,7 @@ export default function(state, action) {
         peakUsageBytes,
         memoryCapacityBytes: breakdownResponse.getMemoryCapacityBytes(),
         iterationRunTimeMs,
+        batchSize: breakdownResponse.getBatchSize(),
       };
     }
 
@@ -167,7 +169,11 @@ export default function(state, action) {
             peakUsageBytesModel,
             state.memoryCapacityBytes,
           ), 1),
+          batchSizeManipulatable:
+            throughputResponse.getCanManipulateBatchSize(),
         },
+        batchSizeContext:
+          processFileReference(throughputResponse.getBatchSizeContext()),
         errorMessage: '',
         perfVisState:
           state.perfVisState !== PerfVisState.MODIFIED
