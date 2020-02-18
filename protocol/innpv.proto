@@ -95,12 +95,19 @@ message ThroughputResponse {
   // (above) is NaN.
   LinearModel run_time_ms = 3;
   LinearModel peak_usage_bytes = 4;
+
+  // The location where the batch size is set
+  FileReference batch_size_context = 5;
+  // Whether or not we can manipulate the batch size code
+  // using our heuristics.
+  bool can_manipulate_batch_size = 6;
 }
 
 message BreakdownResponse {
   uint64 peak_usage_bytes = 1;
   uint64 memory_capacity_bytes = 2;
   float iteration_run_time_ms = 3;
+  uint32 batch_size = 6;
   // The nodes are ordered based on a preorder traversal of each tree
   repeated BreakdownNode operation_tree = 4;
   repeated BreakdownNode weight_tree = 5;
