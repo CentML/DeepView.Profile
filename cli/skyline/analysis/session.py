@@ -132,6 +132,7 @@ class AnalysisSession:
 
         # 3. Serialize the measured data
         bm = pm.BreakdownResponse()
+        bm.batch_size = self._batch_size
         bm.peak_usage_bytes = breakdown.peak_usage_bytes
         bm.memory_capacity_bytes = nvml.get_memory_capacity().total
         bm.iteration_run_time_ms = self._batch_size_iteration_run_time_ms
@@ -149,6 +150,8 @@ class AnalysisSession:
         if self._profiler is None:
             self._initialize_iteration_profiler()
 
+        # 1. Measure the throughput at several spots to be able to build a
+        #    prediction model
         num_samples = 3
         samples = self._profiler.sample_run_time_ms_by_batch_size(
             start_batch_size=self._batch_size,
@@ -162,16 +165,31 @@ class AnalysisSession:
                 "model's throughput. Please file a bug."
             )
 
+        # 2. Begin filling in the throughput response
         measured_throughput = (
             samples[0].batch_size / samples[0].run_time_ms * 1000
         )
         throughput = pm.ThroughputResponse()
         throughput.samples_per_second = measured_throughput
         throughput.predicted_max_samples_per_second = math.nan
+        throughput.can_manipulate_batch_size = False
 
+        # 3. Determine whether we have information about the batch size
+        #    location in the code
+        batch_info = self._entry_point_static_analyzer.batch_size_location()
+        if batch_info is not None:
+            throughput.batch_size_context.line_number = batch_info[0]
+            throughput.can_manipulate_batch_size = batch_info[1]
+            throughput.batch_size_context.file_path.components.extend(
+                self._entry_point.split(os.sep))
+
+        # 4. If we do not have enough throughput samples, we cannot build any
+        #    prediction models so just return the message as-is
         if len(samples) != num_samples:
             return throughput
 
+        # 5. Build and validate the prediction models for run time (throughput)
+        #    and memory
         batches = list(map(lambda sample: sample.batch_size, samples))
         run_times = list(map(lambda sample: sample.run_time_ms, samples))
         usages = list(map(lambda sample: sample.peak_usage_bytes, samples))
