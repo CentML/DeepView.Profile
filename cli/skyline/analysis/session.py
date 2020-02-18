@@ -1,3 +1,4 @@
+import ast
 import inspect
 import logging
 import math
@@ -6,6 +7,7 @@ import os
 import numpy as np
 
 import skyline.protocol_gen.innpv_pb2 as pm
+from skyline.analysis.static import StaticAnalyzer
 from skyline.exceptions import AnalysisError
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
@@ -23,18 +25,22 @@ class AnalysisSession:
     def __init__(
         self,
         project_root,
+        entry_point,
         path_to_entry_point_dir,
         model_provider,
         input_provider,
         iteration_provider,
-        batch_size
+        batch_size,
+        entry_point_static_analyzer
     ):
         self._project_root = project_root
+        self._entry_point = entry_point
         self._path_to_entry_point_dir = path_to_entry_point_dir
         self._model_provider = model_provider
         self._input_provider = input_provider
         self._iteration_provider = iteration_provider
         self._batch_size = batch_size
+        self._entry_point_static_analyzer = entry_point_static_analyzer
         self._profiler = None
         self._memory_usage_percentage = None
         self._batch_size_iteration_run_time_ms = None
@@ -49,7 +55,7 @@ class AnalysisSession:
 
         # 1. Run the entry point file to "load" the model
         try:
-            scope = _run_entry_point(
+            entry_point_code, entry_point_ast, scope = _run_entry_point(
                 path_to_entry_point,
                 path_to_entry_point_dir,
             )
@@ -97,11 +103,13 @@ class AnalysisSession:
 
         return cls(
             project_root,
+            entry_point,
             path_to_entry_point_dir,
             model_provider,
             input_provider,
             iteration_provider,
             batch_size,
+            StaticAnalyzer(entry_point_code, entry_point_ast),
         )
 
     def measure_breakdown(self, nvml):
@@ -238,11 +246,12 @@ class AnalysisSession:
 def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):
     with open(path_to_entry_point) as file:
         code_str = file.read()
-    code = compile(code_str, path_to_entry_point, mode="exec")
+    tree = ast.parse(code_str, filename=path_to_entry_point)
+    code = compile(tree, path_to_entry_point, mode="exec")
     with user_code_environment(path_to_entry_point_dir):
         scope = {}
         exec(code, scope, scope)
-    return scope
+    return code_str, tree, scope
 
 
 def _validate_providers(
