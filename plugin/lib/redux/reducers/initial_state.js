@@ -20,6 +20,7 @@ export default {
   projectRoot: null,
   editorsByPath: new Map(),
   projectModified: false,
+  modifiedEditorsByPath: new Map(),
 
   // Analysis received
   memoryBreakdown: null,

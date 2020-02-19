@@ -1,5 +1,8 @@
 'use babel';
 
+import path from 'path';
+import {Range} from 'atom';
+
 import {emptyFor, fromPayloadCreator} from './utils';
 import {
   ANALYSIS_REQ,
@@ -44,14 +47,49 @@ export default {
     ANALYSIS_SET_ACTIVE,
     ({currentlyActive}) => ({currentlyActive}),
   ),
-  dragThroughput: fromPayloadCreator(
-    ANALYSIS_DRAG_THPT,
-    ({deltaPct, basePct}) => ({deltaPct, basePct}),
-  ),
-  dragMemory: fromPayloadCreator(
-    ANALYSIS_DRAG_MEM,
-    ({deltaPct, basePct}) => ({deltaPct, basePct}),
-  ),
+  dragThroughput: dragMetricsThunkCreator(ANALYSIS_DRAG_THPT),
+  dragMemory: dragMetricsThunkCreator(ANALYSIS_DRAG_MEM),
   clearPredictions: emptyFor(ANALYSIS_PRED_CLEAR),
 };
 
+function dragMetricsThunkCreator(actionType) {
+  return function({deltaPct, basePct}) {
+    return function(dispatch, getState) {
+      // 1. Dispatch the original action
+      dispatch({type: actionType, payload: {deltaPct, basePct}});
+
+      // 2. Mutate the editor text, if able
+      const state = getState();
+      const {predictionModels, batchSizeContext, projectRoot} = state;
+      if (!predictionModels.batchSizeManipulatable ||
+          batchSizeContext == null ||
+          projectRoot == null) {
+        return;
+      }
+      if (predictionModels.currentBatchSize == null) {
+        return;
+      }
+
+      const entryPointPath = path.join(projectRoot, batchSizeContext.filePath);
+      atom.workspace.open(
+        entryPointPath,
+        {initialLine: batchSizeContext.lineNumber - 1},
+      )
+        .then((editor) => {
+          const buffer = editor.getBuffer();
+          const range = new Range(
+            [batchSizeContext.lineNumber - 1, 0],
+            [batchSizeContext.lineNumber - 1, 999],
+          );
+          buffer.setTextInRange(
+            range,
+            getSkylineBatchSizeSignature(predictionModels.currentBatchSize),
+          );
+        });
+    };
+  };
+}
+
+function getSkylineBatchSizeSignature(batchSize) {
+  return `def skyline_input_provider(batch_size=${batchSize.toFixed(0)}):`;
+}
