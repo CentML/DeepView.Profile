@@ -55,6 +55,10 @@ function ExplorationButton(props) {
 
 class PerfVisStatusBar extends React.Component {
   _getMessage() {
+    if (this.props.projectModified) {
+      return 'Unsaved changes; save to re-enable interactivity';
+    }
+
     switch (this.props.perfVisState) {
       case PerfVisState.READY:
         return 'Ready';
@@ -67,9 +71,6 @@ class PerfVisStatusBar extends React.Component {
 
       case PerfVisState.SHOWING_PREDICTIONS:
         return 'Showing predicted performance';
-
-      case PerfVisState.MODIFIED:
-        return 'Unsaved changes; save to re-enable interactivity';
 
       case PerfVisState.EXPLORING_WEIGHTS:
         return 'Showing weight breakdown details';

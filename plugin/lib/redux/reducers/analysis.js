@@ -148,12 +148,7 @@ export default function(state, action) {
       );
       return {
         ...state,
-        ...transitionTo(
-          state.perfVisState !== PerfVisState.MODIFIED
-            ? PerfVisState.READY
-            : PerfVisState.MODIFIED,
-          state,
-        ),
+        ...transitionTo(PerfVisState.READY, state),
         throughput:
           Throughput.fromThroughputResponse(throughputResponse),
         predictionModels: {

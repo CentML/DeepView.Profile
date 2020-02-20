@@ -19,6 +19,7 @@ export default {
   // Project state
   projectRoot: null,
   editorsByPath: new Map(),
+  projectModified: false,
 
   // Analysis received
   memoryBreakdown: null,

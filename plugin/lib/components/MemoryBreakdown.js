@@ -194,8 +194,8 @@ class MemoryBreakdown extends React.Component {
   }
 
   render() {
-    const {perfVisState, currentlyActive} = this.props;
-    const disabled = perfVisState === PerfVisState.MODIFIED ||
+    const {perfVisState, currentlyActive, projectModified} = this.props;
+    const disabled = projectModified ||
       perfVisState === PerfVisState.ANALYZING;
 
     return (

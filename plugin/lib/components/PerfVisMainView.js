@@ -60,10 +60,9 @@ class PerfVisMainView extends React.Component {
   }
 
   _subrowClasses() {
-    const {perfVisState} = this.props;
+    const {perfVisState, projectModified} = this.props;
     const mainClass = 'innpv-contents-subrows';
-    if (perfVisState === PerfVisState.MODIFIED ||
-        perfVisState === PerfVisState.ANALYZING) {
+    if (projectModified || perfVisState === PerfVisState.ANALYZING) {
       return mainClass + ' innpv-no-events';
     }
     return mainClass;
@@ -88,15 +87,34 @@ class PerfVisMainView extends React.Component {
   }
 
   _renderBody() {
-    const {perfVisState, projectRoot, errorMessage} = this.props;
+    const {
+      perfVisState,
+      projectRoot,
+      errorMessage,
+      projectModified,
+    } = this.props;
     if (this.props.errorMessage !== '') {
-      return <ErrorMessage perfVisState={perfVisState} message={errorMessage} />;
+      return (
+        <ErrorMessage
+          perfVisState={perfVisState}
+          message={errorMessage}
+          projectModified={projectModified}
+        />
+      );
     } else {
       return (
         <div className="innpv-contents-columns">
           <div className="innpv-perfbar-contents">
-            <RunTimeBreakdown perfVisState={perfVisState} projectRoot={projectRoot} />
-            <MemoryBreakdown perfVisState={perfVisState} projectRoot={projectRoot} />
+            <RunTimeBreakdown
+              perfVisState={perfVisState}
+              projectRoot={projectRoot}
+              projectModified={projectModified}
+            />
+            <MemoryBreakdown
+              perfVisState={perfVisState}
+              projectRoot={projectRoot}
+              projectModified={projectModified}
+            />
           </div>
           <div className={this._subrowClasses()}>
             <Throughput
@@ -116,12 +134,15 @@ class PerfVisMainView extends React.Component {
   }
 
   render() {
-    const {perfVisState} = this.props;
+    const {perfVisState, projectModified} = this.props;
     return (
       <div className="innpv-main">
         <PerfVisHeader />
         <div className="innpv-contents">{this._renderBody()}</div>
-        <PerfVisStatusBar perfVisState={perfVisState} />
+        <PerfVisStatusBar
+          perfVisState={perfVisState}
+          projectModified={projectModified}
+        />
         <ContextHighlightManager perfVisState={perfVisState} />
         {this._batchSizeUsageHighlight()}
       </div>
@@ -132,6 +153,7 @@ class PerfVisMainView extends React.Component {
 const mapStateToProps = (state, ownProps) => ({
   editorsByPath: state.editorsByPath,
   batchSizeContext: state.batchSizeContext,
+  projectModified: state.projectModified,
   ...ownProps,
 });
 
