@@ -55,7 +55,11 @@ export default class INNPVFileTracker {
   }
 
   _onProjectFileSave() {
-    if (this._tracker.isProjectModified() ||
+    // This callback is called each time a project file is saved. We only want
+    // to issue another analysis request once all project files have been
+    // saved. Therefore we do not take action if there are still modified files
+    // in our project, or if an analysis request is already being handled.
+    if (this._tracker.hasModifiedFiles() ||
         this._store.getState().perfVisState === PerfVisState.ANALYZING) {
       return;
     }
@@ -65,7 +69,7 @@ export default class INNPVFileTracker {
 
   _onProjectModifiedChange() {
     this._store.dispatch(ProjectActions.modifiedChange({
-      modified: this._tracker.isProjectModified()
+      modifiedEditorsByFilePath: this._tracker.modifiedEditorsByFilePath(),
     }));
   }
 }

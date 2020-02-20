@@ -7,7 +7,13 @@ import {
 } from './types';
 
 export default {
-  modifiedChange: fromPayloadCreator(PROJECT_MODIFIED_CHANGE, ({modified}) => ({modified})),
-  editorsChange: fromPayloadCreator(PROJECT_EDITORS_CHANGE, ({editorsByPath}) => ({editorsByPath})),
+  modifiedChange: fromPayloadCreator(
+    PROJECT_MODIFIED_CHANGE,
+    ({modifiedEditorsByFilePath}) => ({modifiedEditorsByFilePath}),
+  ),
+  editorsChange: fromPayloadCreator(
+    PROJECT_EDITORS_CHANGE,
+    ({editorsByPath}) => ({editorsByPath}),
+  ),
 };
 

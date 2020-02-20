@@ -46,11 +46,11 @@ export default class FileTracker {
     // Map<String, List<TextEditor>>
     this._editorsByFilePath = new Multimap();
 
-    // Stores all project TextEditors that have buffers with unsaved changes.
-    // This set is part of the editor index.
+    // Stores all project TextEditors that have buffers with unsaved changes,
+    // keyed by their file path. This set is part of the editor index.
     //
-    // Set<TextEditor>
-    this._modifiedEditors = new Set();
+    // Map<string, List<TextEditor>>
+    this._modifiedEditorsByFilePath = new Multimap();
 
     this._onNewEditor = this._onNewEditor.bind(this);
     this._subs = atom.workspace.observeTextEditors(this._onNewEditor);
@@ -70,8 +70,8 @@ export default class FileTracker {
     this._filePathByEditor.clear();
     this._filePathByEditor = null;
 
-    this._modifiedEditors.clear();
-    this._modifiedEditors = null;
+    this._modifiedEditorsByFilePath.clear();
+    this._modifiedEditorsByFilePath = null;
   }
 
   getTextEditorsFor(filePath) {
@@ -81,8 +81,12 @@ export default class FileTracker {
     return this._editorsByFilePath.get(filePath);
   }
 
-  isProjectModified() {
-    return this._modifiedEditors.size > 0;
+  hasModifiedFiles() {
+    return this._modifiedEditorsByFilePath.size > 0;
+  }
+
+  modifiedEditorsByFilePath() {
+    return this._modifiedEditorsByFilePath.copy();
   }
 
   editorsByFilePath() {
@@ -129,20 +133,18 @@ export default class FileTracker {
   }
 
   _onEditorModifiedChange(editor) {
-    if (!this._filePathByEditor.has(editor)) {
+    const filePath = this._filePathByEditor.get(editor);
+    if (filePath == null) {
       return;
     }
 
-    const prevProjectModified = this.isProjectModified();
     if (editor.isModified()) {
-      this._modifiedEditors.add(editor);
+      this._modifiedEditorsByFilePath.set(filePath, editor);
     } else {
-      this._modifiedEditors.delete(editor);
+      this._modifiedEditorsByFilePath.delete(filePath, editor);
     }
 
-    if (prevProjectModified !== this.isProjectModified()) {
-      process.nextTick(this._onProjectModifiedChange);
-    }
+    process.nextTick(this._onProjectModifiedChange);
   }
 
   _toProjectRelativePath(candidateFilePath) {
@@ -175,11 +177,9 @@ export default class FileTracker {
     }
 
     // If the editor has unsaved changes, keep track of it
-    const prevProjectModified = this.isProjectModified();
-    this._modifiedEditors.add(editor);
-    if (prevProjectModified !== this.isProjectModified()) {
-      callbacks.push(this._onProjectModifiedChange);
-    }
+    this._modifiedEditorsByFilePath.set(projectFilePath, editor);
+    callbacks.push(this._onProjectModifiedChange);
+
     return callbacks;
   }
 
@@ -194,13 +194,12 @@ export default class FileTracker {
     this._editorsByFilePath.delete(filePath, editor);
 
     const callbacks = [this._onOpenFilesChange];
-
-    const prevProjectModified = this.isProjectModified();
-    this._modifiedEditors.delete(editor);
-    if (prevProjectModified !== this.isProjectModified()) {
-      callbacks.push(this._onProjectModifiedChange);
+    if (!this._modifiedEditorsByFilePath.has(filePath)) {
+      return callbacks;
     }
 
+    this._modifiedEditorsByFilePath.delete(filePath, editor);
+    callbacks.push(this._onProjectModifiedChange);
     return callbacks;
   }
 }
@@ -232,6 +231,10 @@ class Multimap {
     } else {
       this._map.set(key, newValueArray);
     }
+  }
+
+  get size() {
+    return this._map.size;
   }
 
   get(key) {

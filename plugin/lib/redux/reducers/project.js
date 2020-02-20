@@ -9,10 +9,10 @@ import PerfVisState from '../../models/PerfVisState';
 export default function(state, action) {
   switch (action.type) {
     case PROJECT_MODIFIED_CHANGE: {
-      const {modified} = action.payload;
+      const {modifiedEditorsByFilePath} = action.payload;
       return {
         ...state,
-        projectModified: modified,
+        projectModified: modifiedEditorsByFilePath.size > 0,
       };
     }
 
