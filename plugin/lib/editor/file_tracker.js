@@ -44,7 +44,7 @@ export default class FileTracker {
     // displaying the file. This map is part of the editor index.
     //
     // Map<String, List<TextEditor>>
-    this._editorsByFilePath = new Map();
+    this._editorsByFilePath = new Multimap();
 
     // Stores all project TextEditors that have buffers with unsaved changes.
     // This set is part of the editor index.
@@ -86,7 +86,7 @@ export default class FileTracker {
   }
 
   editorsByFilePath() {
-    return new Map(this._editorsByFilePath);
+    return this._editorsByFilePath.copy();
   }
 
   editors() {
@@ -166,10 +166,7 @@ export default class FileTracker {
     }
 
     // Update the editor index
-    if (!this._editorsByFilePath.has(projectFilePath)) {
-      this._editorsByFilePath.set(projectFilePath, []);
-    }
-    this._editorsByFilePath.get(projectFilePath).push(editor);
+    this._editorsByFilePath.set(projectFilePath, editor);
     this._filePathByEditor.set(editor, projectFilePath);
 
     const callbacks = [this._onOpenFilesChange];
@@ -194,11 +191,7 @@ export default class FileTracker {
 
     const filePath = this._filePathByEditor.get(editor);
     this._filePathByEditor.delete(editor);
-    this._editorsByFilePath.set(
-      filePath,
-      this._editorsByFilePath.get(filePath)
-        .filter(candidateEditor => editor !== candidateEditor),
-    );
+    this._editorsByFilePath.delete(filePath, editor);
 
     const callbacks = [this._onOpenFilesChange];
 
@@ -209,5 +202,52 @@ export default class FileTracker {
     }
 
     return callbacks;
+  }
+}
+
+class Multimap {
+  constructor() {
+    // Map<Key, List<Value>>
+    this._map = new Map();
+  }
+
+  set(key, value) {
+    const valueArray = this._map.get(key);
+    if (valueArray == null) {
+      this._map.set(key, [value]);
+    } else {
+      valueArray.push(value);
+    }
+  }
+
+  delete(key, valueToDelete) {
+    const valueArray = this._map.get(key);
+    if (valueArray == null) {
+      return;
+    }
+
+    const newValueArray = valueArray.filter(value => value !== valueToDelete);
+    if (newValueArray.length == 0) {
+      this._map.delete(key);
+    } else {
+      this._map.set(key, newValueArray);
+    }
+  }
+
+  get(key) {
+    return this._map.get(key);
+  }
+
+  has(key) {
+    return this._map.has(key)
+  }
+
+  clear() {
+    this._map.clear();
+  }
+
+  copy() {
+    // Shallow copy only
+    return new Map(this._map);
   }
 }
