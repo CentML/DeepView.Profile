@@ -7,7 +7,7 @@ import PerfBarContainer from './generic/PerfBarContainer';
 import MemoryEntryLabel from '../models/MemoryEntryLabel';
 import PerfVisState from '../models/PerfVisState';
 import MemoryPerfBar from './MemoryPerfBar';
-import {toPercentage} from '../utils';
+import {toPercentage, scalePercentages} from '../utils';
 
 const DEFAULT_MEMORY_LABELS = [
   {label: MemoryEntryLabel.Weights, percentage: 30, clickable: true},
@@ -33,12 +33,27 @@ const COLORS_BY_LABEL = {
   [MemoryEntryLabel.Untracked]: [
     'innpv-untracked-color',
   ],
-}
+};
+
+const scalePredictedLabels = scalePercentages({
+  scaleSelector: (element) => element.percentage,
+  shouldScale: (element) => element.label === MemoryEntryLabel.Activations,
+  applyFactor:
+    (element, newPercentage) => ({...element, percentage: newPercentage}),
+});
+
+const scalePredictedPerfBars = scalePercentages({
+  scaleSelector: (args) => args.displayPct,
+  shouldScale: (args) => args.label === MemoryEntryLabel.Activations,
+  applyFactor:
+    (args, newPercentage) => ({...args, displayPct: newPercentage}),
+});
 
 class MemoryBreakdown extends React.Component {
   constructor(props) {
     super(props);
     this._renderPerfBars = this._renderPerfBars.bind(this);
+    this._renderPerfBarFrom = this._renderPerfBarFrom.bind(this);
   }
 
   _getLabels() {
@@ -59,7 +74,14 @@ class MemoryBreakdown extends React.Component {
       }];
 
     } else {
-      return this._getOverviewLabels();
+      const labels = this._getOverviewLabels();
+      if (perfVisState !== PerfVisState.SHOWING_PREDICTIONS) {
+        return labels;
+      } else {
+        const {batchSize, predictionBatchSize} = this.props;
+        const scaleFactor = predictionBatchSize / batchSize;
+        return scalePredictedLabels(labels, scaleFactor);
+      }
     }
   }
 
@@ -126,7 +148,7 @@ class MemoryBreakdown extends React.Component {
 
     const {editorsByPath, projectRoot, peakUsageBytes} = this.props;
 
-    const results = [weightTree, operationTree].flatMap((tree, idx) => {
+    let results = [weightTree, operationTree].flatMap((tree, idx) => {
       const label = idx === 0
         ? MemoryEntryLabel.Weights
         : MemoryEntryLabel.Activations;
@@ -148,31 +170,34 @@ class MemoryBreakdown extends React.Component {
           );
         }
 
-        return this._renderPerfBarFrom({
+        return {
           node,
           label,
           overallPct,
           displayPct,
           color: colors[index % colors.length],
-        });
+        };
       });
     });
 
     const {untrackedBytes, untrackedNode} = this.props.memory;
-    if (untrackedNode == null) {
-      return results;
+    if (untrackedNode != null) {
+      const untrackedPct = toPercentage(untrackedBytes, peakUsageBytes);
+      results.push({
+        node: untrackedNode,
+        label: 'Untracked',
+        overallPct: untrackedPct,
+        displayPct: untrackedPct,
+        color: COLORS_BY_LABEL[MemoryEntryLabel.Untracked][0],
+      });
     }
 
-    const untrackedPct = toPercentage(untrackedBytes, peakUsageBytes);
-    results.push(this._renderPerfBarFrom({
-      node: untrackedNode,
-      label: 'Untracked',
-      overallPct: untrackedPct,
-      displayPct: untrackedPct,
-      color: COLORS_BY_LABEL[MemoryEntryLabel.Untracked][0],
-    }));
+    if (this.props.perfVisState === PerfVisState.SHOWING_PREDICTIONS) {
+      const {batchSize, predictionBatchSize} = this.props;
+      results = scalePredictedPerfBars(results, predictionBatchSize / batchSize);
+    }
 
-    return results;
+    return results.map(this._renderPerfBarFrom);
   }
 
   _renderPerfBarFrom({node, label, overallPct, displayPct, color}) {
@@ -217,6 +242,8 @@ const mapStateToProps = (state, ownProps) => ({
   currentlyActive: state.breakdown.currentlyActive,
   memory: state.memory,
   peakUsageBytes: state.peakUsageBytes,
+  batchSize: state.batchSize,
+  predictionBatchSize: state.predictionModels.currentBatchSize,
   ...ownProps,
 });
 
