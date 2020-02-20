@@ -10,6 +10,7 @@ import {
   CONN_LOST,
   CONN_INCR_SEQ,
 } from '../actions/types';
+import transitionTo from './state_transition';
 import initialState from './initial_state';
 
 export default function(state, action) {
@@ -33,7 +34,7 @@ export default function(state, action) {
       return {
         ...state,
         appState: AppState.CONNECTED,
-        perfVisState: PerfVisState.READY,
+        ...transitionTo(PerfVisState.READY, state),
         errorMessage: '',
         connection: {
           ...state.connection,

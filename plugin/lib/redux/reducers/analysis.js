@@ -14,6 +14,7 @@ import {
   ANALYSIS_DRAG_MEM,
   ANALYSIS_PRED_CLEAR,
 } from '../actions/types';
+import transitionTo from './state_transition';
 import PerfVisState from '../../models/PerfVisState';
 import Throughput from '../../models/Throughput';
 import LinearModel from '../../models/LinearModel';
@@ -28,7 +29,7 @@ export default function(state, action) {
     case ANALYSIS_REQ:
       return {
         ...state,
-        perfVisState: PerfVisState.ANALYZING,
+        ...transitionTo(PerfVisState.ANALYZING, state),
       };
 
     case ANALYSIS_REC_BRK: {
@@ -91,11 +92,7 @@ export default function(state, action) {
         : PerfVisState.EXPLORING_WEIGHTS;
       return {
         ...state,
-        perfVisState,
-        predictionModels: {
-          ...state.predictionModels,
-          currentBatchSize: null,
-        },
+        ...transitionTo(perfVisState, state),
         breakdown: {
           ...state.breakdown,
           currentView: newView,
@@ -107,11 +104,7 @@ export default function(state, action) {
     case ANALYSIS_EXPLORE_CLEAR: {
       return {
         ...state,
-        perfVisState: PerfVisState.READY,
-        breakdown: {
-          ...state.breakdown,
-          currentView: null,
-        },
+        ...transitionTo(PerfVisState.READY, state),
       };
     }
 
@@ -130,11 +123,7 @@ export default function(state, action) {
 
       return {
         ...state,
-        perfVisState: PerfVisState.READY,
-        breakdown: {
-          ...state.breakdown,
-          currentView: null,
-        },
+        ...transitionTo(PerfVisState.READY, state),
       };
     }
 
@@ -159,6 +148,12 @@ export default function(state, action) {
       );
       return {
         ...state,
+        ...transitionTo(
+          state.perfVisState !== PerfVisState.MODIFIED
+            ? PerfVisState.READY
+            : PerfVisState.MODIFIED,
+          state,
+        ),
         throughput:
           Throughput.fromThroughputResponse(throughputResponse),
         predictionModels: {
@@ -174,19 +169,14 @@ export default function(state, action) {
         },
         batchSizeContext:
           processFileReference(throughputResponse.getBatchSizeContext()),
-        errorMessage: '',
-        perfVisState:
-          state.perfVisState !== PerfVisState.MODIFIED
-            ? PerfVisState.READY
-            : PerfVisState.MODIFIED,
       };
     }
 
     case ANALYSIS_ERROR:
       return {
         ...state,
+        ...transitionTo(PerfVisState.ERROR, state),
         errorMessage: action.payload.errorMessage,
-        perfVisState: PerfVisState.ERROR,
       };
 
     case ANALYSIS_DRAG_THPT: {
@@ -219,11 +209,7 @@ export default function(state, action) {
 
       return {
         ...state,
-        perfVisState: PerfVisState.SHOWING_PREDICTIONS,
-        breakdown: {
-          ...state.breakdown,
-          currentView: null,
-        },
+        ...transitionTo(PerfVisState.SHOWING_PREDICTIONS, state),
         predictionModels: {
           ...state.predictionModels,
           currentBatchSize: predictedBatchSize,
@@ -252,11 +238,7 @@ export default function(state, action) {
 
       return {
         ...state,
-        perfVisState: PerfVisState.SHOWING_PREDICTIONS,
-        breakdown: {
-          ...state.breakdown,
-          currentView: null,
-        },
+        ...transitionTo(PerfVisState.SHOWING_PREDICTIONS, state),
         predictionModels: {
           ...state.predictionModels,
           currentBatchSize: predictedBatchSize,
@@ -267,11 +249,7 @@ export default function(state, action) {
     case ANALYSIS_PRED_CLEAR: {
       return {
         ...state,
-        perfVisState: PerfVisState.READY,
-        predictionModels: {
-          ...state.predictionModels,
-          currentBatchSize: null,
-        },
+        ...transitionTo(PerfVisState.READY, state),
       };
     }
 

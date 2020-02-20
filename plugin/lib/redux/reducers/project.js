@@ -4,6 +4,7 @@ import {
   PROJECT_MODIFIED_CHANGE,
   PROJECT_EDITORS_CHANGE,
 } from '../actions/types';
+import transitionTo from './state_transition';
 import PerfVisState from '../../models/PerfVisState';
 import Logger from '../../logger';
 
@@ -15,13 +16,13 @@ export default function(state, action) {
       if (modified && perfVisState !== PerfVisState.MODIFIED) {
         return {
           ...state,
-          perfVisState: PerfVisState.MODIFIED,
+          ...transitionTo(PerfVisState.MODIFIED, state),
         };
 
       } else if (!modified && perfVisState === PerfVisState.MODIFIED) {
         return {
           ...state,
-          perfVisState: PerfVisState.READY,
+          ...transitionTo(PerfVisState.READY, state),
         };
       } else {
         Logger.warn(
