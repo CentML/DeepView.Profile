@@ -27,10 +27,10 @@ export default function transitionTo(nextPerfVisState, entireState) {
 function fromShowingPredictions(nextPerfVisState, entireState) {
   return {
     perfVisState: nextPerfVisState,
-    projectModified: entireState.modifiedEditorsByPath.size > 0,
     predictionModels: {
       ...entireState.predictionModels,
       currentBatchSize: null,
+      undoCheckpoint: null,
     },
   };
 }

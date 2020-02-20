@@ -69,6 +69,7 @@ export const ANALYSIS_SET_ACTIVE = generateActionType(ANALYSIS_NAMESPACE, 'set_a
 export const ANALYSIS_DRAG_THPT = generateActionType(ANALYSIS_NAMESPACE, 'drag_thpt');
 export const ANALYSIS_DRAG_MEM = generateActionType(ANALYSIS_NAMESPACE, 'drag_memory');
 export const ANALYSIS_PRED_CLEAR = generateActionType(ANALYSIS_NAMESPACE, 'clear_predictions');
+export const ANALYSIS_PRED_CHECKPOINT = generateActionType(ANALYSIS_NAMESPACE, 'prediction_checkpoint');
 
 // ============================================================================
 

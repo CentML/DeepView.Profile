@@ -60,5 +60,6 @@ export default {
     currentBatchSize: null,
     maxBatchSize: null,
     batchSizeManipulatable: false,
+    undoCheckpoint: null,
   },
 };

@@ -17,6 +17,7 @@ import {
   ANALYSIS_DRAG_THPT,
   ANALYSIS_DRAG_MEM,
   ANALYSIS_PRED_CLEAR,
+  ANALYSIS_PRED_CHECKPOINT,
 } from './types';
 
 export default {
@@ -81,10 +82,18 @@ function dragMetricsThunkCreator(actionType) {
             [batchSizeContext.lineNumber - 1, 0],
             [batchSizeContext.lineNumber - 1, 999],
           );
+
+          let checkpoint = getState().predictionModels.undoCheckpoint;
+          if (checkpoint == null) {
+            checkpoint = buffer.createCheckpoint();
+            dispatch({type: ANALYSIS_PRED_CHECKPOINT, payload: {checkpoint}});
+          }
+
           buffer.setTextInRange(
             range,
             getSkylineBatchSizeSignature(predictionModels.currentBatchSize),
           );
+          buffer.groupChangesSinceCheckpoint(checkpoint);
         });
     };
   };

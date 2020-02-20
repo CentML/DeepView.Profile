@@ -13,6 +13,7 @@ import {
   ANALYSIS_DRAG_THPT,
   ANALYSIS_DRAG_MEM,
   ANALYSIS_PRED_CLEAR,
+  ANALYSIS_PRED_CHECKPOINT,
 } from '../actions/types';
 import transitionTo from './state_transition';
 import PerfVisState from '../../models/PerfVisState';
@@ -245,6 +246,16 @@ export default function(state, action) {
       return {
         ...state,
         ...transitionTo(PerfVisState.READY, state),
+      };
+    }
+
+    case ANALYSIS_PRED_CHECKPOINT: {
+      return {
+        ...state,
+        predictionModels: {
+          ...state.predictionModels,
+          undoCheckpoint: action.payload.checkpoint,
+        },
       };
     }
 
