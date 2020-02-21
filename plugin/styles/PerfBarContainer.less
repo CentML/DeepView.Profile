@@ -32,6 +32,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+  flex-wrap: wrap;
+  overflow: hidden;
+
   border-bottom: @innpv-perfbar-label-border;
 
   transition-property: height;
@@ -41,10 +45,24 @@
   &:first-child {
     border-top: @innpv-perfbar-label-border;
   }
+
+  // This pseudo-element is used to hide the label text if it will overflow
+  // this container div. We use a flex column layout with wrapping. When the
+  // height of this container div is less than the height of the text, this
+  // pseudo-element will shift the text to the right, where it will be hidden
+  // due to the overflow: hidden property set above.
+  &::before {
+    content: '';
+    display: block;
+    height: 1px;
+    width: 15px;
+  }
 }
 
 .innpv-perfbarcontainer-label {
-  transform: rotate(270deg);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+
   color: @text-color-subtle;
   font-size: 1em;
   white-space: nowrap;

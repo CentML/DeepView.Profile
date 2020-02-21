@@ -90,7 +90,7 @@ function LabelContainer(props) {
             style={{height: `${displayPct}%`}}
             onClick={() => props.onLabelClick(label)}
           >
-            <div className="innpv-perfbarcontainer-label">{displayPct >= 5 ? label : null}</div>
+            <div className="innpv-perfbarcontainer-label">{label}</div>
           </div>
         );
       })}
