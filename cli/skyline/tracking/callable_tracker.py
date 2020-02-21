@@ -16,12 +16,15 @@ class CallableTracker(TrackerBase):
         super().start_tracking()
         self._hook_manager.attach_hooks_on_module(
             torch,
-            _is_callable_and_public,
+            lambda fn: _is_callable_and_public(fn) and \
+              fn.__name__ not in BLACKLISTED_TORCH_METHODS,
             self._hook_creator,
         )
         self._hook_manager.attach_hooks_on_module(
             torch.Tensor,
-            lambda fn: _is_callable_and_public(fn) and fn.__name__ != 'backward',
+            lambda fn: _is_callable_and_public(fn) and \
+              fn.__name__ != 'backward' and \
+              fn.__name__ not in BLACKLISTED_TENSOR_METHODS,
             self._hook_creator,
         )
         self._hook_manager.attach_hooks_on_module(
@@ -51,7 +54,7 @@ def _is_callable_and_public(maybe_fn):
     # called by users (i.e. they are "private" functions)
     return _is_callable(maybe_fn) and maybe_fn.__name__[0] != '_'
 
-# Original source of this blacklist:
+# Original source of these blacklists:
 # https://github.com/NVIDIA/apex/blob/master/apex/pyprof/nvtx/nvmarker.py
 BLACKLISTED_DUNDERS = {
     '__all__',
@@ -98,6 +101,14 @@ BLACKLISTED_DUNDERS = {
     '__subclasshook__',
     '__version__',
     '__weakref__',
+}
+
+BLACKLISTED_TENSOR_METHODS = {
+    'size', 'dim', 'item', 'tolist',
+}
+
+BLACKLISTED_TORCH_METHODS = {
+    'is_storage',
 }
 
 
