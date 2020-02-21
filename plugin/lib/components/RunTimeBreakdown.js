@@ -173,7 +173,8 @@ class RunTimeBreakdown extends React.Component {
     const {perfVisState, currentlyActive, projectModified} = this.props;
     const disabled = projectModified ||
       perfVisState === PerfVisState.ANALYZING ||
-      perfVisState === PerfVisState.EXPLORING_WEIGHTS;
+      perfVisState === PerfVisState.EXPLORING_WEIGHTS ||
+      perfVisState === PerfVisState.SHOWING_PREDICTIONS;
 
     return (
       <PerfBarContainer

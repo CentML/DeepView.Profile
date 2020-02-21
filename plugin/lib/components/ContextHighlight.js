@@ -4,6 +4,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import InlineHighlight from './generic/InlineHighlight';
+import PerfVisState from '../models/PerfVisState';
 import {toPercentage} from '../utils';
 
 export default class ContextHighlight extends React.Component {
@@ -44,13 +45,15 @@ export default class ContextHighlight extends React.Component {
       lineNumber,
       isScoped,
       scopedContextInfo,
+      perfVisState,
       ...rest,
     } = this.props;
     // We make this gutter marker "inactive" (greyed out) if the user is
     // currently exploring a specific "scope" (part of the breakdown tree) AND
     // we do not have specific scoped information for this particular line of
     // code.
-    const inactiveGutterMarker = isScoped && scopedContextInfo == null;
+    const inactiveGutterMarker = (isScoped && scopedContextInfo == null) ||
+      perfVisState === PerfVisState.SHOWING_PREDICTIONS;
 
     return (
       <Fragment>
