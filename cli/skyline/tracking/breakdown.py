@@ -102,6 +102,7 @@ class HierarchicalBreakdownBuilder:
             yield parent
             parent = parent.children[context]
 
+        parent.add_name(leaf_name)
         yield parent
 
     def _prune_tree(self, root):
@@ -129,7 +130,7 @@ class HierarchicalBreakdownBuilder:
 
 class BreakdownNode:
     def __init__(self, name, module_id):
-        self._name = name
+        self._names = [name]
         self._module_id = module_id
 
         self._children = {}
@@ -138,9 +139,14 @@ class BreakdownNode:
     def add_context(self, context):
         self._contexts.append(context)
 
+    def add_name(self, name):
+        if name in self._names:
+            return
+        self._names.append(name)
+
     @property
     def name(self):
-        return self._name
+        return ', '.join(self._names)
 
     @property
     def children(self):
