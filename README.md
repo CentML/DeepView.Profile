@@ -18,7 +18,7 @@ between versions. See [Versioning](#versioning) for more details.
 
 -------------------------------------------------------------------------------
 
-## Installing Skyline
+<h2 id="installing-skyline">Installing Skyline</h2>
 
 ### Requirements
 
@@ -48,7 +48,7 @@ After installing Skyline, you will be able to invoke the command line tool by
 running `skyline` in your shell.
 
 
-## Getting Started
+<h2 id="getting-started">Getting Started</h2>
 
 To use Skyline in your project, you need to first write an *entry point file*,
 which is a regular Python file that describes how your model is created and
@@ -95,7 +95,7 @@ When starting a Skyline interactive profiling session, you must invoke `skyline
 interactive <entry point>` inside your project's *root directory*.
 
 
-### Entry Point
+<h3 id="entry-point">Entry Point</h3>
 
 Skyline uses an *entry point* file to learn how to create and train your model.
 An entry point file is a regular Python file that contains three top-level
@@ -202,7 +202,7 @@ skyline interactive entry_point.py
 ```
 
 
-## Providers in Detail
+<h2 id="providers-in-detail">Providers in Detail</h2>
 
 ### Model Provider
 
@@ -247,7 +247,7 @@ instance of your model. This provider must return a callable (e.g., a function)
 that, when invoked, runs a single training iteration.
 
 
-## Versioning
+<h2 id="versioning">Versioning</h2>
 
 Skyline uses semantic versioning. Before the 1.0.0 release, backwards
 compatibility between minor versions will not be guaranteed.
@@ -261,6 +261,6 @@ Generally speaking, the most recent version of the command line tool and plugin
 will be compatible with each other.
 
 
-## Authors
+<h2 id="authors">Authors</h2>
 
 Geoffrey Yu <gxyu@cs.toronto.edu>
