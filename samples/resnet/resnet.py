@@ -103,7 +103,6 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-
     def __init__(self, block, layers, num_classes=1000, zero_init_residual=False,
                  groups=1, width_per_group=64, replace_stride_with_dilation=None,
                  norm_layer=None):
@@ -137,6 +136,7 @@ class ResNet(nn.Module):
                                        dilate=replace_stride_with_dilation[2])
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.loss_fn = nn.CrossEntropyLoss()
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -179,8 +179,7 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _forward_impl(self, x):
-        # See note [TorchScript super()]
+    def forward(self, x, target):
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -195,10 +194,7 @@ class ResNet(nn.Module):
         x = torch.flatten(x, 1)
         x = self.fc(x)
 
-        return x
-
-    def forward(self, x):
-        return self._forward_impl(x)
+        return self.loss_fn(x, target)
 
 
 def _resnet(arch, block, layers, **kwargs):
