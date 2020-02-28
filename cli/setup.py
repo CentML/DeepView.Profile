@@ -13,6 +13,7 @@ from setuptools import setup, find_packages
 NAME = "skyline-cli"
 PACKAGES = find_packages()
 META_PATH = os.path.join("skyline", "__init__.py")
+README_PATH = os.path.join("..", "README.md")
 PYTHON_REQUIRES = ">=3.6"
 
 PACKAGE_DATA = {
@@ -91,6 +92,8 @@ if __name__ == "__main__":
         author_email=find_meta("email"),
         maintainer=find_meta("author"),
         maintainer_email=find_meta("email"),
+        long_description=read(README_PATH),
+        long_description_content_type="text/markdown",
         packages=PACKAGES,
         package_data=PACKAGE_DATA,
         python_requires=PYTHON_REQUIRES,
