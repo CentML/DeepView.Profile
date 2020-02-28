@@ -25,6 +25,13 @@ export default function undoPredictions({getState}) {
       return returnValue;
     }
 
+    // If the user has actually saved the predicted changes, we will not
+    // revert the editor to its previous state (i.e. we will not undo the
+    // predictions).
+    if (!state.modifiedEditorsByPath.has(batchSizeContext.filePath)) {
+      return returnValue;
+    }
+
     // We only consider one editor since, if there are multiple editors open,
     // they will all share the same underlying text buffer.
     const editors = editorsByPath.get(batchSizeContext.filePath);
