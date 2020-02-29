@@ -95,6 +95,8 @@ class HierarchicalBreakdownBuilder:
                     else self._module_names_by_id[
                         stack_frames[-idx-2].module_id]
                 )
+                if name == '':
+                    name = 'Model'
                 new_entry = node_constructor(name, frame.module_id)
                 new_entry.add_context(context)
                 parent.children[context] = new_entry
