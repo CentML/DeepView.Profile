@@ -4,7 +4,7 @@ from skyline.profiler.autograd import AutogradEngine
 
 
 class OperationProfiler:
-    def __init__(self, warm_up=3, measure_for=10):
+    def __init__(self, warm_up=3, measure_for=3):
         self._warm_up = warm_up
         self._measure_for = measure_for
         self._start_event = torch.cuda.Event(enable_timing=True)
