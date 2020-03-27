@@ -18,11 +18,20 @@ function measure() {
     -o ../tools/evaluation/measure.csv \
     resnet/entry_point.py
 
+  deactivate
   popd
+}
+
+function combine() {
+  python3 process_results.py \
+    --models ./models.csv \
+    --measurements ./measure.csv \
+    --output combined.csv
 }
 
 function main() {
   measure
+  combine
 
   RESULTS_DIR="results-$(date "+%F_%H_%M")"
   mkdir $RESULTS_DIR

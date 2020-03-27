@@ -4,6 +4,7 @@ import logging
 import math
 import os
 
+import torch
 import numpy as np
 
 import skyline.protocol_gen.innpv_pb2 as pm
@@ -223,6 +224,20 @@ class AnalysisSession:
         throughput.run_time_ms.bias = run_time_model[1]
 
         return throughput
+
+    def measure_peak_usage_bytes(self):
+        self._prepare_for_memory_profiling()
+        # Run one iteration to initialize the gradients
+        with user_code_environment(self._path_to_entry_point_dir):
+            model = self._model_provider()
+            model(*self._input_provider(
+                batch_size=self._batch_size)).backward()
+
+        torch.cuda.reset_max_memory_allocated()
+        with user_code_environment(self._path_to_entry_point_dir):
+            iteration = self._iteration_provider(model)
+            iteration(*(self._input_provider(batch_size=self._batch_size)))
+        return torch.cuda.max_memory_allocated()
 
     def generate_memory_usage_report(self, save_report_to):
         self._prepare_for_memory_profiling()

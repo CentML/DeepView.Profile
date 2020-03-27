@@ -42,19 +42,18 @@ def register_command(subparsers):
     parser.set_defaults(func=main)
 
 
-def make_measurements(session, batch_size, nvml):
+def make_measurements(session, batch_size):
     # This is a HACK
     session._batch_size = batch_size
-    bd_msg = session.measure_breakdown(nvml)
+    peak_usage_bytes = session.measure_peak_usage_bytes()
     thpt_msg = session.measure_throughput()
-    return thpt_msg.samples_per_second, bd_msg.peak_usage_bytes
+    return thpt_msg.samples_per_second, peak_usage_bytes
 
 
 def actual_main(args):
     from skyline.analysis.session import AnalysisSession
     from skyline.config import Config
     from skyline.exceptions import AnalysisError
-    from skyline.nvml import NVML
 
     if os.path.exists(args.output):
         print(
@@ -64,7 +63,7 @@ def actual_main(args):
         sys.exit(1)
 
     try:
-        with open(args.output, 'w') as f, NVML() as nvml:
+        with open(args.output, 'w') as f:
             writer = csv.writer(f)
             writer.writerow([
                 'batch_size',
@@ -75,7 +74,7 @@ def actual_main(args):
                 session = AnalysisSession.new_from(
                     Config.project_root, Config.entry_point)
                 samples_per_second, memory_usage_bytes = make_measurements(
-                    session, batch_size, nvml)
+                    session, batch_size)
                 writer.writerow([
                     batch_size, samples_per_second, memory_usage_bytes,
                 ])
