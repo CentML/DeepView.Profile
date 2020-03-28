@@ -236,7 +236,13 @@ class AnalysisSession:
         torch.cuda.reset_max_memory_allocated()
         with user_code_environment(self._path_to_entry_point_dir):
             iteration = self._iteration_provider(model)
-            iteration(*(self._input_provider(batch_size=self._batch_size)))
+            # NOTE: It's important to run at least 2 iterations here. It turns
+            #       out that >= 2 iterations is the number of iterations needed
+            #       to get a stable measurement of the total memory
+            #       consumption. When using Adam, if you run one iteration, the
+            #       memory usage ends up being too low by a constant factor.
+            for _ in range(2):
+                iteration(*(self._input_provider(batch_size=self._batch_size)))
         return torch.cuda.max_memory_allocated()
 
     def generate_memory_usage_report(self, save_report_to):
