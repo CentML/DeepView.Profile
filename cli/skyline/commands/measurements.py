@@ -29,6 +29,13 @@ def register_command(subparsers):
         required=True,
     )
     parser.add_argument(
+        "-t", "--trials",
+        help="Number of trials to run when making measurements.",
+        type=int,
+        required=True,
+        default=5,
+    )
+    parser.add_argument(
         "-o", "--output",
         help="The location where the evaluation output should be stored.",
         required=True,
@@ -67,17 +74,22 @@ def actual_main(args):
             writer = csv.writer(f)
             writer.writerow([
                 'batch_size',
+                'trial',
                 'samples_per_second',
                 'memory_usage_bytes',
             ])
             for batch_size in args.batch_sizes:
-                session = AnalysisSession.new_from(
-                    Config.project_root, Config.entry_point)
-                samples_per_second, memory_usage_bytes = make_measurements(
-                    session, batch_size)
-                writer.writerow([
-                    batch_size, samples_per_second, memory_usage_bytes,
-                ])
+                for trial in range(args.trials):
+                    session = AnalysisSession.new_from(
+                        Config.project_root, Config.entry_point)
+                    samples_per_second, memory_usage_bytes = make_measurements(
+                        session, batch_size)
+                    writer.writerow([
+                        batch_size,
+                        trial,
+                        samples_per_second,
+                        memory_usage_bytes,
+                    ])
 
     except AnalysisError as ex:
         print(

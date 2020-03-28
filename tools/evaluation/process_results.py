@@ -18,13 +18,23 @@ def evaluate_model(model, measurements):
     )
     df['samples_per_second_error'] = percentage_error(
         df['samples_per_second_predicted'],
-        df['samples_per_second'],
+        df['samples_per_second_median'],
     )
     df['memory_usage_error'] = percentage_error(
         df['memory_bytes_predicted'],
-        df['memory_usage_bytes'],
+        df['memory_usage_bytes_median'],
     )
-    df['model_centered_batch_size'] = model.batch_size
+    df['model_creation_batch_size'] = model.batch_size
+    return df
+
+
+def summarize_measurements(raw_measurements):
+    df = raw_measurements.groupby('batch_size').agg({
+        'samples_per_second': ['median', 'min', 'max'],
+        'memory_usage_bytes': ['median', 'min', 'max'],
+    })
+    df.columns = df.columns.map('_'.join)
+    df = df.reset_index()
     return df
 
 
@@ -36,7 +46,8 @@ def main():
     args = parser.parse_args()
 
     models = pd.read_csv(args.models)
-    measurements = pd.read_csv(args.measurements)
+    raw_measurements = pd.read_csv(args.measurements)
+    measurements = summarize_measurements(raw_measurements)
 
     frames = [
         evaluate_model(model, measurements)

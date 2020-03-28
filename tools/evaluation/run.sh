@@ -16,6 +16,7 @@ function measure_cnn() {
   skyline measure-batches \
     -b 10 20 30 40 50 60 \
     -o ../tools/evaluation/$1_measure.csv \
+    -t 5 \
     $1/entry_point.py
 
   deactivate
@@ -36,6 +37,7 @@ function measure_nmt() {
   skyline measure-batches \
     -b 45 60 85 110 125 150 \
     -o ../tools/evaluation/$1_measure.csv \
+    -t 5 \
     $1/entry_point.py
 
   deactivate
@@ -60,6 +62,9 @@ function main() {
 
   RESULTS_DIR="results-$(date "+%F_%H_%M")"
   mkdir $RESULTS_DIR
+  mkdir $RESULTS_DIR/raw
+  mv *_measure.csv $RESULTS_DIR/raw
+  mv *_models.csv $RESULTS_DIR/raw
   mv *.csv $RESULTS_DIR
 
   echo_green "Done!"
