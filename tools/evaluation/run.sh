@@ -14,7 +14,7 @@ function measure_cnn() {
 
   echo_blue "Making measurements for $1..."
   skyline measure-batches \
-    -b 10 20 30 40 50 \
+    -b 10 20 30 40 50 60 \
     -o ../tools/evaluation/$1_measure.csv \
     $1/entry_point.py
 
@@ -34,7 +34,7 @@ function measure_nmt() {
 
   echo_blue "Making measurements for $1..."
   skyline measure-batches \
-    -b 60 85 110 125 150 \
+    -b 45 60 85 110 125 150 \
     -o ../tools/evaluation/$1_measure.csv \
     $1/entry_point.py
 
