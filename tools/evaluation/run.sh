@@ -2,21 +2,41 @@
 
 set -e
 
-function measure() {
+function measure_cnn() {
   pushd ../../samples
   source ../cli/env/bin/activate
 
-  echo_blue "Generating prediction models..."
+  echo_blue "Generating prediction models for $1..."
   skyline prediction-models \
     -b 8 16 32 \
-    -o ../tools/evaluation/models.csv \
-    resnet/entry_point.py
+    -o ../tools/evaluation/$1_models.csv \
+    $1/entry_point.py
 
-  echo_blue "Making measurements..."
+  echo_blue "Making measurements for $1..."
   skyline measure-batches \
     -b 10 20 30 40 50 \
-    -o ../tools/evaluation/measure.csv \
-    resnet/entry_point.py
+    -o ../tools/evaluation/$1_measure.csv \
+    $1/entry_point.py
+
+  deactivate
+  popd
+}
+
+function measure_nmt() {
+  pushd ../../samples
+  source ../cli/env/bin/activate
+
+  echo_blue "Generating prediction models for $1..."
+  skyline prediction-models \
+    -b 32 64 80 \
+    -o ../tools/evaluation/$1_models.csv \
+    $1/entry_point.py
+
+  echo_blue "Making measurements for $1..."
+  skyline measure-batches \
+    -b 60 85 110 125 150 \
+    -o ../tools/evaluation/$1_measure.csv \
+    $1/entry_point.py
 
   deactivate
   popd
@@ -24,14 +44,19 @@ function measure() {
 
 function combine() {
   python3 process_results.py \
-    --models ./models.csv \
-    --measurements ./measure.csv \
-    --output combined.csv
+    --models ./$1_models.csv \
+    --measurements ./$1_measure.csv \
+    --output $1_combined.csv
 }
 
 function main() {
-  measure
-  combine
+  measure_cnn "resnet"
+  combine "resnet"
+
+  measure_nmt "gnmt"
+  combine "gnmt"
+  measure_nmt "transformer"
+  combine "transformer"
 
   RESULTS_DIR="results-$(date "+%F_%H_%M")"
   mkdir $RESULTS_DIR
