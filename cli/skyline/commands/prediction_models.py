@@ -71,8 +71,8 @@ def actual_main(args):
                 'batch_size',
                 'run_time_ms_slope',
                 'run_time_ms_bias',
-                'memory_bytes_slope',
-                'memory_bytes_bias',
+                'memory_usage_bytes_slope',
+                'memory_usage_bytes_bias',
             ])
             for batch_size in args.batch_sizes:
                 session = AnalysisSession.new_from(

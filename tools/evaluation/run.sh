@@ -35,7 +35,7 @@ function measure_nmt() {
 
   echo_blue "Making measurements for $1..."
   skyline measure-batches \
-    -b 45 60 85 110 125 150 \
+    -b 50 70 90 110 130 150 \
     -o ../tools/evaluation/$1_measure.csv \
     -t 5 \
     $1/entry_point.py

@@ -12,16 +12,16 @@ def evaluate_model(model, measurements):
         model.run_time_ms_slope * df['batch_size'] +
         model.run_time_ms_bias
     ) * 1000
-    df['memory_bytes_predicted'] = (
-        model.memory_bytes_slope * df['batch_size'] +
-        model.memory_bytes_bias
+    df['memory_usage_bytes_predicted'] = (
+        model.memory_usage_bytes_slope * df['batch_size'] +
+        model.memory_usage_bytes_bias
     )
     df['samples_per_second_error'] = percentage_error(
         df['samples_per_second_predicted'],
         df['samples_per_second_median'],
     )
-    df['memory_usage_error'] = percentage_error(
-        df['memory_bytes_predicted'],
+    df['memory_usage_bytes_error'] = percentage_error(
+        df['memory_usage_bytes_predicted'],
         df['memory_usage_bytes_median'],
     )
     df['model_creation_batch_size'] = model.batch_size
