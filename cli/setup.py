@@ -1,6 +1,7 @@
 import codecs
 import os
 import re
+import sys
 
 from setuptools import setup, find_packages
 
@@ -25,6 +26,10 @@ ENTRY_POINTS = {
         "skyline = skyline.__main__:main",
     ],
 }
+
+# If this option is specified, we'll install the skyline-evaluate entry point
+EVALUATE_INSTALL_FLAG = "--install-skyline-evaluate"
+EVALUATE_ENTRY_POINT = "skyline-evaluate = skyline.evaluate:main"
 
 INSTALL_REQUIRES = [
     "pyyaml",
@@ -83,6 +88,13 @@ def find_meta(meta):
 
 
 if __name__ == "__main__":
+    # By default, we don't install the skyline-evaluate tool because
+    # it is only used for evaluation purposes. If the user sets the
+    # --install-skyline-evaluate command line flag, we'll install it.
+    if EVALUATE_INSTALL_FLAG in sys.argv:
+        sys.argv.remove(EVALUATE_INSTALL_FLAG)
+        ENTRY_POINTS["console_scripts"].append(EVALUATE_ENTRY_POINT)
+
     setup(
         name=NAME,
         description=find_meta("description"),

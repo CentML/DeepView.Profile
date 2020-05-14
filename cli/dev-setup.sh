@@ -21,7 +21,9 @@ cd $SCRIPT_PATH
 
 virtualenv -p $(which python3) env
 source env/bin/activate
-pip3 install --editable .
+pip3 install \
+  --global-option="--install-skyline-evaluate" \
+  --editable .
 
 echo ""
 echo "Done!"

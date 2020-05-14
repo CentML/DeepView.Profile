@@ -4,9 +4,7 @@ import sys
 
 import skyline
 import skyline.commands.interactive
-import skyline.commands.measurements
 import skyline.commands.memory
-import skyline.commands.prediction_models
 import skyline.commands.time
 
 
@@ -23,9 +21,7 @@ def main():
     )
     subparsers = parser.add_subparsers(title="Commands")
     skyline.commands.interactive.register_command(subparsers)
-    skyline.commands.measurements.register_command(subparsers)
     skyline.commands.memory.register_command(subparsers)
-    skyline.commands.prediction_models.register_command(subparsers)
     skyline.commands.time.register_command(subparsers)
     args = parser.parse_args()
 

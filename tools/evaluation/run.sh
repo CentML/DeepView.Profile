@@ -7,13 +7,13 @@ function measure_cnn() {
   source ../cli/env/bin/activate
 
   echo_blue "Generating prediction models for $1..."
-  skyline prediction-models \
+  skyline-evaluate prediction-models \
     -b 8 16 32 \
     -o ../tools/evaluation/$1_models.csv \
     $1/entry_point.py
 
   echo_blue "Making measurements for $1..."
-  skyline measure-batches \
+  skyline-evaluate measure-batches \
     -b 10 20 30 40 50 60 \
     -o ../tools/evaluation/$1_measure.csv \
     -t 5 \
@@ -28,13 +28,13 @@ function measure_nmt() {
   source ../cli/env/bin/activate
 
   echo_blue "Generating prediction models for $1..."
-  skyline prediction-models \
+  skyline-evaluate prediction-models \
     -b 32 64 80 \
     -o ../tools/evaluation/$1_models.csv \
     $1/entry_point.py
 
   echo_blue "Making measurements for $1..."
-  skyline measure-batches \
+  skyline-evaluate measure-batches \
     -b 50 70 90 110 130 150 \
     -o ../tools/evaluation/$1_measure.csv \
     -t 5 \
