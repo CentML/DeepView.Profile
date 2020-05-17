@@ -2,6 +2,9 @@
 
 import React from 'react';
 
+const MOUSE_MOVE_EVENT = 'mousemove';
+const MOUSE_UP_EVENT = 'mouseup';
+
 class Resizable extends React.Component {
   constructor(props) {
     super(props);
@@ -11,7 +14,16 @@ class Resizable extends React.Component {
     this._handleMouseDown = this._handleMouseDown.bind(this);
     this._handleMouseUp = this._handleMouseUp.bind(this);
     this._handleMouseMove = this._handleMouseMove.bind(this);
-    this._handleMouseLeave = this._handleMouseLeave.bind(this);
+  }
+
+  componentDidMount() {
+    document.addEventListener(MOUSE_MOVE_EVENT, this._handleMouseMove);
+    document.addEventListener(MOUSE_UP_EVENT, this._handleMouseUp);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener(MOUSE_MOVE_EVENT, this._handleMouseMove);
+    document.removeEventListener(MOUSE_UP_EVENT, this._handleMouseUp);
   }
 
   _handleMouseDown(event) {
@@ -23,10 +35,6 @@ class Resizable extends React.Component {
   }
 
   _handleMouseUp(event) {
-    this._dragging = false;
-  }
-
-  _handleMouseLeave(event) {
     this._dragging = false;
   }
 
@@ -44,9 +52,6 @@ class Resizable extends React.Component {
         className={`innpv-resizable ${this.props.className}`}
         style={{height: `${this.props.heightPct}%`}}
         onMouseDown={this._handleMouseDown}
-        onMouseUp={this._handleMouseUp}
-        onMouseMove={this._handleMouseMove}
-        onMouseLeave={this._handleMouseLeave}
       >
         {this.props.children}
       </div>
