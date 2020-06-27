@@ -1,5 +1,6 @@
 import logging
 import math
+import time
 from concurrent.futures import ThreadPoolExecutor
 
 from skyline.analysis.runner import analyze_project
@@ -44,6 +45,7 @@ class AnalysisRequestManager:
         )
 
     def _handle_analysis_request(self, analysis_request, context):
+        start_time = time.perf_counter()
         try:
             logger.debug(
                 'Processing request %d from (%s:%d).',
@@ -84,6 +86,14 @@ class AnalysisRequestManager:
                 self._send_throughput_response,
                 throughput,
                 context,
+            )
+
+            elapsed_time = time.perf_counter() - start_time
+            logger.debug(
+                'Processed analysis request %d from (%s:%d) in %.4f seconds.',
+                context.sequence_number,
+                *(context.address),
+                elapsed_time,
             )
 
         except AnalysisError as ex:
