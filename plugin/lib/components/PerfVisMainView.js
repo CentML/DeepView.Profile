@@ -134,7 +134,7 @@ class PerfVisMainView extends React.Component {
   }
 
   render() {
-    const {perfVisState, projectModified} = this.props;
+    const {perfVisState, projectModified, triggerProfiling} = this.props;
     return (
       <div className="innpv-main">
         <PerfVisHeader />
@@ -142,6 +142,7 @@ class PerfVisMainView extends React.Component {
         <PerfVisStatusBar
           perfVisState={perfVisState}
           projectModified={projectModified}
+          triggerProfiling={triggerProfiling}
         />
         <ContextHighlightManager perfVisState={perfVisState} />
         {this._batchSizeUsageHighlight()}

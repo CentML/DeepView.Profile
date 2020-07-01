@@ -81,6 +81,9 @@ export const isProjectAction = generateActionNamespaceChecker(PROJECT_NAMESPACE)
 export const PROJECT_MODIFIED_CHANGE = generateActionType(PROJECT_NAMESPACE, 'modified_change');
 // The Atom TextEditors associated with the relevant project files have changed
 export const PROJECT_EDITORS_CHANGE = generateActionType(PROJECT_NAMESPACE, 'editors_change');
+// The project can be profiled again. This action is only generated if the user
+// has disabled automatic profiling on save.
+export const PROJECT_CAN_PROFILE = generateActionType(PROJECT_NAMESPACE, 'can_profile');
 
 // ============================================================================
 

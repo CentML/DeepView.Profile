@@ -3,7 +3,9 @@
 import {
   PROJECT_MODIFIED_CHANGE,
   PROJECT_EDITORS_CHANGE,
+  PROJECT_CAN_PROFILE,
 } from '../actions/types';
+import transitionTo from './state_transition';
 import PerfVisState from '../../models/PerfVisState';
 
 export default function(state, action) {
@@ -36,6 +38,12 @@ export default function(state, action) {
       return {
         ...state,
         editorsByPath: action.payload.editorsByPath,
+      };
+
+    case PROJECT_CAN_PROFILE:
+      return {
+        ...state,
+        ...transitionTo(PerfVisState.READY_STALE, state),
       };
 
     default:

@@ -7,6 +7,10 @@ export default {
   // When the plugin is ready for interactions
   READY: 'ready',
 
+  // When there are no modified files but Skyline could be showing stale performance data
+  // NOTE: This state only occurs if the user disables automatic profiling.
+  READY_STALE: 'ready_stale',
+
   // When the plugin is showing the user's predictions
   SHOWING_PREDICTIONS: 'showing_predictions',
 

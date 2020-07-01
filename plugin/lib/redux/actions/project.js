@@ -1,9 +1,10 @@
 'use babel';
 
-import {fromPayloadCreator} from './utils';
+import {emptyFor, fromPayloadCreator} from './utils';
 import {
   PROJECT_MODIFIED_CHANGE,
   PROJECT_EDITORS_CHANGE,
+  PROJECT_CAN_PROFILE,
 } from './types';
 
 export default {
@@ -15,5 +16,6 @@ export default {
     PROJECT_EDITORS_CHANGE,
     ({editorsByPath}) => ({editorsByPath}),
   ),
+  canProfile: emptyFor(PROJECT_CAN_PROFILE),
 };
 

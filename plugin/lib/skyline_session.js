@@ -5,6 +5,7 @@ import {CompositeDisposable} from 'atom';
 import Connection from './io/connection';
 import MessageHandler from './io/message_handler';
 import MessageSender from './io/message_sender';
+import AnalysisActions from './redux/actions/analysis';
 import ConnectionActions from './redux/actions/connection';
 import ConnectionStateView from './redux/views/connection_state';
 
@@ -45,6 +46,14 @@ export default class SkylineSession {
         this._messageSender.sendInitializeRequest();
         setTimeout(this._invokeTimeout, timeoutMs);
       });
+  }
+
+  triggerProfiling() {
+    if (this._disposed) {
+      return;
+    }
+    this._store.dispatch(AnalysisActions.request());
+    this._messageSender.sendAnalysisRequest();
   }
 
   dispose() {

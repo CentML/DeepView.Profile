@@ -53,6 +53,17 @@ function ExplorationButton(props) {
   );
 }
 
+function ProfileButton(props) {
+  return (
+    <div
+      onClick={props.triggerProfiling}
+      className="innpv-statusbar-icon innpv-clickable"
+    >
+      <span className="icon icon-repo-sync" />
+    </div>
+  );
+}
+
 class PerfVisStatusBar extends React.Component {
   _getMessage() {
     if (this.props.projectModified) {
@@ -62,6 +73,9 @@ class PerfVisStatusBar extends React.Component {
     switch (this.props.perfVisState) {
       case PerfVisState.READY:
         return 'Ready';
+
+      case PerfVisState.READY_STALE:
+        return 'Data may be stale; consider re-profiling';
 
       case PerfVisState.ERROR:
         return 'Analysis error';
@@ -100,6 +114,9 @@ class PerfVisStatusBar extends React.Component {
           />
         );
 
+      case PerfVisState.READY_STALE:
+        return <ProfileButton triggerProfiling={this.props.triggerProfiling} />;
+
       default:
         return null;
     }
@@ -117,6 +134,7 @@ class PerfVisStatusBar extends React.Component {
 
 PerfVisStatusBar.defaultProps = {
   handleClick: () => {},
+  triggerProfiling: () => {},
 };
 
 const mapDispatchToProps = (dispatch) => ({

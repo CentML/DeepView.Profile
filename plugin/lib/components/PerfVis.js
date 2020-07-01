@@ -15,6 +15,7 @@ class PerfVis extends React.Component {
       errorMessage,
       projectRoot,
       handleGetStartedClick,
+      triggerProfiling,
       initialHost,
       initialPort,
     } = this.props;
@@ -38,6 +39,7 @@ class PerfVis extends React.Component {
             perfVisState={perfVisState}
             errorMessage={errorMessage}
             projectRoot={projectRoot}
+            triggerProfiling={triggerProfiling}
           />
         );
 

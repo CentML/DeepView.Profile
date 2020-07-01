@@ -63,8 +63,17 @@ export default class INNPVFileTracker {
         this._store.getState().perfVisState === PerfVisState.ANALYZING) {
       return;
     }
-    this._store.dispatch(AnalysisActions.request());
-    this._messageSender.sendAnalysisRequest();
+
+    // If the user chose to disable profiling on save, we enter a new state
+    // where we remind them that the performance data could be outdated and
+    // that they should re-profile.
+    if (this._store.getState().config.disableProfileOnSave) {
+      this._store.dispatch(ProjectActions.canProfile());
+
+    } else {
+      this._store.dispatch(AnalysisActions.request());
+      this._messageSender.sendAnalysisRequest();
+    }
   }
 
   _onProjectModifiedChange() {

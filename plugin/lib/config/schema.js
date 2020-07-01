@@ -13,4 +13,11 @@ export default {
     type: 'boolean',
     default: true,
   },
+
+  disableProfileOnSave: {
+    title: 'Disable Profile on Save',
+    description: 'Prevent Skyline from automatically profiling your model each time you save your code. Instead, you will be able to trigger profiling manually by clicking a button in Skyline.',
+    type: 'boolean',
+    default: false,
+  },
 };

@@ -31,6 +31,7 @@ export default class SkylinePlugin {
     this._initialPort = initialPort;
 
     this._getStartedClicked = this._getStartedClicked.bind(this);
+    this._triggerProfiling = this._triggerProfiling.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
     this._handleInitializationTimeout = this._handleInitializationTimeout.bind(this);
 
@@ -50,6 +51,7 @@ export default class SkylinePlugin {
         <TelemetryClientContext.Provider value={this._telemetryClient}>
           <PerfVis
             handleGetStartedClick={this._getStartedClicked}
+            triggerProfiling={this._triggerProfiling}
             initialHost={this._initialHost}
             initialPort={this._initialPort}
           />
@@ -115,6 +117,13 @@ export default class SkylinePlugin {
         this._telemetryClient.record(Events.Error.CONNECTION_ERROR);
         this._disposeSession();
       });
+  }
+
+  _triggerProfiling() {
+    if (this._session == null) {
+      return;
+    }
+    this._session.triggerProfiling();
   }
 
   _handleServerClosure() {
