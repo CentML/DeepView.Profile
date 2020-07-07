@@ -39,6 +39,8 @@ function fromError(nextPerfVisState, entireState) {
   return {
     perfVisState: nextPerfVisState,
     errorMessage: '',
+    errorFilePath: null,
+    errorLineNumber: null,
   };
 }
 

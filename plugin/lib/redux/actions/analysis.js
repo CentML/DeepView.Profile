@@ -32,7 +32,7 @@ export default {
   ),
   error: fromPayloadCreator(
     ANALYSIS_ERROR,
-    ({errorMessage}) => ({errorMessage}),
+    ({errorMessage, errorFileContext}) => ({errorMessage, errorFileContext}),
   ),
   exploreOperation: fromPayloadCreator(
     ANALYSIS_EXPLORE_OP,

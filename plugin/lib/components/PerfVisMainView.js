@@ -91,6 +91,8 @@ class PerfVisMainView extends React.Component {
       perfVisState,
       projectRoot,
       errorMessage,
+      errorFilePath,
+      errorLineNumber,
       projectModified,
     } = this.props;
     if (this.props.errorMessage !== '') {
@@ -98,6 +100,8 @@ class PerfVisMainView extends React.Component {
         <ErrorMessage
           perfVisState={perfVisState}
           message={errorMessage}
+          filePath={errorFilePath}
+          lineNumber={errorLineNumber}
           projectModified={projectModified}
         />
       );

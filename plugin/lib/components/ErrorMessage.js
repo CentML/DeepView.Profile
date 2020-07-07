@@ -20,8 +20,24 @@ export default class ErrorMessage extends React.Component {
         <div className="innpv-error-inner">
           <h1>Analysis Error</h1>
           <p>{this.props.message}</p>
+          {this._renderFileContext()}
         </div>
       </div>
     );
+  }
+
+  _renderFileContext() {
+    const {filePath, lineNumber} = this.props;
+    if (filePath == null) {
+      return null;
+    }
+
+    let text = null;
+    if (lineNumber == null) {
+      text = `This error occurred when processing ${filePath}.`;
+    } else {
+      text = `This error occurred on line ${lineNumber} when processing ${filePath}.`;
+    }
+    return <p>{text}</p>;
   }
 }

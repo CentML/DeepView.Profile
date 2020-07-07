@@ -61,6 +61,7 @@ export default class MessageHandler {
   _handleAnalysisError(message) {
     this._store.dispatch(AnalysisActions.error({
       errorMessage: message.getErrorMessage(),
+      errorFileContext: message.hasFileContext() ? message.getFileContext() : null,
     }));
     this._telemetryClient.record(Events.Error.ANALYSIS_ERROR);
   }

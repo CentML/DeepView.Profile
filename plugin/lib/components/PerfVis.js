@@ -13,6 +13,8 @@ class PerfVis extends React.Component {
       appState,
       perfVisState,
       errorMessage,
+      errorFilePath,
+      errorLineNumber,
       projectRoot,
       handleGetStartedClick,
       triggerProfiling,
@@ -38,6 +40,8 @@ class PerfVis extends React.Component {
           <PerfVisMainView
             perfVisState={perfVisState}
             errorMessage={errorMessage}
+            errorFilePath={errorFilePath}
+            errorLineNumber={errorLineNumber}
             projectRoot={projectRoot}
             triggerProfiling={triggerProfiling}
           />
@@ -57,6 +61,8 @@ const mapStateToProps = (state, ownProps) => ({
   appState: state.appState,
   perfVisState: state.perfVisState,
   errorMessage: state.errorMessage,
+  errorFilePath: state.errorFilePath,
+  errorLineNumber: state.errorLineNumber,
   projectRoot: state.projectRoot,
   ...ownProps,
 });

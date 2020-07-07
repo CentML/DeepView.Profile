@@ -8,6 +8,8 @@ export default {
   appState: AppState.ACTIVATED,
   perfVisState: PerfVisState.READY,
   errorMessage: '',
+  errorFilePath: null,
+  errorLineNumber: null,
 
   // Server connection state
   connection: {

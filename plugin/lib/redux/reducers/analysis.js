@@ -168,12 +168,24 @@ export default function(state, action) {
       };
     }
 
-    case ANALYSIS_ERROR:
+    case ANALYSIS_ERROR: {
+      const {errorMessage, errorFileContext} = action.payload;
+      const fileContext = errorFileContext != null
+          ? processFileReference(errorFileContext)
+          : null;
+
       return {
         ...state,
         ...transitionTo(PerfVisState.ERROR, state),
-        errorMessage: action.payload.errorMessage,
+        errorMessage,
+        errorFilePath: fileContext != null
+          ? fileContext.filePath
+          : null,
+        errorLineNumber: fileContext != null && fileContext.lineNumber > 0
+          ? fileContext.lineNumber
+          : null,
       };
+    }
 
     case ANALYSIS_DRAG_THPT: {
       if (!state.throughput.hasMaxThroughputPrediction) {
