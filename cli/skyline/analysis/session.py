@@ -67,21 +67,21 @@ class AnalysisSession:
                 "The project entry point file is missing a model provider "
                 "function. Please add a model provider function named "
                 "\"{}\".".format(MODEL_PROVIDER_NAME)
-            )
+            ).with_file_context(entry_point)
 
         if INPUT_PROVIDER_NAME not in scope:
             raise AnalysisError(
                 "The project entry point file is missing an input provider "
                 "function. Please add an input provider function named "
                 "\"{}\".".format(INPUT_PROVIDER_NAME)
-            )
+            ).with_file_context(entry_point)
 
         if ITERATION_PROVIDER_NAME not in scope:
             raise AnalysisError(
                 "The project entry point file is missing an iteration "
                 "provider function. Please add an iteration provider function "
                 "named \"{}\".".format(ITERATION_PROVIDER_NAME)
-            )
+            ).with_file_context(entry_point)
 
         model_provider = scope[MODEL_PROVIDER_NAME]
         input_provider = scope[INPUT_PROVIDER_NAME]
@@ -93,6 +93,7 @@ class AnalysisSession:
             iteration_provider,
             path_to_entry_point_dir,
             project_root,
+            entry_point,
         )
 
         return cls(
@@ -297,12 +298,13 @@ def _validate_providers(
     iteration_provider,
     path_to_entry_point_dir,
     project_root,
+    entry_point,
 ):
     model_sig = inspect.signature(model_provider)
     if len(model_sig.parameters) != 0:
         raise AnalysisError(
             "The model provider function cannot have any parameters."
-        )
+        ).with_file_context(entry_point)
 
     input_sig = inspect.signature(input_provider)
     if (len(input_sig.parameters) != 1 or
@@ -312,7 +314,7 @@ def _validate_providers(
             "The input provider function must have exactly one '{}' "
             "parameter with an integral default "
             "value.".format(BATCH_SIZE_ARG)
-        )
+        ).with_file_context(entry_point)
     batch_size = input_sig.parameters[BATCH_SIZE_ARG].default
 
     iteration_sig = inspect.signature(iteration_provider)
@@ -320,7 +322,7 @@ def _validate_providers(
         raise AnalysisError(
             "The iteration provider function must have exactly one "
             "parameter (the model being profiled)."
-        )
+        ).with_file_context(entry_point)
 
     err = _validate_provider_return_values(
         model_provider,
@@ -328,6 +330,7 @@ def _validate_providers(
         iteration_provider,
         path_to_entry_point_dir,
         project_root,
+        entry_point,
     )
     if err is not None:
         raise err
@@ -341,6 +344,7 @@ def _validate_provider_return_values(
     iteration_provider,
     path_to_entry_point_dir,
     project_root,
+    entry_point,
 ):
     with user_code_environment(path_to_entry_point_dir, project_root):
         # We return exceptions instead of raising them here to prevent
@@ -351,7 +355,7 @@ def _validate_provider_return_values(
                 "The model provider function must return a callable (i.e. "
                 "return something that can be called like a PyTorch "
                 "module or function)."
-            )
+            ).with_file_context(entry_point)
 
         inputs = input_provider()
         try:
@@ -360,7 +364,7 @@ def _validate_provider_return_values(
             return AnalysisError(
                 "The input provider function must return an iterable that "
                 "contains the inputs for the model."
-            )
+            ).with_file_context(entry_point)
 
         iteration = iteration_provider(model)
         if not callable(iteration):
@@ -368,7 +372,7 @@ def _validate_provider_return_values(
                 "The iteration provider function must return a callable "
                 "(i.e. return something that can be called like a "
                 "function)."
-            )
+            ).with_file_context(entry_point)
 
         return None
 
