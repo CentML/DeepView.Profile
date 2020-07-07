@@ -135,7 +135,7 @@ class AnalysisRequestManager:
     def _send_analysis_error(self, exception, context):
         # Called from the main executor. Do not call directly!
         try:
-            self._message_sender.send_analysis_error(str(exception), context)
+            self._message_sender.send_analysis_error(exception, context)
         except:
             logger.exception(
                 'Exception occurred when sending an analysis error.')
