@@ -15,7 +15,8 @@ export default class MessageSender {
     // Version 1 - v0.1.x
     // Version 2 - v0.2.x
     // Version 3 - v0.3.x
-    message.setProtocolVersion(4);
+    // Version 4 - v0.4.x
+    message.setProtocolVersion(5);
     this._sendMessage(message, 'Initialize');
   }
 

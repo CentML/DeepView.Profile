@@ -32,12 +32,13 @@ class MessageHandler:
                 context,
             )
             return
-        if message.protocol_version != 4:
-            # We only support version 4 of the protocol. We do not guarantee
+        if message.protocol_version != 5:
+            # We only support version 5 of the protocol. We do not guarantee
             # backward compatibility for v0.x.x releases.
             # Version 1 - v0.1.x
             # Version 2 - v0.2.x
             # Version 3 - v0.3.x
+            # Version 4 - v0.4.x
             self._message_sender.send_protocol_error(
                 pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION,
                 context,
