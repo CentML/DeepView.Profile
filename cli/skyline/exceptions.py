@@ -37,7 +37,13 @@ def exceptions_as_analysis_errors(project_root):
     try:
         yield
     except Exception as ex:
-        error = AnalysisError(str(ex), type(ex))
+        if isinstance(ex, SyntaxError):
+            error = AnalysisError(
+                'Skyline encountered a syntax error while profiling your '
+                'model.'
+            )
+        else:
+            error = AnalysisError(str(ex), type(ex))
 
         # Extract the relevant file context, if it is available, starting by
         # inspecting the exception itself.

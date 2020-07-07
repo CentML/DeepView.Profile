@@ -9,7 +9,7 @@ import numpy as np
 
 import skyline.protocol_gen.innpv_pb2 as pm
 from skyline.analysis.static import StaticAnalyzer
-from skyline.exceptions import AnalysisError
+from skyline.exceptions import AnalysisError, exceptions_as_analysis_errors
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
 from skyline.user_code_utils import user_code_environment
@@ -55,20 +55,11 @@ class AnalysisSession:
         path_to_entry_point_dir = os.path.dirname(path_to_entry_point)
 
         # 1. Run the entry point file to "load" the model
-        try:
-            entry_point_code, entry_point_ast, scope = _run_entry_point(
-                path_to_entry_point,
-                path_to_entry_point_dir,
-                project_root,
-            )
-        except SyntaxError as ex:
-            raise AnalysisError(
-                "Syntax error on line {} column {} in {}.".format(
-                    ex.lineno,
-                    ex.offset,
-                    os.path.relpath(ex.filename, start=project_root),
-                ),
-            ) from ex
+        entry_point_code, entry_point_ast, scope = _run_entry_point(
+            path_to_entry_point,
+            path_to_entry_point_dir,
+            project_root,
+        )
 
         # 2. Check that the model provider and input provider functions exist
         if MODEL_PROVIDER_NAME not in scope:
@@ -291,8 +282,9 @@ def _run_entry_point(
         path_to_entry_point, path_to_entry_point_dir, project_root):
     with open(path_to_entry_point) as file:
         code_str = file.read()
-    tree = ast.parse(code_str, filename=path_to_entry_point)
-    code = compile(tree, path_to_entry_point, mode="exec")
+    with exceptions_as_analysis_errors(project_root):
+        tree = ast.parse(code_str, filename=path_to_entry_point)
+        code = compile(tree, path_to_entry_point, mode="exec")
     with user_code_environment(path_to_entry_point_dir, project_root):
         scope = {}
         exec(code, scope, scope)
