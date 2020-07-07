@@ -1281,7 +1281,8 @@ proto.innpv.protocol.AnalysisError.prototype.toObject = function(opt_includeInst
  */
 proto.innpv.protocol.AnalysisError.toObject = function(includeInstance, msg) {
   var f, obj = {
-    errorMessage: msg.getErrorMessage()
+    errorMessage: msg.getErrorMessage(),
+    fileContext: (f = msg.getFileContext()) && proto.innpv.protocol.FileReference.toObject(includeInstance, f)
   };
 
   if (includeInstance) {
@@ -1321,6 +1322,11 @@ proto.innpv.protocol.AnalysisError.deserializeBinaryFromReader = function(msg, r
     case 1:
       var value = /** @type {string} */ (reader.readString());
       msg.setErrorMessage(value);
+      break;
+    case 2:
+      var value = new proto.innpv.protocol.FileReference;
+      reader.readMessage(value,proto.innpv.protocol.FileReference.deserializeBinaryFromReader);
+      msg.setFileContext(value);
       break;
     default:
       reader.skipField();
@@ -1367,6 +1373,14 @@ proto.innpv.protocol.AnalysisError.prototype.serializeBinaryToWriter = function 
       f
     );
   }
+  f = this.getFileContext();
+  if (f != null) {
+    writer.writeMessage(
+      2,
+      f,
+      proto.innpv.protocol.FileReference.serializeBinaryToWriter
+    );
+  }
 };
 
 
@@ -1391,6 +1405,36 @@ proto.innpv.protocol.AnalysisError.prototype.getErrorMessage = function() {
 /** @param {string} value  */
 proto.innpv.protocol.AnalysisError.prototype.setErrorMessage = function(value) {
   jspb.Message.setField(this, 1, value);
+};
+
+
+/**
+ * optional FileReference file_context = 2;
+ * @return {proto.innpv.protocol.FileReference}
+ */
+proto.innpv.protocol.AnalysisError.prototype.getFileContext = function() {
+  return /** @type{proto.innpv.protocol.FileReference} */ (
+    jspb.Message.getWrapperField(this, proto.innpv.protocol.FileReference, 2));
+};
+
+
+/** @param {proto.innpv.protocol.FileReference|undefined} value  */
+proto.innpv.protocol.AnalysisError.prototype.setFileContext = function(value) {
+  jspb.Message.setWrapperField(this, 2, value);
+};
+
+
+proto.innpv.protocol.AnalysisError.prototype.clearFileContext = function() {
+  this.setFileContext(undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return{!boolean}
+ */
+proto.innpv.protocol.AnalysisError.prototype.hasFileContext = function() {
+  return jspb.Message.getField(this, 2) != null;
 };
 
 

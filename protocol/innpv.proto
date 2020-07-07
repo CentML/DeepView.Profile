@@ -80,6 +80,7 @@ message InitializeResponse {
 
 message AnalysisError {
   string error_message = 1;
+  FileReference file_context = 2;
 }
 
 message ThroughputResponse {
