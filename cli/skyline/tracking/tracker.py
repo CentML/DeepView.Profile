@@ -66,7 +66,7 @@ class Tracker:
 
         # 1. Track and record memory usage associated with model creation
         self._weight_tracker = WeightsTracker(self._project_root)
-        with user_code_environment(self._user_code_path):
+        with user_code_environment(self._user_code_path, self._project_root):
             with self._weight_tracker.track():
                 self._model = self._model_provider()
             # Run one iteration to initialize the gradients
@@ -79,14 +79,15 @@ class Tracker:
 
         # 3. Record peak memory usage
         torch.cuda.reset_max_memory_allocated()
-        with user_code_environment(self._user_code_path):
+        with user_code_environment(self._user_code_path, self._project_root):
             iteration = self._iteration_provider(self._model)
             iteration(*(self._input_provider()))
         self._peak_usage_bytes = torch.cuda.max_memory_allocated()
 
     def track_run_time(self):
         if self._tracker_state == _TrackerState.CREATED:
-            with user_code_environment(self._user_code_path):
+            with user_code_environment(
+                    self._user_code_path, self._project_root):
                 self._model = self._model_provider()
         elif self._tracker_state != _TrackerState.MEMORY_TRACKED:
             raise RuntimeError('Run time tracking has already been performed.')
@@ -94,11 +95,12 @@ class Tracker:
         self._tracker_state = _TrackerState.RUN_TIME_TRACKED
 
         # 2. Perform operation run time profiling
-        with user_code_environment(self._user_code_path):
+        with user_code_environment(self._user_code_path, self._project_root):
             inputs = self._input_provider()
         self._operation_tracker = OperationRunTimeTracker(self._project_root)
         with self._operation_tracker.track():
-            with user_code_environment(self._user_code_path):
+            with user_code_environment(
+                    self._user_code_path, self._project_root):
                 self._model(*inputs)
 
     def get_memory_report(self, report_file=None):

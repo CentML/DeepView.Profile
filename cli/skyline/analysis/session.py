@@ -59,6 +59,7 @@ class AnalysisSession:
             entry_point_code, entry_point_ast, scope = _run_entry_point(
                 path_to_entry_point,
                 path_to_entry_point_dir,
+                project_root,
             )
         except SyntaxError as ex:
             raise AnalysisError(
@@ -100,6 +101,7 @@ class AnalysisSession:
             input_provider,
             iteration_provider,
             path_to_entry_point_dir,
+            project_root,
         )
 
         return cls(
@@ -228,13 +230,15 @@ class AnalysisSession:
     def measure_peak_usage_bytes(self):
         self._prepare_for_memory_profiling()
         # Run one iteration to initialize the gradients
-        with user_code_environment(self._path_to_entry_point_dir):
+        with user_code_environment(
+                self._path_to_entry_point_dir, self._project_root):
             model = self._model_provider()
             model(*self._input_provider(
                 batch_size=self._batch_size)).backward()
 
         torch.cuda.reset_max_memory_allocated()
-        with user_code_environment(self._path_to_entry_point_dir):
+        with user_code_environment(
+                self._path_to_entry_point_dir, self._project_root):
             iteration = self._iteration_provider(model)
             # NOTE: It's important to run at least 2 iterations here. It turns
             #       out that >= 2 iterations is the number of iterations needed
@@ -262,6 +266,7 @@ class AnalysisSession:
             self._input_provider,
             self._iteration_provider,
             self._path_to_entry_point_dir,
+            self._project_root,
         )
 
     def _prepare_for_memory_profiling(self):
@@ -282,12 +287,13 @@ class AnalysisSession:
         )
 
 
-def _run_entry_point(path_to_entry_point, path_to_entry_point_dir):
+def _run_entry_point(
+        path_to_entry_point, path_to_entry_point_dir, project_root):
     with open(path_to_entry_point) as file:
         code_str = file.read()
     tree = ast.parse(code_str, filename=path_to_entry_point)
     code = compile(tree, path_to_entry_point, mode="exec")
-    with user_code_environment(path_to_entry_point_dir):
+    with user_code_environment(path_to_entry_point_dir, project_root):
         scope = {}
         exec(code, scope, scope)
     return code_str, tree, scope
@@ -298,6 +304,7 @@ def _validate_providers(
     input_provider,
     iteration_provider,
     path_to_entry_point_dir,
+    project_root,
 ):
     model_sig = inspect.signature(model_provider)
     if len(model_sig.parameters) != 0:
@@ -328,6 +335,7 @@ def _validate_providers(
         input_provider,
         iteration_provider,
         path_to_entry_point_dir,
+        project_root,
     )
     if err is not None:
         raise err
@@ -340,8 +348,9 @@ def _validate_provider_return_values(
     input_provider,
     iteration_provider,
     path_to_entry_point_dir,
+    project_root,
 ):
-    with user_code_environment(path_to_entry_point_dir):
+    with user_code_environment(path_to_entry_point_dir, project_root):
         # We return exceptions instead of raising them here to prevent
         # them from being caught by the code environment context manager.
         model = model_provider()

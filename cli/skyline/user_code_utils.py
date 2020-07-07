@@ -6,14 +6,14 @@ from skyline.exceptions import exceptions_as_analysis_errors
 
 
 @contextlib.contextmanager
-def user_code_environment(script_root_path):
+def user_code_environment(script_root_path, project_root):
     """
     A combined context manager that activates all relevant context managers
     used when running user code.
     """
     with sys_path_root(script_root_path):
         with prevent_module_caching():
-            with exceptions_as_analysis_errors():
+            with exceptions_as_analysis_errors(project_root):
                 yield
 
 

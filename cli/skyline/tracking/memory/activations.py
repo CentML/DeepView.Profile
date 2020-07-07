@@ -81,7 +81,7 @@ class ActivationsTracker:
             self, model, input_provider, user_code_path):
         grad_function_tracker = GradFunctionTracker(self._project_root)
         with grad_function_tracker.track(), \
-                user_code_environment(user_code_path):
+                user_code_environment(user_code_path, self._project_root):
             out = model(*input_provider())
         return out, grad_function_tracker.grad_function_contexts
 

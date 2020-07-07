@@ -13,10 +13,17 @@ IterationSample = collections.namedtuple(
 
 
 class IterationProfiler:
-    def __init__(self, iteration, input_provider, path_to_entry_point_dir):
+    def __init__(
+        self,
+        iteration,
+        input_provider,
+        path_to_entry_point_dir,
+        project_root
+    ):
         self._iteration = iteration
         self._input_provider = input_provider
         self._path_to_entry_point_dir = path_to_entry_point_dir
+        self._project_root = project_root
         self._start_event = torch.cuda.Event(enable_timing=True)
         self._end_event = torch.cuda.Event(enable_timing=True)
 
@@ -27,11 +34,13 @@ class IterationProfiler:
         input_provider,
         iteration_provider,
         path_to_entry_point_dir,
+        project_root,
     ):
-        with user_code_environment(path_to_entry_point_dir):
+        with user_code_environment(path_to_entry_point_dir, project_root):
             model = model_provider()
             iteration = iteration_provider(model)
-        return cls(iteration, input_provider, path_to_entry_point_dir)
+        return cls(
+            iteration, input_provider, path_to_entry_point_dir, project_root)
 
     def measure_run_time_ms(self, batch_size, initial_repetitions=None):
         """
@@ -40,7 +49,8 @@ class IterationProfiler:
         NOTE: This method will raise a RuntimeError if there is not enough GPU
               memory to run the iteration.
         """
-        with user_code_environment(self._path_to_entry_point_dir):
+        with user_code_environment(
+                self._path_to_entry_point_dir, self._project_root):
             inputs = self._input_provider(batch_size=batch_size)
             # Warm up
             self._iteration(*inputs)
@@ -48,7 +58,8 @@ class IterationProfiler:
         torch.cuda.synchronize()
 
         def measure(iterations):
-            with user_code_environment(self._path_to_entry_point_dir):
+            with user_code_environment(
+                    self._path_to_entry_point_dir, self._project_root):
                 self._start_event.record()
                 for _ in range(iterations):
                     self._iteration(*inputs)

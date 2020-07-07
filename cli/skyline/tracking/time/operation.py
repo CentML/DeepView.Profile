@@ -7,7 +7,6 @@ from skyline.tracking.base import TrackerBase
 from skyline.tracking.callable_tracker import CallableTracker
 from skyline.tracking.utils import remove_dunder
 from skyline.profiler.operation import OperationProfiler
-from skyline.user_code_utils import user_code_environment
 
 OperationInfo = collections.namedtuple(
     'OperationInfo', ['operation_name', 'stack', 'forward_ms', 'backward_ms'])
