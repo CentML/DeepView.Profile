@@ -14,6 +14,7 @@ between versions. See [Versioning](#versioning) for more details.
 - [Getting Started](#getting-started)
 - [Providers in Detail](#providers-in-detail)
 - [Versioning](#versioning)
+- [License](#license)
 - [Authors](#authors)
 
 -------------------------------------------------------------------------------
@@ -249,7 +250,7 @@ that, when invoked, runs a single training iteration.
 
 <h2 id="versioning">Versioning</h2>
 
-Skyline uses semantic versioning. Before the 1.0.0 release, backwards
+Skyline uses semantic versioning. Before the 1.0.0 release, backward
 compatibility between minor versions will not be guaranteed.
 
 The Skyline command line tool and plugin use *independent* version numbers.
@@ -261,6 +262,13 @@ Generally speaking, the most recent version of the command line tool and plugin
 will be compatible with each other.
 
 
+<h2 id="license">License</h2>
+
+Skyline is open source software that is licensed under the Apache 2.0 License.
+Please see the `LICENSE` file in this repository for more information.
+
+
 <h2 id="authors">Authors</h2>
 
-Geoffrey Yu <gxyu@cs.toronto.edu>
+Skyline was written by and is primarily maintained by Geoffrey Yu
+<gxyu@cs.toronto.edu>.
