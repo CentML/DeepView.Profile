@@ -265,7 +265,12 @@ will be compatible with each other.
 <h2 id="license">License</h2>
 
 Skyline is open source software that is licensed under the Apache 2.0 License.
-Please see the `LICENSE` file in this repository for more information.
+Please see the `LICENSE` and `NOTICE` files in this repository for more
+information.
+
+Inside the `samples` directory, we include code samples from third party
+developers that carry their own open source licenses. Please see the
+`README.md` and `LICENSE` files inside those directories for more information.
 
 
 <h2 id="authors">Authors</h2>
