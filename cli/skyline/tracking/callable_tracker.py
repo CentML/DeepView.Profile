@@ -4,6 +4,9 @@ import torch
 
 from skyline.tracking.base import TrackerBase
 from skyline.tracking.hook_manager import HookManager
+from skyline.version_utils import Version
+
+OLD_VF_PATH_VERSION = Version.parse_semantic_version('1.4.0')
 
 
 class CallableTracker(TrackerBase):
@@ -11,6 +14,7 @@ class CallableTracker(TrackerBase):
         super().__init__()
         self._hook_manager = HookManager()
         self._hook_creator = hook_creator
+        self._torch_version = Version.parse_semantic_version(torch.__version__)
 
     def start_tracking(self):
         super().start_tracking()
@@ -37,8 +41,18 @@ class CallableTracker(TrackerBase):
             _is_callable_and_public,
             self._hook_creator,
         )
+
+        # The _VF module was moved to the torch module after version 1.4.0.
+        # This is an unfortunate hack because we need to monkey patch certain
+        # internal PyTorch functions to be able to identify all the operations
+        # properly. The _VF module contains recurrent operations (e.g., lstm).
+        vf_module = (
+            torch._VF if self._torch_version is None or
+                self._torch_version > OLD_VF_PATH_VERSION
+            else torch.nn._VF
+        )
         self._hook_manager.attach_hooks_on_module_using(
-            torch.nn._VF,
+            vf_module,
             torch._C._VariableFunctions,
             _is_callable_and_public,
             self._hook_creator,
