@@ -6,6 +6,7 @@ from skyline.initialization import (
     check_skyline_preconditions,
     initialize_skyline,
 )
+from skyline.error_printing import print_analysis_error
 
 logger = logging.getLogger(__name__)
 
@@ -53,11 +54,7 @@ def actual_main(args):
             save_report_to=args.output,
         )
     except AnalysisError as ex:
-        print(
-            "Skyline encountered an error when profiling your model:",
-            file=sys.stderr,
-        )
-        print("->", str(ex), file=sys.stderr)
+        print_analysis_error(ex)
         sys.exit(1)
 
 
