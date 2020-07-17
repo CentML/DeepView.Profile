@@ -82,9 +82,7 @@ class OperationProfiler:
 
     def _measure_backward_engine_strategy(self, operation_outputs):
         engine = AutogradEngine.new_from(operation_outputs)
-        def backward_runnable():
-            engine.run_backward()
-        return self._measure_ms(backward_runnable)
+        return self._measure_ms(engine.run_backward)
 
     def _measure_backward_torch_strategy(self, operation_outputs):
         helper = BackwardHelper.new_from(operation_outputs)

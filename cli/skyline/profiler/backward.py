@@ -3,7 +3,7 @@ import torch
 
 class BackwardHelper:
     def __init__(self, backward_runnable, ag_dict):
-        self._backward_runnable = backward_runnable
+        self.run_backward = backward_runnable
         self._ag_dict = ag_dict
 
     @classmethod
@@ -27,9 +27,6 @@ class BackwardHelper:
         }
 
         return cls(backward_runnable, ag_dict)
-
-    def run_backward(self):
-        self._backward_runnable()
 
     def run_accumulate_grad(self):
         for grad_fn, grad in self._ag_dict.items():
