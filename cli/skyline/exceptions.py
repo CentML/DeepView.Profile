@@ -2,6 +2,9 @@ import collections
 import contextlib
 import os
 import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 FileContext = collections.namedtuple(
     'FileContext',
@@ -37,6 +40,11 @@ def exceptions_as_analysis_errors(project_root):
     try:
         yield
     except Exception as ex:
+        logger.debug(
+            "An error occured during analysis (could be a problem with the "
+            "user's code):",
+            exc_info=ex,
+        )
         if isinstance(ex, SyntaxError):
             error = AnalysisError(
                 'Skyline encountered a syntax error while profiling your '
