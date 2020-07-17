@@ -1,6 +1,10 @@
 import torch
+import logging
 
+from skyline.profiler.autograd import AutogradEngine
 from skyline.profiler.backward import BackwardHelper, backward_available
+
+logger = logging.getLogger(__name__)
 
 
 class OperationProfiler:
@@ -29,7 +33,7 @@ class OperationProfiler:
         if not backward_available(retval):
             return forward_ms, None
 
-        return forward_ms, self._measure_backward_ms(retval)
+        return forward_ms, self._measure_backward_ms(func.__name__, retval)
 
     def _get_args_for_profiling(self, args, kwargs, for_inplace=False):
         cloned_args = tuple(map(
@@ -62,7 +66,27 @@ class OperationProfiler:
 
         return argument
 
-    def _measure_backward_ms(self, operation_outputs):
+    def _measure_backward_ms(self, func_name, operation_outputs):
+        # As of PyTorch 1.5.1, sometimes our AutogradEngine will not work
+        # because the behavior of grad_functions has changed. When this
+        # happens, we fall back to using PyTorch's existing backward engine.
+        #
+        # The reason we do not always use the existing backward engine is that
+        # the existing engine has a start up overhead that is non-negligible
+        # when there are many short operations involved.
+        try:
+            return self._measure_backward_engine_strategy(operation_outputs)
+        except (RuntimeError, TypeError):
+            logger.debug("%s: Falling back to PyTorch's engine", func_name)
+            return self._measure_backward_torch_strategy(operation_outputs)
+
+    def _measure_backward_engine_strategy(self, operation_outputs):
+        engine = AutogradEngine.new_from(operation_outputs)
+        def backward_runnable():
+            engine.run_backward()
+        return self._measure_ms(backward_runnable)
+
+    def _measure_backward_torch_strategy(self, operation_outputs):
         helper = BackwardHelper.new_from(operation_outputs)
 
         backward_ms = self._measure_ms(helper.run_backward)
