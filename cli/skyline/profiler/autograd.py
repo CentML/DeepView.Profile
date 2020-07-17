@@ -1,5 +1,7 @@
 import torch
 
+from skyline.profiler.backward import get_grad_fn, flatten_operation_output
+
 
 class AutogradEngine:
     """
@@ -12,15 +14,11 @@ class AutogradEngine:
         }
         self._input_holder[self._grad_fn_ordering[0]] = initial_inputs
 
-    @staticmethod
-    def backward_available(operation_output):
-        return _get_grad_fn(operation_output) is not None
-
     @classmethod
     def new_from(cls, operation_output, exclude_accumulate_grad=True):
         # Traverse the autograd graph, build input map for each grad_fn and
         # create a topological ordering
-        initial_grad_fn = _get_grad_fn(operation_output)
+        _, initial_grad_fn = get_grad_fn(operation_output)
         if initial_grad_fn is None:
             raise ValueError('No grad_fn available on the operation output.')
 
@@ -28,7 +26,7 @@ class AutogradEngine:
         input_map = {}
         initial_inputs = [
             tensor.detach()
-            for tensor in _flatten_operation_output(operation_output)
+            for tensor in flatten_operation_output(operation_output)
         ]
         input_map[initial_grad_fn] = len(initial_inputs)
 
@@ -82,28 +80,3 @@ class AutogradEngine:
                 # need to sum gradients that "flow" into the same grad function
                 # input.
                 self._input_holder[next_fn][input_idx] = output
-
-
-def _flatten_operation_output(operation_output):
-    if isinstance(operation_output, torch.Tensor):
-        return [operation_output]
-    elif (not isinstance(operation_output, tuple) and
-          not isinstance(operation_output, list)):
-        return []
-
-    flattened = []
-    for value in operation_output:
-        flattened.extend(_flatten_operation_output(value))
-    return flattened
-
-
-def _get_grad_fn(retval):
-        if isinstance(retval, torch.Tensor) and retval.grad_fn is not None:
-            return retval.grad_fn
-        elif isinstance(retval, tuple) or isinstance(retval, list):
-            for inner_value in retval:
-                grad_fn = _get_grad_fn(inner_value)
-                if grad_fn is not None:
-                    return grad_fn
-        else:
-            return None

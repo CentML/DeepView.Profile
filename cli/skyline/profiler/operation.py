@@ -1,6 +1,6 @@
 import torch
 
-from skyline.profiler.autograd import AutogradEngine
+from skyline.profiler.backward import BackwardHelper, backward_available
 
 
 class OperationProfiler:
@@ -26,14 +26,10 @@ class OperationProfiler:
         backward_args, backward_kwargs = self._get_args_for_profiling(
             args, kwargs, for_inplace)
         retval = func(*backward_args, **backward_kwargs)
-        if not AutogradEngine.backward_available(retval):
+        if not backward_available(retval):
             return forward_ms, None
 
-        engine = AutogradEngine.new_from(retval)
-        def backward_runnable():
-            engine.run_backward()
-
-        return forward_ms, self._measure_ms(backward_runnable)
+        return forward_ms, self._measure_backward_ms(retval)
 
     def _get_args_for_profiling(self, args, kwargs, for_inplace=False):
         cloned_args = tuple(map(
@@ -65,6 +61,15 @@ class OperationProfiler:
                 lambda arg: self._clone_tensors(arg, for_inplace), argument))
 
         return argument
+
+    def _measure_backward_ms(self, operation_outputs):
+        helper = BackwardHelper.new_from(operation_outputs)
+
+        backward_ms = self._measure_ms(helper.run_backward)
+        accum_grad_ms = self._measure_ms(helper.run_accumulate_grad)
+        diff = backward_ms - accum_grad_ms
+
+        return diff if diff >= 1e-6 else backward_ms
 
     def _measure_ms(self, runnable):
         for _ in range(self._warm_up):
