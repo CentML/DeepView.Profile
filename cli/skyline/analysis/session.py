@@ -83,17 +83,20 @@ class AnalysisSession:
                 "named \"{}\".".format(ITERATION_PROVIDER_NAME)
             ).with_file_context(entry_point)
 
-        model_provider = scope[MODEL_PROVIDER_NAME]
-        input_provider = scope[INPUT_PROVIDER_NAME]
-        iteration_provider = scope[ITERATION_PROVIDER_NAME]
-
-        batch_size = _validate_providers(
-            model_provider,
-            input_provider,
-            iteration_provider,
-            path_to_entry_point_dir,
-            project_root,
+        batch_size = _validate_providers_signatures(
+            scope[MODEL_PROVIDER_NAME],
+            scope[INPUT_PROVIDER_NAME],
+            scope[ITERATION_PROVIDER_NAME],
             entry_point,
+        )
+
+        model_provider, input_provider, iteration_provider = (
+            _wrap_providers_with_validators(
+                scope[MODEL_PROVIDER_NAME],
+                scope[INPUT_PROVIDER_NAME],
+                scope[ITERATION_PROVIDER_NAME],
+                entry_point,
+            )
         )
 
         return cls(
@@ -292,12 +295,10 @@ def _run_entry_point(
     return code_str, tree, scope
 
 
-def _validate_providers(
+def _validate_providers_signatures(
     model_provider,
     input_provider,
     iteration_provider,
-    path_to_entry_point_dir,
-    project_root,
     entry_point,
 ):
     model_sig = inspect.signature(model_provider)
@@ -324,57 +325,63 @@ def _validate_providers(
             "parameter (the model being profiled)."
         ).with_file_context(entry_point)
 
-    err = _validate_provider_return_values(
-        model_provider,
-        input_provider,
-        iteration_provider,
-        path_to_entry_point_dir,
-        project_root,
-        entry_point,
-    )
-    if err is not None:
-        raise err
-
     return batch_size
 
 
-def _validate_provider_return_values(
+def _wrap_providers_with_validators(
     model_provider,
     input_provider,
     iteration_provider,
-    path_to_entry_point_dir,
-    project_root,
     entry_point,
 ):
-    with user_code_environment(path_to_entry_point_dir, project_root):
-        # We return exceptions instead of raising them here to prevent
-        # them from being caught by the code environment context manager.
+    def model_provider_wrapped():
         model = model_provider()
         if not callable(model):
-            return AnalysisError(
+            raise AnalysisError(
                 "The model provider function must return a callable (i.e. "
                 "return something that can be called like a PyTorch "
                 "module or function)."
             ).with_file_context(entry_point)
+        return model
 
-        inputs = input_provider()
+    def input_provider_wrapped(batch_size=None):
+        if batch_size is None:
+            inputs = input_provider()
+        else:
+            inputs = input_provider(batch_size=batch_size)
+
+        if isinstance(inputs, torch.Tensor):
+            raise AnalysisError(
+                "The input provider function must return an iterable that "
+                "contains the inputs for the model. If your model only takes "
+                "a single tensor as input, return a single element tuple or "
+                "list in your input provider (e.g., 'return [the_input]')."
+            ).with_file_context(entry_point)
+
         try:
             input_iter = iter(inputs)
+            return inputs
         except TypeError as ex:
-            return AnalysisError(
+            raise AnalysisError(
                 "The input provider function must return an iterable that "
                 "contains the inputs for the model."
             ).with_file_context(entry_point)
 
+    def iteration_provider_wrapped(model):
         iteration = iteration_provider(model)
         if not callable(iteration):
-            return AnalysisError(
+            raise AnalysisError(
                 "The iteration provider function must return a callable "
                 "(i.e. return something that can be called like a "
                 "function)."
             ).with_file_context(entry_point)
+        return iteration
 
-        return None
+    return (
+        model_provider_wrapped,
+        input_provider_wrapped,
+        iteration_provider_wrapped,
+    )
 
 
 def _fit_linear_model(x, y):

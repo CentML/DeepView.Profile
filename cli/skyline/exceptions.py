@@ -39,6 +39,10 @@ class NoConnectionError(Exception):
 def exceptions_as_analysis_errors(project_root):
     try:
         yield
+    except AnalysisError:
+        # The user's code may raise an AnalysisError (e.g., from the wrapped
+        # providers). If this happens, we should pass the exception through.
+        raise
     except Exception as ex:
         logger.debug(
             "An error occured during analysis (could be a problem with the "
