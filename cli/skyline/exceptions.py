@@ -70,6 +70,16 @@ def exceptions_as_analysis_errors(project_root):
                         error, project_root, frame.filename, frame.lineno)
                     break
 
+        # Special case: Add a more detailed error message when there's an
+        # input number mismatch.
+        if (error.file_context is None and
+                str(error).startswith("TypeError: forward() takes")):
+            error = AnalysisError(
+                "{}. This error could be due to a mismatch between the number "
+                "of inputs that your model expects and the number of inputs "
+                "that your input provider returns.".format(str(error))
+            )
+
         raise error
 
 
