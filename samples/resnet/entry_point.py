@@ -17,9 +17,11 @@ def skyline_input_provider(batch_size=16):
 
 def skyline_iteration_provider(model):
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
-    def iteration(*inputs):
+    loss_fn = torch.nn.CrossEntropyLoss()
+    def iteration(inputs, targets):
         optimizer.zero_grad()
-        out = model(*inputs)
-        out.backward()
+        out = model(inputs)
+        loss = loss_fn(out, targets)
+        loss.backward()
         optimizer.step()
     return iteration

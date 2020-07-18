@@ -228,13 +228,12 @@ class AnalysisSession:
         with user_code_environment(
                 self._path_to_entry_point_dir, self._project_root):
             model = self._model_provider()
-            model(*self._input_provider(
-                batch_size=self._batch_size)).backward()
+            iteration = self._iteration_provider(model)
+            iteration(*self._input_provider(batch_size=self._batch_size))
 
         torch.cuda.reset_max_memory_allocated()
         with user_code_environment(
                 self._path_to_entry_point_dir, self._project_root):
-            iteration = self._iteration_provider(model)
             # NOTE: It's important to run at least 2 iterations here. It turns
             #       out that >= 2 iterations is the number of iterations needed
             #       to get a stable measurement of the total memory

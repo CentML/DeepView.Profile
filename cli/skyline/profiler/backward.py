@@ -14,7 +14,7 @@ class BackwardHelper:
 
         grads = torch.ones_like(retval)
         def backward_runnable():
-            retval.backward(grads, retain_graph=True)
+            torch.autograd.backward(retval, grads, retain_graph=True)
 
         size_dict = get_accumulate_grad_inputs(
             initial_grad_fn,

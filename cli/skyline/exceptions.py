@@ -35,10 +35,20 @@ class NoConnectionError(Exception):
         super().__init__(message)
 
 
+class _SuspendExecution(Exception):
+    # This exception is used internally by the BackwardInterceptor to return
+    # early from the user's code.
+    pass
+
+
 @contextlib.contextmanager
 def exceptions_as_analysis_errors(project_root):
     try:
         yield
+    except _SuspendExecution:
+        # A _SuspendExecution exception does not indicate an error - we use it
+        # to return early from the user's code.
+        pass
     except AnalysisError:
         # The user's code may raise an AnalysisError (e.g., from the wrapped
         # providers). If this happens, we should pass the exception through.

@@ -3,6 +3,7 @@ import logging
 
 import torch
 
+from skyline.tracking.backward_interceptor import BackwardInterceptor
 from skyline.tracking.breakdown import HierarchicalBreakdownBuilder
 from skyline.tracking.memory.activations import ActivationsTracker
 from skyline.tracking.memory.report import MemoryReportBuilder, MiscSizeType
@@ -70,17 +71,17 @@ class Tracker:
             with self._weight_tracker.track():
                 self._model = self._model_provider()
             # Run one iteration to initialize the gradients
-            self._model(*self._input_provider()).backward()
+            iteration = self._iteration_provider(self._model)
+            iteration(*self._input_provider())
 
         # 2. Track and record memory usage associated with stored activations
         self._activations_tracker = ActivationsTracker(self._project_root)
         self._activations_tracker.track_memory_usage(
-            self._model, self._input_provider, self._user_code_path)
+            iteration, self._input_provider, self._user_code_path)
 
         # 3. Record peak memory usage
         torch.cuda.reset_max_memory_allocated()
         with user_code_environment(self._user_code_path, self._project_root):
-            iteration = self._iteration_provider(self._model)
             iteration(*(self._input_provider()))
         self._peak_usage_bytes = torch.cuda.max_memory_allocated()
 
@@ -97,11 +98,15 @@ class Tracker:
         # 2. Perform operation run time profiling
         with user_code_environment(self._user_code_path, self._project_root):
             inputs = self._input_provider()
+            iteration = self._iteration_provider(self._model)
+
         self._operation_tracker = OperationRunTimeTracker(self._project_root)
+        backward_interceptor = BackwardInterceptor()
         with self._operation_tracker.track():
-            with user_code_environment(
-                    self._user_code_path, self._project_root):
-                self._model(*inputs)
+            with backward_interceptor.intercept():
+                with user_code_environment(
+                        self._user_code_path, self._project_root):
+                    iteration(*inputs)
 
     def get_memory_report(self, report_file=None):
         if (self._weight_tracker is None or

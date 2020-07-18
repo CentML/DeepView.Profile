@@ -3,6 +3,7 @@ import gc
 
 import torch
 
+from skyline.tracking.backward_interceptor import BackwardInterceptor
 from skyline.tracking.base import TrackerBase
 from skyline.tracking.call_stack import CallStack
 from skyline.tracking.callable_tracker import CallableTracker
@@ -25,12 +26,12 @@ class ActivationsTracker:
         self._activations = []
         self._project_root = project_root
 
-    def track_memory_usage(self, model, input_provider, user_code_path):
+    def track_memory_usage(self, iteration, input_provider, user_code_path):
         # 1. Run the forward pass of the model with the given inputs. We keep
         #    track of all the operations that contribute to the autograd graph.
         model_output, grad_function_contexts = \
             self._get_grad_function_contexts(
-                model, input_provider, user_code_path)
+                iteration, input_provider, user_code_path)
 
         # 2. Traverse the autograd graph and get a topological ordering. Filter
         #    the function contexts by the gradient functions in our topological
@@ -78,12 +79,17 @@ class ActivationsTracker:
         self.populate_report(builder)
 
     def _get_grad_function_contexts(
-            self, model, input_provider, user_code_path):
+            self, iteration, input_provider, user_code_path):
         grad_function_tracker = GradFunctionTracker(self._project_root)
+        backward_interceptor = BackwardInterceptor()
         with grad_function_tracker.track(), \
+                backward_interceptor.intercept(), \
                 user_code_environment(user_code_path, self._project_root):
-            out = model(*input_provider())
-        return out, grad_function_tracker.grad_function_contexts
+            iteration(*input_provider())
+        return (
+            backward_interceptor.backward_root,
+            grad_function_tracker.grad_function_contexts,
+        )
 
     def _extract_relevant_gradient_functions(
             self, model_output, grad_function_contexts):
@@ -145,9 +151,13 @@ class GradFunctionTracker(TrackerBase):
                     (not retval.is_cuda or retval.grad_fn is None)):
                 return retval
 
+            stack = CallStack.from_here(self._project_root, start_from=2)
+            if len(stack.frames) == 0:
+                return retval
+
             context = OperationContext(
                 operation_name=func.__name__,
-                stack=CallStack.from_here(self._project_root, start_from=2),
+                stack=stack,
             )
             self._handle_callable_result(retval, context)
             return retval
