@@ -91,7 +91,7 @@ export default class SkylinePlugin {
     Logger.info('Disconnected from the server.');
   }
 
-  _getStartedClicked({host, port}) {
+  _getStartedClicked({host, port, projectRoot}) {
     if (this._store.getState().appState !== AppState.OPENED) {
       return;
     }
@@ -102,6 +102,7 @@ export default class SkylinePlugin {
       telemetryClient: this._telemetryClient,
       handleServerClosure: this._handleServerClosure,
       handleInitializationTimeout: this._handleInitializationTimeout,
+      projectRoot,
     });
     this._session.connect(host, port)
       .catch((err) => {

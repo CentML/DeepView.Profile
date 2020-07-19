@@ -49,11 +49,19 @@ class GetStarted extends React.Component {
   }
 
   _handleConnectClick() {
+    let canonicalPath = null;
+    if (this.state.projectRoot != null && this.state.projectRoot !== '') {
+      const projectRoot = path.normalize(this.state.projectRoot);
+      canonicalPath = (projectRoot.endsWith(path.sep) && projectRoot.length > 1)
+        ? projectRoot.slice(0, -1)
+        : projectRoot;
+    }
     const portAsInt = parseInt(this.state.port, 10);
+
     this.props.handleClick({
       host: this.state.host,
       port: portAsInt,
-      projectRoot: this.state.projectRoot,
+      projectRoot: canonicalPath,
     });
   }
 

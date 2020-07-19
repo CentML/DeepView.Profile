@@ -1,5 +1,6 @@
 'use babel';
 
+import fs from 'fs';
 import pm from '../protocol_gen/innpv_pb';
 
 import INNPVFileTracker from '../editor/innpv_file_tracker';
@@ -9,12 +10,13 @@ import Logger from '../logger';
 import Events from '../telemetry/events';
 
 export default class MessageHandler {
-  constructor({messageSender, connectionStateView, store, disposables, telemetryClient}) {
+  constructor({messageSender, connectionStateView, store, disposables, telemetryClient, projectRoot}) {
     this._messageSender = messageSender;
     this._connectionStateView = connectionStateView;
     this._store = store;
     this._disposables = disposables;
     this._telemetryClient = telemetryClient;
+    this._projectRoot = projectRoot;
 
     this._handleInitializeResponse = this._handleInitializeResponse.bind(this);
     this._handleProtocolError = this._handleProtocolError.bind(this);
@@ -29,19 +31,39 @@ export default class MessageHandler {
       return;
     }
 
-    // TODO: Validate the project root and entry point paths.
-    //       We don't (yet) support remote work, so "trusting" the server is fine
-    //       for now because we validate the paths on the server.
-    const projectRoot = message.getServerProjectRoot();
+    // If the user has specified a project root, we will use it. Otherwise we will
+    // use the project root provided by the server (and assume that we are profiling
+    // locally).
+    const useServerProjectRoot = (this._projectRoot == null || this._projectRoot === '');
+    const projectRoot = useServerProjectRoot
+      ? message.getServerProjectRoot()
+      : this._projectRoot;
 
-    this._store.dispatch(ConnectionActions.initialized({projectRoot}));
-    this._disposables.add(new INNPVFileTracker(projectRoot, this._messageSender, this._store));
-    this._telemetryClient.record(Events.Skyline.CONNECTED);
-    Logger.info('Connected!');
+    if (useServerProjectRoot) {
+      Logger.info('Project root provided by the server:', projectRoot);
+    } else {
+      Logger.info('Project root provided by the user:', projectRoot);
+    }
 
-    Logger.info('Sending analysis request...');
-    this._store.dispatch(AnalysisActions.request());
-    this._messageSender.sendAnalysisRequest();
+    // Ensure that the project root exists and is a directory
+    fs.stat(projectRoot, (err, stats) => {
+      if (err || !stats.isDirectory()) {
+        this._store.dispatch(ConnectionActions.error({
+          errorMessage: 'Skyline could not find the project root that either you specified or ' +
+            'that was set implicitly. If you are profiling a remote project, please double check ' +
+            'that you have provided a local project root and that it is a directory (click the gear button).',
+        }));
+      } else {
+        this._store.dispatch(ConnectionActions.initialized({projectRoot}));
+        this._disposables.add(new INNPVFileTracker(projectRoot, this._messageSender, this._store));
+        this._telemetryClient.record(Events.Skyline.CONNECTED);
+        Logger.info('Connected!');
+
+        Logger.info('Sending analysis request...');
+        this._store.dispatch(AnalysisActions.request());
+        this._messageSender.sendAnalysisRequest();
+      }
+    });
   }
 
   _handleProtocolError(message) {
