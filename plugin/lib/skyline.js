@@ -25,7 +25,11 @@ export default {
 
   handleURI(uri) {
     if (this._plugin == null) {
-      this._createPlugin(uri.query.host, uri.query.port);
+      this._createPlugin(
+        uri.query.host,
+        uri.query.port,
+        uri.query.projectRoot,
+      );
     }
   },
 
@@ -37,11 +41,19 @@ export default {
     }
   },
 
-  _createPlugin(initialHost = null, initialPort = null) {
+  _createPlugin(
+    initialHost = null,
+    initialPort = null,
+    initialProjectRoot = null,
+  ) {
     if (this._plugin != null) {
       return;
     }
-    this._plugin = new SkylinePlugin(initialHost, initialPort);
+    this._plugin = new SkylinePlugin(
+      initialHost,
+      initialPort,
+      initialProjectRoot,
+    );
   },
 
   _disposePlugin() {

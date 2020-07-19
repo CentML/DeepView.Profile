@@ -1,6 +1,7 @@
 'use babel';
 
 import React from 'react';
+import path from 'path';
 
 import AppState from '../models/AppState';
 
@@ -11,11 +12,13 @@ class GetStarted extends React.Component {
       optionsVisible: false,
       host: props.initialHost || 'localhost',
       port: props.initialPort || 60120,
+      projectRoot: props.initialProjectRoot || '',
     };
 
     this._handleConnectClick = this._handleConnectClick.bind(this);
     this._handleInputChange = this._handleInputChange.bind(this);
     this._handleOptionsClick = this._handleOptionsClick.bind(this);
+    this._handleSyncProjectRootClick = this._handleSyncProjectRootClick.bind(this);
   }
 
   _handleInputChange(event) {
@@ -32,11 +35,13 @@ class GetStarted extends React.Component {
   }
 
   _allowConnectClick() {
+    const {projectRoot} = this.state;
     return this.props.appState === AppState.OPENED &&
       this.state.host != null &&
       this.state.port != null &&
       this.state.host.length > 0 &&
-      this._isPortValid(this.state.port);
+      this._isPortValid(this.state.port) &&
+      (projectRoot === '' || path.isAbsolute(projectRoot));
   }
 
   _handleOptionsClick() {
@@ -45,7 +50,29 @@ class GetStarted extends React.Component {
 
   _handleConnectClick() {
     const portAsInt = parseInt(this.state.port, 10);
-    this.props.handleClick({host: this.state.host, port: portAsInt});
+    this.props.handleClick({
+      host: this.state.host,
+      port: portAsInt,
+      projectRoot: this.state.projectRoot,
+    });
+  }
+
+  _handleSyncProjectRootClick() {
+    // Guess the project root using the currently open file, if any
+    const editor = atom.workspace.getActiveTextEditor();
+    if (editor == null) {
+      return;
+    }
+
+    const editorFilePath = editor.getPath();
+    if (editorFilePath == null) {
+      // The editor is showing a new unsaved file
+      return;
+    }
+
+    this.setState({
+      projectRoot: path.dirname(editorFilePath),
+    });
   }
 
   _renderOptions() {
@@ -70,6 +97,23 @@ class GetStarted extends React.Component {
               name="port"
               value={this.state.port}
               onChange={this._handleInputChange}
+            />
+          </div>
+        </div>
+        <div className="innpv-get-started-project-root">
+          <p>Local Absolute Project Root (only if profiling remotely):</p>
+          <div className="innpv-get-started-project-root-row">
+            <input
+              className="input-text native-key-bindings"
+              type="text"
+              name="projectRoot"
+              placeholder="e.g., /my/project/root (on your local machine)"
+              value={this.state.projectRoot}
+              onChange={this._handleInputChange}
+            />
+            <button
+              className="btn inline-block-tight icon icon-sync"
+              onClick={this._handleSyncProjectRootClick}
             />
           </div>
         </div>

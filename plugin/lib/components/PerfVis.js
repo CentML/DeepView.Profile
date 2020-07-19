@@ -20,6 +20,7 @@ class PerfVis extends React.Component {
       triggerProfiling,
       initialHost,
       initialPort,
+      initialProjectRoot,
     } = this.props;
 
     switch (appState) {
@@ -32,6 +33,7 @@ class PerfVis extends React.Component {
             errorMessage={errorMessage}
             initialHost={initialHost}
             initialPort={initialPort}
+            initialProjectRoot={initialProjectRoot}
           />
         );
 
