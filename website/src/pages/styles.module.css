@@ -5,17 +5,30 @@
  * and scoped locally.
  */
 
-.heroBanner {
-  padding: 4rem 0;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+.heroBannerRow {
+  align-items: center;
+}
+
+.heroBannerImage {
+  height: auto;
+  border-radius: 5px;
 }
 
 @media screen and (max-width: 966px) {
   .heroBanner {
     padding: 2rem;
   }
+}
+
+@media screen and (max-width: 996px) {
+  .heroText {
+    margin-bottom: 40px;
+    text-align: center;
+  }
+}
+
+.getStarted {
+  margin-right: 20px;
 }
 
 .buttons {

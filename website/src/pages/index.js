@@ -4,12 +4,12 @@ import Layout from '@theme/Layout';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import useThemeContext from '@theme/hooks/useThemeContext';
 import styles from './styles.module.css';
 
 const features = [
   {
     title: <>Easy to Use</>,
-    imageUrl: 'img/undraw_docusaurus_mountain.svg',
     description: (
       <>
         Docusaurus was designed from the ground up to be easily installed and
@@ -19,7 +19,6 @@ const features = [
   },
   {
     title: <>Focus on What Matters</>,
-    imageUrl: 'img/undraw_docusaurus_tree.svg',
     description: (
       <>
         Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
@@ -29,7 +28,6 @@ const features = [
   },
   {
     title: <>Powered by React</>,
-    imageUrl: 'img/undraw_docusaurus_react.svg',
     description: (
       <>
         Extend or customize your website layout by reusing React. Docusaurus can
@@ -54,29 +52,56 @@ function Feature({imageUrl, title, description}) {
   );
 }
 
+function SkylineHeader() {
+  const context = useDocusaurusContext();
+  const {siteConfig = {}} = context;
+  const {isDarkTheme} = useThemeContext();
+  return (
+    <header className="hero">
+      <div className="container">
+        <div className={clsx('row', styles.heroBannerRow)}>
+          <div className={clsx('col col--6', styles.heroText)}>
+            <img alt="Skyline" src="img/skyline_wordmark.svg" />
+            <p className="hero__subtitle">{siteConfig.tagline}</p>
+            <Link
+              className={clsx(
+                'button button--primary button--lg',
+                styles.getStarted,
+              )}
+              to={useBaseUrl('docs/')}>
+              Get Started
+            </Link>
+            <Link
+              className={clsx(
+                'button button--secondary button--lg',
+                styles.getStarted,
+              )}
+              to={useBaseUrl('docs/')}>
+              Read the Docs
+            </Link>
+          </div>
+          <div className="col col--6">
+            <img
+              className={clsx(styles.heroBannerImage, 'shadow--tl')}
+              alt="A screenshot of Skyline's user interface, running in the Atom text editor."
+              src={`img/skyline_${isDarkTheme ? 'dark' : 'light'}.png`}
+            />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
   return (
     <Layout
       title="Interactive in-editor performance profiling for PyTorch"
-      description="Description will go into a meta tag in <head />">
-      <header className={clsx('hero hero--primary', styles.heroBanner)}>
-        <div className="container">
-          <h1 className="hero__title">{siteConfig.title}</h1>
-          <p className="hero__subtitle">{siteConfig.tagline}</p>
-          <div className={styles.buttons}>
-            <Link
-              className={clsx(
-                'button button--outline button--secondary button--lg',
-                styles.getStarted,
-              )}
-              to={useBaseUrl('docs/')}>
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </header>
+      description={siteConfig.tagline}
+    >
+      <SkylineHeader />
       <main>
         {features && features.length > 0 && (
           <section className={styles.features}>

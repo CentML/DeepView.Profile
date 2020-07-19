@@ -1,14 +1,14 @@
-const mainUrl = '';
+const mainUrl = 'https://skylinevis.github.io';
 const githubUrl = 'https://github.com/geoffxy/skyline';
 
 module.exports = {
   title: 'Skyline',
-  tagline: 'Interactive in-editor performance profiling, visualization, and debugging for PyTorch neural networks.',
+  tagline: 'Interactive in-editor performance profiling, visualization, and debugging for PyTorch deep neural networks.',
   url: mainUrl,
   baseUrl: '/',
   favicon: 'img/skyline64x64.png',
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'skylinevis',
+  projectName: 'skyline',
   themeConfig: {
     navbar: {
       title: 'Skyline',
