@@ -69,16 +69,15 @@ function SkylineHeader() {
                 'button button--primary button--lg',
                 styles.getStarted,
               )}
-              to={useBaseUrl('docs/')}>
+              to={useBaseUrl('docs/install/')}
+            >
               Get Started
             </Link>
             <Link
-              className={clsx(
-                'button button--secondary button--lg',
-                styles.getStarted,
-              )}
-              to={useBaseUrl('docs/')}>
-              Read the Docs
+              className="button button--secondary button--lg"
+              to={useBaseUrl('docs/')}
+            >
+              Learn More
             </Link>
           </div>
           <div className="col col--6">

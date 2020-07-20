@@ -1,5 +1,5 @@
-const mainUrl = 'https://skylinevis.github.io';
-const githubUrl = 'https://github.com/geoffxy/skyline';
+const mainUrl = 'https://skylineprof.github.io';
+const githubUrl = 'https://github.com/skylineprof/skyline';
 
 module.exports = {
   title: 'Skyline',
@@ -7,7 +7,7 @@ module.exports = {
   url: mainUrl,
   baseUrl: '/',
   favicon: 'img/skyline64x64.png',
-  organizationName: 'skylinevis',
+  organizationName: 'skylineprof',
   projectName: 'skyline',
   themeConfig: {
     navbar: {
@@ -24,11 +24,6 @@ module.exports = {
           position: 'left',
         },
         {
-          href: '#',
-          label: 'Code Examples',
-          position: 'left',
-        },
-        {
           href: githubUrl,
           label: 'GitHub',
           position: 'left',
@@ -42,12 +37,12 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'About',
+              label: 'About Skyline',
               to: 'docs/',
             },
             {
               label: 'Getting Started',
-              to: 'docs/doc2/',
+              to: 'docs/getting-started/',
             },
           ],
         },
@@ -73,11 +68,9 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'doc1',
+          homePageId: 'what-is-skyline',
           sidebarPath: require.resolve('./sidebars.js'),
-          // Please change this to your repo.
-          editUrl:
-            githubUrl + '/edit/master/website/',
+          editUrl: githubUrl + '/edit/master/website/',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

@@ -1,6 +1,19 @@
 module.exports = {
-  someSidebar: {
-    Skyline: ['doc1', 'doc2', 'doc3'],
-    'CLI Reference': ['mdx'],
+  sidebar: {
+    'About': [
+      'what-is-skyline',
+      'misc',
+    ],
+    'Using Skyline': [
+      'install',
+      'getting-started',
+      'providers',
+      'standalone',
+    ],
+    'Reference': [
+      'cli',
+      'run-time-data',
+      'memory-data',
+    ],
   },
 };
