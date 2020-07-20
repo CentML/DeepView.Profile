@@ -48,3 +48,8 @@
   height: 200px;
   width: 200px;
 }
+
+.feature {
+  text-align: justify;
+  hyphens: auto;
+}

@@ -3,7 +3,7 @@ const githubUrl = 'https://github.com/geoffxy/skyline';
 
 module.exports = {
   title: 'Skyline',
-  tagline: 'Interactive in-editor performance profiling, visualization, and debugging for PyTorch deep neural networks.',
+  tagline: 'Interactive in-editor computational performance profiling, visualization, and debugging for PyTorch deep neural networks.',
   url: mainUrl,
   baseUrl: '/',
   favicon: 'img/skyline64x64.png',
