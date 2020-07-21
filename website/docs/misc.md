@@ -31,4 +31,4 @@ developers that carry their own open source licenses. Please see the
 ## Authors
 
 Skyline was written by and is primarily maintained by Geoffrey Yu
-<gxyu@cs.toronto.edu>.
+(gxyu@cs.toronto.edu).

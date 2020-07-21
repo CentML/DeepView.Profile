@@ -13,10 +13,6 @@ The model provider must take no arguments and return an instance of your model
 (a `torch.nn.Module`) that is on the GPU (i.e. you need to call `.cuda()` on
 the module before returning it).
 
-**Important:** Your model must return a tensor on which `.backward()` can be
-called. Generally this means that the `torch.nn.Module` you return must compute
-the loss with respect to the inputs passed into the model.
-
 
 ### Input Provider
 

@@ -1,19 +1,21 @@
 module.exports = {
   sidebar: {
     'About': [
-      'what-is-skyline',
+      'intro',
       'misc',
     ],
     'Using Skyline': [
       'install',
       'getting-started',
       'providers',
+      'remote',
       'standalone',
     ],
     'Reference': [
       'cli',
-      'run-time-data',
-      'memory-data',
+      'settings',
+      'run-time-report',
+      'memory-report',
     ],
   },
 };

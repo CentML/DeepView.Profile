@@ -14,20 +14,23 @@ skyline interactive path/to/entry/point/file
 ```
 
 Then, open up Atom, execute the `Skyline:Toggle` command in the command palette
-(Ctrl-Shift-P), and hit the "Connect" button that appears on the right.
+(Ctrl-Shift-P on Ubuntu, ⌘-Shift-P on macOS), and hit the "Connect" button that
+appears on the right.
 
 To shutdown Skyline, just execute the `Skyline:Toggle` command again in the
 command palette. You can shutdown the interactive profiling session on the
 command line by hitting Ctrl-C in your terminal.
 
-You can also toggle the Skyline through the Atom menus: Packages > Skyline >
+You can also toggle Skyline using the Atom menus: Packages > Skyline >
 Show/Hide Skyline.
 
-**Important:** To analyze your model, Skyline will actually run your code. This
-means that when you invoke `skyline interactive`, you need to make sure that
-your shell has the proper environments activated (if needed). For example if
-you use `virtualenv` to manage your model's dependencies, you need to activate
-your `virtualenv` before starting Skyline.
+:::info Virtual Environments
+To analyze your model, Skyline will actually run your code. This means that
+when you invoke `skyline interactive`, you need to make sure that your shell
+has the proper environments activated (if needed). For example if you use
+`virtualenv` to manage your model's dependencies, you need to activate your
+`virtualenv` before starting Skyline.
+:::
 
 **Usage Statistics:** Skyline collects usage statistics in order to help us
 make improvements to the tool. If you do not want Skyline to collect usage
@@ -74,7 +77,7 @@ my_project
 
 and your model is defined in `model.py`:
 
-```python
+```python title="model.py"
 import torch.nn as nn
 
 
@@ -91,7 +94,7 @@ class Model(nn.Module):
 
 One way to write the *entry point* file would be:
 
-```python
+```python title="entry_point.py"
 import torch
 import torch.nn as nn
 
@@ -134,16 +137,15 @@ def skyline_iteration_provider(model):
 ```
 
 One important thing to highlight is our use of a wrapper `ModelWithLoss`
-module. Since Skyline needs to be able to call `.backward()` directly on the
-output tensor of our model, we need to use this wrapper module to compute and
-return the loss of our model's output with respect to the targets (i.e. the
-labels). We also include the targets as inputs to our wrapped module and in our
-input provider.
+module. Skyline only provides breakdowns for operations that run inside the
+module returned by the model provider. We included the loss function in this
+wrapper module to have Skyline include it in the breakdown. We could have also
+placed the loss function call in the `iteration` function.
 
 You can place these *provider* functions either in a new file or directly in
 `model.py`. Whichever file contains the providers will be your project's *entry
-point file*. In this example, suppose that we defined the providers in a
-separate file called `entry_point.py` inside `my_project`.
+point file*. In this example, we defined the providers in a separate file
+called `entry_point.py` inside `my_project`.
 
 Suppose that `my_project` is in your home directory. To launch Skyline you
 would run (in your shell):
@@ -152,3 +154,6 @@ would run (in your shell):
 cd ~/my_project
 skyline interactive entry_point.py
 ```
+
+Skyline will then start a profiling session and will launch Atom. To start
+profiling, hit the Connect button that appears in the sidebar.

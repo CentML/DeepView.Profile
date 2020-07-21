@@ -68,7 +68,7 @@ module.exports = {
       {
         docs: {
           // It is recommended to set document id as docs home page (`docs/` path).
-          homePageId: 'what-is-skyline',
+          homePageId: 'intro',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: githubUrl + '/edit/master/website/',
         },
