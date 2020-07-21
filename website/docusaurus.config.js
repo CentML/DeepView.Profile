@@ -9,9 +9,11 @@ module.exports = {
   favicon: 'img/skyline64x64.png',
   organizationName: 'skylineprof',
   projectName: 'skyline',
+  plugins: ['@docusaurus/plugin-google-gtag'],
   themeConfig: {
     navbar: {
       title: 'Skyline',
+      image: 'img/skyline_social.png',
       logo: {
         alt: 'Skyline Logo',
         src: 'img/skyline.svg',
@@ -60,6 +62,10 @@ module.exports = {
           ],
         },
       ],
+    },
+    gtag: {
+      trackingID: 'UA-156567771-2',
+      anonymizeIP: true,
     },
   },
   presets: [
