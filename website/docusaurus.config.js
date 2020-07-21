@@ -1,5 +1,5 @@
-const mainUrl = 'https://skylineprof.github.io';
-const githubUrl = 'https://github.com/skylineprof/skyline';
+const mainUrl = 'https://skylineprof.github.io/';
+const githubUrl = 'https://github.com/skylineprof/skyline/';
 
 module.exports = {
   title: 'Skyline',
@@ -57,7 +57,7 @@ module.exports = {
             },
             {
               label: 'EcoSystem Research Group',
-              href: 'https://www.cs.toronto.edu/ecosystem',
+              href: 'https://www.cs.toronto.edu/ecosystem/',
             },
           ],
         },
