@@ -143,7 +143,7 @@ class GetStarted extends React.Component {
         <div className="innpv-get-started-text">
           <h1>Skyline</h1>
           <p>
-            To get started, launch a Skyline server inside your PyTorch project
+            To get started, launch a Skyline session inside your PyTorch project
             and then hit Connect below.
           </p>
         </div>
