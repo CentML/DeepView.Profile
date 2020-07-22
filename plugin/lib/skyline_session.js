@@ -10,7 +10,14 @@ import ConnectionActions from './redux/actions/connection';
 import ConnectionStateView from './redux/views/connection_state';
 
 export default class SkylineSession {
-  constructor({store, telemetryClient, handleServerClosure, handleInitializationTimeout, projectRoot}) {
+  constructor({
+    store,
+    telemetryClient,
+    handleServerClosure,
+    handleInitializationTimeout,
+    projectRoot,
+    disposeSessionAsync,
+  }) {
     this._handleMessage = this._handleMessage.bind(this);
     this._invokeTimeout = this._invokeTimeout.bind(this);
     this._handleInitializationTimeout = handleInitializationTimeout;
@@ -35,6 +42,7 @@ export default class SkylineSession {
       disposables: this._disposables,
       telemetryClient: this._telemetryClient,
       projectRoot,
+      disposeSessionAsync,
     });
   }
 

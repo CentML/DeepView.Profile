@@ -10,13 +10,22 @@ import Logger from '../logger';
 import Events from '../telemetry/events';
 
 export default class MessageHandler {
-  constructor({messageSender, connectionStateView, store, disposables, telemetryClient, projectRoot}) {
+  constructor({
+    messageSender,
+    connectionStateView,
+    store,
+    disposables,
+    telemetryClient,
+    projectRoot,
+    disposeSessionAsync,
+  }) {
     this._messageSender = messageSender;
     this._connectionStateView = connectionStateView;
     this._store = store;
     this._disposables = disposables;
     this._telemetryClient = telemetryClient;
     this._projectRoot = projectRoot;
+    this._disposeSessionAsync = disposeSessionAsync;
 
     this._handleInitializeResponse = this._handleInitializeResponse.bind(this);
     this._handleProtocolError = this._handleProtocolError.bind(this);
@@ -53,6 +62,7 @@ export default class MessageHandler {
             'that was set implicitly. If you are profiling a remote project, please double check ' +
             'that you have provided a local project root and that it is a directory (click the gear button).',
         }));
+        this._disposeSessionAsync();
       } else {
         this._store.dispatch(ConnectionActions.initialized({projectRoot}));
         this._disposables.add(new INNPVFileTracker(projectRoot, this._messageSender, this._store));

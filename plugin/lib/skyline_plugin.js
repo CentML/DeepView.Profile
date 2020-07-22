@@ -35,6 +35,10 @@ export default class SkylinePlugin {
     this._triggerProfiling = this._triggerProfiling.bind(this);
     this._handleServerClosure = this._handleServerClosure.bind(this);
     this._handleInitializationTimeout = this._handleInitializationTimeout.bind(this);
+    this._disposeSession = this._disposeSession.bind(this);
+    this._disposeSessionAsync = () => {
+      setTimeout(this._disposeSession);
+    }
 
     this._activate();
   }
@@ -103,6 +107,7 @@ export default class SkylinePlugin {
       handleServerClosure: this._handleServerClosure,
       handleInitializationTimeout: this._handleInitializationTimeout,
       projectRoot,
+      disposeSessionAsync: this._disposeSessionAsync,
     });
     this._session.connect(host, port)
       .catch((err) => {
