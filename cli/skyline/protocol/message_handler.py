@@ -1,7 +1,6 @@
 import collections
 import logging
 
-from skyline.legacy_analysis.parser import parse_source_code, analyze_code
 from skyline.exceptions import AnalysisError, NoConnectionError
 
 import skyline.protocol_gen.innpv_pb2 as pm
