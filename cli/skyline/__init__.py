@@ -1,4 +1,4 @@
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 __description__ = "Interactive in-editor performance profiling, visualization, and debugging for PyTorch neural networks."
 
