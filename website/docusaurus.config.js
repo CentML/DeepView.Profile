@@ -9,7 +9,6 @@ module.exports = {
   favicon: 'img/skyline64x64.png',
   organizationName: 'skylineprof',
   projectName: 'skyline',
-  plugins: ['@docusaurus/plugin-google-gtag'],
   themeConfig: {
     navbar: {
       title: 'Skyline',
