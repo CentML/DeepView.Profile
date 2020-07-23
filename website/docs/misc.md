@@ -32,3 +32,8 @@ developers that carry their own open source licenses. Please see the
 
 Skyline was written by and is primarily maintained by Geoffrey Yu
 (gxyu@cs.toronto.edu).
+
+Skyline began as a research project at the [University of
+Toronto](https://web.cs.toronto.edu) in collaboration with [Tovi
+Grossman](https://www.tovigrossman.com) and [Gennady
+Pekhimenko](https://www.cs.toronto.edu/~pekhimenko/).
