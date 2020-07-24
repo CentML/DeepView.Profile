@@ -2,6 +2,7 @@ module.exports = {
   sidebar: {
     'About': [
       'intro',
+      'research',
       'misc',
     ],
     'Using Skyline': [

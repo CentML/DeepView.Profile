@@ -25,6 +25,12 @@ module.exports = {
           position: 'left',
         },
         {
+          to: 'paper',
+          activeBasePath: 'paper',
+          label: 'Research Paper',
+          position: 'left',
+        },
+        {
           href: githubUrl,
           label: 'GitHub',
           position: 'left',
@@ -45,6 +51,10 @@ module.exports = {
               label: 'Getting Started',
               to: 'docs/getting-started/',
             },
+            {
+              label: 'Skyline Paper',
+              to: 'paper',
+            },
           ],
         },
         {
@@ -58,6 +68,10 @@ module.exports = {
               label: 'EcoSystem Research Group',
               href: 'https://www.cs.toronto.edu/ecosystem/',
             },
+            {
+              label: 'University of Toronto',
+              href: 'https://web.cs.toronto.edu',
+            },
           ],
         },
       ],
@@ -65,6 +79,10 @@ module.exports = {
     gtag: {
       trackingID: 'UA-156567771-2',
       anonymizeIP: true,
+    },
+    prism: {
+      theme: require('prism-react-renderer/themes/github'),
+      darkTheme: require('prism-react-renderer/themes/palenight'),
     },
   },
   presets: [
