@@ -12,7 +12,7 @@ function FrontMatter() {
     <div className="container">
       <div className={styles.paperTitle}>
         <h1>
-          Skyline: Interactive In-editor Computational Performance Profiling
+          Skyline: Interactive In-Editor Computational Performance Profiling
           for Deep Neural Network Training
         </h1>
         <p>

@@ -30,12 +30,12 @@ class VideoOverlay extends React.Component {
       >
         <div
           className="shadow--tl"
-          style={{height: `${height}px`, width: `${width}px`, backgroundColor: '#000'}}
+          style={{height: `${height}px`, width: `${width}px`, backgroundColor: '#000000'}}
         >
           <iframe
             width={width}
             height={height}
-            src="https://www.youtube-nocookie.com/embed/qYBUJubW-T8?autoplay=1&modestbranding=1"
+            src="https://www.youtube-nocookie.com/embed/RSLbjrstaq0?autoplay=1&modestbranding=1"
             frameBorder="0"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen

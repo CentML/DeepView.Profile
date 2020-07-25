@@ -16,7 +16,6 @@
   z-index: 1000;
   backdrop-filter: blur(3px);
   background-color: rgba(0, 0, 0, 0.7);
-  cursor: pointer;
 
   display: flex;
   justify-content: center;
