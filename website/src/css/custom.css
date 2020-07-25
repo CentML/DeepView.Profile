@@ -28,3 +28,8 @@
   height: 80%;
   margin-right: 1rem;
 }
+
+.modest-link,
+.modest-link:hover {
+  color: var(--ifm-font-color-base);
+}

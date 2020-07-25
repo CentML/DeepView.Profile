@@ -7,6 +7,9 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './styles.module.css';
 import PaperDetails from '../components/PaperDetails';
 
+const UofT = {name: 'University of Toronto', url: 'https://web.cs.toronto.edu'};
+const Vector = {name: 'Vector Institute', url: 'https://vectorinstitute.ai'};
+
 function FrontMatter() {
   return (
     <div className="container">
@@ -17,7 +20,9 @@ function FrontMatter() {
         </h1>
         <p>
           <span className="badge badge--secondary">To Appear</span>
-          Proceedings of the 33rd ACM Symposium on User Interface Software and Technology (UIST'20)
+          <a className="modest-link" href="https://uist.acm.org/uist2020/" target="_blank">
+            Proceedings of the 33rd ACM Symposium on User Interface Software and Technology (UIST'20)
+          </a>
         </p>
       </div>
       <AuthorsList />
@@ -56,8 +61,19 @@ function Author(props) {
   return (
     <div className={clsx('avatar', styles.paperAuthor)}>
       <div className="avatar__intro">
-        <h4 className="avatar__name">{props.name}</h4>
-        <small className="avatar__subtitle">{props.affiliations}</small>
+        <h4 className="avatar__name">
+          <a className="modest-link" href={props.website} target="_blank">{props.name}</a>
+        </h4>
+        <small className="avatar__subtitle">{
+          props.affiliations.map(({name, url}, idx) => {
+            const link = (<a className="modest-link" href={url} target="_blank">{name}</a>);
+            if (idx == props.affiliations.length - 1) {
+              return <span key={url}>{link}</span>;
+            } else {
+              return <span key={url}>{link}, </span>;
+            }
+          })
+        }</small>
       </div>
     </div>
   );
@@ -69,19 +85,22 @@ function AuthorsList() {
       <div className="col col--4">
         <Author
           name="Geoffrey X. Yu"
-          affiliations="University of Toronto, Vector Institute"
+          affiliations={[UofT, Vector]}
+          website="https://www.cs.toronto.edu/~gxyu"
         />
       </div>
       <div className="col col--4">
         <Author
           name="Tovi Grossman"
-          affiliations="University of Toronto"
+          affiliations={[UofT]}
+          website="https://www.tovigrossman.com"
         />
       </div>
       <div className="col col--4">
         <Author
           name="Gennady Pekhimenko"
-          affiliations="University of Toronto, Vector Institute"
+          affiliations={[UofT, Vector]}
+          website="https://www.cs.toronto.edu/~pekhimenko"
         />
       </div>
     </div>
