@@ -5,6 +5,7 @@ import Link from '@docusaurus/Link';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import styles from './styles.module.css';
+import PaperDetails from '../components/PaperDetails';
 
 function FrontMatter() {
   return (
@@ -98,15 +99,7 @@ function PaperPage() {
       <main>
         <FrontMatter />
         <Abstract />
-        <div className={clsx('container', styles.paperDetails)}>
-          <a
-            className="button button--secondary button--lg"
-            href={useBaseUrl('pdf/skyline-uist20-preprint.pdf')}
-            target="_blank"
-          >
-            View Preprint
-          </a>
-        </div>
+        <PaperDetails />
       </main>
     </Layout>
   );
