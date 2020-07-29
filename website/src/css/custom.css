@@ -33,3 +33,15 @@
 .modest-link:hover {
   color: var(--ifm-font-color-base);
 }
+
+@media screen and (max-width: 996px) {
+  .hero--button {
+    margin: 0 10px 20px 10px;
+  }
+}
+
+@media screen and (min-width: 997px) {
+  .hero--button--row a:first-child {
+    margin-right: 20px;
+  }
+}

@@ -64,21 +64,22 @@ function SkylineHeader() {
           <div className={clsx('col col--6', styles.heroText)}>
             <img alt="Skyline" src="img/skyline_wordmark.svg" />
             <p className="hero__subtitle">{siteConfig.tagline}</p>
-            <Link
-              className={clsx(
-                'button button--primary button--lg',
-                styles.getStarted,
-              )}
-              to={useBaseUrl('docs/install/')}
-            >
-              Get Started
-            </Link>
-            <Link
-              className="button button--secondary button--lg"
-              to={useBaseUrl('docs/')}
-            >
-              Learn More
-            </Link>
+            <div className="row">
+              <div className="col col--12 hero--button--row">
+                <Link
+                  className="button button--primary button--lg hero--button"
+                  to={useBaseUrl('docs/install/')}
+                >
+                  Get Started
+                </Link>
+                <Link
+                  className="button button--secondary button--lg hero--button"
+                  to={useBaseUrl('docs/')}
+                >
+                  Learn More
+              </Link>
+            </div>
+          </div>
           </div>
           <div className="col col--6">
             <img
