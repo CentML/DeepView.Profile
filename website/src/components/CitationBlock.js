@@ -14,7 +14,7 @@ const bibtexCitation = `@inproceedings{skyline-yu20,
   year = {2020},
 }`;
 
-const textCitation = `Geoffrey X. Yu, Tovi Grossman, Gennady Pekhimenko.
+const textCitation = `Geoffrey X. Yu, Tovi Grossman, and Gennady Pekhimenko.
 Skyline: Interactive In-Editor Computational Performance Profiling for
 Deep Neural Network Training. In Proceedings of the 33rd ACM Symposium
 on User Interface Software and Technology (UIST'20). 2020.`;

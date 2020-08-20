@@ -1,6 +1,5 @@
 import React from 'react';
 import clsx from 'clsx';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
 import VideoOverlay from './VideoOverlay';
 import CitationBlock from './CitationBlock';
@@ -55,7 +54,7 @@ function ViewPreprint() {
   return (
     <a
       className="button button--primary detailsButton"
-      href={useBaseUrl('pdf/skyline-uist20-preprint.pdf')}
+      href="https://arxiv.org/pdf/2008.06798.pdf"
       target="_blank"
     >
       View Preprint

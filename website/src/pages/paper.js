@@ -35,7 +35,7 @@ function Abstract() {
     <div className={clsx('container', styles.paperAbstract)}>
       <strong>Abstract</strong>
       <p>
-        Training a state-of-the-art deep neural network (DNNs) is a
+        Training a state-of-the-art deep neural network (DNN) is a
         computationally-expensive and time-consuming process, which
         incentivizes deep learning developers to debug their DNNs for
         computational performance. However, effectively performing this
