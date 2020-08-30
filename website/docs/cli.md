@@ -84,7 +84,7 @@ output file will be a SQLite database.
 **Usage:** `skyline time --output results.sqlite path/to/entry_point.py`
 
 Use the `time` subcommand to get a [iteration run time
-profile](run-time-report.md). This allows you to get run time information
+report](run-time-report.md). This allows you to get run time information
 without having to launch Skyline's interactive profiler (i.e. the Skyline Atom
 plugin).
 
