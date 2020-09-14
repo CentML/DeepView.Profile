@@ -17,6 +17,7 @@ the [Skyline website](https://skylineprof.github.io).
 - [Getting Started](#getting-started)
 - [Versioning](#versioning)
 - [License](#license)
+- [Research Paper](#research-paper)
 - [Authors](#authors)
 
 -------------------------------------------------------------------------------
@@ -82,6 +83,27 @@ information.
 Inside the `samples` directory, we include code samples from third party
 developers that carry their own open source licenses. Please see the
 `README.md` and `LICENSE` files inside those directories for more information.
+
+
+<h2 id="research-paper">Research Paper</h2>
+
+Skyline began as a research project at the [University of
+Toronto](https://web.cs.toronto.edu); the accompanying research paper appears
+in the proceedings of UIST'20. If you are interested, you can read a preprint
+of the paper [here](https://arxiv.org/pdf/2008.06798.pdf).
+
+If you use Skyline in your research, please consider citing our paper:
+
+```bibtex
+@inproceedings{skyline-yu20,
+  title = {{Skyline: Interactive In-Editor Computational Performance Profiling
+    for Deep Neural Network Training}},
+  author = {Yu, Geoffrey X. and Grossman, Tovi and Pekhimenko, Gennady},
+  booktitle = {{Proceedings of the 33rd ACM Symposium on User Interface
+    Software and Technology (UIST'20)}},
+  year = {2020},
+}
+```
 
 
 <h2 id="authors">Authors</h2>
