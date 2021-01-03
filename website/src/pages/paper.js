@@ -19,7 +19,6 @@ function FrontMatter() {
           for Deep Neural Network Training
         </h1>
         <p>
-          <span className="badge badge--secondary">To Appear</span>
           <a className="modest-link" href="https://uist.acm.org/uist2020/" target="_blank">
             Proceedings of the 33rd ACM Symposium on User Interface Software and Technology (UIST'20)
           </a>
@@ -86,7 +85,7 @@ function AuthorsList() {
         <Author
           name="Geoffrey X. Yu"
           affiliations={[UofT, Vector]}
-          website="https://www.cs.toronto.edu/~gxyu"
+          website="https://www.geoffreyyu.com"
         />
       </div>
       <div className="col col--4">

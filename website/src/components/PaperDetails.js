@@ -27,7 +27,7 @@ class PaperDetails extends React.Component {
     const {showCitation, showVideo} = this.state;
     return (
       <div className={clsx('container', styles.paperDetails)}>
-        <ViewPreprint />
+        <ViewPaper />
         <button
           onClick={this._toggleVideo}
           className="button button--secondary detailsButton"
@@ -50,14 +50,14 @@ class PaperDetails extends React.Component {
   }
 }
 
-function ViewPreprint() {
+function ViewPaper() {
   return (
     <a
       className="button button--primary detailsButton"
-      href="https://arxiv.org/pdf/2008.06798.pdf"
+      href="https://dl.acm.org/doi/10.1145/3379337.3415890?cid=99659587236"
       target="_blank"
     >
-      View Preprint
+      View Paper
     </a>
   );
 }
