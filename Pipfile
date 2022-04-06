@@ -9,6 +9,7 @@ protobuf = "*"
 numpy = "*"
 torch = "*"
 nvidia-ml-py3 = "*"
+skyline-cli = {editable = true, path = "."}
 
 [dev-packages]
 

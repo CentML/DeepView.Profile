@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "74189d7046d8891386a124387c66d91cd6054da28f9b6ac893de1587e33b4665"
+            "sha256": "8d01165a2c76751e40fe032fe3152d12e939049ab1e7845b46acf819bae1bd44"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -117,6 +117,10 @@
             ],
             "index": "pypi",
             "version": "==6.0"
+        },
+        "skyline-cli": {
+            "editable": true,
+            "path": "."
         },
         "torch": {
             "hashes": [
