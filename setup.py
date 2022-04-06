@@ -15,7 +15,7 @@ NAME = "skyline-cli"
 PACKAGES = find_packages()
 META_PATH = os.path.join("skyline", "__init__.py")
 README_PATH = os.path.join("README.md")
-PYTHON_REQUIRES = ">=3.6"
+PYTHON_REQUIRES = ">=3.7"
 
 PACKAGE_DATA = {
     "skyline": ["data/hints.yml"],
