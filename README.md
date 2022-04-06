@@ -1,40 +1,103 @@
-Skyline Command Line Interface (CLI)
-====================================
-This directory contains the code that implements Skyline's command line
-interface (CLI). The CLI is written in Python and can be installed as an
-executable.
+![Skyline](https://raw.githubusercontent.com/skylineprof/skyline/master/assets/skyline-wordmark.png)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat)](https://github.com/UofT-EcoSystem/skyline/blob/main/LICENSE)
 
-Right now, the CLI serves as the entrypoint for the interactive profiler. Users
-can start a profiling session by running
+Skyline is a tool to profile and debug the training performance of [PyTorch](https://pytorch.org) neural networks.
 
-```
-$ skyline interactive <model entrypoint file>
-```
+- [Installation](#installation)
+- [Usage example](#getting-started)
+- [Development Environment Setup](#dev-setup)
+- [Release History](#release-history)
+- [Meta](#meta)
+- [Contributing](#contributing)
 
-Development Environment
------------------------
-To set up a development version of the CLI, use `pip` to install an editable
-version of the `skyline` package. We recommend that you do this inside a
-virtual Python environment such as `virtualenv` since this process will install
-other Python packages as well (Skyline's dependencies).
+<h2 id="installation">Installation</h2>
 
-For your convenience, you can run the `dev-setup.sh` script to create a
-development environment inside a virtualenv:
+Skyline works with *GPU-based* neural networks that are implemented in [PyTorch](https://pytorch.org).
 
-```sh
-# You only need to run this once
-./dev-setup.sh
+To run Skyline, you need:
+- A system equipped with an NVIDIA GPU
+- PyTorch 1.1.0+
+- Python 3.7+
+- Pipenv
 
-# Run this to activate your development environment
-source env/bin/activate
-
-# Test out Skyline
-skyline --help
+### Installation from source
+```zsh
+git clone https://github.com/skylineprof/skyline.git
+cd skyline
+pipenv install
+pipenv run skyline --help
 ```
 
-If you want to set up your development environment manually:
+### Installation from PyPi
 
-```sh
-# To install a development version of the CLI, run (inside this directory):
-pip3 install --editable .
+**Note:** Not implemented yet
+```zsh
+pipenv install
+pipenv run skyline --help
 ```
+
+<h2 id="getting-started">Usage example</h2>
+
+To use Skyline in your project, you need to first write an entry point file, which is a regular Python file that describes how your model is created and trained. See the [Entry Point](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/providers.md) for more information.
+
+Once your entry point file is ready, there are two ways to profile interactive profiling and standalone profiling.
+
+### Interactive Profiling
+```zsh
+pipenv run skyline interactive --skip-atom path/to/entry/point/file
+```
+
+### Standalone Profiling
+Standalone profiling is useful when you just want access to Skyline's profiling functionality. Skyline will save the profiling results (called a "report") into a [SQLite database file](https://www.sqlite.org/) that you can then query yourself. We describe the database schema for Skyline's run time and memory reports in the [Run Time Report Format](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/run-time-report.md) and [Memory Report Format](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/memory-report.md) pages respectively.
+
+To have Skyline perform run time profiling, you use the `skyline time`
+subcommand. In addition to the entry point file, you also need to specify the
+file where you want Skyline to save the run time profiling report using the
+`--output` or `-o` flag.
+
+```zsh
+pipenv run skyline time entry_point.py --output my_output_file.sqlite
+```
+
+Launching memory profiling is almost the same as launching run time profiling.
+You just need to use `skyline memory` instead of `skyline time`.
+
+```zsh
+pipenv run skyline memory entry_point.py --output my_output_file.sqlite
+```
+
+<h2 id="dev-setup">Development Environment Setup</h2>
+
+From the project root, make
+```zsh
+pipenv install --editable .
+```
+
+<h2 id="release-history">Release History</h2>
+
+See [Releases](https://github.com/UofT-EcoSystem/skyline/releases)
+
+<h2 id="meta">Meta</h2>
+
+Skyline began as a research project at the [University of Toronto](https://web.cs.toronto.edu) in collaboration with [Geofrey Yu](mailto:gxyu@cs.toronto.edu), [Tovi Grossman](https://www.tovigrossman.com) and [Gennady Pekhimenko](https://www.cs.toronto.edu/~pekhimenko/).
+
+The accompanying research paper appears in the proceedings of UIST'20. If you are interested, you can read a preprint of the paper [here](https://arxiv.org/pdf/2008.06798.pdf).
+
+If you use Skyline in your research, please consider citing our paper:
+
+```bibtex
+@inproceedings{skyline-yu20,
+  title = {{Skyline: Interactive In-Editor Computational Performance Profiling
+    for Deep Neural Network Training}},
+  author = {Yu, Geoffrey X. and Grossman, Tovi and Pekhimenko, Gennady},
+  booktitle = {{Proceedings of the 33rd ACM Symposium on User Interface
+    Software and Technology (UIST'20)}},
+  year = {2020},
+}
+```
+
+It is distributed under Apache 2.0 license. See [LICENSE](https://github.com/UofT-EcoSystem/skyline/blob/main/LICENSE) and [NOTICE](https://github.com/UofT-EcoSystem/skyline/blob/main/NOTICE) for more information.
+
+<h2 id="contributing">Contributing</h2>
+
+Check out [CONTRIBUTING.md](https://github.com/UofT-EcoSystem/skyline/blob/main/CONTRIBUTING.md) for more information on how to help with Skyline.
