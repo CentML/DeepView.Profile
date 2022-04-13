@@ -1,96 +1,87 @@
 ![Skyline](https://raw.githubusercontent.com/skylineprof/skyline/master/assets/skyline-wordmark.png)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat)](https://github.com/UofT-EcoSystem/skyline/blob/main/LICENSE)
 
--------------------------------------------------------------------------------
+Skyline is a tool to profile and debug the training performance of [PyTorch](https://pytorch.org) neural networks.
 
-Skyline is a tool used with [Atom](https://atom.io) to profile, visualize, and
-debug the training performance of [PyTorch](https://pytorch.org) neural
-networks.
+- [Installation](#installation)
+- [Usage example](#getting-started)
+- [Development Environment Setup](#dev-setup)
+- [Release History](#release-history)
+- [Meta](#meta)
+- [Contributing](#contributing)
 
-**Note:** Skyline is still under active development and should be considered a
-beta product. Its usage and system requirements are subject to change
-between versions. See [Versioning](#versioning) for more details.
+<h2 id="installation">Installation</h2>
 
-More information about Skyline, including its documentation, can be found on
-the [Skyline website](https://skylineprof.github.io).
-
-- [Installing Skyline](#installing-skyline)
-- [Getting Started](#getting-started)
-- [Versioning](#versioning)
-- [License](#license)
-- [Research Paper](#research-paper)
-- [Authors](#authors)
-
--------------------------------------------------------------------------------
-
-<h2 id="installing-skyline">Installing Skyline</h2>
-
-Skyline works with *GPU-based* neural networks that are implemented in
-[PyTorch](https://pytorch.org).
+Skyline works with *GPU-based* neural networks that are implemented in [PyTorch](https://pytorch.org).
 
 To run Skyline, you need:
-
 - A system equipped with an NVIDIA GPU
 - PyTorch 1.1.0+
-- Python 3.6+
+- Python 3.7+
+- Pipenv
 
-Skyline is installed using `pip` and the Atom Package Manager (`apm`).
-
-```bash
-pip install skyline-cli
-apm install skyline
+### Installation from source
+```zsh
+git clone https://github.com/skylineprof/skyline.git
+cd skyline
+pipenv install
+pipenv run skyline --help
 ```
 
-Generally you need *both* packages to use Skyline. However, depending on your
-use case and development setup, you may only need the `pip` package or you may
-need to install the packages on different machines. **See the [installation
-page on the website](https://skylineprof.github.io/docs/install) for detailed
-installation instructions tailored to different use cases.**
+### Installation from PyPi
 
-After installing Skyline, you will be able to invoke the command line tool by
-running `skyline` in your shell.
+**Note:** Not implemented yet
+```zsh
+pipenv install
+pipenv run skyline --help
+```
 
+<h2 id="getting-started">Usage example</h2>
 
-<h2 id="getting-started">Getting Started</h2>
+To use Skyline in your project, you need to first write an entry point file, which is a regular Python file that describes how your model is created and trained. See the [Entry Point](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/providers.md) for more information.
 
-To get started quickly, check out the [Getting Started page on the Skyline
-website](https://skylineprof.github.io/docs/getting-started).
+Once your entry point file is ready, there are two ways to profile interactive profiling and standalone profiling.
 
-For more information about using Skyline, including standalone profiling and
-setting up a remote project, please [see the Skyline
-documentation](https://skylineprof.github.io/docs/).
+### Interactive Profiling
+```zsh
+pipenv run skyline interactive --skip-atom path/to/entry/point/file
+```
 
+### Standalone Profiling
+Standalone profiling is useful when you just want access to Skyline's profiling functionality. Skyline will save the profiling results (called a "report") into a [SQLite database file](https://www.sqlite.org/) that you can then query yourself. We describe the database schema for Skyline's run time and memory reports in the [Run Time Report Format](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/run-time-report.md) and [Memory Report Format](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/memory-report.md) pages respectively.
 
-<h2 id="versioning">Versioning</h2>
+To have Skyline perform run time profiling, you use the `skyline time`
+subcommand. In addition to the entry point file, you also need to specify the
+file where you want Skyline to save the run time profiling report using the
+`--output` or `-o` flag.
 
-Skyline uses semantic versioning. Before the 1.0.0 release, backward
-compatibility between minor versions will not be guaranteed.
+```zsh
+pipenv run skyline time entry_point.py --output my_output_file.sqlite
+```
 
-The Skyline command line tool and plugin use *independent* version numbers.
-However, it is very likely that minor and major versions of the command line
-tool and plugin will be released together (and hence share major/minor version
-numbers).
+Launching memory profiling is almost the same as launching run time profiling.
+You just need to use `skyline memory` instead of `skyline time`.
 
-Generally speaking, the most recent version of the command line tool and plugin
-will be compatible with each other.
+```zsh
+pipenv run skyline memory entry_point.py --output my_output_file.sqlite
+```
 
+<h2 id="dev-setup">Development Environment Setup</h2>
 
-<h2 id="license">License</h2>
+From the project root, make
+```zsh
+pipenv install --editable .
+```
 
-Skyline is open source software that is licensed under the Apache 2.0 License.
-Please see the `LICENSE` and `NOTICE` files in this repository for more
-information.
+<h2 id="release-history">Release History</h2>
 
-Inside the `samples` directory, we include code samples from third party
-developers that carry their own open source licenses. Please see the
-`README.md` and `LICENSE` files inside those directories for more information.
+See [Releases](https://github.com/UofT-EcoSystem/skyline/releases)
 
+<h2 id="meta">Meta</h2>
 
-<h2 id="research-paper">Research Paper</h2>
+Skyline began as a research project at the [University of Toronto](https://web.cs.toronto.edu) in collaboration with [Geofrey Yu](mailto:gxyu@cs.toronto.edu), [Tovi Grossman](https://www.tovigrossman.com) and [Gennady Pekhimenko](https://www.cs.toronto.edu/~pekhimenko/).
 
-Skyline began as a research project at the [University of
-Toronto](https://web.cs.toronto.edu); the accompanying research paper appears
-in the proceedings of UIST'20. If you are interested, you can read a preprint
-of the paper [here](https://arxiv.org/pdf/2008.06798.pdf).
+The accompanying research paper appears in the proceedings of UIST'20. If you are interested, you can read a preprint of the paper [here](https://arxiv.org/pdf/2008.06798.pdf).
 
 If you use Skyline in your research, please consider citing our paper:
 
@@ -105,13 +96,8 @@ If you use Skyline in your research, please consider citing our paper:
 }
 ```
 
+It is distributed under Apache 2.0 license. See [LICENSE](https://github.com/UofT-EcoSystem/skyline/blob/main/LICENSE) and [NOTICE](https://github.com/UofT-EcoSystem/skyline/blob/main/NOTICE) for more information.
 
-<h2 id="authors">Authors</h2>
+<h2 id="contributing">Contributing</h2>
 
-Skyline was written by and is primarily maintained by Geoffrey Yu
-(gxyu@cs.toronto.edu).
-
-Skyline began as a research project at the [University of
-Toronto](https://web.cs.toronto.edu) in collaboration with [Tovi
-Grossman](https://www.tovigrossman.com) and [Gennady
-Pekhimenko](https://www.cs.toronto.edu/~pekhimenko/).
+Check out [CONTRIBUTING.md](https://github.com/UofT-EcoSystem/skyline/blob/main/CONTRIBUTING.md) for more information on how to help with Skyline.
