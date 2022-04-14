@@ -17,24 +17,30 @@ Skyline works with *GPU-based* neural networks that are implemented in [PyTorch]
 To run Skyline, you need:
 - A system equipped with an NVIDIA GPU
 - PyTorch 1.1.0+
-- Python 3.7+
-- Pipenv
+- Python 3.6+ or Python 3.7+ on OSX
+- [Poetry](https://python-poetry.org/)
 
 ### Installation from source
 ```zsh
 git clone https://github.com/skylineprof/skyline.git
 cd skyline
-pipenv install
-pipenv run skyline --help
+poetry install
+poetry run skyline --help
 ```
 
 ### Installation from PyPi
 
 **Note:** Not implemented yet
+
+Installing with [Poetry](https://python-poetry.org/)
+
+Installing with [Pipenv]()
 ```zsh
 pipenv install
 pipenv run skyline --help
 ```
+
+Installing with [Pip]()
 
 <h2 id="getting-started">Usage example</h2>
 
@@ -44,7 +50,7 @@ Once your entry point file is ready, there are two ways to profile interactive p
 
 ### Interactive Profiling
 ```zsh
-pipenv run skyline interactive --skip-atom path/to/entry/point/file
+poetry run skyline interactive --skip-atom path/to/entry/point/file
 ```
 
 ### Standalone Profiling
@@ -56,21 +62,21 @@ file where you want Skyline to save the run time profiling report using the
 `--output` or `-o` flag.
 
 ```zsh
-pipenv run skyline time entry_point.py --output my_output_file.sqlite
+poetry run skyline time entry_point.py --output my_output_file.sqlite
 ```
 
 Launching memory profiling is almost the same as launching run time profiling.
 You just need to use `skyline memory` instead of `skyline time`.
 
 ```zsh
-pipenv run skyline memory entry_point.py --output my_output_file.sqlite
+poetry run skyline memory entry_point.py --output my_output_file.sqlite
 ```
 
 <h2 id="dev-setup">Development Environment Setup</h2>
 
 From the project root, make
 ```zsh
-pipenv install --editable .
+poetry install
 ```
 
 <h2 id="release-history">Release History</h2>
