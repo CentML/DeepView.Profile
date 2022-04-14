@@ -2,6 +2,8 @@ import argparse
 import enum
 import sys
 
+import toml
+
 import skyline
 import skyline.commands.interactive
 import skyline.commands.memory
@@ -9,10 +11,10 @@ import skyline.commands.time
 
 
 def main():
+    package = toml.load("pyproject.toml")
     parser = argparse.ArgumentParser(
-        prog="skyline",
-        description="Skyline: Interactive Neural Network Performance "
-                    "Profiler, Visualizer, and Debugger for PyTorch",
+        prog = package["tool"]["poetry"]["name"],
+        description = package["tool"]["poetry"]["description"]
     )
     parser.add_argument(
         "-v", "--version",
@@ -26,7 +28,7 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        print('Skyline Command Line Interface', 'v' + skyline.__version__)
+        print('Skyline Command Line Interface', 'v' + package["tool"]["poetry"]["version"],)
         return
 
     if 'func' not in args:
