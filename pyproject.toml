@@ -1,3 +1,35 @@
+[tool.poetry]
+name = "skyline-cli"
+version = "0.5.0"
+description = "Interactive performance profiling and debugging tool for PyTorch neural networks."
+authors = ["Geoffrey Yu <gxyu@cs.toronto.edu>"]
+maintainers = ["Akbar Nurlybayev <akbar.nur@gmail.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+repository = "https://github.com/UofT-EcoSystem/skyline"
+keywords = ["pytorch", "neural networks", "debugger", "profiler"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Debuggers",
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+pyyaml = "*"
+protobuf = "*"
+numpy = "*"
+torch = "*"
+nvidia-ml-py3 = "*"
+toml = "^0.10.2"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+skyline = "skyline_cli:main"
+
 [build-system]
-requires = ["setuptools>=40.6.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
