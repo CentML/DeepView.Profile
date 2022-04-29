@@ -33,14 +33,22 @@ poetry run skyline --help
 **Note:** Not implemented yet
 
 Installing with [Poetry](https://python-poetry.org/)
-
-Installing with [Pipenv]()
 ```zsh
-pipenv install
+poetry add skyline-profiler
+poetry run skyline --help
+```
+
+Installing with [Pipenv](https://pipenv.pypa.io/en/latest/)
+```zsh
+pipenv install skyline-profiler
 pipenv run skyline --help
 ```
 
-Installing with [Pip]()
+Installing with [Pip](https://packaging.python.org/en/latest/tutorials/installing-packages/#use-pip-for-installing)
+```zsh
+python3 -m pip install skyline-profiler
+python3 skyline
+```
 
 <h2 id="getting-started">Usage example</h2>
 

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "skyline-profiler"
-version = "0.6.0"
+version = "0.7.0"
 description = "Interactive performance profiling and debugging tool for PyTorch neural networks."
 authors = ["Geoffrey Yu <gxyu@cs.toronto.edu>"]
 maintainers = ["Akbar Nurlybayev <akbar.nur@gmail.com>"]
@@ -28,7 +28,7 @@ toml = "^0.10.2"
 [tool.poetry.dev-dependencies]
 
 [tool.poetry.scripts]
-skyline = "skyline_cli:main"
+skyline = "skyline_profiler:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
