@@ -1,5 +1,6 @@
 import argparse
 import enum
+import os
 import sys
 
 import toml
@@ -11,7 +12,9 @@ import skyline.commands.time
 
 
 def main():
-    package = toml.load("pyproject.toml")
+    file_path = os.path.abspath(__file__)
+    dir_path = os.path.dirname(file_path)
+    package = toml.load(os.path.join(dir_path, "pyproject.toml"))
     parser = argparse.ArgumentParser(
         prog = package["tool"]["poetry"]["name"],
         description = package["tool"]["poetry"]["description"]
