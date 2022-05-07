@@ -76,6 +76,16 @@ function check_tools() {
     exit 1
   fi
 
+  if [ -z "$(which gh)" ]; then
+    echo_red "ERROR: GitHub CLI must be installed."
+    exit 1
+  fi
+
+  echo ""
+  echo_yellow "> Tooling versions:"
+  echo "$(poetry --version)"
+  echo "$(poetry run python3 --version)"
+  echo "$(gh --version)"
   echo_green "✓ Release tooling OK"
 }
 

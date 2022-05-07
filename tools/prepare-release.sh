@@ -26,11 +26,6 @@ check_repo
 echo ""
 check_tools
 
-echo ""
-echo_yellow "> Tooling versions:"
-echo "$(poetry --version)"
-echo "$(poetry run python3 --version)"
-
 CURR_CLI_VERSION=$(poetry version --short)
 echo -en "${COLOR_YELLOW}Release increment: [patch], minor, major${COLOR_NC}"
 read -r
