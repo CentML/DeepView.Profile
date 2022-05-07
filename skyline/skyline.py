@@ -1,6 +1,5 @@
 import argparse
 import enum
-import os
 import sys
 
 import toml
@@ -12,12 +11,9 @@ import skyline.commands.time
 
 
 def main():
-    file_path = os.path.abspath(__file__)
-    dir_path = os.path.dirname(file_path)
-    package = toml.load(os.path.join(dir_path, "pyproject.toml"))
     parser = argparse.ArgumentParser(
-        prog = package["tool"]["poetry"]["name"],
-        description = package["tool"]["poetry"]["description"]
+        prog = skyline.__name__,
+        description = skyline.__description__
     )
     parser.add_argument(
         "-v", "--version",
@@ -31,7 +27,7 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        print('Skyline Command Line Interface', 'v' + package["tool"]["poetry"]["version"],)
+        print('Skyline Command Line Interface', 'v' + skyline.__version__,)
         return
 
     if 'func' not in args:
