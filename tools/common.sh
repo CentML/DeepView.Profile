@@ -1,11 +1,3 @@
-function pushd() {
-    command pushd "$@" > /dev/null
-}
-
-function popd() {
-    command popd "$@" > /dev/null
-}
-
 COLOR_RED="\033[0;31m"
 COLOR_GREEN="\033[0;32m"
 COLOR_YELLOW="\033[0;33m"
@@ -42,7 +34,7 @@ function prompt_yn() {
 }
 
 function get_repo_hash() {
-  echo "$(git rev-parse --short HEAD)"
+  echo "$(git rev-parse HEAD)"
 }
 
 function check_repo() {
@@ -90,20 +82,14 @@ function check_tools() {
 }
 
 function build_release() {
-  pushd ../cli
-
   echo_yellow "> Building wheels..."
   rm -rf dist/*
-  cp pyproject.toml skyline/
+  cp ../pyproject.toml ../skyline/
   poetry build
   echo_green "✓ Wheels successfully built"
-
-  popd
 }
 
 function upload_release() {
-  pushd ../cli
-
   echo ""
   echo_yellow "> Uploading release to PyPI..."
   twine upload -r pypi "dist/skyline_cli-${NEXT_CLI_VERSION}*"
@@ -114,7 +100,5 @@ function upload_release() {
   git tag -a "$VERSION_TAG" -m ""
   git push --follow-tags
   echo_green "✓ Git release tag created and pushed to GitHub"
-
-  popd
 }
 
