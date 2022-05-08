@@ -39,14 +39,27 @@ minor)
 esac
 NEXT_CLI_VERSION=$(poetry version --short)
 VERSION_TAG="v$NEXT_CLI_VERSION"
-REPO_HASH=$(get_repo_hash)
 
 echo ""
 echo_yellow "> The next CLI version will be '$VERSION_TAG'."
 prompt_yn "> Is this correct? (y/N) "
+git checkout -b "release-$VERSION_TAG"
+git add pyproject.toml
+git commit -m "Bump version to $VERSION_TAG"
+git push origin "release-$VERSION_TAG"
+REPO_HASH=$(get_repo_hash)
 
 echo ""
 build_release
+
+echo ""
+echo "Release Notes:"
+RELEASE_NOTES=$(git log $(git describe --abbrev=0 --tags).. --merges --pretty=format:"%s %b" | cut -f 4,7- -d ' ')
+
+GH_TOKEN=$UOFT_ECOSYSTEM_GH_TOKEN
+echo ""
+echo "Create a draft release on Github"
+gh release create "v$VERSION_TAG" --draft --title "v$VERSION_TAG" --notes $RELEASE_NOTES --target $REPO_HASH
 
 case $1 in
 --deploy)
