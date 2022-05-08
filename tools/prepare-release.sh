@@ -68,15 +68,15 @@ gh release create "v$VERSION_TAG" --draft \
                                   $RELEASE_ARTIFACTS
 echo -en "${COLOR_YELLOW}Ready to publish? [dryrun], test-pypi, pypi${COLOR_NC}"
 read -r
+echo ""
 case $REPLY in 
 test-pypi)
-  echo ""
-  echo_yellow "> Releasing $VERSION_TAG of the CLI...";;
+  echo_yellow "> Releasing $VERSION_TAG of the CLI..."
+  publish_to_pypi;;
 pypi)
-  echo ""
-  echo_yellow "> Releasing $VERSION_TAG of the CLI...";;
+  echo_yellow "> Releasing $VERSION_TAG of the CLI..."
+  publish_to_pypi "prod";;
 *)
-  echo ""
   echo_yellow "Skipping the upload to PyPI";;
 esac
 

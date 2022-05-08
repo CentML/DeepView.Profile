@@ -89,16 +89,12 @@ function build_release() {
   echo_green "✓ Wheels successfully built"
 }
 
-function upload_release() {
-  echo ""
-  echo_yellow "> Uploading release to PyPI..."
-  twine upload -r pypi "dist/skyline_cli-${NEXT_CLI_VERSION}*"
+function publish_to_pypi() {
+  case $1 in
+  prod)
+    poetry publish -r pypi;;
+  *)
+    poetry publish -r test-pypi;;
+  esac
   echo_green "✓ New release uploaded to PyPI"
-
-  echo ""
-  echo_yellow "> Creating a release tag..."
-  git tag -a "$VERSION_TAG" -m ""
-  git push --follow-tags
-  echo_green "✓ Git release tag created and pushed to GitHub"
 }
-
