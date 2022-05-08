@@ -47,38 +47,44 @@ git checkout -b "release-$VERSION_TAG"
 git commit -am "Bump version to $VERSION_TAG"
 git push origin "release-$VERSION_TAG"
 REPO_HASH=$(get_repo_hash)
-
-echo ""
-build_release
-
 RELEASE_NOTES=$(git log $(git describe --abbrev=0 --tags).. --merges --pretty=format:"%s %b" | cut -f 4,7- -d ' ')
 echo ""
 echo "Release Notes:"
 echo "$RELEASE_NOTES"
+gh pr create --title "Release $VERSION_TAG" --body "$RELEASE_NOTES"
 
-RELEASE_ARTIFACTS=$(find ../dist -name "*$NEXT_CLI_VERSION*" -type f | paste -s -d ' ' - )
 
-GH_TOKEN=$UOFT_ECOSYSTEM_GH_TOKEN
-echo ""
-prompt_yn "> Create a draft release on Github? (y/N) "
-gh release create "v$VERSION_TAG" --draft \
-                                  --title "$VERSION_TAG" \
-                                  --notes "$RELEASE_NOTES" \
-                                  --target "$REPO_HASH" \
-                                  $RELEASE_ARTIFACTS
-echo -en "${COLOR_YELLOW}Ready to publish? [dryrun], test-pypi, pypi${COLOR_NC}"
-read -r
-echo ""
-case $REPLY in 
-test-pypi)
-  echo_yellow "> Releasing $VERSION_TAG of the CLI..."
-  publish_to_pypi;;
-pypi)
-  echo_yellow "> Releasing $VERSION_TAG of the CLI..."
-  publish_to_pypi "prod";;
-*)
-  echo_yellow "Skipping the upload to PyPI";;
-esac
+# echo ""
+# build_release
+
+# RELEASE_NOTES=$(git log $(git describe --abbrev=0 --tags).. --merges --pretty=format:"%s %b" | cut -f 4,7- -d ' ')
+# echo ""
+# echo "Release Notes:"
+# echo "$RELEASE_NOTES"
+
+# RELEASE_ARTIFACTS=$(find ../dist -name "*$NEXT_CLI_VERSION*" -type f | paste -s -d ' ' - )
+
+# GH_TOKEN=$UOFT_ECOSYSTEM_GH_TOKEN
+# echo ""
+# prompt_yn "> Create a draft release on Github? (y/N) "
+# gh release create "v$VERSION_TAG" --draft \
+#                                   --title "$VERSION_TAG" \
+#                                   --notes "$RELEASE_NOTES" \
+#                                   --target "$REPO_HASH" \
+#                                   $RELEASE_ARTIFACTS
+# echo -en "${COLOR_YELLOW}Ready to publish? [dryrun], test-pypi, pypi${COLOR_NC}"
+# read -r
+# echo ""
+# case $REPLY in 
+# test-pypi)
+#   echo_yellow "> Releasing $VERSION_TAG of the CLI..."
+#   publish_to_pypi;;
+# pypi)
+#   echo_yellow "> Releasing $VERSION_TAG of the CLI..."
+#   publish_to_pypi "prod";;
+# *)
+#   echo_yellow "Skipping the upload to PyPI";;
+# esac
 
 echo_green "✓ Done!"
 
