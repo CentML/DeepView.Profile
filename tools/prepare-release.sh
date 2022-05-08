@@ -58,28 +58,21 @@ RELEASE_NOTES=$(git log $(git describe --abbrev=0 --tags).. --merges --pretty=fo
 
 GH_TOKEN=$UOFT_ECOSYSTEM_GH_TOKEN
 echo ""
-echo "Create a draft release on Github"
+prompt_yn "> Create a draft release on Github? (y/N) "
 gh release create "v$VERSION_TAG" --draft --title "v$VERSION_TAG" --notes $RELEASE_NOTES --target $REPO_HASH
 
-case $1 in
---deploy)
-echo ""
-prompt_yn "> Ready to release to PyPI? (y/N) "
-
-echo ""
-echo_yellow "> Releasing $VERSION_TAG of the CLI...";;
---test-deploy)
-echo ""
-prompt_yn "> Ready to release to Test PyPI? (y/N) "
-
-echo ""
-echo_yellow "> Releasing $VERSION_TAG of the CLI...";;
-# upload_release
+echo -en "${COLOR_YELLOW}Ready to publish? [dryrun], test-pypi, pypi${COLOR_NC}"
+read -r
+case $REPLY in 
+test-pypi)
+  echo ""
+  echo_yellow "> Releasing $VERSION_TAG of the CLI...";;
+pypi)
+  echo ""
+  echo_yellow "> Releasing $VERSION_TAG of the CLI...";;
 *)
-echo ""
-echo_yellow "Skipping the upload to PyPI neither --deploy nor --test-deploy was passed."
-echo_green "✓ Done!"
-exit 0;;
+  echo ""
+  echo_yellow "Skipping the upload to PyPI";;
 esac
 
 echo_green "✓ Done!"
