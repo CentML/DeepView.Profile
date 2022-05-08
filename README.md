@@ -6,6 +6,7 @@ Skyline is a tool to profile and debug the training performance of [PyTorch](htt
 - [Installation](#installation)
 - [Usage example](#getting-started)
 - [Development Environment Setup](#dev-setup)
+- [Release Process](#release-process)
 - [Release History](#release-history)
 - [Meta](#meta)
 - [Contributing](#contributing)
@@ -82,10 +83,19 @@ poetry run skyline memory entry_point.py --output my_output_file.sqlite
 
 <h2 id="dev-setup">Development Environment Setup</h2>
 
-From the project root, make
+From the project root, do
 ```zsh
 poetry install
 ```
+<h2 id="release-process">Release Process</h2>
+
+1. Make sure you're on main branch and it is clean
+1. Run [tools/prepare-release.sh](tools/prepare-release.sh) which will:
+    * Increment the version
+    * Create a release branch
+    * Create a release PR
+1. After the PR is merged [release-new-version.yml](.github/workflows/release-new-version.yml) GitHub action will build the Python Wheels and create a draft GitHub release
+1. After Github release published, Github action will publish the new package to to test PyPI and wait for approval for PyPI
 
 <h2 id="release-history">Release History</h2>
 
