@@ -1,13 +1,16 @@
 name: Build and release a new version
 
 on:
-  push:
+  pull_request_target:
+    types:
+      - closed
     branches:
-      - release-**
+      - main
 
 jobs:
-  build:
-    name: Build Python Package
+  run_if:
+    if: (startsWith(github.head_ref, 'release-') && github.event.pull_request.merged == true)
+    name: Make a release
     runs-on: ubuntu-latest
 
     steps:
