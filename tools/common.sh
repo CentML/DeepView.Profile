@@ -90,15 +90,15 @@ function check_tools() {
 }
 
 function build_release() {
-  # pushd ../cli
+  pushd ../cli
 
   echo_yellow "> Building wheels..."
   rm -rf dist/*
-  # cp pyproject.toml skyline/
+  cp pyproject.toml skyline/
   poetry build
   echo_green "✓ Wheels successfully built"
 
-  # popd
+  popd
 }
 
 function upload_release() {
