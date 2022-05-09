@@ -5,9 +5,11 @@ on:
     types: [published]
 
 jobs:
-  publish:
-    name: Build Python Package
+  publish-to-test-pypi:
+    name: Publish to Test PyPI
     runs-on: ubuntu-latest
+    environment: Test
+    concurrency: Test
 
     steps:
       - name: Checkout
@@ -23,10 +25,65 @@ jobs:
         with:
           virtualenvs-in-project: true
 
-      - name: Copy pyproject.toml
+      - name: Fetch current version
         run: |
-          cp pyproject.toml ./skyline/
+          echo "NEXT_CLI_VERSION=$(poetry version --short)" >> $GITHUB_ENV
       
-      - name: Build Python package
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.NEXT_CLI_VERSION }}
+          path: dist
+      
+      - name: Display structure of downloaded files
+        run: ls -Ral
+        working-directory: dist
+        
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+
+  publish-to-pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    environment: Production
+    concurrency: Production
+    needs: publish-to-test-pypi
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+    
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+    
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-in-project: true
+
+      - name: Fetch current version
         run: |
-          poetry build
+          echo "NEXT_CLI_VERSION=$(poetry version --short)" >> $GITHUB_ENV
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.NEXT_CLI_VERSION }}
+          path: dist
+      
+      - name: Display structure of downloaded files
+        run: ls -Ral
+        working-directory: dist
+        
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
+          repository_url: https://pypi.org/legacy/
