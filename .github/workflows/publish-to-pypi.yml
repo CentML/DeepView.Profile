@@ -1,11 +1,11 @@
-name: Build Python Package
+name: Publish to PyPI
 
 on:
-  pull_request:
-    types: [opened, reopened]
+  release:
+    types: [published]
 
 jobs:
-  build:
+  publish:
     name: Build Python Package
     runs-on: ubuntu-latest
 
