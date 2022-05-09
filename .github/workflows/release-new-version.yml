@@ -54,4 +54,9 @@ jobs:
                                   --notes "$RELEASE_NOTES" \
                                   --target "$GITHUB_SHA" \
                                   $RELEASE_ARTIFACTS
-
+      
+      - name: Upload Artifacts
+        uses: actions/checkout@v2
+        with:
+          name: ${{ env.NEXT_CLI_VERSION }}
+          path: ./dist/*$NEXT_CLI_VERSION*
