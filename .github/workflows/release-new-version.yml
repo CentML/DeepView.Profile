@@ -46,6 +46,7 @@ jobs:
           echo "$RELEASE_NOTES"
           RELEASE_ARTIFACTS=$(find ./dist -name "*$NEXT_CLI_VERSION*" -type f | paste -s -d ' ' - )
           VERSION_TAG="v$NEXT_CLI_VERSION"
+          gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
           gh release create "$VERSION_TAG" --draft \
                                   --title "$VERSION_TAG" \
                                   --notes "$RELEASE_NOTES" \
