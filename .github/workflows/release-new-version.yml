@@ -55,8 +55,12 @@ jobs:
                                   --target "$GITHUB_SHA" \
                                   $RELEASE_ARTIFACTS
       
+      - name: Display structure of downloaded files
+        run: ls -Ral
+        working-directory: dist
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.NEXT_CLI_VERSION }}
-          path: ./dist/*$NEXT_CLI_VERSION*
+          path: dist/*${{ env.NEXT_CLI_VERSION }}*
