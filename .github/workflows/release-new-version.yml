@@ -55,7 +55,7 @@ jobs:
                                   --target "$GITHUB_SHA" \
                                   $RELEASE_ARTIFACTS
       
-      - name: Display structure of downloaded files
+      - name: Display structure of pre-build files
         run: ls -Ral
         working-directory: dist
 
