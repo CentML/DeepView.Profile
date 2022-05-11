@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -51,6 +49,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.8'
+
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-in-project: true
+
+      - name: Fetch current version
+        run: |
+          echo "NEXT_CLI_VERSION=$(poetry version --short)" >> $GITHUB_ENV
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.NEXT_CLI_VERSION }}
+          path: dist
+
       - name: Publish a draft release
         run: |
           NEXT_CLI_VERSION=${{ env.NEXT_CLI_VERSION }}
