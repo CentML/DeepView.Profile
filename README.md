@@ -94,8 +94,11 @@ poetry install
     * Increment the version
     * Create a release branch
     * Create a release PR
-1. After the PR is merged [release-new-version.yml](.github/workflows/release-new-version.yml) GitHub action will build the Python Wheels and create a draft GitHub release
-1. After Github release published, Github action will publish the new package to to test PyPI and wait for approval for PyPI
+1. After the PR is merged [build-and-publish-new-version.yml](.github/workflows/build-and-publish-new-version.yml) GitHub action will:
+    * build the Python Wheels
+    * GitHub release
+    * Try to publish to Test PyPI
+    * Subject to approval publish to PyPI
 
 <h2 id="release-history">Release History</h2>
 
