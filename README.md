@@ -1,5 +1,7 @@
 ![Skyline](https://raw.githubusercontent.com/skylineprof/skyline/master/assets/skyline-wordmark.png)
 [![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat)](https://github.com/UofT-EcoSystem/skyline/blob/main/LICENSE)
+![](https://img.shields.io/pypi/pyversions/skyline-profiler.svg)
+[![](https://img.shields.io/pypi/v/skyline-profiler.svg)](https://pypi.org/project/skyline-profiler/)
 
 Skyline is a tool to profile and debug the training performance of [PyTorch](https://pytorch.org) neural networks.
 
