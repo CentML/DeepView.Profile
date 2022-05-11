@@ -51,6 +51,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.NEXT_CLI_VERSION }}
+          path: dist
+
       - name: Publish a draft release
         run: |
           NEXT_CLI_VERSION=${{ env.NEXT_CLI_VERSION }}
