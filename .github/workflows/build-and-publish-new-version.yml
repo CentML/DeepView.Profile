@@ -74,7 +74,7 @@ jobs:
           name: ${{ env.NEXT_CLI_VERSION }}
           path: dist
 
-      - name: Publish a draft release
+      - name: Publish a release
         run: |
           NEXT_CLI_VERSION=${{ env.NEXT_CLI_VERSION }}
           RELEASE_NOTES="$(git log $(git describe --abbrev=0 --tags).. --merges --pretty=format:"%s %b" | cut -f 4,7- -d ' ')"
@@ -83,7 +83,7 @@ jobs:
           RELEASE_ARTIFACTS=$(find ./dist -name "*$NEXT_CLI_VERSION*" -type f | paste -s -d ' ' - )
           VERSION_TAG="v$NEXT_CLI_VERSION"
           gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
-          gh release create "$VERSION_TAG" --draft \
+          gh release create "$VERSION_TAG" \
                                   --title "$VERSION_TAG" \
                                   --notes "$RELEASE_NOTES" \
                                   --target "$GITHUB_SHA" \
