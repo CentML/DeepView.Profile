@@ -45,6 +45,7 @@ class AnalysisRequestManager:
         )
 
     def _handle_analysis_request(self, analysis_request, context):
+        print("handle_analysis_request: begin")
         start_time = time.perf_counter()
         try:
             logger.debug(
@@ -85,6 +86,23 @@ class AnalysisRequestManager:
             self._enqueue_response(
                 self._send_throughput_response,
                 throughput,
+                context,
+            )
+
+            # send habitat response
+            if not context.state.connected:
+                logger.debug(
+                    'Aborting request %d from (%s:%d) early '
+                    'because the client has disconnected.',
+                    context.sequence_number,
+                    *(context.address),
+                )
+                return
+
+            habitat_resp = next(analyzer)
+            self._enqueue_response(
+                self._send_habitat_response,
+                habitat_resp,
                 context,
             )
 
@@ -147,3 +165,11 @@ class AnalysisRequestManager:
         except:
             logger.exception(
                 'Exception occurred when sending a throughput response.')
+
+    def _send_habitat_response(self, habitat_resp, context):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_habitat_response(habitat_resp, context)
+        except:
+            logger.exception(
+                'Exception occurred when sending a habitat response.')

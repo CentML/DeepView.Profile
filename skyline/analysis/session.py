@@ -14,6 +14,12 @@ from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
 from skyline.user_code_utils import user_code_environment
 
+# habitat imports
+import collections
+import habitat
+from habitat.analysis import SPECIAL_OPERATIONS
+from habitat.profiling.run_time import RunTimeProfiler
+
 logger = logging.getLogger(__name__)
 
 MODEL_PROVIDER_NAME = "skyline_model_provider"
@@ -21,6 +27,12 @@ INPUT_PROVIDER_NAME = "skyline_input_provider"
 ITERATION_PROVIDER_NAME = "skyline_iteration_provider"
 BATCH_SIZE_ARG = "batch_size"
 
+
+# Habitat variables
+Context = collections.namedtuple(
+    'Context',
+    ['origin_device', 'profiler', 'percentile'],
+)
 
 class AnalysisSession:
     def __init__(
@@ -109,6 +121,91 @@ class AnalysisSession:
             batch_size,
             StaticAnalyzer(entry_point_code, entry_point_ast),
         )
+
+    def habitat_compute_threshold(self, runnable, context):
+        tracker = habitat.OperationTracker(context.origin_device)
+        with tracker.track():
+            runnable()
+
+        run_times = []
+        trace = tracker.get_tracked_trace()
+        for op in trace.operations:
+            if op.name in SPECIAL_OPERATIONS:
+                continue
+            run_times.append(op.forward.run_time_ms)
+            if op.backward is not None:
+                run_times.append(op.backward.run_time_ms)
+
+        return np.percentile(run_times, context.percentile)
+
+
+    def habitat_predict(self):
+        print("habitat_predict: begin")
+        DEVICES = [
+            habitat.Device.P4000,
+            habitat.Device.P100,
+            habitat.Device.V100,
+            habitat.Device.T4,
+            habitat.Device.RTX2070,
+            habitat.Device.RTX2080Ti,
+        ]
+
+        # get model
+        model = self._model_provider()
+        inputs = self._input_provider()
+        iteration = self._iteration_provider(model)
+
+        def runnable():
+            iteration(*inputs)
+
+        # TODO: Don't hardcode origin device
+        profiler = RunTimeProfiler()
+
+        context = Context(
+            # origin_device=habitat.Device.RTX2080Ti,
+            origin_device=habitat.Device.RTX2070,
+            profiler=profiler,
+            percentile=99.5
+        )
+
+        threshold = self.habitat_compute_threshold(runnable, context)
+        
+        tracker = habitat.OperationTracker(
+            device=context.origin_device,
+            metrics=[
+                habitat.Metric.SinglePrecisionFLOPEfficiency,
+                habitat.Metric.DRAMReadBytes,
+                habitat.Metric.DRAMWriteBytes,
+            ],
+            metrics_threshold_ms=threshold,
+        )
+
+        with tracker.track():
+            iteration(*inputs)
+
+        print("habitat_predict: tracing on origin device")
+        trace = tracker.get_tracked_trace()
+
+        resp = pm.HabitatResponse()
+
+        src = pm.HabitatDevicePrediction()
+        src.device_name = 'source'
+        src.runtime_ms = trace.run_time_ms
+        resp.predictions.append(src)
+
+        for device in DEVICES:
+            print("habitat_predict: predicting for", device)
+            predicted_trace = trace.to_device(device)
+
+            pred = pm.HabitatDevicePrediction()
+            pred.device_name = device.name
+            pred.runtime_ms = predicted_trace.run_time_ms
+            resp.predictions.append(pred)
+
+        print(f"returning {len(resp.predictions)} predictions.")
+
+        return resp 
+
 
     def measure_breakdown(self, nvml):
         # 1. Measure the breakdown entries
