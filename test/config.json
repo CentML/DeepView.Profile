@@ -1,0 +1,4 @@
+{
+    "skyline_bin": "/home/ubuntu/habitat-a100/centml/venv/bin/skyline",
+    "entry_point": "/home/ubuntu/habitat-a100/centml/skyline/examples/resnet/entry_point.py"
+}

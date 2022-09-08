@@ -29,7 +29,13 @@ message FromClient {
   oneof payload {
     InitializeRequest initialize = 2;
     AnalysisRequest analysis = 3;
+    GenericEvent generic = 4;
   }
+}
+
+message GenericEvent {
+  string event_type = 1;
+  string optional_arguments = 2;
 }
 
 message InitializeRequest {
@@ -66,12 +72,29 @@ message FromServer {
     AnalysisError analysis_error = 5;
     ThroughputResponse throughput = 6;
     BreakdownResponse breakdown = 8;
+
+    HabitatResponse habitat = 9;
   }
 
   // Deprecated messages
   reserved 4, 7;
   reserved "memory_usage", "run_time";
 }
+
+
+// Habitat messages
+// =======================================
+
+message HabitatDevicePrediction {
+  string device_name = 1;
+  float runtime_ms = 2;
+}
+
+message HabitatResponse {
+  repeated HabitatDevicePrediction predictions = 1;
+}
+
+// =======================================
 
 message InitializeResponse {
   string server_project_root = 1;
