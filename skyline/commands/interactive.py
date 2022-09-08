@@ -62,7 +62,7 @@ def launch_atom():
     try:
         # The atom command line executable returns by default after launching
         # Atom (i.e. it does not block and wait until Atom is closed).
-        subprocess.run(["atom", "atom://skyline"], check=True)
+        subprocess.run(["atom", "--no-sandbox", "atom://skyline"], check=True)
     except FileNotFoundError:
         logger.warn(
             "Skyline was not able to launch Atom from the command line. "
