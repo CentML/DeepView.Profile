@@ -5,13 +5,17 @@ import os
 import socket
 import struct
 import subprocess
+import pytest
 import threading
 from termcolor import colored
 
 from skyline.protocol_gen import innpv_pb2
 
 def stream_monitor(stream, callback=None):
-    for line in stream: callback(line)
+    try:
+        for line in stream: callback(line)
+    except OSError as e:
+        print(f"Closing listener for stream {stream}")
 
 def socket_monitor(socket, callback=None):
     try:
@@ -21,7 +25,7 @@ def socket_monitor(socket, callback=None):
             print(f"Received message of length {msg_len}")
             callback(msg)
     except OSError as e:
-        print("Socket is closed. Terminating thread.")
+        print(f"Closing listener for socket {socket}")
 
 class BackendContext:
     def __init__(self, skyline_bin, entry_point):
@@ -54,6 +58,12 @@ class BackendContext:
 
     def join(self):
         self.process.wait()
+
+    def terminate(self):
+        self.process.terminate()
+        self.stdout_thread.join()
+        self.stderr_thread.join()
+        
         
 class SkylineSession:
     def __init__(self):
@@ -96,32 +106,15 @@ class SkylineSession:
     def handle_message(self, message):
         from_server = innpv_pb2.FromServer()
         from_server.ParseFromString(message)
-        print("From Server:")
-        print(from_server)
+        # print("From Server:")
+        # print(from_server)
 
         self.received_messages.append(from_server)
-        print("received messages:", len(self.received_messages))
+        print(f"new message. total: {len(self.received_messages)}")
 
     def cleanup(self):
         # Closing the socket should cause the listener thread to die
         self.socket.close()
+        self.listener_thread.join()
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("config", type=str)
-    args = parser.parse_args()
 
-    with open(args.config, "r") as fp:
-        config = json.load(fp)
-
-    context = BackendContext(config["skyline_bin"], config["entry_point"])
-    context.spawn_process()
-
-    sess = SkylineSession()
-    while context.state == 0: pass
-    print("Backend ready, connecting")
-    sess.connect("localhost", 60120)
-    sess.send_initialize_request()
-    sess.send_analysis_request()
-
-    context.join()
