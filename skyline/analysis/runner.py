@@ -11,6 +11,9 @@ def analyze_project(project_root, entry_point, nvml):
     yield session.measure_breakdown(nvml)
     yield session.measure_throughput()
 
+    print("analyze_project: running habitat_predict()")
+    yield session.habitat_predict()
+
 
 def main():
     # This is used for development and debugging purposes

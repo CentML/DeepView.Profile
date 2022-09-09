@@ -64,6 +64,7 @@ class SkylineServer:
         return (self._connection_acceptor.host, self._connection_acceptor.port)
 
     def _on_message(self, data, address):
+        print("on_message:", data, address)
         # Do not call directly - called by a connection
         self._main_executor.submit(
             self._message_handler.handle_message,
@@ -72,6 +73,7 @@ class SkylineServer:
         )
 
     def _on_new_connection(self, socket, address):
+        print("on_new_connection", socket, address)
         # Do not call directly - called by _connection_acceptor
         self._main_executor.submit(
             self._connection_manager.register_connection,
@@ -87,6 +89,9 @@ class SkylineServer:
         )
 
     def _submit_work(self, func, *args, **kwargs):
+        print("submit_work", func)
+        print("submit_work args:", args)
+        print("submit_work kwargs:", kwargs)
         # Do not call directly - called by another thread to submit work
         # onto the main executor
         self._main_executor.submit(func, *args, **kwargs)

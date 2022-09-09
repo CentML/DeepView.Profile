@@ -48,6 +48,9 @@ class MessageSender:
     def send_throughput_response(self, throughput, context):
         self._send_message(throughput, 'throughput', context)
 
+    def send_habitat_response(self, habitat_resp, context):
+        self._send_message(habitat_resp, 'habitat', context)
+
     def _send_message(self, message, payload_name, context):
         try:
             connection = self._connection_manager.get_connection(
