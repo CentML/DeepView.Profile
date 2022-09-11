@@ -20,7 +20,7 @@ Skyline works with *GPU-based* neural networks that are implemented in [PyTorch]
 To run Skyline, you need:
 - A system equipped with an NVIDIA GPU
 - PyTorch 1.1.0+ with CUDA
-  - **NOTE:** Default PyTorch installation on Linux distros might not have CUDA support, so you'll have to download the approriate Python Wheel from PyTorch site.
+  - **NOTE:** Default PyTorch installation on Linux distros might not have CUDA support, so you'll have to download the approriate Python Wheel from [PyTorch site](https://download.pytorch.org/whl/nightly/torch/).
 - Python 3.6+ or Python 3.7+ on OSX
 - [Poetry](https://python-poetry.org/)
 
