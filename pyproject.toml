@@ -23,10 +23,10 @@ packages = [
 skyline = "skyline.skyline:main"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pyyaml = "*"
 protobuf = "*"
-numpy = "*"
+numpy = "^1.22"
 torch = "*"
 nvidia-ml-py3 = "*"
 toml = "^0.10.2"
