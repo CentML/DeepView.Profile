@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "skyline-profiler"
-version = "0.11.0"
+version = "0.11.1"
 description = "Interactive performance profiling and debugging tool for PyTorch neural networks."
 authors = ["Geoffrey Yu <gxyu@cs.toronto.edu>"]
 maintainers = ["Akbar Nurlybayev <akbar.nur@gmail.com>"]
