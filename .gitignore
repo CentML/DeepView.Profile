@@ -2,9 +2,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,osx,pycharm,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,osx,pycharm,visualstudiocode
 
-### Skyline ###
-skyline/pyproject.toml
-
 ### OSX ###
 # General
 .DS_Store
