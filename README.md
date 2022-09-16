@@ -26,7 +26,7 @@ To run Skyline, you need:
 
 ### Installation from source
 ```zsh
-git clone https://github.com/skylineprof/skyline.git
+git clone https://github.com/CentML/skyline.git
 cd skyline
 poetry install
 poetry run skyline --help
@@ -56,7 +56,7 @@ python3 skyline
 
 <h2 id="getting-started">Usage example</h2>
 
-To use Skyline in your project, you need to first write an entry point file, which is a regular Python file that describes how your model is created and trained. See the [Entry Point](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/providers.md) for more information.
+To use Skyline in your project, you need to first write an entry point file, which is a regular Python file that describes how your model is created and trained. See the [Entry Point](docs/providers.md) for more information.
 
 Once your entry point file is ready, there are two ways to profile interactive profiling and standalone profiling.
 
@@ -66,7 +66,7 @@ poetry run skyline interactive --skip-atom path/to/entry/point/file
 ```
 
 ### Standalone Profiling
-Standalone profiling is useful when you just want access to Skyline's profiling functionality. Skyline will save the profiling results (called a "report") into a [SQLite database file](https://www.sqlite.org/) that you can then query yourself. We describe the database schema for Skyline's run time and memory reports in the [Run Time Report Format](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/run-time-report.md) and [Memory Report Format](https://github.com/UofT-EcoSystem/skyline/blob/main/docs/memory-report.md) pages respectively.
+Standalone profiling is useful when you just want access to Skyline's profiling functionality. Skyline will save the profiling results (called a "report") into a [SQLite database file](https://www.sqlite.org/) that you can then query yourself. We describe the database schema for Skyline's run time and memory reports in the [Run Time Report Format](docs/run-time-report.md) and [Memory Report Format](docs/memory-report.md) pages respectively.
 
 To have Skyline perform run time profiling, you use the `skyline time`
 subcommand. In addition to the entry point file, you also need to specify the
@@ -126,8 +126,8 @@ If you use Skyline in your research, please consider citing our paper:
 }
 ```
 
-It is distributed under Apache 2.0 license. See [LICENSE](https://github.com/UofT-EcoSystem/skyline/blob/main/LICENSE) and [NOTICE](https://github.com/UofT-EcoSystem/skyline/blob/main/NOTICE) for more information.
+It is distributed under Apache 2.0 license. See [LICENSE](LICENSE) and [NOTICE](NOTICE) for more information.
 
 <h2 id="contributing">Contributing</h2>
 
-Check out [CONTRIBUTING.md](https://github.com/UofT-EcoSystem/skyline/blob/main/CONTRIBUTING.md) for more information on how to help with Skyline.
+Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to help with Skyline.
