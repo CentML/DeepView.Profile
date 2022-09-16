@@ -4,7 +4,7 @@
 # Release steps:
 # 1. Create release branch
 # 2. Increment package version in pyproject.toml
-# 3. Prepare change log since the last version 
+# 3. Prepare change log since the last version
 # 4. Commit the change log
 # 5. Creater draft Github release
 # 6. Optional: create ability to publish to test pypi
@@ -27,9 +27,9 @@ echo ""
 check_tools
 
 CURR_CLI_VERSION=$(poetry version --short)
-echo -en "${COLOR_YELLOW}Release increment: [patch], minor, major${COLOR_NC}"
+echo -en "${COLOR_YELLOW}Release increment: [patch], minor, major ${COLOR_NC}"
 read -r
-case $REPLY in 
+case $REPLY in
 major)
   poetry version major;;
 minor)
@@ -75,7 +75,7 @@ gh pr create --title "Release $VERSION_TAG" --body "$RELEASE_NOTES"
 # echo -en "${COLOR_YELLOW}Ready to publish? [dryrun], test-pypi, pypi${COLOR_NC}"
 # read -r
 # echo ""
-# case $REPLY in 
+# case $REPLY in
 # test-pypi)
 #   echo_yellow "> Releasing $VERSION_TAG of the CLI..."
 #   publish_to_pypi;;
