@@ -3,10 +3,10 @@ name = "skyline-profiler"
 version = "0.11.1"
 description = "Interactive performance profiling and debugging tool for PyTorch neural networks."
 authors = ["Geoffrey Yu <gxyu@cs.toronto.edu>"]
-maintainers = ["Akbar Nurlybayev <akbar.nur@gmail.com>"]
+maintainers = ["Akbar Nurlybayev <akbar@centml.ai>", "Yubo Gao <ybgao@centml.ai>", ]
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/UofT-EcoSystem/skyline"
+repository = "https://github.com/CentML/skyline"
 keywords = ["pytorch", "neural networks", "debugger", "profiler"]
 classifiers = [
     "Development Status :: 4 - Beta",
