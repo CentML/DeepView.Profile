@@ -16,7 +16,7 @@ python-versions = "*"
 
 [[package]]
 name = "protobuf"
-version = "4.21.6"
+version = "3.18.3"
 description = ""
 category = "main"
 optional = false
