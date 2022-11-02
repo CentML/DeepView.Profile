@@ -1,0 +1,98 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "$id": "skyline_test_report.schema.json",
+    "title": "Report of Skyline stability tests",
+    "description": "This document reports the results of Skyline and baseline profiling for a given GPU and certain models",
+    "type": "object",
+    "properties": {
+        "gpuId": {
+            "description": "A unique identifier for each GPU",
+            "type": "string"
+        },
+        "timeStamp": {
+            "description": "Timestamp of the profiling",
+            "type": "string"
+        },
+        "modelMetrics": {
+            "description": "List of model metrics",
+            "type": "array",
+            "items": {
+                "description": "Profiling metrics for the modelMetrics",
+                "type": "object",
+                "properties": {
+                    "name" : {
+                        "description": "Unique name for each model",
+                        "type": "string"
+                    },
+                    "batchSizes" : {
+                        "description": "List of batch sizes used for profiling",
+                        "type": "array",
+                        "items": {
+                            "description": "Batch size used for profiling",
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    },
+                    "skylineThroughputs" : {
+                        "description": "List of throughput values given by Skyline for the current model based on the list of batch sizes",
+                        "type": "array",
+                        "items": {
+                            "description": "Throughput value given by Skyline based on the given batch size",
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    },
+                    "skylinePeakUsages" : {
+                        "description": "List of peak memory usage values given by Skyline for the current model based on the list of batch sizes",
+                        "type": "array",
+                        "items": {
+                            "description": "Peak memory usage (in bytes) given by Skyline based on the given batch size",
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    },
+                    "baselineThroughputs" : {
+                        "description": "List of baseline throughput values for the current model based on the list of batch sizes",
+                        "type": "array",
+                        "items": {
+                            "description": "Baseline throughput value based on the given batch size",
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    },
+                    "baselinePeakUsages" : {
+                        "description": "List of baseline peak memory usage values for the current model based on the list of batch sizes",
+                        "type": "array",
+                        "items": {
+                            "description": "Baseline Peak memory usage (in bytes) based on the given batch size",
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    },
+                    "throughputPercentageDiffs" : {
+                        "description": "List of percentage differences between the baseline and Skyline throughput",
+                        "type": "array",
+                        "items": {
+                            "description": "Percentage difference between the baseline and Skyline throughput based on the given batch size",
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    },
+                    "peakUsagePercentageDiffs" : {
+                        "description": "List of percentage differences between the baseline and Skyline peak usage",
+                        "type": "array",
+                        "items": {
+                            "description": "Percentage difference between the baseline and Skyline peak usage based on the given batch size",
+                            "type": "number"
+                        },
+                        "minItems": 1
+                    }
+                },
+                "additionalProperties": false          
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        }
+    },
+    "additionalProperties": false
+}

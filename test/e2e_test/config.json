@@ -1,0 +1,11 @@
+{
+    "skyline_bin": "../../../venv/bin/skyline",
+    "entry_points": [
+        "../../examples/resnet/entry_point.py",
+        "../../examples/testnet/entry_point.py"
+    ],
+    "model_names": [
+        "resnet",
+        "testnet"
+    ]
+}
