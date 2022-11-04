@@ -27,7 +27,7 @@ skyline = "skyline.skyline:main"
 [tool.poetry.dependencies]
 python = "^3.8"
 pyyaml = "*"
-protobuf = "*"
+protobuf = "3.18.3"
 numpy = "^1.22"
 torch = "*"
 nvidia-ml-py3 = "*"
