@@ -24,7 +24,7 @@ try:
     from habitat.profiling.run_time import RunTimeProfiler
 
     habitat_found = True
-except:
+except ImportError:
     logger.debug("Habitat not found, GPU predictions not available")
     habitat_found = False
 
