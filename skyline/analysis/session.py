@@ -14,13 +14,20 @@ from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
 from skyline.user_code_utils import user_code_environment
 
-# habitat imports
-import collections
-import habitat
-from habitat.analysis import SPECIAL_OPERATIONS
-from habitat.profiling.run_time import RunTimeProfiler
-
 logger = logging.getLogger(__name__)
+
+# habitat imports
+try:
+    import collections
+    import habitat
+    from habitat.analysis import SPECIAL_OPERATIONS
+    from habitat.profiling.run_time import RunTimeProfiler
+
+    habitat_found = True
+except ImportError:
+    logger.debug("Habitat not found, GPU predictions not available")
+    habitat_found = False
+
 
 MODEL_PROVIDER_NAME = "skyline_model_provider"
 INPUT_PROVIDER_NAME = "skyline_input_provider"
@@ -140,6 +147,11 @@ class AnalysisSession:
 
 
     def habitat_predict(self):
+        if not habitat_found: 
+            logger.debug("Skipping Habitat predictions, returning empty response.")
+            resp = pm.HabitatResponse()
+            return resp
+
         print("habitat_predict: begin")
         DEVICES = [
             habitat.Device.P4000,
