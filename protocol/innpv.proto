@@ -99,6 +99,7 @@ message HabitatResponse {
 message InitializeResponse {
   string server_project_root = 1;
   Path entry_point = 2;
+  HardwareInfo hardware = 3;
 }
 
 message AnalysisError {
@@ -192,7 +193,7 @@ message OperationData {
   // This will be NaN if this operation is not used in the backward pass
   float backward_ms = 2;
   uint64 size_bytes = 3;
-  // TODO: This contains many repeated FileReferences. We should store them
+  // TODO: This contains many repeated FileReferences. We should store them = 
   //       more efficiently.
   repeated ContextInfo context_info_map = 4;
 }
@@ -206,6 +207,13 @@ message LinearModel {
   // y = slope * x + bias
   double slope = 1;
   double bias = 2;
+}
+
+message HardwareInfo {
+  // Tracks the hardware environment on which the measurements are performed
+  string hostname = 1;
+  string os = 2;
+  repeated string gpus = 3;
 }
 
 // ========== Deprecated messages ==========
