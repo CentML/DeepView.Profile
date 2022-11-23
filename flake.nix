@@ -36,7 +36,7 @@
 
         devShell = pkgs.mkShell {
           buildInputs = with pkgs; [
-            (python39.withPackages (ps: with ps; [ poetry ]))
+            (python39.withPackages (ps: with ps; [ poetry ipython jupyter pip setuptools ]))
           ];
           packages = with pkgs; [
            autoconf
@@ -62,13 +62,7 @@
            ncurses5
            ninja
            openvscode-server
-           poetry
            procps
-           python39
-           python39Packages.ipython
-           python39Packages.jupyter
-           python39Packages.pip
-           python39Packages.setuptools
            stdenv.cc
            unzip
            util-linux
