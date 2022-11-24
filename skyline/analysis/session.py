@@ -3,6 +3,7 @@ import inspect
 import logging
 import math
 import os
+import pynvml
 
 import torch
 import numpy as np
@@ -162,6 +163,22 @@ class AnalysisSession:
             habitat.Device.RTX2080Ti,
         ]
 
+        # Detect source GPU
+        pynvml.nvmlInit()
+        if pynvml.nvmlDeviceGetCount() == 0:
+            raise Exception("NVML failed to find a GPU. PLease ensure that you have a NVIDIA GPU installed and that the drivers are functioning correctly.")
+
+        # TODO: Consider profiling on not only the first detected GPU
+        nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+        source_device_name = pynvml.nvmlDeviceGetName(nvml_handle)
+        source_device = habitat.Device.T4
+        for device in DEVICES:
+            if device.name in source_device_name.split(" "):
+                source_device = device
+        pynvml.nvmlShutdown()
+
+        print("habitat_predict: detected source device", source_device.name)
+
         # get model
         model = self._model_provider()
         inputs = self._input_provider()
@@ -170,12 +187,10 @@ class AnalysisSession:
         def runnable():
             iteration(*inputs)
 
-        # TODO: Don't hardcode origin device
         profiler = RunTimeProfiler()
 
         context = Context(
-            # origin_device=habitat.Device.RTX2080Ti,
-            origin_device=habitat.Device.RTX2070,
+            origin_device=source_device,
             profiler=profiler,
             percentile=99.5
         )
