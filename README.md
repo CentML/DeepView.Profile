@@ -19,13 +19,19 @@ Skyline works with *GPU-based* neural networks that are implemented in [PyTorch]
 
 To run Skyline, you need:
 - A system equipped with an NVIDIA GPU
-- PyTorch 1.1.0+ with CUDA
-  - **NOTE:** Default PyTorch installation on Linux distros might not have CUDA support, so you'll have to download the approriate Python Wheel from [PyTorch site](https://download.pytorch.org/whl/nightly/torch/).
-- Python 3.6+ or Python 3.7+ on OSX
+- Python 3.7+
 - [Poetry](https://python-poetry.org/)
+- PyTorch 1.1.0+ with CUDA
+  - **NOTE:**  We assume you have the correct version of PyTorch installed for their GPU. Default PyTorch installation on Linux distros might not have CUDA support. If you see error similar to below, your PyTorch version is incompatible with your version of CUDA. You can download the appropriate version from the [PyTorch site](https://pytorch.org/get-started/locally/)
+    ```NVIDIA GeForce RTX 3060 Ti with CUDA capability sm_86 is not compatible with the current PyTorch installation.
+    The current PyTorch install supports CUDA capabilities sm_37 sm_50 sm_60 sm_70.
+    If you want to use the NVIDIA GeForce RTX 3060 Ti GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
+    ```
+- Python 3.6+ or Python 3.7+ on OSX
+
 
 ### Installation from source
-```zsh
+```bash
 git clone https://github.com/CentML/skyline.git
 cd skyline
 poetry install
