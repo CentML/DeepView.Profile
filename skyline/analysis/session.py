@@ -171,9 +171,11 @@ class AnalysisSession:
         # TODO: Consider profiling on not only the first detected GPU
         nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
         source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
+        source_device_name_split = source_device_name.split()
         source_device = habitat.Device.T4
         for device in DEVICES:
-            if device.name in source_device_name.split(" "):
+            if any(device.name in source_device_partial_name \
+                for source_device_partial_name in source_device_name_split):
                 source_device = device
         pynvml.nvmlShutdown()
 
