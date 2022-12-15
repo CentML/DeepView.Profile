@@ -4,6 +4,7 @@ import logging
 import math
 import os
 import pynvml
+import re
 
 import torch
 import numpy as np
@@ -171,9 +172,10 @@ class AnalysisSession:
         # TODO: Consider profiling on not only the first detected GPU
         nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
         source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
+        split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
         source_device = habitat.Device.T4
         for device in DEVICES:
-            if device.name in source_device_name.split(" "):
+            if device.name in split_source_device_name:
                 source_device = device
         pynvml.nvmlShutdown()
 
