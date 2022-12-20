@@ -58,6 +58,12 @@ message AnalysisRequest {
   // Set this to receive a mock response from the server.
   // This is useful when developing the UI to avoid waiting for the analysis.
   bool mock_response = 1;
+
+  // In the next major version, the initialization request will be deprecated, and
+  // the Skyline backend will be no longer provided with the project information
+  // at launch time, but will instead be provided them as clients begin profiling.
+  string client_identifier = 2;
+  Path project_root = 3;
 }
 
 
