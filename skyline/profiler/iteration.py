@@ -88,11 +88,15 @@ class IterationProfiler:
         lesser = measure(repetitions) / repetitions
         peak_usage_bytes = torch.cuda.max_memory_allocated()
 
+        # in the worst case, run for at least 2 seconds before giving up
+        min_profile_time_ms = 2000
+        max_repetitions = max(max_repetitions, min_profile_time_ms / lesser)
+
         logger.debug("Iters: %d, Measured: %f", repetitions, lesser)
         while repetitions <= max_repetitions:
             doubled = repetitions * 2
             greater = measure(doubled) / doubled
-            logger.debug("Iters: %d, Measured: %f", doubled, greater)
+            logger.debug("Iters: %d, Measured: %f (range: %f)", doubled, greater, max(lesser, greater) / min(lesser, greater))
 
             # Stop when the difference between the measurements is less than 5%
             if (max(lesser, greater) / min(lesser, greater)) < 1.05:
@@ -211,11 +215,10 @@ class IterationProfiler:
         base = lower if is_increasing else upper
         mult = 1 if is_increasing else -1
 
-        if diff >= 20:
-            return base + mult * 20
-        elif diff >= 10:
-            return base + mult * 10
-        elif diff >= 5:
-            return base + mult * 5
-        else:
-            return base + mult * 1
+        # increase the growth amount for batch sizes to better account for small
+        # models whose initial batch size is much smaller than the maximum possible.
+        tiers = [1000, 200, 100, 20, 10, 5]
+        for t in tiers:
+            if diff >= t: return base + mult * t
+
+        return base + mult

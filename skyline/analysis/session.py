@@ -276,7 +276,7 @@ class AnalysisSession:
 
         # 1. Measure the throughput at several spots to be able to build a
         #    prediction model
-        num_samples = 3
+        num_samples = 6
         samples = self._profiler.sample_run_time_ms_by_batch_size(
             start_batch_size=self._batch_size,
             memory_usage_percentage=self._memory_usage_percentage,
