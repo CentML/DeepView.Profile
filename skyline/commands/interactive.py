@@ -17,11 +17,6 @@ def register_command(subparsers):
         help="Start a new Skyline interactive profiling session.",
     )
     parser.add_argument(
-        "entry_point",
-        help="The entry point file in this project that contains the Skyline "
-             "provider functions.",
-    )
-    parser.add_argument(
         "--host",
         default="",
         help="The host address to bind to.",
@@ -93,8 +88,6 @@ def actual_main(args):
             "Listening on port %d.",
             port,
         )
-        logger.info("Project Root:  %s", Config.project_root)
-        logger.info("Entry Point:   %s", Config.entry_point)
 
         # Run the server until asked to terminate
         should_shutdown.wait()

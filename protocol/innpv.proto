@@ -52,6 +52,9 @@ message InitializeRequest {
   // compatability. If the protocol version is unsupported by the server, it
   // will respond with a ProtocolError.
   uint32 protocol_version = 1;
+
+  string project_root = 2;
+  string entry_point = 3;
 }
 
 message AnalysisRequest {

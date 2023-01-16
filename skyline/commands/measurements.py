@@ -79,10 +79,11 @@ def actual_main(args):
                 'samples_per_second',
                 'memory_usage_bytes',
             ])
+            project_root = os.cwd()
             for batch_size in args.batch_sizes:
                 for trial in range(args.trials):
                     session = AnalysisSession.new_from(
-                        Config.project_root, Config.entry_point)
+                        project_root, args.entry_point)
                     samples_per_second, memory_usage_bytes = make_measurements(
                         session, batch_size)
                     writer.writerow([

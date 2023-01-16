@@ -75,9 +75,10 @@ def actual_main(args):
                 'memory_usage_bytes_slope',
                 'memory_usage_bytes_bias',
             ])
+            project_root = os.cwd()
             for batch_size in args.batch_sizes:
                 session = AnalysisSession.new_from(
-                    Config.project_root, Config.entry_point)
+                    project_root, args.entry_point)
                 memory_model, run_time_model = get_model(
                     session, batch_size)
                 writer.writerow([

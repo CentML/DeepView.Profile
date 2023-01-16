@@ -28,6 +28,8 @@ class Connection:
         self._handler_function = handler_function
         self._closed_handler = closed_handler
         self._sentinel = Sentinel()
+        self._project_root = ""
+        self._entry_point = ""
 
     def start(self):
         self._sentinel.start()
@@ -91,7 +93,18 @@ class Connection:
 
         except:
             logger.exception("Connection unexpectedly stopping...")
+    
+    @property
+    def project_root(self):
+        return self._project_root
 
+    @property
+    def entry_point(self):
+        return self._entry_point
+    
+    def set_project_paths(self, project_root, entry_point):
+        self._project_root = project_root
+        self._entry_point = entry_point
 
 class ConnectionState:
     def __init__(self):

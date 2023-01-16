@@ -1,5 +1,6 @@
 import collections
 import logging
+import os
 
 from skyline.exceptions import AnalysisError, NoConnectionError
 
@@ -11,6 +12,36 @@ RequestContext = collections.namedtuple(
     'RequestContext',
     ['address', 'state', 'sequence_number'],
 )
+
+def _validate_paths(project_root, entry_point):
+    if not os.path.isabs(project_root):
+        logger.error(
+            "The project root that Skyline received is not an absolute path. "
+            "This is an unexpected error. Please report a bug."
+        )
+        logger.error("Current project root: %s", project_root)
+        return False
+
+    if os.path.isabs(entry_point):
+        logger.error(
+            "The entry point must be specified as a relative path to the "
+            "current directory. Please double check that the entry point you "
+            "are providing is a relative path.",
+        )
+        logger.error("Current entry point path: %s", entry_point)
+        return False
+
+    full_path = os.path.join(project_root, entry_point)
+    if not os.path.isfile(full_path):
+        logger.error(
+            "Either the specified entry point is not a file or its path was "
+            "specified incorrectly. Please double check that it exists and "
+            "that its path is correct.",
+        )
+        logger.error("Current absolute path to entry point: %s", full_path)
+        return False
+
+    return True
 
 
 class MessageHandler:
@@ -48,6 +79,23 @@ class MessageHandler:
                 'of the Skyline command line interface and plugin.'
             )
             return
+
+        
+        if not _validate_paths(message.project_root,  message.entry_point):
+            # Change this to the error related to 
+            self._message_sender.send_protocol_error(
+                pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION,
+                context,
+            )
+            self._connection_manager.remove_connection(context.address)
+            logger.error(
+                'Invalid project root or entry point.'
+            )
+            return
+        logger.info("Connection addr:(%s:%d)", *context.address)
+        logger.info("Project Root:   %s", message.project_root)
+        logger.info("Entry Point:    %s", message.entry_point)
+        self._connection_manager.get_connection(context.address).set_project_paths(message.project_root, message.entry_point)
 
         context.state.initialized = True
         self._message_sender.send_initialize_response(context)
@@ -107,3 +155,4 @@ class MessageHandler:
                 'Processing message from (%s:%d) resulted in an exception.',
                 *address,
             )
+

@@ -18,8 +18,9 @@ class MessageSender:
 
     def send_initialize_response(self, context):
         message = pm.InitializeResponse()
-        message.server_project_root = Config.project_root
-        message.entry_point.components.extend(Config.entry_point.split(os.sep))
+        connection = self._connection_manager.get_connection(context.address)
+        message.server_project_root = connection.project_root
+        message.entry_point.components.extend(connection.entry_point.split(os.sep))
 
         # Populate hardware info
         message.hardware.hostname = platform.node()
