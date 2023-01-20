@@ -48,8 +48,9 @@ def actual_main(args):
         sys.exit(1)
 
     try:
+        project_root = os.cwd()
         session = AnalysisSession.new_from(
-            Config.project_root, Config.entry_point)
+            project_root, args.entry_point)
         session.generate_memory_usage_report(
             save_report_to=args.output,
         )

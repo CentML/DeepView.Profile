@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0binnpv.proto\x12\x0einnpv.protocol\"\xcf\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x12/\n\x07generic\x18\x04 \x01(\x0b\x32\x1c.innpv.protocol.GenericEventH\x00\x42\t\n\x07payload\">\n\x0cGenericEvent\x12\x12\n\nevent_type\x18\x01 \x01(\t\x12\x1a\n\x12optional_arguments\x18\x02 \x01(\t\"-\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\x9d\x03\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x12\x32\n\x07habitat\x18\t \x01(\x0b\x32\x1f.innpv.protocol.HabitatResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"B\n\x17HabitatDevicePrediction\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x12\n\nruntime_ms\x18\x02 \x01(\x02\"O\n\x0fHabitatResponse\x12<\n\x0bpredictions\x18\x01 \x03(\x0b\x32\'.innpv.protocol.HabitatDevicePrediction\"\x8c\x01\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\x12.\n\x08hardware\x18\x03 \x01(\x0b\x32\x1c.innpv.protocol.HardwareInfo\"[\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\x12\x33\n\x0c\x66ile_context\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\xa1\x02\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\x12\x30\n\x0brun_time_ms\x18\x03 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x35\n\x10peak_usage_bytes\x18\x04 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x39\n\x12\x62\x61tch_size_context\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12!\n\x19\x63\x61n_manipulate_batch_size\x18\x06 \x01(\x08\"\xea\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x12\n\nbatch_size\x18\x06 \x01(\r\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"{\n\x0b\x43ontextInfo\x12.\n\x07\x63ontext\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x13\n\x0brun_time_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x13\n\x0binvocations\x18\x04 \x01(\r\"\x83\x01\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x35\n\x10\x63ontext_info_map\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.ContextInfo\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"*\n\x0bLinearModel\x12\r\n\x05slope\x18\x01 \x01(\x01\x12\x0c\n\x04\x62ias\x18\x02 \x01(\x01\":\n\x0cHardwareInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x0c\n\x04gpus\x18\x03 \x03(\t\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65\x62\x06proto3'
+  serialized_pb=b'\n\x0binnpv.proto\x12\x0einnpv.protocol\"\xcf\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x12/\n\x07generic\x18\x04 \x01(\x0b\x32\x1c.innpv.protocol.GenericEventH\x00\x42\t\n\x07payload\">\n\x0cGenericEvent\x12\x12\n\nevent_type\x18\x01 \x01(\t\x12\x1a\n\x12optional_arguments\x18\x02 \x01(\t\"X\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\x12\x14\n\x0cproject_root\x18\x02 \x01(\t\x12\x13\n\x0b\x65ntry_point\x18\x03 \x01(\t\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\x9d\x03\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x12\x32\n\x07habitat\x18\t \x01(\x0b\x32\x1f.innpv.protocol.HabitatResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"B\n\x17HabitatDevicePrediction\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x12\n\nruntime_ms\x18\x02 \x01(\x02\"O\n\x0fHabitatResponse\x12<\n\x0bpredictions\x18\x01 \x03(\x0b\x32\'.innpv.protocol.HabitatDevicePrediction\"\x8c\x01\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\x12.\n\x08hardware\x18\x03 \x01(\x0b\x32\x1c.innpv.protocol.HardwareInfo\"[\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\x12\x33\n\x0c\x66ile_context\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\xa1\x02\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\x12\x30\n\x0brun_time_ms\x18\x03 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x35\n\x10peak_usage_bytes\x18\x04 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x39\n\x12\x62\x61tch_size_context\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12!\n\x19\x63\x61n_manipulate_batch_size\x18\x06 \x01(\x08\"\xea\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x12\n\nbatch_size\x18\x06 \x01(\r\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"{\n\x0b\x43ontextInfo\x12.\n\x07\x63ontext\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x13\n\x0brun_time_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x13\n\x0binvocations\x18\x04 \x01(\r\"\x83\x01\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x35\n\x10\x63ontext_info_map\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.ContextInfo\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"*\n\x0bLinearModel\x12\r\n\x05slope\x18\x01 \x01(\x01\x12\x0c\n\x04\x62ias\x18\x02 \x01(\x01\":\n\x0cHardwareInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x0c\n\x04gpus\x18\x03 \x03(\t\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65\x62\x06proto3'
 )
 
 
@@ -54,8 +54,8 @@ _PROTOCOLERROR_ERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1803,
-  serialized_end=1927,
+  serialized_start=1846,
+  serialized_end=1970,
 )
 _sym_db.RegisterEnumDescriptor(_PROTOCOLERROR_ERRORCODE)
 
@@ -172,6 +172,20 @@ _INITIALIZEREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='project_root', full_name='innpv.protocol.InitializeRequest.project_root', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='entry_point', full_name='innpv.protocol.InitializeRequest.entry_point', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -185,7 +199,7 @@ _INITIALIZEREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=305,
-  serialized_end=350,
+  serialized_end=393,
 )
 
 
@@ -216,8 +230,8 @@ _ANALYSISREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=352,
-  serialized_end=392,
+  serialized_start=395,
+  serialized_end=435,
 )
 
 
@@ -295,8 +309,8 @@ _FROMSERVER = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=395,
-  serialized_end=808,
+  serialized_start=438,
+  serialized_end=851,
 )
 
 
@@ -334,8 +348,8 @@ _HABITATDEVICEPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=810,
-  serialized_end=876,
+  serialized_start=853,
+  serialized_end=919,
 )
 
 
@@ -366,8 +380,8 @@ _HABITATRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=878,
-  serialized_end=957,
+  serialized_start=921,
+  serialized_end=1000,
 )
 
 
@@ -412,8 +426,8 @@ _INITIALIZERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=960,
-  serialized_end=1100,
+  serialized_start=1003,
+  serialized_end=1143,
 )
 
 
@@ -451,8 +465,8 @@ _ANALYSISERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1102,
-  serialized_end=1193,
+  serialized_start=1145,
+  serialized_end=1236,
 )
 
 
@@ -518,8 +532,8 @@ _THROUGHPUTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1196,
-  serialized_end=1485,
+  serialized_start=1239,
+  serialized_end=1528,
 )
 
 
@@ -585,8 +599,8 @@ _BREAKDOWNRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1488,
-  serialized_end=1722,
+  serialized_start=1531,
+  serialized_end=1765,
 )
 
 
@@ -618,8 +632,8 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1725,
-  serialized_end=1927,
+  serialized_start=1768,
+  serialized_end=1970,
 )
 
 
@@ -650,8 +664,8 @@ _PATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1929,
-  serialized_end=1955,
+  serialized_start=1972,
+  serialized_end=1998,
 )
 
 
@@ -689,8 +703,8 @@ _FILEREFERENCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1957,
-  serialized_end=2034,
+  serialized_start=2000,
+  serialized_end=2077,
 )
 
 
@@ -754,8 +768,8 @@ _BREAKDOWNNODE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2037,
-  serialized_end=2243,
+  serialized_start=2080,
+  serialized_end=2286,
 )
 
 
@@ -807,8 +821,8 @@ _CONTEXTINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2245,
-  serialized_end=2368,
+  serialized_start=2288,
+  serialized_end=2411,
 )
 
 
@@ -860,8 +874,8 @@ _OPERATIONDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2371,
-  serialized_end=2502,
+  serialized_start=2414,
+  serialized_end=2545,
 )
 
 
@@ -899,8 +913,8 @@ _WEIGHTDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2504,
-  serialized_end=2561,
+  serialized_start=2547,
+  serialized_end=2604,
 )
 
 
@@ -938,8 +952,8 @@ _LINEARMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2563,
-  serialized_end=2605,
+  serialized_start=2606,
+  serialized_end=2648,
 )
 
 
@@ -984,8 +998,8 @@ _HARDWAREINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2607,
-  serialized_end=2665,
+  serialized_start=2650,
+  serialized_end=2708,
 )
 
 
@@ -1009,8 +1023,8 @@ _MEMORYUSAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2667,
-  serialized_end=2694,
+  serialized_start=2710,
+  serialized_end=2737,
 )
 
 
@@ -1034,8 +1048,8 @@ _RUNTIMERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2696,
-  serialized_end=2719,
+  serialized_start=2739,
+  serialized_end=2762,
 )
 
 
@@ -1059,8 +1073,8 @@ _ACTIVATIONENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2721,
-  serialized_end=2744,
+  serialized_start=2764,
+  serialized_end=2787,
 )
 
 
@@ -1084,8 +1098,8 @@ _WEIGHTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2746,
-  serialized_end=2765,
+  serialized_start=2789,
+  serialized_end=2808,
 )
 
 
@@ -1109,8 +1123,8 @@ _RUNTIMEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2767,
-  serialized_end=2787,
+  serialized_start=2810,
+  serialized_end=2830,
 )
 
 _FROMCLIENT.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST

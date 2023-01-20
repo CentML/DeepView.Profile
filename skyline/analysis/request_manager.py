@@ -53,8 +53,9 @@ class AnalysisRequestManager:
                 context.sequence_number,
                 *(context.address),
             )
+            connection = self._connection_manager.get_connection(context.address)
             analyzer = analyze_project(
-                Config.project_root, Config.entry_point, self._nvml)
+                connection.project_root, connection.entry_point, self._nvml)
 
             # Abort early if the connection has been closed
             if not context.state.connected:
