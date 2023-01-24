@@ -11,6 +11,7 @@ import numpy as np
 
 import skyline.protocol_gen.innpv_pb2 as pm
 from skyline.analysis.static import StaticAnalyzer
+from skyline.energy.measurer import EnergyMeasurer
 from skyline.exceptions import AnalysisError, exceptions_as_analysis_errors
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
@@ -130,6 +131,38 @@ class AnalysisSession:
             batch_size,
             StaticAnalyzer(entry_point_code, entry_point_ast),
         )
+
+    def energy_compute(self) -> pm.EnergyResponse:
+        energy_measurer = EnergyMeasurer()
+        
+        model = self._model_provider()
+        inputs = self._input_provider()
+        iteration = self._iteration_provider(model)
+        resp = pm.EnergyResponse()
+        try: 
+            energy_measurer.begin_measurement()
+            iterations = 20
+            for _ in range(iterations):
+                iteration(*inputs)
+            energy_measurer.end_measurement()
+            
+            resp.total_consumption = energy_measurer.total_energy()/float(iterations)
+
+            cpu_component = pm.EnergyConsumptionComponent()
+            cpu_component.component_type = pm.ENERGY_CPU_DRAM
+            cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
+            
+            gpu_component = pm.EnergyConsumptionComponent()
+            gpu_component.component_type = pm.ENERGY_NVIDIA
+            gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
+            
+            resp.components.extend([cpu_component, gpu_component])
+            
+            #TODO save each response to a database and get the past energy measurements
+        except PermissionError as err:
+            # Remind user to set their CPU permissions
+            print(err)
+        return resp
 
     def habitat_compute_threshold(self, runnable, context):
         tracker = habitat.OperationTracker(context.origin_device)

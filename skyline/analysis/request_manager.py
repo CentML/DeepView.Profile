@@ -107,6 +107,23 @@ class AnalysisRequestManager:
                 context,
             )
 
+            # send energy response
+            if not context.state.connected:
+                logger.debug(
+                    'Aborting request %d from (%s:%d) early '
+                    'because the client has disconnected.',
+                    context.sequence_number,
+                    *(context.address),
+                )
+                return
+
+            energy_resp = next(analyzer)
+            self._enqueue_response(
+                self._send_energy_response,
+                energy_resp,
+                context,
+            )
+
             elapsed_time = time.perf_counter() - start_time
             logger.debug(
                 'Processed analysis request %d from (%s:%d) in %.4f seconds.',
@@ -174,3 +191,11 @@ class AnalysisRequestManager:
         except:
             logger.exception(
                 'Exception occurred when sending a habitat response.')
+
+    def _send_energy_response(self, energy_resp, context):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_energy_response(energy_resp, context)
+        except:
+            logger.exception(
+                'Exception occurred when sending an energy response.')

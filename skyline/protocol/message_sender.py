@@ -64,6 +64,9 @@ class MessageSender:
 
     def send_habitat_response(self, habitat_resp, context):
         self._send_message(habitat_resp, 'habitat', context)
+    
+    def send_energy_response(self, energy_resp, context):
+        self._send_message(energy_resp, 'energy', context)
 
     def _send_message(self, message, payload_name, context):
         try:
