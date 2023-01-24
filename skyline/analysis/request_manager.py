@@ -59,7 +59,7 @@ class AnalysisRequestManager:
 
             # Abort early if the connection has been closed
             if not context.state.connected:
-                logger.debug(
+                logger.error(
                     'Aborting request %d from (%s:%d) early '
                     'because the client has disconnected.',
                     context.sequence_number,
@@ -75,7 +75,7 @@ class AnalysisRequestManager:
             )
 
             if not context.state.connected:
-                logger.debug(
+                logger.error(
                     'Aborting request %d from (%s:%d) early '
                     'because the client has disconnected.',
                     context.sequence_number,
@@ -92,7 +92,7 @@ class AnalysisRequestManager:
 
             # send habitat response
             if not context.state.connected:
-                logger.debug(
+                logger.error(
                     'Aborting request %d from (%s:%d) early '
                     'because the client has disconnected.',
                     context.sequence_number,
@@ -109,7 +109,7 @@ class AnalysisRequestManager:
 
             # send energy response
             if not context.state.connected:
-                logger.debug(
+                logger.error(
                     'Aborting request %d from (%s:%d) early '
                     'because the client has disconnected.',
                     context.sequence_number,
