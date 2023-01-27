@@ -45,26 +45,7 @@ def register_command(subparsers):
     )
     parser.add_argument(
         "--debug", action="store_true", help="Log debug messages.")
-    parser.add_argument(
-        "--skip-atom",
-        action="store_true",
-        help="Skip launching Atom.",
-    )
     parser.set_defaults(func=main)
-
-
-def launch_atom():
-    try:
-        # The atom command line executable returns by default after launching
-        # Atom (i.e. it does not block and wait until Atom is closed).
-        subprocess.run(["atom", "--no-sandbox", "atom://skyline"], check=True)
-    except FileNotFoundError:
-        logger.warn(
-            "Skyline was not able to launch Atom from the command line. "
-            "Please make sure that Atom is installed and then launch Atom "
-            "manually to use Skyline's interactive profiling interface.",
-        )
-
 
 def actual_main(args):
     from skyline.config import Config
@@ -78,8 +59,6 @@ def actual_main(args):
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    if not args.skip_atom:
-        launch_atom()
 
     with SkylineServer(args.host, args.port) as server:
         _, port = server.listening_on

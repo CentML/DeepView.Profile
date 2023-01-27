@@ -1,13 +1,8 @@
-
-import argparse
-import json
 import os
 import socket
 import struct
 import subprocess
-import pytest
 import threading
-from termcolor import colored
 
 from skyline.protocol_gen import innpv_pb2
 
@@ -47,7 +42,7 @@ class BackendContext:
         # Skyline expects the entry_point filename to be relative
         working_dir = os.path.dirname(self.entry_point)
         entry_filename = os.path.basename(self.entry_point)
-        launch_command = [self.skyline_bin, "interactive", "--skip-atom", entry_filename]
+        launch_command = [self.skyline_bin, "interactive", entry_filename]
 
         # Launch backend + listener threads for stdout and stderr
         self.process = subprocess.Popen(launch_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=working_dir)
