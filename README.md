@@ -68,7 +68,7 @@ Once your entry point file is ready, there are two ways to profile interactive p
 
 ### Interactive Profiling
 ```zsh
-poetry run skyline interactive --skip-atom path/to/entry/point/file
+poetry run skyline interactive
 ```
 
 ### Standalone Profiling
