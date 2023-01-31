@@ -11,6 +11,8 @@ import numpy as np
 
 import skyline.protocol_gen.innpv_pb2 as pm
 from skyline.analysis.static import StaticAnalyzer
+from skyline.db.database import DatabaseInterface, EnergyTableInterface
+from skyline.energy.measurer import EnergyMeasurer
 from skyline.exceptions import AnalysisError, exceptions_as_analysis_errors
 from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
@@ -67,6 +69,7 @@ class AnalysisSession:
         self._memory_usage_percentage = None
         self._batch_size_iteration_run_time_ms = None
         self._batch_size_peak_usage_bytes = None
+        self._energy_table_interface = EnergyTableInterface(DatabaseInterface().connection)
 
     @classmethod
     def new_from(cls, project_root, entry_point):
@@ -130,6 +133,47 @@ class AnalysisSession:
             batch_size,
             StaticAnalyzer(entry_point_code, entry_point_ast),
         )
+
+    def energy_compute(self) -> pm.EnergyResponse:
+        energy_measurer = EnergyMeasurer()
+        
+        model = self._model_provider()
+        inputs = self._input_provider()
+        iteration = self._iteration_provider(model)
+        resp = pm.EnergyResponse()
+
+        try:
+            energy_measurer.begin_measurement()
+            iterations = 20
+            for _ in range(iterations):
+                iteration(*inputs)
+            energy_measurer.end_measurement()
+            
+            resp.total_consumption = energy_measurer.total_energy()/float(iterations)
+
+            cpu_component = pm.EnergyConsumptionComponent()
+            cpu_component.component_type = pm.ENERGY_CPU_DRAM
+            cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
+            
+            gpu_component = pm.EnergyConsumptionComponent()
+            gpu_component.component_type = pm.ENERGY_NVIDIA
+            gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
+            
+            resp.components.extend([cpu_component, gpu_component])
+        
+            # get last 10 runs if they exist
+            path_to_entry_point = os.path.join(self._project_root, self._entry_point)
+            past_runs = self._energy_table_interface.get_latest_n_entries_of_entry_point(10, path_to_entry_point)
+            print(past_runs)
+            resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
+
+            # add current run to database
+            self._energy_table_interface.add_entry([path_to_entry_point, cpu_component.consumption_joules, gpu_component.consumption_joules])
+        
+        except PermissionError as err:
+            # Remind user to set their CPU permissions
+            print(err)
+        return resp
 
     def habitat_compute_threshold(self, runnable, context):
         tracker = habitat.OperationTracker(context.origin_device)
@@ -516,3 +560,21 @@ def _fit_linear_model(x, y):
     slope, bias = np.linalg.lstsq(stacked, y_np, rcond=None)[0]
     # Linear model: y = slope * x + bias
     return slope, bias
+
+def _convert_to_energy_responses(entries: list)-> list[pm.EnergyResponse]:
+    energy_response_list = []
+    for entry in entries:
+        if EnergyTableInterface.is_valid_entry_with_timestamp(entry):
+            energy_response = pm.EnergyResponse()
+            cpu_component = pm.EnergyConsumptionComponent()
+            cpu_component.component_type = pm.ENERGY_CPU_DRAM
+            cpu_component.consumption_joules = entry[1]
+                
+            gpu_component = pm.EnergyConsumptionComponent()
+            gpu_component.component_type = pm.ENERGY_NVIDIA
+            gpu_component.consumption_joules = entry[2]
+            
+            energy_response.total_consumption = gpu_component.consumption_joules+cpu_component.consumption_joules 
+            energy_response.components.extend([cpu_component, gpu_component])
+            energy_response_list.append(energy_response)
+    return energy_response_list

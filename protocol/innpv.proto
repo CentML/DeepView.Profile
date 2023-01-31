@@ -77,6 +77,7 @@ message FromServer {
     BreakdownResponse breakdown = 8;
 
     HabitatResponse habitat = 9;
+    EnergyResponse energy = 10;
   }
 
   // Deprecated messages
@@ -96,6 +97,33 @@ message HabitatDevicePrediction {
 message HabitatResponse {
   repeated HabitatDevicePrediction predictions = 1;
 }
+
+// Energy messages
+// =======================================
+
+message EnergyResponse {
+  float total_consumption = 1;
+  repeated EnergyConsumptionComponent components = 2;
+
+  // A list of past energy measurements
+  repeated EnergyResponse past_measurements = 3;
+}
+
+// Reports the energy consumption of one system component (e.g. CPU+DRAM or GPU)
+enum EnergyConsumptionComponentType {
+  ENERGY_UNSPECIFIED = 0;
+  ENERGY_CPU_DRAM = 1;
+  ENERGY_NVIDIA = 2;
+}
+
+message EnergyConsumptionComponent {
+  EnergyConsumptionComponentType component_type = 1;
+  float consumption_joules = 2;
+}
+
+// Records past experiments
+
+
 
 // =======================================
 

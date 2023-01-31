@@ -59,7 +59,7 @@ class AnalysisRequestManager:
 
             # Abort early if the connection has been closed
             if not context.state.connected:
-                logger.debug(
+                logger.error(
                     'Aborting request %d from (%s:%d) early '
                     'because the client has disconnected.',
                     context.sequence_number,
@@ -75,7 +75,7 @@ class AnalysisRequestManager:
             )
 
             if not context.state.connected:
-                logger.debug(
+                logger.error(
                     'Aborting request %d from (%s:%d) early '
                     'because the client has disconnected.',
                     context.sequence_number,
@@ -92,7 +92,7 @@ class AnalysisRequestManager:
 
             # send habitat response
             if not context.state.connected:
-                logger.debug(
+                logger.error(
                     'Aborting request %d from (%s:%d) early '
                     'because the client has disconnected.',
                     context.sequence_number,
@@ -104,6 +104,23 @@ class AnalysisRequestManager:
             self._enqueue_response(
                 self._send_habitat_response,
                 habitat_resp,
+                context,
+            )
+
+            # send energy response
+            if not context.state.connected:
+                logger.error(
+                    'Aborting request %d from (%s:%d) early '
+                    'because the client has disconnected.',
+                    context.sequence_number,
+                    *(context.address),
+                )
+                return
+
+            energy_resp = next(analyzer)
+            self._enqueue_response(
+                self._send_energy_response,
+                energy_resp,
                 context,
             )
 
@@ -174,3 +191,11 @@ class AnalysisRequestManager:
         except:
             logger.exception(
                 'Exception occurred when sending a habitat response.')
+
+    def _send_energy_response(self, energy_resp, context):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_energy_response(energy_resp, context)
+        except:
+            logger.exception(
+                'Exception occurred when sending an energy response.')
