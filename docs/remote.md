@@ -1,7 +1,7 @@
 # Remote Profiling
 
 ## Terminology
-- **Client:** The local machine where you run Atom and the Skyline plugin.
+- **Client:** The local machine where you run the Skyline plugin.
 - **Server:** The remote machine where you want to run the Skyline profiler.
 
 ## Prerequisites
