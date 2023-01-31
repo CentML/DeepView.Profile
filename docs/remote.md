@@ -1,5 +1,4 @@
-**CAUTION:** Early Support for Remote Projects
-The current support for remote projects is meant for *advanced users*. We are working on a more user-friendly process for setting up a remote project that we will ship in a future release.
+# Remote Profiling
 
 ## Terminology
 - **Client:** The local machine where you run the Skyline plugin.
@@ -7,35 +6,36 @@ The current support for remote projects is meant for *advanced users*. We are wo
 
 ## Prerequisites
 **SSH Access.**
-At a minimum, you need SSH access to a server machine that allows SSH tunnelling. If the server machine exposes ports then it does not need to
-support SSH tunnelling.
+At a minimum, you need SSH access to a server that allows SSH tunnelling. If the server machine exposes ports then it does not need to support SSH tunnelling.
 
-**Remote File System.**
-Skyline does not provide a remote file system. As a result, to use Skyline for a remote project, your project files must be stored in a file system that can be accessed by both the client and server machines. Usually this is done by (i) storing your project files in a networked file system (e.g., [NFS](https://en.wikipedia.org/wiki/Network_File_System)), or (ii) mounting your project, which is stored on the server, onto your local machine using [sshfs](https://github.com/libfuse/sshfs).
+**Skyline and Habitat.**
+Install Skyline and (optionally Habitat) on your server to allow remote profiling.
+
+**[VSCode Remote - SSH extension.](https://code.visualstudio.com/docs/remote/ssh)**
+This extension allows users to connect to a remote machine and run extensions remotely. The extension handles most of the heavy lifting so it makes it easy to use the Skyline plugin on remote machines.
+
+**Installing the Skyline Plugin on the Server**
+To install the Skyline plugin on the server, take the following steps.
+1. Connect to your server via SSH.
+2. Get the VSIX file following the installation instructions. Take note the path to the VSIX file.
+2. Open VSCode on your client and connect to your server.
+3. Click the Extensions tab (Ctrl-Shift-X on Linux/Windows, ⌘-Shift-X on macOS) and click the `...` button. Click `Install from VSIX` and then specify the path to the VSIX file on your server.
+4. Restart VSCode to enable your changes.
 
 ## Starting a Remote Profiling Session
 
-### Connecting to the Server Machine
-The Skyline plugin and profiler communicate over a TCP socket. As a result, we need to ensure there is a port that they can communicate over. We recommend using an SSH tunnel to forward ports on your client machine to the server machine. To set up a tunnel, run:
-
-```zsh
-ssh -L 60210:localhost:60210 <server hostname>
-```
-
-Skyline uses port 60210 by default, so we recommend forwarding that port. If your server exposes ports, you do not need to set up an SSH tunnel and can use one of the open ports instead.
-
 ### Starting the Skyline Profiler
-After connecting to the server, you can start the Skyline profiler by navigating to your project root and running the `skyline interactive` command as usual.
+The Skyline Profiler needs to running on the server to enable the plugin. You can connect to the server via SSH and start the Skyline profiler by running the `skyline interactive` command as usual.
 
 ```zsh
-pipenv run skyline interactive
+poetry run skyline interactive
 ```
 
 If you want to use a different port, you can use the `--port` flag to tell the profiler to listen on a different port.
 
 ```zsh
-pipenv skyline interactive --port 1337
+poetry run skyline interactive
 ```
 
 ### Starting the Skyline Plugin
-Launch VSCode and open Skyline by running the `Skyline` command in the command palette (Ctrl-Shift-P on Ubuntu, ⌘-Shift-P on macOS). 
+Launch VSCode and open Skyline by running the Skyline command in the command palette (Ctrl-Shift-P on Linux/Windows, ⌘-Shift-P on macOS). Select your project root and begin profiling.
