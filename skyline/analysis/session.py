@@ -156,12 +156,17 @@ class AnalysisSession:
 
         print("habitat_predict: begin")
         DEVICES = [
-            habitat.Device.P4000,
             habitat.Device.P100,
-            habitat.Device.V100,
-            habitat.Device.T4,
+            habitat.Device.P4000,
             habitat.Device.RTX2070,
             habitat.Device.RTX2080Ti,
+            habitat.Device.T4,
+            habitat.Device.V100,
+            habitat.Device.A100,
+            habitat.Device.RTX3090,
+            habitat.Device.A40,
+            habitat.Device.A4000,
+            habitat.Device.RTX4000
         ]
 
         # Detect source GPU
