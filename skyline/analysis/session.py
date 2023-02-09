@@ -154,16 +154,26 @@ class AnalysisSession:
             resp.total_consumption = energy_measurer.total_energy()/float(iterations)
 
             components = []
+            components_joules = []
 
             if energy_measurer.cpu_energy() is not None:
                 cpu_component = pm.EnergyConsumptionComponent()
                 cpu_component.component_type = pm.ENERGY_CPU_DRAM
                 cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
                 components.append(cpu_component)
+                components_joules.append(0)
+            else:
+                cpu_component = pm.EnergyConsumptionComponent()
+                cpu_component.component_type = pm.ENERGY_CPU_DRAM
+                cpu_component.consumption_joules = 0
+                components.append(cpu_component)
+                components_joules.append(0)
             
             gpu_component = pm.EnergyConsumptionComponent()
             gpu_component.component_type = pm.ENERGY_NVIDIA
             gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
+            components.append(gpu_component)
+            components_joules.append(gpu_component.consumption_joules)
             
             resp.components.extend(components)
         
@@ -174,7 +184,7 @@ class AnalysisSession:
             resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
 
             # add current run to database
-            self._energy_table_interface.add_entry([path_to_entry_point, cpu_component.consumption_joules, gpu_component.consumption_joules])
+            self._energy_table_interface.add_entry([path_to_entry_point] + components_joules)
         
         except PermissionError as err:
             # Remind user to set their CPU permissions
