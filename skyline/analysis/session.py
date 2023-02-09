@@ -153,15 +153,19 @@ class AnalysisSession:
             
             resp.total_consumption = energy_measurer.total_energy()/float(iterations)
 
-            cpu_component = pm.EnergyConsumptionComponent()
-            cpu_component.component_type = pm.ENERGY_CPU_DRAM
-            cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
+            components = []
+
+            if energy_measurer.cpu_energy() is not None:
+                cpu_component = pm.EnergyConsumptionComponent()
+                cpu_component.component_type = pm.ENERGY_CPU_DRAM
+                cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
+                components.append(cpu_component)
             
             gpu_component = pm.EnergyConsumptionComponent()
             gpu_component.component_type = pm.ENERGY_NVIDIA
             gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
             
-            resp.components.extend([cpu_component, gpu_component])
+            resp.components.extend(components)
         
             # get last 10 runs if they exist
             path_to_entry_point = os.path.join(self._project_root, self._entry_point)
