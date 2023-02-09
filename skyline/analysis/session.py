@@ -18,6 +18,8 @@ from skyline.profiler.iteration import IterationProfiler
 from skyline.tracking.tracker import Tracker
 from skyline.user_code_utils import user_code_environment
 
+from typing import List
+
 logger = logging.getLogger(__name__)
 
 # habitat imports
@@ -566,7 +568,7 @@ def _fit_linear_model(x, y):
     # Linear model: y = slope * x + bias
     return slope, bias
 
-def _convert_to_energy_responses(entries: list)-> list[pm.EnergyResponse]:
+def _convert_to_energy_responses(entries: list)-> List[pm.EnergyResponse]:
     energy_response_list = []
     for entry in entries:
         if EnergyTableInterface.is_valid_entry_with_timestamp(entry):
