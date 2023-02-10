@@ -217,7 +217,7 @@ class IterationProfiler:
 
         # increase the growth amount for batch sizes to better account for small
         # models whose initial batch size is much smaller than the maximum possible.
-        tiers = [1000, 200, 100, 20, 10, 5]
+        tiers = [100, 20, 10, 5]
         for t in tiers:
             if diff >= t: return base + mult * t
 

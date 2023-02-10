@@ -13,13 +13,19 @@ class CPUMeasurer:
         self.last_dram = None
 
     def measurer_init(self):
-        self.sensor = Sensor()
-        energy = self.sensor.energy()
-        self.last_cpu = np.array(energy[0::2])
-        self.last_dram = np.array(energy[1::2])
+        self.sensor = None
+        try:
+            self.sensor = Sensor()
+            energy = self.sensor.energy()
+            self.last_cpu = np.array(energy[0::2])
+            self.last_dram = np.array(energy[1::2])
+        except Exception as e:
+            print("Warning. Failed to get CPU energy")
 
     def measurer_measure(self):
         # Get energy consumed so far (since last CPU reset)
+        if self.sensor is None: return
+
         energy = self.sensor.energy()
         cpu = np.array(energy[0::2])
         dram = np.array(energy[1::2])
@@ -42,6 +48,8 @@ class CPUMeasurer:
         pass
 
     def total_energy(self):
+        if len(self.power) == 0: return None
+
         # J = W * s,    1W = 1000 mW
         energy = self.interval * sum(self.power) / 1000.0
         return energy
@@ -107,7 +115,9 @@ class EnergyMeasurer:
     def total_energy(self):
         total_energy = 0.
         for m in self.measurers:
-            total_energy += self.measurers[m].total_energy() 
+            e = self.measurers[m].total_energy()
+            if e is not None:
+                total_energy += e
         return total_energy
 
     def cpu_energy(self):
