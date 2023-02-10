@@ -2,20 +2,26 @@ import argparse
 import logging
 import os
 
+import torch
 from skyline.analysis.session import AnalysisSession
 from skyline.nvml import NVML
 
 
 def analyze_project(project_root, entry_point, nvml):
+    torch.cuda.empty_cache()
     session = AnalysisSession.new_from(project_root, entry_point)
     yield session.measure_breakdown(nvml)
+    torch.cuda.empty_cache()
     yield session.measure_throughput()
+    torch.cuda.empty_cache()
 
     print("analyze_project: running habitat_predict()")
     yield session.habitat_predict()
+    torch.cuda.empty_cache()
 
     print("analyze_project: running energy_compute()")
     yield session.energy_compute()
+    torch.cuda.empty_cache()
 
 
 def main():
