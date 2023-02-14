@@ -1,8 +1,13 @@
 import datetime 
+import os
 import sqlite3
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+DB_PATH = os.path.join(BASE_DIR, "skyline.sqlite3")
+
+
 class DatabaseInterface:
-    def __init__(self, database_name="skyline.sqlite3") -> None:
+    def __init__(self, database_name=DB_PATH) -> None:
         self.connection = sqlite3.connect(database_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
         self.create_energy_table()
 
