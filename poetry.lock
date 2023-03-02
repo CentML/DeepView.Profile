@@ -1,10 +1,10 @@
 [[package]]
 name = "numpy"
-version = "1.23.3"
+version = "1.21.1"
 description = "NumPy is the fundamental package for array computing with Python."
 category = "main"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.7"
 
 [[package]]
 name = "nvidia-cublas-cu11"
@@ -103,7 +103,7 @@ opt-einsum = ["opt-einsum (>=3.3)"]
 
 [[package]]
 name = "typing-extensions"
-version = "4.3.0"
+version = "4.5.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
 category = "main"
 optional = false
@@ -111,8 +111,8 @@ python-versions = ">=3.7"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.8"
-content-hash = "abae79afa7ca65db6b6a05212f9ceb0e3788a9005dcc8059ab8eed2aa5d9948e"
+python-versions = "^3.7"
+content-hash = "9ef847cc37187c3ac9c9d15c14106fcf4a6e3a8e37f76f01dede2a55f8246db9"
 
 [metadata.files]
 numpy = []
