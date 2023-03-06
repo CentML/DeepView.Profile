@@ -25,10 +25,10 @@ include = [ "pyproject.toml" ]
 skyline = "skyline.skyline:main"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 pyyaml = "*"
 protobuf = "3.18.3"
-numpy = "^1.22"
+numpy = "^1.15.2"
 torch = "*"
 nvidia-ml-py3 = "*"
 toml = "^0.10.2"
