@@ -33,6 +33,7 @@ torch = "*"
 nvidia-ml-py3 = "*"
 toml = "^0.10.2"
 pyRAPL = "^0.2.3"
+ruff = "^0.0.254"
 
 [tool.poetry.dev-dependencies]
 
