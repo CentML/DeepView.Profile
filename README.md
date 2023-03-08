@@ -2,6 +2,8 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat)](https://github.com/CentML/skyline/blob/main/LICENSE)
 ![](https://img.shields.io/pypi/pyversions/skyline-profiler.svg)
 [![](https://img.shields.io/pypi/v/skyline-profiler.svg)](https://pypi.org/project/skyline-profiler/)
+[![Maintainability](https://api.codeclimate.com/v1/badges/632822d0143726b53610/maintainability)](https://codeclimate.com/github/CentML/DeepView.Profile/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/632822d0143726b53610/test_coverage)](https://codeclimate.com/github/CentML/DeepView.Profile/test_coverage)
 
 Skyline is a tool to profile and debug the training performance of [PyTorch](https://pytorch.org) neural networks.
 
