@@ -4,7 +4,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from skyline.analysis.runner import analyze_project
-from skyline.config import Config
 from skyline.exceptions import AnalysisError
 from skyline.nvml import NVML
 import skyline.protocol_gen.innpv_pb2 as pm

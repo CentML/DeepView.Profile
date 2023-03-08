@@ -1,6 +1,5 @@
 import collections
 
-import torch
 
 from skyline.tracking.call_stack import CallStack
 from skyline.tracking.base import TrackerBase

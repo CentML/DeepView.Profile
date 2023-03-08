@@ -20,13 +20,13 @@ class TestSkylineDatabase:
 
     # try adding invalid entry and test if it is added
     def test_invalid_entry_too_short(self):
-        assert(self.energy_table_interface.is_valid_entry([]) == False)
+        assert(self.energy_table_interface.is_valid_entry([]) is False)
     
     def test_invalid_entry_too_long(self):
-        assert(self.energy_table_interface.is_valid_entry([1,2,3,4]) == False)
+        assert(self.energy_table_interface.is_valid_entry([1, 2, 3, 4]) is False)
 
     def test_invalid_entry_wrong_types(self):
-        assert(self.energy_table_interface.is_valid_entry([None, None, None, None, None]) == False)
+        assert(self.energy_table_interface.is_valid_entry([None, None, None, None, None]) is False)
 
     def test_adding_valid_entry(self):
         params = ["entry_point", random.random(), random.random()]

@@ -19,7 +19,7 @@ class CPUMeasurer:
             energy = self.sensor.energy()
             self.last_cpu = np.array(energy[0::2])
             self.last_dram = np.array(energy[1::2])
-        except Exception as e:
+        except Exception:
             print("Warning. Failed to get CPU energy")
 
     def measurer_measure(self):
@@ -32,7 +32,6 @@ class CPUMeasurer:
 
         # Compare against last measurement to determine energy since last measure
         diff_cpu = cpu - self.last_cpu
-        diff_dram = dram - self.last_dram
         
         # 1J = 10^6 uJ
         # The cpu used this much since the last measurement

@@ -1,5 +1,4 @@
 import torch
-import inspect
 import weakref
 
 from skyline.tracking.base import TrackerBase

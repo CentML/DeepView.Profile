@@ -549,9 +549,9 @@ def _wrap_providers_with_validators(
             ).with_file_context(entry_point)
 
         try:
-            input_iter = iter(inputs)
+            iter(inputs)
             return inputs
-        except TypeError as ex:
+        except TypeError:
             raise AnalysisError(
                 "The input provider function must return an iterable that "
                 "contains the inputs for the model."

@@ -1,5 +1,4 @@
 import collections
-import os
 
 from skyline.tracking.base import ReportBase, ReportBuilderBase
 import skyline.tracking.time.report_queries as queries

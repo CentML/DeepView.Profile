@@ -1,4 +1,3 @@
-from skyline.models.source_map import Position
 
 
 class OperationInfo:

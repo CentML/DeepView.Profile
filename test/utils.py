@@ -9,7 +9,7 @@ from skyline.protocol_gen import innpv_pb2
 def stream_monitor(stream, callback=None):
     try:
         for line in stream: callback(line)
-    except OSError as e:
+    except OSError:
         print(f"Closing listener for stream {stream}")
 
 def socket_monitor(socket, callback=None):
@@ -19,7 +19,7 @@ def socket_monitor(socket, callback=None):
             msg = socket.recv(msg_len)
             print(f"Received message of length {msg_len}")
             callback(msg)
-    except OSError as e:
+    except OSError:
         print(f"Closing listener for socket {socket}")
 
 class BackendContext:

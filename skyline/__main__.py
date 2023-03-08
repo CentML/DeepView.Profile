@@ -1,5 +1,4 @@
 import argparse
-import enum
 import sys
 
 import skyline

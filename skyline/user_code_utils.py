@@ -1,5 +1,4 @@
 import contextlib
-import os
 import sys
 
 from skyline.exceptions import exceptions_as_analysis_errors
