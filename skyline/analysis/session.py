@@ -193,9 +193,9 @@ class AnalysisSession:
 
 
     def habitat_predict(self):
+        resp = pm.HabitatResponse()
         if not habitat_found: 
             logger.debug("Skipping Habitat predictions, returning empty response.")
-            resp = pm.HabitatResponse()
             return resp
 
         print("habitat_predict: begin")
@@ -222,11 +222,18 @@ class AnalysisSession:
         nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
         source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
         split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
-        source_device = habitat.Device.T4
+        source_device = None
         for device in DEVICES:
             if device.name in split_source_device_name:
                 source_device = device
         pynvml.nvmlShutdown()
+        if not source_device:
+            logger.debug("Skipping Habitat predictions, source not in list of supported GPUs.")
+            src = pm.HabitatDevicePrediction()
+            src.device_name = 'unavailable'
+            src.runtime_ms = -1
+            resp.predictions.append(src)
+            return resp
 
         print("habitat_predict: detected source device", source_device.name)
 
@@ -263,8 +270,6 @@ class AnalysisSession:
 
         print("habitat_predict: tracing on origin device")
         trace = tracker.get_tracked_trace()
-
-        resp = pm.HabitatResponse()
 
         src = pm.HabitatDevicePrediction()
         src.device_name = 'source'
