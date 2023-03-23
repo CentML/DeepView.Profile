@@ -222,7 +222,7 @@ class AnalysisSession:
         nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
         source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
         split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
-        source_device = None
+        source_device = None if logging.root.level > logging.DEBUG else habitat.Device.T4
         for device in DEVICES:
             if device.name in split_source_device_name:
                 source_device = device
