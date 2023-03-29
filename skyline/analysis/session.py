@@ -161,13 +161,13 @@ class AnalysisSession:
                 cpu_component.component_type = pm.ENERGY_CPU_DRAM
                 cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
                 components.append(cpu_component)
-                components_joules.append(0)
+                components_joules.append(cpu_component.consumption_joules)
             else:
                 cpu_component = pm.EnergyConsumptionComponent()
                 cpu_component.component_type = pm.ENERGY_CPU_DRAM
-                cpu_component.consumption_joules = 0
+                cpu_component.consumption_joules = 0.0
                 components.append(cpu_component)
-                components_joules.append(0)
+                components_joules.append(cpu_component.consumption_joules)
             
             gpu_component = pm.EnergyConsumptionComponent()
             gpu_component.component_type = pm.ENERGY_NVIDIA
