@@ -5,7 +5,6 @@ from torch.utils.data.sampler import Sampler
 
 from seq2seq.utils import get_rank
 from seq2seq.utils import get_world_size
-from seq2seq.utils import gnmt_print
 
 
 class DistributedSampler(Sampler):

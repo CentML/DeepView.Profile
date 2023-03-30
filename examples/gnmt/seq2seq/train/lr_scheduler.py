@@ -3,7 +3,6 @@ import math
 
 import torch
 
-from seq2seq.utils import gnmt_print
 
 
 def perhaps_convert_float(param, total):
@@ -64,8 +63,8 @@ class WarmupMultiStepLR(torch.optim.lr_scheduler._LRScheduler):
         self.decay_steps = decay_steps
 
         if self.warmup_steps > self.remain_steps:
-            logging.warn(f'warmup_steps should not be larger than '
-                         f'remain_steps, setting warmup_steps=remain_steps')
+            logging.warn('warmup_steps should not be larger than '
+                         'remain_steps, setting warmup_steps=remain_steps')
             self.warmup_steps = self.remain_steps
 
         super(WarmupMultiStepLR, self).__init__(optimizer, last_epoch)

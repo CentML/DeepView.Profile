@@ -1,11 +1,9 @@
-import re
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as cp
 from collections import OrderedDict
 from torch import Tensor
-from torch.jit.annotations import List
 
 
 class _DenseLayer(nn.Module):

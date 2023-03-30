@@ -113,7 +113,7 @@ class Translator:
             os.remove(detok_eval_path)
 
         rank = get_rank()
-        logging.info(f'Running evaluation on test set')
+        logging.info('Running evaluation on test set')
         self.model.eval()
         torch.cuda.empty_cache()
 
@@ -131,12 +131,12 @@ class Translator:
                     logging.info(f'BLEU on test dataset: {test_bleu[0]:.2f}')
 
                 if self.target_bleu and test_bleu[0] >= self.target_bleu:
-                    logging.info(f'Target accuracy reached')
+                    logging.info('Target accuracy reached')
                     break_training[0] = 1
 
         barrier()
         torch.cuda.empty_cache()
-        logging.info(f'Finished evaluation on test set')
+        logging.info('Finished evaluation on test set')
 
         if self.distributed:
             dist.broadcast(break_training, 0)
@@ -220,7 +220,7 @@ class Translator:
 
             if i % self.print_freq == 0:
                 log = []
-                log += f'TEST '
+                log += 'TEST '
                 if epoch is not None:
                     log += f'[{epoch}]'
                 if iteration is not None:
@@ -241,7 +241,7 @@ class Translator:
         if summary and get_rank() == 0:
             time_per_sentence = (batch_time.avg / global_batch_size)
             log = []
-            log += f'TEST SUMMARY:\n'
+            log += 'TEST SUMMARY:\n'
             log += f'Lines translated: {len(self.loader.dataset)}\t'
             log += f'Avg total tokens/s: {tot_tok_per_sec.avg:.0f}\n'
             log += f'Avg time per batch: {batch_time.avg:.3f} s\t'

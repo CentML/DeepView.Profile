@@ -2,9 +2,7 @@ import os
 import logging
 import pynvml
 import platform
-from random import random
 
-from skyline.config import Config
 from skyline.exceptions import NoConnectionError
 
 import skyline.protocol_gen.innpv_pb2 as pm

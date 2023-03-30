@@ -4,10 +4,8 @@ from ast import literal_eval
 import torch
 import torch.nn as nn
 import torch.optim
-import torch.distributed as dist
 
 import seq2seq.data.config as config
-import seq2seq.utils as utils
 from seq2seq.models.gnmt import GNMT
 from seq2seq.train.fp_optimizers import Fp32Optimizer
 from seq2seq.train.lr_scheduler import WarmupMultiStepLR

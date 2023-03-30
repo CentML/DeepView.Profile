@@ -2,7 +2,7 @@ import collections
 import logging
 import os
 
-from skyline.exceptions import AnalysisError, NoConnectionError
+from skyline.exceptions import NoConnectionError
 
 import skyline.protocol_gen.innpv_pb2 as pm
 

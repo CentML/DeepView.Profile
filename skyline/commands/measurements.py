@@ -60,7 +60,6 @@ def make_measurements(session, batch_size):
 
 def actual_main(args):
     from skyline.analysis.session import AnalysisSession
-    from skyline.config import Config
     from skyline.exceptions import AnalysisError
 
     if os.path.exists(args.output):

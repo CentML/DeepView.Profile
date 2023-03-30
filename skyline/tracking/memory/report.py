@@ -1,6 +1,5 @@
 import collections
 import enum
-import os
 
 from skyline.tracking.base import ReportBase, ReportBuilderBase
 import skyline.tracking.memory.report_queries as queries

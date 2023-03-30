@@ -56,7 +56,7 @@ class Tokenizer:
         assert len(vocab) % pad == 0
 
     def get_state(self):
-        logging.info(f'Saving state of the tokenizer')
+        logging.info('Saving state of the tokenizer')
         state = {
             'separator': self.separator,
             'vocab_size': self.vocab_size,
@@ -66,7 +66,7 @@ class Tokenizer:
         return state
 
     def set_state(self, state):
-        logging.info(f'Restoring state of the tokenizer')
+        logging.info('Restoring state of the tokenizer')
         self.separator = state['separator']
         self.vocab_size = state['vocab_size']
         self.tok2idx = state['tok2idx']
