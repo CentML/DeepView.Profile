@@ -13,15 +13,15 @@ class TestNetWithLoss(nn.Module):
         return self.testnet(input).sum()
 
 
-def skyline_model_provider():
+def deepview_model_provider():
     return TestNetWithLoss().cuda()
 
 
-def skyline_input_provider(batch_size=32):
+def deepview_input_provider(batch_size=32):
     return (torch.randn((batch_size, 3, 128, 128)).cuda(),)
 
 
-def skyline_iteration_provider(model):
+def deepview_iteration_provider(model):
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
     def iteration(*inputs):
         optimizer.zero_grad()

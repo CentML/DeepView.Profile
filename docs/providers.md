@@ -1,7 +1,7 @@
 ### Model Provider
 
 ```python
-def skyline_model_provider() -> torch.nn.Module:
+def deepview_model_provider() -> torch.nn.Module:
     pass
 ```
 
@@ -10,7 +10,7 @@ The model provider must take no arguments and return an instance of your model (
 ### Input Provider
 
 ```python
-def skyline_input_provider(batch_size: int = 32) -> Tuple:
+def deepview_input_provider(batch_size: int = 32) -> Tuple:
     pass
 ```
 
@@ -20,7 +20,7 @@ The input provider must take a single `batch_size` argument that has a default v
 ### Iteration Provider
 
 ```python
-def skyline_iteration_provider(model: torch.nn.Module) -> Callable:
+def deepview_iteration_provider(model: torch.nn.Module) -> Callable:
     pass
 ```
 
@@ -72,12 +72,12 @@ class ModelWithLoss(nn.Module):
         return self.loss_fn(output, target)
 
 
-def skyline_model_provider():
+def deepview_model_provider():
     # Return a GPU-based instance of our model (that returns a loss)
     return ModelWithLoss().cuda()
 
 
-def skyline_input_provider(batch_size=32):
+def deepview_input_provider(batch_size=32):
     # Return GPU-based inputs for our model
     return (
       torch.randn((batch_size, 3, 256, 256)).cuda(),
@@ -85,7 +85,7 @@ def skyline_input_provider(batch_size=32):
     )
 
 
-def skyline_iteration_provider(model):
+def deepview_iteration_provider(model):
     # Return a function that executes one training iteration
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
     def iteration(*inputs):

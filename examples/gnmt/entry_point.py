@@ -249,7 +249,7 @@ class GNMTWithLoss(nn.Module):
         return loss / B
 
 
-def skyline_model_provider():
+def deepview_model_provider():
     args = get_args()
     vocab_size = 32317
     model_config = {
@@ -267,7 +267,7 @@ def skyline_model_provider():
     return model
 
 
-def skyline_input_provider(batch_size=64):
+def deepview_input_provider(batch_size=64):
     vocab_size = 32000
     src_len = 25
     tgt_len = 25
@@ -297,7 +297,7 @@ def skyline_input_provider(batch_size=64):
     return src, src_len_tensor, tgt, tgt_len_tensor
 
 
-def skyline_iteration_provider(model):
+def deepview_iteration_provider(model):
     args = get_args()
     opt_config = {
         'optimizer': args.optimizer,

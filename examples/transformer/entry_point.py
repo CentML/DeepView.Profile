@@ -86,7 +86,7 @@ def model_config():
     return opt
 
 
-def skyline_model_provider():
+def deepview_model_provider():
     opt = model_config()
     return TransformerWithLoss(Transformer(
         opt.src_vocab_size,
@@ -104,7 +104,7 @@ def skyline_model_provider():
         dropout=opt.dropout)).cuda()
 
 
-def skyline_input_provider(batch_size=64):
+def deepview_input_provider(batch_size=64):
     vocab_size = 32000
     src_seq_len = 25
     tgt_seq_len = 25
@@ -141,7 +141,7 @@ def skyline_input_provider(batch_size=64):
     return source, src_pos, target, tgt_pos, gold
 
 
-def skyline_iteration_provider(transformer):
+def deepview_iteration_provider(transformer):
     opt = model_config()
     optimizer = ScheduledOptim(
         optim.Adam(
