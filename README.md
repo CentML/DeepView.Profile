@@ -3,7 +3,7 @@
 ![](https://img.shields.io/pypi/pyversions/skyline-profiler.svg)
 [![](https://img.shields.io/pypi/v/skyline-profiler.svg)](https://pypi.org/project/skyline-profiler/)
 
-Skyline is a tool to profile and debug the training performance of [PyTorch](https://pytorch.org) neural networks.
+DeepView.Profile is a tool to profile and debug the training performance of [PyTorch](https://pytorch.org) neural networks.
 
 - [Installation](#installation)
 - [Usage example](#getting-started)
@@ -15,9 +15,9 @@ Skyline is a tool to profile and debug the training performance of [PyTorch](htt
 
 <h2 id="installation">Installation</h2>
 
-Skyline works with *GPU-based* neural networks that are implemented in [PyTorch](https://pytorch.org).
+DeepView.Profile works with *GPU-based* neural networks that are implemented in [PyTorch](https://pytorch.org).
 
-To run Skyline, you need:
+To run DeepView.Profile, you need:
 - A system equipped with an NVIDIA GPU
 - Python 3.7+
 - [Poetry](https://python-poetry.org/)
@@ -32,7 +32,7 @@ To run Skyline, you need:
 
 ### Installation from source
 ```bash
-git clone https://github.com/CentML/skyline.git
+git clone https://github.com/CentML/DeepView.Profile
 cd skyline
 poetry install
 poetry run skyline --help
@@ -62,7 +62,7 @@ python3 skyline
 
 <h2 id="getting-started">Usage example</h2>
 
-To use Skyline in your project, you need to first write an entry point file, which is a regular Python file that describes how your model is created and trained. See the [Entry Point](docs/providers.md) for more information.
+To use DeepView.Profile in your project, you need to first write an entry point file, which is a regular Python file that describes how your model is created and trained. See the [Entry Point](docs/providers.md) for more information.
 
 Once your entry point file is ready, there are two ways to profile interactive profiling and standalone profiling.
 
@@ -72,11 +72,11 @@ poetry run skyline interactive
 ```
 
 ### Standalone Profiling
-Standalone profiling is useful when you just want access to Skyline's profiling functionality. Skyline will save the profiling results (called a "report") into a [SQLite database file](https://www.sqlite.org/) that you can then query yourself. We describe the database schema for Skyline's run time and memory reports in the [Run Time Report Format](docs/run-time-report.md) and [Memory Report Format](docs/memory-report.md) pages respectively.
+Standalone profiling is useful when you just want access to DeepView.Profile's profiling functionality. DeepView.Profile will save the profiling results (called a "report") into a [SQLite database file](https://www.sqlite.org/) that you can then query yourself. We describe the database schema for DeepView.Profile's run time and memory reports in the [Run Time Report Format](docs/run-time-report.md) and [Memory Report Format](docs/memory-report.md) pages respectively.
 
-To have Skyline perform run time profiling, you use the `skyline time`
+To have DeepView.Profile perform run time profiling, you use the `skyline time`
 subcommand. In addition to the entry point file, you also need to specify the
-file where you want Skyline to save the run time profiling report using the
+file where you want DeepView.Profile to save the run time profiling report using the
 `--output` or `-o` flag.
 
 ```zsh
@@ -115,11 +115,11 @@ See [Releases](https://github.com/UofT-EcoSystem/skyline/releases)
 
 <h2 id="meta">Meta</h2>
 
-Skyline began as a research project at the [University of Toronto](https://web.cs.toronto.edu) in collaboration with [Geofrey Yu](mailto:gxyu@cs.toronto.edu), [Tovi Grossman](https://www.tovigrossman.com) and [Gennady Pekhimenko](https://www.cs.toronto.edu/~pekhimenko/).
+DeepView.Profile began as a research project at the [University of Toronto](https://web.cs.toronto.edu) in collaboration with [Geofrey Yu](mailto:gxyu@cs.toronto.edu), [Tovi Grossman](https://www.tovigrossman.com) and [Gennady Pekhimenko](https://www.cs.toronto.edu/~pekhimenko/).
 
 The accompanying research paper appears in the proceedings of UIST'20. If you are interested, you can read a preprint of the paper [here](https://arxiv.org/pdf/2008.06798.pdf).
 
-If you use Skyline in your research, please consider citing our paper:
+If you use DeepView.Profile in your research, please consider citing our paper:
 
 ```bibtex
 @inproceedings{skyline-yu20,
@@ -136,4 +136,4 @@ It is distributed under Apache 2.0 license. See [LICENSE](LICENSE) and [NOTICE](
 
 <h2 id="contributing">Contributing</h2>
 
-Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to help with Skyline.
+Check out [CONTRIBUTING.md](CONTRIBUTING.md) for more information on how to help with DeepView.Profile.

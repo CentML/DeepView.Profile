@@ -95,6 +95,6 @@ def skyline_iteration_provider(model):
         optimizer.step()
     return iteration
 ```
-One important thing to highlight is our use of a wrapper `ModelWithLoss` module. Skyline only provides breakdowns for operations that run inside the module returned by the model provider. We included the loss function in this wrapper module to have Skyline include it in the breakdown. We could have also placed the loss function call in the `iteration` function.
+One important thing to highlight is our use of a wrapper `ModelWithLoss` module. DeepView.Profile only provides breakdowns for operations that run inside the module returned by the model provider. We included the loss function in this wrapper module to have DeepView.Profile include it in the breakdown. We could have also placed the loss function call in the `iteration` function.
 
 You can place these provider functions either in a new file or directly in `model.py`. Whichever file contains the providers will be your project's entry point file. In this example, we defined the providers in a separate file called `entry_point.py` inside `my_project`.

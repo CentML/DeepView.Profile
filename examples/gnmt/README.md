@@ -3,7 +3,7 @@
 This directory contains an implementation of GNMT that was adapted from the
 code found in the [MLPerf training repository](https://github.com/mlperf/training/tree/master/rnn_translator).
 
-To launch an interactive Skyline profiling session for GNMT, run
+To launch an interactive DeepView.Profile session for GNMT, run
 ```
 skyline interactive entry_point.py
 ```
