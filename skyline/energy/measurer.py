@@ -20,7 +20,8 @@ class CPUMeasurer:
             self.last_cpu = np.array(energy[0::2])
             self.last_dram = np.array(energy[1::2])
         except Exception as e:
-            print("Warning. Failed to get CPU energy")
+            print("Warning. Failed to get CPU energy. You need to set the right permissions for pyRAPL")
+            print("eg. $ sudo chmod -R a+r /sys/class/powercap/intel-rapl")
 
     def measurer_measure(self):
         # Get energy consumed so far (since last CPU reset)

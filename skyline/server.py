@@ -47,7 +47,7 @@ class SkylineServer:
     def start(self):
         self._analysis_request_manager.start()
         self._connection_acceptor.start()
-        logger.debug("Skyline server has started.")
+        logger.debug("Deepview server has started.")
 
     def stop(self):
         def shutdown():
@@ -57,7 +57,7 @@ class SkylineServer:
         self._analysis_request_manager.stop()
         self._main_executor.submit(shutdown).result()
         self._main_executor.shutdown()
-        logger.debug("Skyline server has shut down.")
+        logger.debug("Deepview server has shut down.")
 
     @property
     def listening_on(self):

@@ -50,9 +50,9 @@ def _validate_dependencies():
         return True
     except ImportError as ex:
         logger.error(
-            "Skyline could not find the '%s' module, which is a required "
+            "Deepview could not find the '%s' module, which is a required "
             "dependency. Please make sure all the required dependencies are "
-            "installed before launching Skyline. If you use a package "
+            "installed before launching Deepview. If you use a package "
             "manager, these dependencies will be automatically installed for "
             "you.",
             ex.name,
@@ -64,7 +64,7 @@ def _validate_gpu():
     import torch
     if not torch.cuda.is_available():
         logger.error(
-            "Skyline did not detect a GPU on this machine. Skyline only "
+            "Deepview did not detect a GPU on this machine. Deepview only "
             "profiles deep learning workloads on GPUs."
         )
         return False

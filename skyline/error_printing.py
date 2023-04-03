@@ -3,7 +3,7 @@ import sys
 
 def print_analysis_error(error, file=sys.stderr):
     print(
-        "Skyline encountered an error when profiling your model:",
+        "Deepview encountered an error when profiling your model:",
         file=file,
     )
     print("->", str(error), file=file)

@@ -63,7 +63,7 @@ def actual_main(args):
     with SkylineServer(args.host, args.port) as server:
         _, port = server.listening_on
         logger.info(
-            "Skyline interactive profiling session started! "
+            "Deepview interactive profiling session started! "
             "Listening on port %d.",
             port,
         )
