@@ -35,9 +35,9 @@ except ImportError:
     habitat_found = False
 
 
-MODEL_PROVIDER_NAME = "skyline_model_provider"
-INPUT_PROVIDER_NAME = "skyline_input_provider"
-ITERATION_PROVIDER_NAME = "skyline_iteration_provider"
+MODEL_PROVIDER_NAME = "deepview_model_provider"
+INPUT_PROVIDER_NAME = "deepview_input_provider"
+ITERATION_PROVIDER_NAME = "deepview_iteration_provider"
 BATCH_SIZE_ARG = "batch_size"
 
 
@@ -355,7 +355,7 @@ class AnalysisSession:
         )
         if len(samples) == 0 or samples[0].batch_size != self._batch_size:
             raise AnalysisError(
-                "Something went wrong with Skyline when measuring your "
+                "Something went wrong with DeepView.Profile when measuring your "
                 "model's throughput. Please file a bug."
             )
 
