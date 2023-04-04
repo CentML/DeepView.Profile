@@ -24,8 +24,8 @@ To install the DeepView.Explore plugin on the server, take the following steps.
 
 ## Starting a Remote Profiling Session
 
-### Starting the Skyline Profiler
-DeepView.Profile needs to running on the server to enable the plugin. You can connect to the server via SSH and start DeepView.Profile by running the `skyline interactive` command as usual.
+### Starting the DeepView.Profiler
+DeepView.Profile needs to running on the server to enable the plugin. You can connect to the server via SSH and start DeepView.Profile by running the `deepview interactive` command as usual.
 
 ```zsh
 poetry run deepview interactive
@@ -38,4 +38,4 @@ poetry run deepview interactive --port portNumber
 ```
 
 ### Starting DeepView.Explore
-Launch VSCode and open DeepView.Explore by running the Skyline command in the command palette (Ctrl-Shift-P on Linux/Windows, ⌘-Shift-P on macOS). Select your project root and begin profiling.
+Launch VSCode and open DeepView.Explore by running the deepview command in the command palette (Ctrl-Shift-P on Linux/Windows, ⌘-Shift-P on macOS). Select your project root and begin profiling.

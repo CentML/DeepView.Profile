@@ -31,7 +31,7 @@ try:
 
     habitat_found = True
 except ImportError:
-    logger.debug("Habitat not found, GPU predictions not available")
+    logger.debug("Deepview.Predict not found, GPU predictions not available")
     habitat_found = False
 
 
@@ -211,10 +211,10 @@ class AnalysisSession:
     def habitat_predict(self):
         resp = pm.HabitatResponse()
         if not habitat_found: 
-            logger.debug("Skipping Habitat predictions, returning empty response.")
+            logger.debug("Skipping deepview predictions, returning empty response.")
             return resp
 
-        print("habitat_predict: begin")
+        print("deepview_predict: begin")
         DEVICES = [
             habitat.Device.P100,
             habitat.Device.P4000,
@@ -244,14 +244,14 @@ class AnalysisSession:
                 source_device = device
         pynvml.nvmlShutdown()
         if not source_device:
-            logger.debug("Skipping Habitat predictions, source not in list of supported GPUs.")
+            logger.debug("Skipping Deepview predictions, source not in list of supported GPUs.")
             src = pm.HabitatDevicePrediction()
             src.device_name = 'unavailable'
             src.runtime_ms = -1
             resp.predictions.append(src)
             return resp
 
-        print("habitat_predict: detected source device", source_device.name)
+        print("deepview_predict: detected source device", source_device.name)
 
         # get model
         model = self._model_provider()
@@ -284,7 +284,7 @@ class AnalysisSession:
         with tracker.track():
             iteration(*inputs)
 
-        print("habitat_predict: tracing on origin device")
+        print("deepview_predict: tracing on origin device")
         trace = tracker.get_tracked_trace()
 
         src = pm.HabitatDevicePrediction()
@@ -293,7 +293,7 @@ class AnalysisSession:
         resp.predictions.append(src)
 
         for device in DEVICES:
-            print("habitat_predict: predicting for", device)
+            print("deepview_predict: predicting for", device)
             predicted_trace = trace.to_device(device)
 
             pred = pm.HabitatDevicePrediction()

@@ -33,7 +33,7 @@ To run DeepView.Profile, you need:
 ### Installation from source
 ```bash
 git clone https://github.com/CentML/DeepView.Profile
-cd skyline
+cd DeepView.Profile
 poetry install
 poetry run deepview --help
 ```
@@ -84,7 +84,7 @@ poetry run deepview time entry_point.py --output my_output_file.sqlite
 ```
 
 Launching memory profiling is almost the same as launching run time profiling.
-You just need to use `deepview memory` instead of `skyline time`.
+You just need to use `deepview memory` instead of `deepview time`.
 
 ```zsh
 poetry run deepview memory entry_point.py --output my_output_file.sqlite
