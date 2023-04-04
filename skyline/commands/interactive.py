@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def register_command(subparsers):
     parser = subparsers.add_parser(
         "interactive",
-        help="Start a new Skyline interactive profiling session.",
+        help="Start a new Deepview interactive profiling session.",
     )
     parser.add_argument(
         "--host",
@@ -63,7 +63,7 @@ def actual_main(args):
     with SkylineServer(args.host, args.port) as server:
         _, port = server.listening_on
         logger.info(
-            "Skyline interactive profiling session started! "
+            "Deepview interactive profiling session started! "
             "Listening on port %d.",
             port,
         )

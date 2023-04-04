@@ -15,11 +15,11 @@ logger = logging.getLogger(__name__)
 def register_command(subparsers):
     parser = subparsers.add_parser(
         "prediction-models",
-        help="Evaluate Skyline's prediction accuracy.",
+        help="Evaluate Deepview's prediction accuracy.",
     )
     parser.add_argument(
         "entry_point",
-        help="The entry point file in this project that contains the Skyline "
+        help="The entry point file in this project that contains the Deepview "
              "provider functions.",
     )
     parser.add_argument(
@@ -75,7 +75,7 @@ def actual_main(args):
                 'memory_usage_bytes_slope',
                 'memory_usage_bytes_bias',
             ])
-            project_root = os.cwd()
+            project_root = os.getcwd()
             for batch_size in args.batch_sizes:
                 session = AnalysisSession.new_from(
                     project_root, args.entry_point)

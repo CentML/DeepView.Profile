@@ -142,7 +142,7 @@ class AnalysisRequestManager:
                 self._send_analysis_error,
                 AnalysisError(
                     'An unexpected error occurred when analyzing your model. '
-                    'Please file a bug report and then restart Skyline.'
+                    'Please file a bug report and then restart Deepview.'
                 ),
                 context,
             )
@@ -190,7 +190,7 @@ class AnalysisRequestManager:
             self._message_sender.send_habitat_response(habitat_resp, context)
         except:
             logger.exception(
-                'Exception occurred when sending a habitat response.')
+                'Exception occurred when sending a DeepView.Predict response.')
 
     def _send_energy_response(self, energy_resp, context):
         # Called from the main executor. Do not call directly!

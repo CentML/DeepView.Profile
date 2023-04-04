@@ -27,7 +27,7 @@ def main():
     args = parser.parse_args()
 
     if args.version:
-        print('Skyline Command Line Interface', 'v' + skyline.__version__,)
+        print('Deepview Command Line Interface', 'v' + skyline.__version__,)
         return
 
     if 'func' not in args:

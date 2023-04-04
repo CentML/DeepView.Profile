@@ -47,7 +47,7 @@ class SkylineServer:
     def start(self):
         self._analysis_request_manager.start()
         self._connection_acceptor.start()
-        logger.debug("Skyline server has started.")
+        logger.debug("Deepview server has started.")
 
     def stop(self):
         def shutdown():
@@ -57,7 +57,7 @@ class SkylineServer:
         self._analysis_request_manager.stop()
         self._main_executor.submit(shutdown).result()
         self._main_executor.shutdown()
-        logger.debug("Skyline server has shut down.")
+        logger.debug("Deepview server has shut down.")
 
     @property
     def listening_on(self):
@@ -90,7 +90,8 @@ class SkylineServer:
 
     def _submit_work(self, func, *args, **kwargs):
         print("submit_work", func)
-        print("submit_work args:", args)
+        #print("submit_work args:", args)
+        logger.debug("submit_work args:", args)
         print("submit_work kwargs:", kwargs)
         # Do not call directly - called by another thread to submit work
         # onto the main executor

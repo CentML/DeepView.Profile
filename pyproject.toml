@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "skyline-profiler"
+name = "deepview-profiler"
 version = "0.12.1"
 description = "Interactive performance profiling and debugging tool for PyTorch neural networks."
 authors = ["Geoffrey Yu <gxyu@cs.toronto.edu>"]
 maintainers = ["Akbar Nurlybayev <akbar@centml.ai>", "Yubo Gao <ybgao@centml.ai>"]
 license = "Apache-2.0"
 readme = "README.md"
-repository = "https://github.com/CentML/skyline"
+repository = "https://github.com/CentML/DeepView.Profile"
 keywords = ["pytorch", "neural networks", "debugger", "profiler"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -22,7 +22,7 @@ packages = [
 include = [ "pyproject.toml" ]
 
 [tool.poetry.scripts]
-skyline = "skyline.skyline:main"
+deepview = "skyline.skyline:main"
 
 [tool.poetry.dependencies]
 python = "^3.7"

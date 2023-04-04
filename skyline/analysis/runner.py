@@ -15,7 +15,7 @@ def analyze_project(project_root, entry_point, nvml):
     yield session.measure_throughput()
     torch.cuda.empty_cache()
 
-    print("analyze_project: running habitat_predict()")
+    print("analyze_project: running deepview_predict()")
     yield session.habitat_predict()
     torch.cuda.empty_cache()
 
