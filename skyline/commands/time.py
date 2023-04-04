@@ -18,7 +18,7 @@ def register_command(subparsers):
     )
     parser.add_argument(
         "entry_point",
-        help="The entry point file in this project that contains the Skyline "
+        help="The entry point file in this project that contains the Deepview "
              "provider functions.",
     )
     parser.add_argument(
@@ -49,7 +49,7 @@ def actual_main(args):
         sys.exit(1)
 
     try:
-        project_root = os.cwd()
+        project_root = os.getcwd()
         session = AnalysisSession.new_from(
             project_root, args.entry_point)
         session.generate_run_time_breakdown_report(

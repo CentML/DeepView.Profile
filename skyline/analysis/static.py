@@ -39,6 +39,6 @@ class _InputProviderExtractor(ast.NodeVisitor):
         if self.function_node is not None:
             # Return early if we've already found the provider
             return
-        if node.name != 'skyline_input_provider':
+        if node.name != 'deepview_input_provider':
             return
         self.function_node = node

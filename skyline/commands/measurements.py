@@ -19,7 +19,7 @@ def register_command(subparsers):
     )
     parser.add_argument(
         "entry_point",
-        help="The entry point file in this project that contains the Skyline "
+        help="The entry point file in this project that contains the Deepview "
              "provider functions.",
     )
     parser.add_argument(
@@ -79,7 +79,7 @@ def actual_main(args):
                 'samples_per_second',
                 'memory_usage_bytes',
             ])
-            project_root = os.cwd()
+            project_root = os.getcwd()
             for batch_size in args.batch_sizes:
                 for trial in range(args.trials):
                     session = AnalysisSession.new_from(

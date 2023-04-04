@@ -40,7 +40,7 @@ class ConnectionAcceptor:
         self._sentinel.start()
         self._acceptor.start()
         logger.debug(
-            "Skyline is listening for connections on (%s:%d).",
+            "Deepview is listening for connections on (%s:%d).",
             self._host,
             self._port,
         )
@@ -51,7 +51,7 @@ class ConnectionAcceptor:
         self._server_socket.close()
         self._sentinel.stop()
         logging.debug(
-            "Skyline has stopped listening for connections on (%s:%d).",
+            "Deepview has stopped listening for connections on (%s:%d).",
             self._host,
             self._port,
         )
@@ -80,4 +80,4 @@ class ConnectionAcceptor:
                 self._handler_function(socket, address)
         except:
             logging.exception(
-                "Skyline has unexpectedly stopped accepting connections.")
+                "Deepview has unexpectedly stopped accepting connections.")

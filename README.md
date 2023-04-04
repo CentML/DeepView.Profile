@@ -35,7 +35,7 @@ To run DeepView.Profile, you need:
 git clone https://github.com/CentML/DeepView.Profile
 cd skyline
 poetry install
-poetry run skyline --help
+poetry run deepview --help
 ```
 
 ### Installation from PyPi
@@ -44,19 +44,19 @@ poetry run skyline --help
 
 Installing with [Poetry](https://python-poetry.org/)
 ```zsh
-poetry add skyline-profiler
-poetry run skyline --help
+poetry add deepview-profiler
+poetry run deepview --help
 ```
 
 Installing with [Pipenv](https://pipenv.pypa.io/en/latest/)
 ```zsh
-pipenv install skyline-profiler
-pipenv run skyline --help
+pipenv install deepview-profiler
+pipenv run deepview --help
 ```
 
 Installing with [Pip](https://packaging.python.org/en/latest/tutorials/installing-packages/#use-pip-for-installing)
 ```zsh
-python3 -m pip install skyline-profiler
+python3 -m pip install deepview-profiler
 python3 skyline
 ```
 
@@ -68,26 +68,26 @@ Once your entry point file is ready, there are two ways to profile interactive p
 
 ### Interactive Profiling
 ```zsh
-poetry run skyline interactive
+poetry run deepview interactive
 ```
 
 ### Standalone Profiling
 Standalone profiling is useful when you just want access to DeepView.Profile's profiling functionality. DeepView.Profile will save the profiling results (called a "report") into a [SQLite database file](https://www.sqlite.org/) that you can then query yourself. We describe the database schema for DeepView.Profile's run time and memory reports in the [Run Time Report Format](docs/run-time-report.md) and [Memory Report Format](docs/memory-report.md) pages respectively.
 
-To have DeepView.Profile perform run time profiling, you use the `skyline time`
+To have DeepView.Profile perform run time profiling, you use the `deepview time`
 subcommand. In addition to the entry point file, you also need to specify the
 file where you want DeepView.Profile to save the run time profiling report using the
 `--output` or `-o` flag.
 
 ```zsh
-poetry run skyline time entry_point.py --output my_output_file.sqlite
+poetry run deepview time entry_point.py --output my_output_file.sqlite
 ```
 
 Launching memory profiling is almost the same as launching run time profiling.
-You just need to use `skyline memory` instead of `skyline time`.
+You just need to use `deepview memory` instead of `skyline time`.
 
 ```zsh
-poetry run skyline memory entry_point.py --output my_output_file.sqlite
+poetry run deepview memory entry_point.py --output my_output_file.sqlite
 ```
 
 <h2 id="dev-setup">Development Environment Setup</h2>

@@ -28,13 +28,13 @@ To install the DeepView.Explore plugin on the server, take the following steps.
 DeepView.Profile needs to running on the server to enable the plugin. You can connect to the server via SSH and start DeepView.Profile by running the `skyline interactive` command as usual.
 
 ```zsh
-poetry run skyline interactive
+poetry run deepview interactive
 ```
 
 If you want to use a different port, you can use the `--port` flag to tell the profiler to listen on a different port.
 
 ```zsh
-poetry run skyline interactive --port portNumber
+poetry run deepview interactive --port portNumber
 ```
 
 ### Starting DeepView.Explore
