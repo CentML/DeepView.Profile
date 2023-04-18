@@ -1,6 +1,6 @@
 import os
 import random
-import skyline.db.database as database
+import deepview_profile.db.database as database
 
 class MockDatabaseInterface(database.DatabaseInterface):
     def __del__(self):

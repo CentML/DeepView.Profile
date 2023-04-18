@@ -1,9 +1,8 @@
 [tool.poetry]
-name = "deepview-profiler"
+name = "deepview-profile"
 version = "0.12.1"
 description = "Interactive performance profiling and debugging tool for PyTorch neural networks."
-authors = ["Geoffrey Yu <gxyu@cs.toronto.edu>"]
-maintainers = ["Akbar Nurlybayev <akbar@centml.ai>", "Yubo Gao <ybgao@centml.ai>"]
+authors = ["CentML <support@centml.ai>"]
 license = "Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/CentML/DeepView.Profile"
@@ -16,13 +15,13 @@ classifiers = [
     "Topic :: Software Development :: Debuggers",
 ]
 packages = [
-    { include = "skyline" },
+    { include = "deepview_profile" },
 ]
 
 include = [ "pyproject.toml" ]
 
 [tool.poetry.scripts]
-deepview = "skyline.skyline:main"
+deepview = "deepview_profile.deepview_profile:main"
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -33,6 +32,7 @@ torch = "*"
 nvidia-ml-py3 = "*"
 toml = "^0.10.2"
 pyRAPL = "^0.2.3"
+deepview-predict = "*"
 
 [tool.poetry.dev-dependencies]
 

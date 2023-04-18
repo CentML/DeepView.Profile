@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This script is used to release a new version of the Skyline CLI.
+# This script is used to release a new version of the DeepView CLI.
 # Release steps:
 # 1. Create release branch
 # 2. Increment package version in pyproject.toml
@@ -17,7 +17,7 @@ cd $RELEASE_SCRIPT_PATH
 source common.sh
 
 echo ""
-echo_blue "Skyline Profiler Release Preparation Tool"
+echo_blue "DeepView.Profile Release Preparation Tool"
 echo_blue "========================================="
 
 echo ""

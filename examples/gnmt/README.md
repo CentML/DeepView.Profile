@@ -5,13 +5,13 @@ code found in the [MLPerf training repository](https://github.com/mlperf/trainin
 
 To launch an interactive DeepView.Profile session for GNMT, run
 ```
-skyline interactive entry_point.py
+deepview interactive entry_point.py
 ```
 
 
 ## License
 
-This code, with the exception of the `skyline_` prefixed functions in
+This code, with the exception of the `deepview_` prefixed functions in
 `entry_point.py`, was adapted from the MLPerf training benchmarks and therefore
 shares the same license. The unmodified license can be found in the `LICENSE`
 file in the `seq2seq` directory.
