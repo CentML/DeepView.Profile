@@ -4,7 +4,7 @@ import struct
 import subprocess
 import threading
 
-from skyline.protocol_gen import innpv_pb2
+from deepview_profile.protocol_gen import innpv_pb2
 
 def stream_monitor(stream, callback=None):
     try:
@@ -35,11 +35,11 @@ class BackendContext:
     def on_message_stderr(self, message):
         message = message.decode("ascii").rstrip()
         print("stderr", message)
-        if "Skyline interactive profiling session started!" in message:
+        if "DeepView interactive profiling session started!" in message:
             self.state = 1
 
     def spawn_process(self):
-        # Skyline expects the entry_point filename to be relative
+        # DeepView expects the entry_point filename to be relative
         working_dir = os.path.dirname(self.entry_point)
         entry_filename = os.path.basename(self.entry_point)
         launch_command = [self.skyline_bin, "interactive", entry_filename]

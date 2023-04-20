@@ -1,7 +1,7 @@
-![Skyline](https://raw.githubusercontent.com/skylineprof/skyline/master/assets/skyline-wordmark.png)
-[![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat)](https://github.com/CentML/skyline/blob/main/LICENSE)
-![](https://img.shields.io/pypi/pyversions/skyline-profiler.svg)
-[![](https://img.shields.io/pypi/v/skyline-profiler.svg)](https://pypi.org/project/skyline-profiler/)
+![DeepView](https://raw.githubusercontent.com/CentML/DeepView.Profile/main/assets/deepview.png)
+[![License](https://img.shields.io/badge/license-Apache--2.0-green?style=flat)](https://github.com/CentML/DeepView.Profile/blob/main/LICENSE)
+![](https://img.shields.io/pypi/pyversions/deepview-profile.svg)
+[![](https://img.shields.io/pypi/v/deepview-profile.svg)](https://pypi.org/project/deepview-profile/)
 
 DeepView.Profile is a tool to profile and debug the training performance of [PyTorch](https://pytorch.org) neural networks.
 
@@ -40,24 +40,10 @@ poetry run deepview --help
 
 ### Installation from PyPi
 
-**Note:** Not implemented yet
-
-Installing with [Poetry](https://python-poetry.org/)
-```zsh
-poetry add deepview-profiler
-poetry run deepview --help
-```
-
-Installing with [Pipenv](https://pipenv.pypa.io/en/latest/)
-```zsh
-pipenv install deepview-profiler
-pipenv run deepview --help
-```
-
 Installing with [Pip](https://packaging.python.org/en/latest/tutorials/installing-packages/#use-pip-for-installing)
 ```zsh
 python3 -m pip install deepview-profiler
-python3 skyline
+python3 -m deepview -h
 ```
 
 <h2 id="getting-started">Usage example</h2>
@@ -80,14 +66,14 @@ file where you want DeepView.Profile to save the run time profiling report using
 `--output` or `-o` flag.
 
 ```zsh
-poetry run deepview time entry_point.py --output my_output_file.sqlite
+python3 -m deepview time entry_point.py --output my_output_file.sqlite
 ```
 
 Launching memory profiling is almost the same as launching run time profiling.
 You just need to use `deepview memory` instead of `deepview time`.
 
 ```zsh
-poetry run deepview memory entry_point.py --output my_output_file.sqlite
+python3 -m deepview memory entry_point.py --output my_output_file.sqlite
 ```
 
 <h2 id="dev-setup">Development Environment Setup</h2>
@@ -106,12 +92,12 @@ poetry install
 1. After the PR is merged [build-and-publish-new-version.yml](.github/workflows/build-and-publish-new-version.yml) GitHub action will:
     * build the Python Wheels
     * GitHub release
-    * Try to publish to Test PyPI
+    * Publish to Test PyPI
     * Subject to approval publish to PyPI
 
 <h2 id="release-history">Release History</h2>
 
-See [Releases](https://github.com/UofT-EcoSystem/skyline/releases)
+See [Releases](https://github.com/CentML/DeepView.Profile/releases)
 
 <h2 id="meta">Meta</h2>
 

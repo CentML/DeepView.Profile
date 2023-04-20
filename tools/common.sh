@@ -84,7 +84,7 @@ function check_tools() {
 function build_release() {
   echo_yellow "> Building wheels..."
   rm -rf ../dist/*
-  cp ../pyproject.toml ../skyline/
+  cp ../pyproject.toml ../deepview_profile/
   poetry build
   echo_green "✓ Wheels successfully built"
 }

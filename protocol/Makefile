@@ -3,7 +3,7 @@ GEN_DIR = protocol_gen
 PLUGIN_GEN = ../plugin/lib/$(GEN_DIR)
 PLUGIN_GEN_FILE = $(PLUGIN_GEN)/innpv_pb.js
 
-SERVER_GEN = ../skyline/$(GEN_DIR)
+SERVER_GEN = ../deepview_profile/$(GEN_DIR)
 SERVER_GEN_FILE = $(SERVER_GEN)/innpv_pb2.py
 
 PROTO_FILE = innpv.proto

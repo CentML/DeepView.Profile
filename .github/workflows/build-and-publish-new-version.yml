@@ -10,7 +10,7 @@ on:
 jobs:
   build:
     if: (startsWith(github.head_ref, 'release-') && github.event.pull_request.merged == true)
-    name: Build Skyline
+    name: Build DeepView.Profile
     runs-on: ubuntu-latest
 
     steps:
