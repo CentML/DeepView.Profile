@@ -23,13 +23,13 @@ class TestSkylineDatabase:
         assert(self.energy_table_interface.is_valid_entry([]) == False)
     
     def test_invalid_entry_too_long(self):
-        assert(self.energy_table_interface.is_valid_entry([1,2,3,4]) == False)
+        assert(self.energy_table_interface.is_valid_entry([1,2,3,4,5]) == False)
 
     def test_invalid_entry_wrong_types(self):
         assert(self.energy_table_interface.is_valid_entry([None, None, None, None, None]) == False)
 
     def test_adding_valid_entry(self):
-        params = ["entry_point", random.random(), random.random()]
+        params = ["entry_point", random.random(), random.random(), random.randint()]
         self.energy_table_interface.add_entry(params)
         query_result = self.test_database.connection.execute("SELECT * FROM ENERGY;").fetchone()
         # params is passed in by reference so it have the timestamp in it
@@ -38,14 +38,14 @@ class TestSkylineDatabase:
     # add 10 valid entries and get top 3
     def test_get_latest_n_entries_of_entry_point(self):
         for _ in range(10):
-            params = ["entry_point", random.random(), random.random()]
+            params = ["entry_point", random.random(), random.random(), random.randint()]
             self.energy_table_interface.add_entry(params)
         for _ in range(20):
-            params = ["other_entry_point", random.random(), random.random()]
+            params = ["other_entry_point", random.random(), random.random(), random.randint()]
             self.energy_table_interface.add_entry(params)
         entries = []
         for _ in range(3):
-            params = ["entry_point", random.random(), random.random()]
+            params = ["entry_point", random.random(), random.random(), random.randint()]
             entries.insert(0, params)
             self.energy_table_interface.add_entry(params)
         latest_n_entries = self.energy_table_interface.get_latest_n_entries_of_entry_point(3, "entry_point")
