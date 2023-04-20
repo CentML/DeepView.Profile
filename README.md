@@ -49,6 +49,7 @@ To use DeepView.Profile in your project, you need to first write an entry point 
 Once your entry point file is ready, there are two ways to profile interactive profiling and standalone profiling.
 
 ### Interactive Profiling
+Interactive profiling is done with VSCode with the [DeepView.Explore](https://github.com/CentML/DeepView.Explore) plugin. Install the plugin in VSCode and run the profiling session to interactively profile your models.
 ```zsh
 python3 -m deepview_profile interactive
 ```
