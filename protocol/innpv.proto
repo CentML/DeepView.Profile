@@ -104,9 +104,10 @@ message HabitatResponse {
 message EnergyResponse {
   float total_consumption = 1;
   repeated EnergyConsumptionComponent components = 2;
+  int32 batch_size = 3;
 
   // A list of past energy measurements
-  repeated EnergyResponse past_measurements = 3;
+  repeated EnergyResponse past_measurements = 4;
 }
 
 // Reports the energy consumption of one system component (e.g. CPU+DRAM or GPU)

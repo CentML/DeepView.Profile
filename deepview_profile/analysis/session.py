@@ -150,45 +150,46 @@ class AnalysisSession:
             for _ in range(iterations):
                 iteration(*inputs)
             energy_measurer.end_measurement()
-            
-            resp.total_consumption = energy_measurer.total_energy()/float(iterations)
-
-            components = []
-            components_joules = []
-
-            if energy_measurer.cpu_energy() is not None:
-                cpu_component = pm.EnergyConsumptionComponent()
-                cpu_component.component_type = pm.ENERGY_CPU_DRAM
-                cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
-                components.append(cpu_component)
-                components_joules.append(cpu_component.consumption_joules)
-            else:
-                cpu_component = pm.EnergyConsumptionComponent()
-                cpu_component.component_type = pm.ENERGY_CPU_DRAM
-                cpu_component.consumption_joules = 0.0
-                components.append(cpu_component)
-                components_joules.append(cpu_component.consumption_joules)
-            
-            gpu_component = pm.EnergyConsumptionComponent()
-            gpu_component.component_type = pm.ENERGY_NVIDIA
-            gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
-            components.append(gpu_component)
-            components_joules.append(gpu_component.consumption_joules)
-            
-            resp.components.extend(components)
-        
-            # get last 10 runs if they exist
-            path_to_entry_point = os.path.join(self._project_root, self._entry_point)
-            past_runs = self._energy_table_interface.get_latest_n_entries_of_entry_point(10, path_to_entry_point)
-            print(past_runs)
-            resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
-
-            # add current run to database
-            self._energy_table_interface.add_entry([path_to_entry_point] + components_joules)
-        
         except PermissionError as err:
             # Remind user to set their CPU permissions
             print(err)
+            
+        resp.total_consumption = energy_measurer.total_energy()/float(iterations)
+        resp.batch_size = self._batch_size
+
+        components = []
+        components_joules = []
+
+        if energy_measurer.cpu_energy() is not None:
+            cpu_component = pm.EnergyConsumptionComponent()
+            cpu_component.component_type = pm.ENERGY_CPU_DRAM
+            cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
+            components.append(cpu_component)
+            components_joules.append(cpu_component.consumption_joules)
+        else:
+            cpu_component = pm.EnergyConsumptionComponent()
+            cpu_component.component_type = pm.ENERGY_CPU_DRAM
+            cpu_component.consumption_joules = 0.0
+            components.append(cpu_component)
+            components_joules.append(cpu_component.consumption_joules)
+        
+        gpu_component = pm.EnergyConsumptionComponent()
+        gpu_component.component_type = pm.ENERGY_NVIDIA
+        gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
+        components.append(gpu_component)
+        components_joules.append(gpu_component.consumption_joules)
+        
+        resp.components.extend(components)
+    
+        # get last 10 runs if they exist
+        path_to_entry_point = os.path.join(self._project_root, self._entry_point)
+        past_runs = self._energy_table_interface.get_latest_n_entries_of_entry_point(10, path_to_entry_point)
+        resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
+
+        # add current run to database
+        current_entry = [path_to_entry_point] + components_joules
+        current_entry.append(self._batch_size)
+        self._energy_table_interface.add_entry(current_entry)
         return resp
 
     def habitat_compute_threshold(self, runnable, context):
@@ -602,5 +603,8 @@ def _convert_to_energy_responses(entries: list)-> List[pm.EnergyResponse]:
             
             energy_response.total_consumption = gpu_component.consumption_joules+cpu_component.consumption_joules 
             energy_response.components.extend([cpu_component, gpu_component])
+
+            energy_response.batch_size = entry[3]
             energy_response_list.append(energy_response)
+            
     return energy_response_list
