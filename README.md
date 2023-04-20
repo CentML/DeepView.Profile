@@ -20,15 +20,19 @@ DeepView.Profile works with *GPU-based* neural networks that are implemented in 
 To run DeepView.Profile, you need:
 - A system equipped with an NVIDIA GPU
 - Python 3.7+
-- [Poetry](https://python-poetry.org/)
 - PyTorch 1.1.0+ with CUDA
   - **NOTE:**  We assume you have the correct version of PyTorch installed for their GPU. Default PyTorch installation on Linux distros might not have CUDA support. If you see error similar to below, your PyTorch version is incompatible with your version of CUDA. You can download the appropriate version from the [PyTorch site](https://pytorch.org/get-started/locally/)
     ```NVIDIA GeForce RTX 3060 Ti with CUDA capability sm_86 is not compatible with the current PyTorch installation.
     The current PyTorch install supports CUDA capabilities sm_37 sm_50 sm_60 sm_70.
     If you want to use the NVIDIA GeForce RTX 3060 Ti GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
     ```
-- Python 3.6+ or Python 3.7+ on OSX
 
+### Installation from PyPi
+
+Installing with [Pip](https://packaging.python.org/en/latest/tutorials/installing-packages/#use-pip-for-installing)
+```zsh
+pip install deepview-profile
+```
 
 ### Installation from source
 ```bash
@@ -36,14 +40,6 @@ git clone https://github.com/CentML/DeepView.Profile
 cd DeepView.Profile
 poetry install
 poetry run deepview --help
-```
-
-### Installation from PyPi
-
-Installing with [Pip](https://packaging.python.org/en/latest/tutorials/installing-packages/#use-pip-for-installing)
-```zsh
-python3 -m pip install deepview-profiler
-python3 -m deepview -h
 ```
 
 <h2 id="getting-started">Usage example</h2>
@@ -54,7 +50,7 @@ Once your entry point file is ready, there are two ways to profile interactive p
 
 ### Interactive Profiling
 ```zsh
-poetry run deepview interactive
+python3 -m deepview_profile interactive
 ```
 
 ### Standalone Profiling
@@ -66,14 +62,14 @@ file where you want DeepView.Profile to save the run time profiling report using
 `--output` or `-o` flag.
 
 ```zsh
-python3 -m deepview time entry_point.py --output my_output_file.sqlite
+python3 -m deepview_profile time entry_point.py --output my_output_file.sqlite
 ```
 
 Launching memory profiling is almost the same as launching run time profiling.
 You just need to use `deepview memory` instead of `deepview time`.
 
 ```zsh
-python3 -m deepview memory entry_point.py --output my_output_file.sqlite
+python3 -m deepview_profile memory entry_point.py --output my_output_file.sqlite
 ```
 
 <h2 id="dev-setup">Development Environment Setup</h2>
