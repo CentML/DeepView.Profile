@@ -108,7 +108,7 @@ def actual_main(args):
 
     db_path = os.path.join(curr_dir,"gpu_estimation.sqlite")
     summary = sql_command_execution(db_path)
-    headers = ["Estimate Profiling time","CUDA API Time","Kernel Ops Time","MemCpy time","GPU Perc"]
+    headers = ["Estimate Profiling time","CUDA API Time","Kernel Ops Time","Memory Ops time","GPU Perc"]
     format_row = "{:^25}" * len((headers))
     print(format_row.format(*headers))
     print(format_row.format(*summary))
