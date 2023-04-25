@@ -31,7 +31,7 @@ def joinIntervals(arr):
         else:
             filteredArr.append(prevRecord)
             prevRecord = newRecord
-    filteredArr.append(prevRecord) # last record does not enter the validation cycle. has to be included at the end
+    filteredArr.append(prevRecord) # append the last record
     for item in filteredArr:
         eventDict[item[0]] += (item[2]-item[1])
     return eventDict
