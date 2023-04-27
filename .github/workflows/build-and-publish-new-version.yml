@@ -2,7 +2,6 @@ name: Build and publish a new version
 
 on:
   workflow_dispatch:
-    branches: main
     inputs:
         tag:
           description: 'Release Tag. This is in the form x.y.z'
