@@ -68,13 +68,13 @@ jobs:
           echo "$RELEASE_NOTES"
           RELEASE_ARTIFACTS=$(find ./dist -name "*${{ github.event.inputs.tag }}*" -type f | paste -s -d ' ' - )
           VERSION_TAG="v${{ github.event.inputs.tag }}"
-          gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
-          gh release create "$VERSION_TAG" \
-                                  --title "$VERSION_TAG" \
-                                  --notes "$RELEASE_NOTES" \
-                                  --target "$GITHUB_SHA" \
-                                  $RELEASE_ARTIFACTS
-          gh pr create --title "Release $VERSION_TAG" --body "$RELEASE_NOTES"
+        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+        gh release create "$VERSION_TAG" \
+                                --title "$VERSION_TAG" \
+                                --notes "$RELEASE_NOTES" \
+                                --target "$GITHUB_SHA" \
+                                $RELEASE_ARTIFACTS
+        gh pr create --title "Release $VERSION_TAG" --body "$RELEASE_NOTES"
 
   publish-to-test-pypi:
     name: Publish to Test PyPI
@@ -82,6 +82,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: Test
     concurrency: Test
+    permissions:
+      id-token: write
 
     steps:
       - name: Download artifact
@@ -93,27 +95,26 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
 
-  # publish-to-pypi:
-  #   name: Publish to PyPI
-  #   needs: publish-to-test-pypi
-  #   runs-on: ubuntu-latest
-  #   environment: Production
-  #   concurrency: Production
+  publish-to-pypi:
+    name: Publish to PyPI
+    needs: publish-to-test-pypi
+    runs-on: ubuntu-latest
+    environment: Production
+    concurrency: Production
+    permissions:
+      id-token: write
 
-  #   steps:
-  #     - name: Download artifacts
-  #       uses: actions/download-artifact@v3
-  #       with:
-  #         name: ${{ github.event.inputs.tag }}
-  #         path: dist
 
-  #     - name: Publish to PyPI
-  #       uses: pypa/gh-action-pypi-publish@release/v1
-  #       with:
-  #         user: __token__
-  #         password: ${{ secrets.PYPI_TOKEN }}
-  #         repository_url: https://upload.pypi.org/legacy/
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.event.inputs.tag }}
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository_url: https://upload.pypi.org/legacy/
