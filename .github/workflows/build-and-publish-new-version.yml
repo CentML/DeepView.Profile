@@ -9,7 +9,7 @@ on:
           required: true
 
 jobs:
-  build:
+  build-and-publish:
     name: Build DeepView.Profile
     runs-on: ubuntu-latest
     steps:
@@ -61,7 +61,7 @@ jobs:
 
   publish-to-test-pypi:
     name: Publish to Test PyPI
-    needs: publish-release
+    needs: build-and-publish
     runs-on: ubuntu-latest
     environment: Test
     concurrency: Test
