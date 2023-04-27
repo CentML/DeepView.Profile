@@ -2,7 +2,6 @@ name: Build and publish a new version
 
 on:
   workflow_dispatch:
-    branches: main
     inputs:
         tag:
           description: 'Release Tag. This is in the form x.y.z'
@@ -68,13 +67,13 @@ jobs:
           echo "$RELEASE_NOTES"
           RELEASE_ARTIFACTS=$(find ./dist -name "*${{ github.event.inputs.tag }}*" -type f | paste -s -d ' ' - )
           VERSION_TAG="v${{ github.event.inputs.tag }}"
-        gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
-        gh release create "$VERSION_TAG" \
-                                --title "$VERSION_TAG" \
-                                --notes "$RELEASE_NOTES" \
-                                --target "$GITHUB_SHA" \
-                                $RELEASE_ARTIFACTS
-        gh pr create --title "Release $VERSION_TAG" --body "$RELEASE_NOTES"
+          gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+          gh release create "$VERSION_TAG" \
+                                  --title "$VERSION_TAG" \
+                                  --notes "$RELEASE_NOTES" \
+                                  --target "$GITHUB_SHA" \
+                                  $RELEASE_ARTIFACTS
+          gh pr create --title "Release $VERSION_TAG" --body "$RELEASE_NOTES"
 
   publish-to-test-pypi:
     name: Publish to Test PyPI
