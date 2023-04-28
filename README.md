@@ -8,7 +8,6 @@ DeepView.Profile is a tool to profile and debug the training performance of [PyT
 - [Installation](#installation)
 - [Usage example](#getting-started)
 - [Development Environment Setup](#dev-setup)
-- [Release Process](#release-process)
 - [Release History](#release-history)
 - [Meta](#meta)
 - [Contributing](#contributing)
@@ -79,18 +78,6 @@ From the project root, do
 ```zsh
 poetry install
 ```
-<h2 id="release-process">Release Process</h2>
-
-1. Make sure you're on main branch and it is clean
-1. Run [tools/prepare-release.sh](tools/prepare-release.sh) which will:
-    * Increment the version
-    * Create a release branch
-    * Create a release PR
-1. After the PR is merged [build-and-publish-new-version.yml](.github/workflows/build-and-publish-new-version.yml) GitHub action will:
-    * build the Python Wheels
-    * GitHub release
-    * Publish to Test PyPI
-    * Subject to approval publish to PyPI
 
 <h2 id="release-history">Release History</h2>
 
