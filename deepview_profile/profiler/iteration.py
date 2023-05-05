@@ -1,10 +1,10 @@
 import collections
 import logging
-
 import torch
 
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.user_code_utils import user_code_environment
+from deepview_profile.functionality_utils import release_memory
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,7 @@ class IterationProfiler:
         NOTE: This method will raise a RuntimeError if there is not enough GPU
               memory to run the iteration.
         """
+
         with user_code_environment(
                 self._path_to_entry_point_dir, self._project_root):
             inputs = self._input_provider(batch_size=batch_size)
@@ -111,6 +112,7 @@ class IterationProfiler:
             self, batch_size, initial_repetitions=None):
         # This function is useful when we want to explicitly handle OOM errors
         # without aborting the profiling.
+        release_memory()
         try:
             return (
                 None,
