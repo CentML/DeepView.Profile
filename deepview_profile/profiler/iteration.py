@@ -4,7 +4,7 @@ import torch
 
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.user_code_utils import user_code_environment
-from deepview_profile.functionality_utils import release_memory
+from deepview_profile.utils import release_memory
 
 logger = logging.getLogger(__name__)
 

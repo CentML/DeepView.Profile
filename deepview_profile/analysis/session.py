@@ -186,9 +186,6 @@ class AnalysisSession:
             current_entry = [path_to_entry_point] + components_joules
             current_entry.append(self._batch_size)
             self._energy_table_interface.add_entry(current_entry)
-        except PermissionError as err:
-            # Remind user to set their CPU permissions
-            print(err)
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
@@ -319,8 +316,8 @@ class AnalysisSession:
             logger.error(message)
             resp.analysis_error.error_message = message
         except:
-            logger.error("There was an error running deepview predict")
-            resp.analysis_error.error_message = "There was an error running deepview predict"
+            logger.error("There was an error running DeepView Predict")
+            resp.analysis_error.error_message = "There was an error running DeepView Predict"
         finally:
             return resp
                 

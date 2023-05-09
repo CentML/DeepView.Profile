@@ -5,7 +5,7 @@ import os
 import torch
 from deepview_profile.analysis.session import AnalysisSession
 from deepview_profile.nvml import NVML
-from deepview_profile.functionality_utils import release_memory
+from deepview_profile.utils import release_memory
 
 def analyze_project(project_root, entry_point, nvml):
     release_memory()
