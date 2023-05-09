@@ -5,23 +5,23 @@ import os
 import torch
 from deepview_profile.analysis.session import AnalysisSession
 from deepview_profile.nvml import NVML
-
+from deepview_profile.utils import release_memory
 
 def analyze_project(project_root, entry_point, nvml):
-    torch.cuda.empty_cache()
+    release_memory()
     session = AnalysisSession.new_from(project_root, entry_point)
     yield session.measure_breakdown(nvml)
-    torch.cuda.empty_cache()
+    release_memory()
     yield session.measure_throughput()
-    torch.cuda.empty_cache()
+    release_memory()
 
     print("analyze_project: running deepview_predict()")
     yield session.habitat_predict()
-    torch.cuda.empty_cache()
+    release_memory()
 
     print("analyze_project: running energy_compute()")
     yield session.energy_compute()
-    torch.cuda.empty_cache()
+    release_memory()
 
 
 def main():

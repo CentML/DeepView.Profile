@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0binnpv.proto\x12\x0einnpv.protocol\"\xcf\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x12/\n\x07generic\x18\x04 \x01(\x0b\x32\x1c.innpv.protocol.GenericEventH\x00\x42\t\n\x07payload\">\n\x0cGenericEvent\x12\x12\n\nevent_type\x18\x01 \x01(\t\x12\x1a\n\x12optional_arguments\x18\x02 \x01(\t\"X\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\x12\x14\n\x0cproject_root\x18\x02 \x01(\t\x12\x13\n\x0b\x65ntry_point\x18\x03 \x01(\t\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\xcf\x03\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x12\x32\n\x07habitat\x18\t \x01(\x0b\x32\x1f.innpv.protocol.HabitatResponseH\x00\x12\x30\n\x06\x65nergy\x18\n \x01(\x0b\x32\x1e.innpv.protocol.EnergyResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"B\n\x17HabitatDevicePrediction\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x12\n\nruntime_ms\x18\x02 \x01(\x02\"O\n\x0fHabitatResponse\x12<\n\x0bpredictions\x18\x01 \x03(\x0b\x32\'.innpv.protocol.HabitatDevicePrediction\"\xba\x01\n\x0e\x45nergyResponse\x12\x19\n\x11total_consumption\x18\x01 \x01(\x02\x12>\n\ncomponents\x18\x02 \x03(\x0b\x32*.innpv.protocol.EnergyConsumptionComponent\x12\x12\n\nbatch_size\x18\x03 \x01(\x05\x12\x39\n\x11past_measurements\x18\x04 \x03(\x0b\x32\x1e.innpv.protocol.EnergyResponse\"\x80\x01\n\x1a\x45nergyConsumptionComponent\x12\x46\n\x0e\x63omponent_type\x18\x01 \x01(\x0e\x32..innpv.protocol.EnergyConsumptionComponentType\x12\x1a\n\x12\x63onsumption_joules\x18\x02 \x01(\x02\"\x8c\x01\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\x12.\n\x08hardware\x18\x03 \x01(\x0b\x32\x1c.innpv.protocol.HardwareInfo\"[\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\x12\x33\n\x0c\x66ile_context\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\xa1\x02\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\x12\x30\n\x0brun_time_ms\x18\x03 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x35\n\x10peak_usage_bytes\x18\x04 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x39\n\x12\x62\x61tch_size_context\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12!\n\x19\x63\x61n_manipulate_batch_size\x18\x06 \x01(\x08\"\xea\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x12\n\nbatch_size\x18\x06 \x01(\r\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"{\n\x0b\x43ontextInfo\x12.\n\x07\x63ontext\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x13\n\x0brun_time_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x13\n\x0binvocations\x18\x04 \x01(\r\"\x83\x01\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x35\n\x10\x63ontext_info_map\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.ContextInfo\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"*\n\x0bLinearModel\x12\r\n\x05slope\x18\x01 \x01(\x01\x12\x0c\n\x04\x62ias\x18\x02 \x01(\x01\":\n\x0cHardwareInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x0c\n\x04gpus\x18\x03 \x03(\t\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65*`\n\x1e\x45nergyConsumptionComponentType\x12\x16\n\x12\x45NERGY_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x45NERGY_CPU_DRAM\x10\x01\x12\x11\n\rENERGY_NVIDIA\x10\x02\x62\x06proto3'
+  serialized_pb=b'\n\x0binnpv.proto\x12\x0einnpv.protocol\"\xcf\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x12/\n\x07generic\x18\x04 \x01(\x0b\x32\x1c.innpv.protocol.GenericEventH\x00\x42\t\n\x07payload\">\n\x0cGenericEvent\x12\x12\n\nevent_type\x18\x01 \x01(\t\x12\x1a\n\x12optional_arguments\x18\x02 \x01(\t\"X\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\x12\x14\n\x0cproject_root\x18\x02 \x01(\t\x12\x13\n\x0b\x65ntry_point\x18\x03 \x01(\t\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\xcf\x03\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x12\x32\n\x07habitat\x18\t \x01(\x0b\x32\x1f.innpv.protocol.HabitatResponseH\x00\x12\x30\n\x06\x65nergy\x18\n \x01(\x0b\x32\x1e.innpv.protocol.EnergyResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"B\n\x17HabitatDevicePrediction\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x12\n\nruntime_ms\x18\x02 \x01(\x02\"\x86\x01\n\x0fHabitatResponse\x12<\n\x0bpredictions\x18\x01 \x03(\x0b\x32\'.innpv.protocol.HabitatDevicePrediction\x12\x35\n\x0e\x61nalysis_error\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisError\"\xf1\x01\n\x0e\x45nergyResponse\x12\x19\n\x11total_consumption\x18\x01 \x01(\x02\x12>\n\ncomponents\x18\x02 \x03(\x0b\x32*.innpv.protocol.EnergyConsumptionComponent\x12\x12\n\nbatch_size\x18\x03 \x01(\x05\x12\x39\n\x11past_measurements\x18\x04 \x03(\x0b\x32\x1e.innpv.protocol.EnergyResponse\x12\x35\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisError\"\x80\x01\n\x1a\x45nergyConsumptionComponent\x12\x46\n\x0e\x63omponent_type\x18\x01 \x01(\x0e\x32..innpv.protocol.EnergyConsumptionComponentType\x12\x1a\n\x12\x63onsumption_joules\x18\x02 \x01(\x02\"\x8c\x01\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\x12.\n\x08hardware\x18\x03 \x01(\x0b\x32\x1c.innpv.protocol.HardwareInfo\"[\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\x12\x33\n\x0c\x66ile_context\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\xa1\x02\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\x12\x30\n\x0brun_time_ms\x18\x03 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x35\n\x10peak_usage_bytes\x18\x04 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x39\n\x12\x62\x61tch_size_context\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12!\n\x19\x63\x61n_manipulate_batch_size\x18\x06 \x01(\x08\"\xea\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x12\n\nbatch_size\x18\x06 \x01(\r\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"{\n\x0b\x43ontextInfo\x12.\n\x07\x63ontext\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x13\n\x0brun_time_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x13\n\x0binvocations\x18\x04 \x01(\r\"\x83\x01\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x35\n\x10\x63ontext_info_map\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.ContextInfo\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"*\n\x0bLinearModel\x12\r\n\x05slope\x18\x01 \x01(\x01\x12\x0c\n\x04\x62ias\x18\x02 \x01(\x01\":\n\x0cHardwareInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x0c\n\x04gpus\x18\x03 \x03(\t\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65*`\n\x1e\x45nergyConsumptionComponentType\x12\x16\n\x12\x45NERGY_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x45NERGY_CPU_DRAM\x10\x01\x12\x11\n\rENERGY_NVIDIA\x10\x02\x62\x06proto3'
 )
 
 _ENERGYCONSUMPTIONCOMPONENTTYPE = _descriptor.EnumDescriptor(
@@ -48,8 +48,8 @@ _ENERGYCONSUMPTIONCOMPONENTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3202,
-  serialized_end=3298,
+  serialized_start=3313,
+  serialized_end=3409,
 )
 _sym_db.RegisterEnumDescriptor(_ENERGYCONSUMPTIONCOMPONENTTYPE)
 
@@ -89,8 +89,8 @@ _PROTOCOLERROR_ERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2216,
-  serialized_end=2340,
+  serialized_start=2327,
+  serialized_end=2451,
 )
 _sym_db.RegisterEnumDescriptor(_PROTOCOLERROR_ERRORCODE)
 
@@ -410,6 +410,13 @@ _HABITATRESPONSE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='analysis_error', full_name='innpv.protocol.HabitatResponse.analysis_error', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -422,8 +429,8 @@ _HABITATRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=971,
-  serialized_end=1050,
+  serialized_start=972,
+  serialized_end=1106,
 )
 
 
@@ -463,6 +470,13 @@ _ENERGYRESPONSE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='analysis_error', full_name='innpv.protocol.EnergyResponse.analysis_error', index=4,
+      number=5, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -475,8 +489,8 @@ _ENERGYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1053,
-  serialized_end=1239,
+  serialized_start=1109,
+  serialized_end=1350,
 )
 
 
@@ -514,8 +528,8 @@ _ENERGYCONSUMPTIONCOMPONENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1242,
-  serialized_end=1370,
+  serialized_start=1353,
+  serialized_end=1481,
 )
 
 
@@ -560,8 +574,8 @@ _INITIALIZERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1373,
-  serialized_end=1513,
+  serialized_start=1484,
+  serialized_end=1624,
 )
 
 
@@ -599,8 +613,8 @@ _ANALYSISERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1515,
-  serialized_end=1606,
+  serialized_start=1626,
+  serialized_end=1717,
 )
 
 
@@ -666,8 +680,8 @@ _THROUGHPUTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1609,
-  serialized_end=1898,
+  serialized_start=1720,
+  serialized_end=2009,
 )
 
 
@@ -733,8 +747,8 @@ _BREAKDOWNRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1901,
-  serialized_end=2135,
+  serialized_start=2012,
+  serialized_end=2246,
 )
 
 
@@ -766,8 +780,8 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2138,
-  serialized_end=2340,
+  serialized_start=2249,
+  serialized_end=2451,
 )
 
 
@@ -798,8 +812,8 @@ _PATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2342,
-  serialized_end=2368,
+  serialized_start=2453,
+  serialized_end=2479,
 )
 
 
@@ -837,8 +851,8 @@ _FILEREFERENCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2370,
-  serialized_end=2447,
+  serialized_start=2481,
+  serialized_end=2558,
 )
 
 
@@ -902,8 +916,8 @@ _BREAKDOWNNODE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2450,
-  serialized_end=2656,
+  serialized_start=2561,
+  serialized_end=2767,
 )
 
 
@@ -955,8 +969,8 @@ _CONTEXTINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2658,
-  serialized_end=2781,
+  serialized_start=2769,
+  serialized_end=2892,
 )
 
 
@@ -1008,8 +1022,8 @@ _OPERATIONDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2784,
-  serialized_end=2915,
+  serialized_start=2895,
+  serialized_end=3026,
 )
 
 
@@ -1047,8 +1061,8 @@ _WEIGHTDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2917,
-  serialized_end=2974,
+  serialized_start=3028,
+  serialized_end=3085,
 )
 
 
@@ -1086,8 +1100,8 @@ _LINEARMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2976,
-  serialized_end=3018,
+  serialized_start=3087,
+  serialized_end=3129,
 )
 
 
@@ -1132,8 +1146,8 @@ _HARDWAREINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3020,
-  serialized_end=3078,
+  serialized_start=3131,
+  serialized_end=3189,
 )
 
 
@@ -1157,8 +1171,8 @@ _MEMORYUSAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3080,
-  serialized_end=3107,
+  serialized_start=3191,
+  serialized_end=3218,
 )
 
 
@@ -1182,8 +1196,8 @@ _RUNTIMERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3109,
-  serialized_end=3132,
+  serialized_start=3220,
+  serialized_end=3243,
 )
 
 
@@ -1207,8 +1221,8 @@ _ACTIVATIONENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3134,
-  serialized_end=3157,
+  serialized_start=3245,
+  serialized_end=3268,
 )
 
 
@@ -1232,8 +1246,8 @@ _WEIGHTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3159,
-  serialized_end=3178,
+  serialized_start=3270,
+  serialized_end=3289,
 )
 
 
@@ -1257,8 +1271,8 @@ _RUNTIMEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3180,
-  serialized_end=3200,
+  serialized_start=3291,
+  serialized_end=3311,
 )
 
 _FROMCLIENT.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST
@@ -1302,8 +1316,10 @@ _FROMSERVER.oneofs_by_name['payload'].fields.append(
   _FROMSERVER.fields_by_name['energy'])
 _FROMSERVER.fields_by_name['energy'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
 _HABITATRESPONSE.fields_by_name['predictions'].message_type = _HABITATDEVICEPREDICTION
+_HABITATRESPONSE.fields_by_name['analysis_error'].message_type = _ANALYSISERROR
 _ENERGYRESPONSE.fields_by_name['components'].message_type = _ENERGYCONSUMPTIONCOMPONENT
 _ENERGYRESPONSE.fields_by_name['past_measurements'].message_type = _ENERGYRESPONSE
+_ENERGYRESPONSE.fields_by_name['analysis_error'].message_type = _ANALYSISERROR
 _ENERGYCONSUMPTIONCOMPONENT.fields_by_name['component_type'].enum_type = _ENERGYCONSUMPTIONCOMPONENTTYPE
 _INITIALIZERESPONSE.fields_by_name['entry_point'].message_type = _PATH
 _INITIALIZERESPONSE.fields_by_name['hardware'].message_type = _HARDWAREINFO
