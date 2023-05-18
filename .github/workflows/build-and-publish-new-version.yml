@@ -11,6 +11,9 @@ jobs:
   build-and-publish:
     name: Build DeepView.Profile
     runs-on: ubuntu-latest
+    env:
+      CI_COMMIT_AUTHOR: CentML
+      CI_COMMIT_EMAIL: centml-machine-user@users.noreply.github.com
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -32,6 +35,14 @@ jobs:
       - name: Update version number
         run: |
           poetry version ${{ github.event.inputs.tag }}
+          
+      - name: Commit updated version number and tag it
+        run: |
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "${{ env.CI_COMMIT_EMAIL }}"
+          git commit -am "Release version ${{ github.event.inputs.tag }}"
+          git push origin release/${{ github.event.inputs.tag }}
+          git tag ${{ github.event.inputs.tag }}
 
       - name: Build Python artifacts
         run: |
