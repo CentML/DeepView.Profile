@@ -2,7 +2,7 @@ import collections
 import logging
 import os
 
-from deepview_profile.exceptions import AnalysisError, NoConnectionError
+from deepview_profile.exceptions import NoConnectionError
 
 import deepview_profile.protocol_gen.innpv_pb2 as pm
 
@@ -80,9 +80,9 @@ class MessageHandler:
             )
             return
 
-        
+
         if not _validate_paths(message.project_root,  message.entry_point):
-            # Change this to the error related to 
+            # Change this to the error related to
             self._message_sender.send_protocol_error(
                 pm.ProtocolError.ErrorCode.UNSUPPORTED_PROTOCOL_VERSION,
                 context,
@@ -95,7 +95,8 @@ class MessageHandler:
         logger.info("Connection addr:(%s:%d)", *context.address)
         logger.info("Project Root:   %s", message.project_root)
         logger.info("Entry Point:    %s", message.entry_point)
-        self._connection_manager.get_connection(context.address).set_project_paths(message.project_root, message.entry_point)
+        self._connection_manager.get_connection(context.address)\
+            .set_project_paths(message.project_root, message.entry_point)
 
         context.state.initialized = True
         self._message_sender.send_initialize_response(context)
@@ -150,9 +151,8 @@ class MessageHandler:
                 'connected.',
                 *address,
             )
-        except:
+        except Exception:
             logger.exception(
                 'Processing message from (%s:%d) resulted in an exception.',
                 *address,
             )
-

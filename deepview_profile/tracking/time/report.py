@@ -1,5 +1,4 @@
 import collections
-import os
 
 from deepview_profile.tracking.base import ReportBase, ReportBuilderBase
 import deepview_profile.tracking.time.report_queries as queries

@@ -1,4 +1,3 @@
-from deepview_profile.models.source_map import Position
 
 
 class OperationInfo:

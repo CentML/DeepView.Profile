@@ -1,6 +1,5 @@
 import logging
 import signal
-import subprocess
 import threading
 
 from deepview_profile.initialization import (
@@ -48,7 +47,6 @@ def register_command(subparsers):
     parser.set_defaults(func=main)
 
 def actual_main(args):
-    from deepview_profile.config import Config
     from deepview_profile.server import SkylineServer
 
     should_shutdown = threading.Event()

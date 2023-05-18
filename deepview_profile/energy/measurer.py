@@ -19,13 +19,15 @@ class CPUMeasurer:
             energy = self.sensor.energy()
             self.last_cpu = np.array(energy[0::2])
             self.last_dram = np.array(energy[1::2])
-        except Exception as e:
-            print("Warning. Failed to get CPU energy. You need to set the right permissions for pyRAPL")
+        except Exception:
+            print("Warning. Failed to get CPU energy. \
+                  You need to set the right permissions for pyRAPL")
             print("eg. $ sudo chmod -R a+r /sys/class/powercap/intel-rapl")
 
     def measurer_measure(self):
         # Get energy consumed so far (since last CPU reset)
-        if self.sensor is None: return
+        if self.sensor is None:
+            return
 
         energy = self.sensor.energy()
         cpu = np.array(energy[0::2])
@@ -33,8 +35,8 @@ class CPUMeasurer:
 
         # Compare against last measurement to determine energy since last measure
         diff_cpu = cpu - self.last_cpu
-        diff_dram = dram - self.last_dram
-        
+        dram - self.last_dram
+
         # 1J = 10^6 uJ
         # The cpu used this much since the last measurement
         # We have mW = 1000*J/s = 1000*(uJ/10^6)/s
@@ -49,7 +51,8 @@ class CPUMeasurer:
         pass
 
     def total_energy(self):
-        if len(self.power) == 0: return None
+        if len(self.power) == 0:
+            return None
 
         # J = W * s,    1W = 1000 mW
         energy = self.interval * sum(self.power) / 1000.0
@@ -123,6 +126,6 @@ class EnergyMeasurer:
 
     def cpu_energy(self):
         return self.measurers["cpu"].total_energy()
-    
+
     def gpu_energy(self):
         return self.measurers["gpu"].total_energy()

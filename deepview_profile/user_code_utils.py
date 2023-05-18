@@ -1,5 +1,4 @@
 import contextlib
-import os
 import sys
 
 from deepview_profile.exceptions import exceptions_as_analysis_errors

@@ -6,11 +6,14 @@ import threading
 
 from deepview_profile.protocol_gen import innpv_pb2
 
+
 def stream_monitor(stream, callback=None):
     try:
-        for line in stream: callback(line)
-    except OSError as e:
+        for line in stream:
+            callback(line)
+    except OSError:
         print(f"Closing listener for stream {stream}")
+
 
 def socket_monitor(socket, callback=None):
     try:
@@ -19,8 +22,9 @@ def socket_monitor(socket, callback=None):
             msg = socket.recv(msg_len)
             print(f"Received message of length {msg_len}")
             callback(msg)
-    except OSError as e:
+    except OSError:
         print(f"Closing listener for socket {socket}")
+
 
 class BackendContext:
     def __init__(self, skyline_bin, entry_point):
@@ -45,10 +49,19 @@ class BackendContext:
         launch_command = [self.skyline_bin, "interactive", entry_filename]
 
         # Launch backend + listener threads for stdout and stderr
-        self.process = subprocess.Popen(launch_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=working_dir)
-        self.stdout_thread = threading.Thread(target=stream_monitor, args=(self.process.stdout, self.on_message_stdout))
+        self.process = subprocess.Popen(
+            launch_command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            cwd=working_dir,
+        )
+        self.stdout_thread = threading.Thread(
+            target=stream_monitor, args=(self.process.stdout, self.on_message_stdout)
+        )
         self.stdout_thread.start()
-        self.stderr_thread = threading.Thread(target=stream_monitor, args=(self.process.stderr, self.on_message_stderr))
+        self.stderr_thread = threading.Thread(
+            target=stream_monitor, args=(self.process.stderr, self.on_message_stderr)
+        )
         self.stderr_thread.start()
 
     def join(self):
@@ -58,8 +71,8 @@ class BackendContext:
         self.process.terminate()
         self.stdout_thread.join()
         self.stderr_thread.join()
-        
-        
+
+
 class SkylineSession:
     def __init__(self):
         self.seq_num = 0
@@ -69,7 +82,9 @@ class SkylineSession:
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.connect((addr, port))
 
-        self.listener_thread = threading.Thread(target=socket_monitor, args=(self.socket, self.handle_message))
+        self.listener_thread = threading.Thread(
+            target=socket_monitor, args=(self.socket, self.handle_message)
+        )
         self.listener_thread.start()
 
     def send_message(self, message):
@@ -97,7 +112,7 @@ class SkylineSession:
         request = innpv_pb2.AnalysisRequest()
         request.mock_response = False
         self.send_message(request)
-    
+
     def handle_message(self, message):
         from_server = innpv_pb2.FromServer()
         from_server.ParseFromString(message)
@@ -111,5 +126,3 @@ class SkylineSession:
         # Closing the socket should cause the listener thread to die
         self.socket.close()
         self.listener_thread.join()
-
-

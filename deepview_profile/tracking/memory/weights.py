@@ -1,5 +1,4 @@
 import torch
-import inspect
 import weakref
 
 from deepview_profile.tracking.base import TrackerBase

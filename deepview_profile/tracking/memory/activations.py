@@ -179,7 +179,7 @@ def _extract_gradient_functions_in_topological_order(model_output):
     topological ordering of their gradient functions.
     """
     if isinstance(model_output, tuple) or isinstance(model_output, list):
-        tensors = _flatten_and_filter_tensors(tensor_iterable)
+        tensors = _flatten_and_filter_tensors(model_output)
     elif (isinstance(model_output, torch.Tensor) and
           model_output.grad_fn is not None):
         tensors = [model_output]

@@ -71,7 +71,8 @@ class AnalysisSession:
         self._memory_usage_percentage = None
         self._batch_size_iteration_run_time_ms = None
         self._batch_size_peak_usage_bytes = None
-        self._energy_table_interface = EnergyTableInterface(DatabaseInterface().connection)
+        self._energy_table_interface = \
+            EnergyTableInterface(DatabaseInterface().connection)
 
     @classmethod
     def new_from(cls, project_root, entry_point):
@@ -138,7 +139,7 @@ class AnalysisSession:
 
     def energy_compute(self) -> pm.EnergyResponse:
         energy_measurer = EnergyMeasurer()
-        
+
         model = self._model_provider()
         inputs = self._input_provider()
         iteration = self._iteration_provider(model)
@@ -153,7 +154,7 @@ class AnalysisSession:
         except PermissionError as err:
             # Remind user to set their CPU permissions
             print(err)
-            
+
         resp.total_consumption = energy_measurer.total_energy()/float(iterations)
         resp.batch_size = self._batch_size
 
@@ -163,7 +164,8 @@ class AnalysisSession:
         if energy_measurer.cpu_energy() is not None:
             cpu_component = pm.EnergyConsumptionComponent()
             cpu_component.component_type = pm.ENERGY_CPU_DRAM
-            cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
+            cpu_component.consumption_joules = \
+                energy_measurer.cpu_energy()/float(iterations)
             components.append(cpu_component)
             components_joules.append(cpu_component.consumption_joules)
         else:
@@ -172,18 +174,20 @@ class AnalysisSession:
             cpu_component.consumption_joules = 0.0
             components.append(cpu_component)
             components_joules.append(cpu_component.consumption_joules)
-        
+
         gpu_component = pm.EnergyConsumptionComponent()
         gpu_component.component_type = pm.ENERGY_NVIDIA
-        gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
+        gpu_component.consumption_joules = \
+            energy_measurer.gpu_energy()/float(iterations)
         components.append(gpu_component)
         components_joules.append(gpu_component.consumption_joules)
-        
+
         resp.components.extend(components)
-    
+
         # get last 10 runs if they exist
         path_to_entry_point = os.path.join(self._project_root, self._entry_point)
-        past_runs = self._energy_table_interface.get_latest_n_entries_of_entry_point(10, path_to_entry_point)
+        past_runs = self._energy_table_interface.get_latest_n_entries_of_entry_point\
+            (10, path_to_entry_point)
         resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
 
         # add current run to database
@@ -211,7 +215,7 @@ class AnalysisSession:
 
     def habitat_predict(self):
         resp = pm.HabitatResponse()
-        if not habitat_found: 
+        if not habitat_found:
             logger.debug("Skipping deepview predictions, returning empty response.")
             return resp
 
@@ -233,19 +237,22 @@ class AnalysisSession:
         # Detect source GPU
         pynvml.nvmlInit()
         if pynvml.nvmlDeviceGetCount() == 0:
-            raise Exception("NVML failed to find a GPU. PLease ensure that you have a NVIDIA GPU installed and that the drivers are functioning correctly.")
+            raise Exception("NVML failed to find a GPU. Please ensure that you have a \
+                NVIDIA GPU installed and that the drivers are functioning correctly.")
 
         # TODO: Consider profiling on not only the first detected GPU
         nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
         source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
         split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
-        source_device = None if logging.root.level > logging.DEBUG else habitat.Device.T4
+        source_device = None if logging.root.level > logging.DEBUG \
+            else habitat.Device.T4
         for device in DEVICES:
             if device.name in split_source_device_name:
                 source_device = device
         pynvml.nvmlShutdown()
         if not source_device:
-            logger.debug("Skipping DeepView predictions, source not in list of supported GPUs.")
+            logger.debug("Skipping DeepView predictions, \
+                         source not in list of supported GPUs.")
             src = pm.HabitatDevicePrediction()
             src.device_name = 'unavailable'
             src.runtime_ms = -1
@@ -271,7 +278,7 @@ class AnalysisSession:
         )
 
         threshold = self.habitat_compute_threshold(runnable, context)
-        
+
         tracker = habitat.OperationTracker(
             device=context.origin_device,
             metrics=[
@@ -304,7 +311,7 @@ class AnalysisSession:
 
         print(f"returning {len(resp.predictions)} predictions.")
 
-        return resp 
+        return resp
 
 
     def measure_breakdown(self, nvml):
@@ -555,9 +562,9 @@ def _wrap_providers_with_validators(
             ).with_file_context(entry_point)
 
         try:
-            input_iter = iter(inputs)
+            iter(inputs)
             return inputs
-        except TypeError as ex:
+        except TypeError:
             raise AnalysisError(
                 "The input provider function must return an iterable that "
                 "contains the inputs for the model."
@@ -596,15 +603,16 @@ def _convert_to_energy_responses(entries: list)-> List[pm.EnergyResponse]:
             cpu_component = pm.EnergyConsumptionComponent()
             cpu_component.component_type = pm.ENERGY_CPU_DRAM
             cpu_component.consumption_joules = entry[1]
-                
+
             gpu_component = pm.EnergyConsumptionComponent()
             gpu_component.component_type = pm.ENERGY_NVIDIA
             gpu_component.consumption_joules = entry[2]
-            
-            energy_response.total_consumption = gpu_component.consumption_joules+cpu_component.consumption_joules 
+
+            energy_response.total_consumption = gpu_component.consumption_joules\
+                + cpu_component.consumption_joules
             energy_response.components.extend([cpu_component, gpu_component])
 
             energy_response.batch_size = entry[3]
             energy_response_list.append(energy_response)
-            
+
     return energy_response_list
