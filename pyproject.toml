@@ -38,6 +38,7 @@ deepview-predict = "*"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.267"
+pre-commit = "2.21.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
