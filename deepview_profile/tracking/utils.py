@@ -1,6 +1,5 @@
 import re
 
-import torch
 
 DUNDER_REGEX = re.compile('__(?P<name>.+)__')
 

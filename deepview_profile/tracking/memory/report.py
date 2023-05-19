@@ -1,6 +1,5 @@
 import collections
 import enum
-import os
 
 from deepview_profile.tracking.base import ReportBase, ReportBuilderBase
 import deepview_profile.tracking.memory.report_queries as queries

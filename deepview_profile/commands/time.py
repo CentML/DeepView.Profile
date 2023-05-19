@@ -38,7 +38,6 @@ def register_command(subparsers):
 
 def actual_main(args):
     from deepview_profile.analysis.session import AnalysisSession
-    from deepview_profile.config import Config
     from deepview_profile.exceptions import AnalysisError
 
     if os.path.exists(args.output):

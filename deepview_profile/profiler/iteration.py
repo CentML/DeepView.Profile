@@ -97,7 +97,8 @@ class IterationProfiler:
         while repetitions <= max_repetitions:
             doubled = repetitions * 2
             greater = measure(doubled) / doubled
-            logger.debug("Iters: %d, Measured: %f (range: %f)", doubled, greater, max(lesser, greater) / min(lesser, greater))
+            logger.debug("Iters: %d, Measured: %f (range: %f)",\
+                         doubled, greater, max(lesser, greater) / min(lesser, greater))
 
             # Stop when the difference between the measurements is less than 5%
             if (max(lesser, greater) / min(lesser, greater)) < 1.05:
@@ -221,6 +222,6 @@ class IterationProfiler:
         # models whose initial batch size is much smaller than the maximum possible.
         tiers = [100, 20, 10, 5]
         for t in tiers:
-            if diff >= t: return base + mult * t
-
+            if diff >= t:
+                return base + mult * t
         return base + mult

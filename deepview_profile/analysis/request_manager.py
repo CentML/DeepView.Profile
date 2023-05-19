@@ -4,7 +4,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 
 from deepview_profile.analysis.runner import analyze_project
-from deepview_profile.config import Config
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.nvml import NVML
 import deepview_profile.protocol_gen.innpv_pb2 as pm
@@ -135,7 +134,7 @@ class AnalysisRequestManager:
         except AnalysisError as ex:
             self._enqueue_response(self._send_analysis_error, ex, context)
 
-        except:
+        except Exception:
             logger.exception(
                 'Exception occurred when handling analysis request.')
             self._enqueue_response(
@@ -164,7 +163,7 @@ class AnalysisRequestManager:
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_breakdown_response(breakdown, context)
-        except:
+        except Exception:
             logger.exception(
                 'Exception occurred when sending a breakdown response.')
 
@@ -172,7 +171,7 @@ class AnalysisRequestManager:
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_analysis_error(exception, context)
-        except:
+        except Exception:
             logger.exception(
                 'Exception occurred when sending an analysis error.')
 
@@ -180,7 +179,7 @@ class AnalysisRequestManager:
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_throughput_response(throughput, context)
-        except:
+        except Exception:
             logger.exception(
                 'Exception occurred when sending a throughput response.')
 
@@ -188,7 +187,7 @@ class AnalysisRequestManager:
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_habitat_response(habitat_resp, context)
-        except:
+        except Exception:
             logger.exception(
                 'Exception occurred when sending a DeepView.Predict response.')
 
@@ -196,6 +195,6 @@ class AnalysisRequestManager:
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_energy_response(energy_resp, context)
-        except:
+        except Exception:
             logger.exception(
                 'Exception occurred when sending an energy response.')

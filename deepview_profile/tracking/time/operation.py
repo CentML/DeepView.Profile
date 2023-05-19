@@ -1,6 +1,5 @@
 import collections
 
-import torch
 
 from deepview_profile.tracking.call_stack import CallStack
 from deepview_profile.tracking.base import TrackerBase

@@ -1,7 +1,6 @@
-import os
+import logging
 import select
 import socket
-import logging
 from threading import Thread
 
 from deepview_profile.io.sentinel import Sentinel
@@ -78,6 +77,6 @@ class ConnectionAcceptor:
                 host, port = address
                 logger.debug("Accepted a connection to (%s:%d).", host, port)
                 self._handler_function(socket, address)
-        except:
+        except Exception:
             logging.exception(
                 "DeepView has unexpectedly stopped accepting connections.")

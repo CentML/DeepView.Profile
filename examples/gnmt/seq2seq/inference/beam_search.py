@@ -2,7 +2,6 @@ import torch
 
 from seq2seq.data.config import BOS
 from seq2seq.data.config import EOS
-from seq2seq.utils import gnmt_print
 
 
 class SequenceGenerator:

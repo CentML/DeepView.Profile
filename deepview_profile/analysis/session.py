@@ -43,9 +43,10 @@ BATCH_SIZE_ARG = "batch_size"
 
 # Habitat variables
 Context = collections.namedtuple(
-    'Context',
-    ['origin_device', 'profiler', 'percentile'],
+    "Context",
+    ["origin_device", "profiler", "percentile"],
 )
+
 
 class AnalysisSession:
     def __init__(
@@ -57,7 +58,7 @@ class AnalysisSession:
         input_provider,
         iteration_provider,
         batch_size,
-        entry_point_static_analyzer
+        entry_point_static_analyzer,
     ):
         self._project_root = project_root
         self._entry_point = entry_point
@@ -71,7 +72,9 @@ class AnalysisSession:
         self._memory_usage_percentage = None
         self._batch_size_iteration_run_time_ms = None
         self._batch_size_peak_usage_bytes = None
-        self._energy_table_interface = EnergyTableInterface(DatabaseInterface().connection)
+        self._energy_table_interface = EnergyTableInterface(
+            DatabaseInterface().connection
+        )
 
     @classmethod
     def new_from(cls, project_root, entry_point):
@@ -92,21 +95,21 @@ class AnalysisSession:
             raise AnalysisError(
                 "The project entry point file is missing a model provider "
                 "function. Please add a model provider function named "
-                "\"{}\".".format(MODEL_PROVIDER_NAME)
+                '"{}".'.format(MODEL_PROVIDER_NAME)
             ).with_file_context(entry_point)
 
         if INPUT_PROVIDER_NAME not in scope:
             raise AnalysisError(
                 "The project entry point file is missing an input provider "
                 "function. Please add an input provider function named "
-                "\"{}\".".format(INPUT_PROVIDER_NAME)
+                '"{}".'.format(INPUT_PROVIDER_NAME)
             ).with_file_context(entry_point)
 
         if ITERATION_PROVIDER_NAME not in scope:
             raise AnalysisError(
                 "The project entry point file is missing an iteration "
                 "provider function. Please add an iteration provider function "
-                "named \"{}\".".format(ITERATION_PROVIDER_NAME)
+                'named "{}".'.format(ITERATION_PROVIDER_NAME)
             ).with_file_context(entry_point)
 
         batch_size = _validate_providers_signatures(
@@ -116,13 +119,15 @@ class AnalysisSession:
             entry_point,
         )
 
-        model_provider, input_provider, iteration_provider = (
-            _wrap_providers_with_validators(
-                scope[MODEL_PROVIDER_NAME],
-                scope[INPUT_PROVIDER_NAME],
-                scope[ITERATION_PROVIDER_NAME],
-                entry_point,
-            )
+        (
+            model_provider,
+            input_provider,
+            iteration_provider,
+        ) = _wrap_providers_with_validators(
+            scope[MODEL_PROVIDER_NAME],
+            scope[INPUT_PROVIDER_NAME],
+            scope[ITERATION_PROVIDER_NAME],
+            entry_point,
         )
 
         return cls(
@@ -138,7 +143,7 @@ class AnalysisSession:
 
     def energy_compute(self) -> pm.EnergyResponse:
         energy_measurer = EnergyMeasurer()
-        
+
         model = self._model_provider()
         inputs = self._input_provider()
         iteration = self._iteration_provider(model)
@@ -150,7 +155,7 @@ class AnalysisSession:
             for _ in range(iterations):
                 iteration(*inputs)
             energy_measurer.end_measurement()
-            resp.total_consumption = energy_measurer.total_energy()/float(iterations)
+            resp.total_consumption = energy_measurer.total_energy() / float(iterations)
             resp.batch_size = self._batch_size
 
             components = []
@@ -159,7 +164,9 @@ class AnalysisSession:
             if energy_measurer.cpu_energy() is not None:
                 cpu_component = pm.EnergyConsumptionComponent()
                 cpu_component.component_type = pm.ENERGY_CPU_DRAM
-                cpu_component.consumption_joules = energy_measurer.cpu_energy()/float(iterations)
+                cpu_component.consumption_joules = energy_measurer.cpu_energy() / float(
+                    iterations
+                )
                 components.append(cpu_component)
                 components_joules.append(cpu_component.consumption_joules)
             else:
@@ -168,18 +175,24 @@ class AnalysisSession:
                 cpu_component.consumption_joules = 0.0
                 components.append(cpu_component)
                 components_joules.append(cpu_component.consumption_joules)
-            
+
             gpu_component = pm.EnergyConsumptionComponent()
             gpu_component.component_type = pm.ENERGY_NVIDIA
-            gpu_component.consumption_joules = energy_measurer.gpu_energy()/float(iterations)
+            gpu_component.consumption_joules = energy_measurer.gpu_energy() / float(
+                iterations
+            )
             components.append(gpu_component)
             components_joules.append(gpu_component.consumption_joules)
-            
+
             resp.components.extend(components)
-        
+
             # get last 10 runs if they exist
             path_to_entry_point = os.path.join(self._project_root, self._entry_point)
-            past_runs = self._energy_table_interface.get_latest_n_entries_of_entry_point(10, path_to_entry_point)
+            past_runs = (
+                self._energy_table_interface.get_latest_n_entries_of_entry_point(
+                    10, path_to_entry_point
+                )
+            )
             resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
 
             # add current run to database
@@ -190,13 +203,13 @@ class AnalysisSession:
             message = str(ex)
             logger.error(message)
             resp.analysis_error.error_message = message
-        except:
+        except Exception:
             logger.error("There was an error obtaining energy measurements")
-            resp.analysis_error.error_message = "There was an error obtaining energy measurements"
+            resp.analysis_error.error_message = (
+                "There was an error obtaining energy measurements"
+            )
         finally:
             return resp
-            
-        
 
     def habitat_compute_threshold(self, runnable, context):
         tracker = habitat.OperationTracker(context.origin_device)
@@ -214,10 +227,9 @@ class AnalysisSession:
 
         return np.percentile(run_times, context.percentile)
 
-
     def habitat_predict(self):
-        resp = pm.HabitatResponse() 
-        if not habitat_found: 
+        resp = pm.HabitatResponse()
+        if not habitat_found:
             logger.debug("Skipping deepview predictions, returning empty response.")
             return resp
 
@@ -234,27 +246,34 @@ class AnalysisSession:
                 habitat.Device.RTX3090,
                 habitat.Device.A40,
                 habitat.Device.A4000,
-                habitat.Device.RTX4000
+                habitat.Device.RTX4000,
             ]
 
             # Detect source GPU
             pynvml.nvmlInit()
             if pynvml.nvmlDeviceGetCount() == 0:
-                raise Exception("NVML failed to find a GPU. PLease ensure that you have a NVIDIA GPU installed and that the drivers are functioning correctly.")
+                raise Exception("NVML failed to find a GPU. Please ensure that you \
+                have a NVIDIA GPU installed and that the drivers are functioning \
+                correctly.")
 
             # TODO: Consider profiling on not only the first detected GPU
             nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
             source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
             split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
-            source_device = None if logging.root.level > logging.DEBUG else habitat.Device.T4
+            source_device = (
+                None if logging.root.level > logging.DEBUG else habitat.Device.T4
+            )
             for device in DEVICES:
                 if device.name in split_source_device_name:
                     source_device = device
             pynvml.nvmlShutdown()
             if not source_device:
-                logger.debug("Skipping DeepView predictions, source not in list of supported GPUs.")
+                logger.debug(
+                    "Skipping DeepView predictions,\
+                    source not in list of supported GPUs."
+                )
                 src = pm.HabitatDevicePrediction()
-                src.device_name = 'unavailable'
+                src.device_name = "unavailable"
                 src.runtime_ms = -1
                 resp.predictions.append(src)
                 return resp
@@ -272,13 +291,11 @@ class AnalysisSession:
             profiler = RunTimeProfiler()
 
             context = Context(
-                origin_device=source_device,
-                profiler=profiler,
-                percentile=99.5
+                origin_device=source_device, profiler=profiler, percentile=99.5
             )
 
             threshold = self.habitat_compute_threshold(runnable, context)
-            
+
             tracker = habitat.OperationTracker(
                 device=context.origin_device,
                 metrics=[
@@ -289,15 +306,14 @@ class AnalysisSession:
                 metrics_threshold_ms=threshold,
             )
 
-        
             with tracker.track():
                 iteration(*inputs)
-            
+
             print("deepview_predict: tracing on origin device")
             trace = tracker.get_tracked_trace()
 
             src = pm.HabitatDevicePrediction()
-            src.device_name = 'source'
+            src.device_name = "source"
             src.runtime_ms = trace.run_time_ms
             resp.predictions.append(src)
 
@@ -315,16 +331,13 @@ class AnalysisSession:
             message = str(ex)
             logger.error(message)
             resp.analysis_error.error_message = message
-        except:
+        except Exception:
             logger.error("There was an error running DeepView Predict")
-            resp.analysis_error.error_message = "There was an error running DeepView Predict"
+            resp.analysis_error.error_message = (
+                "There was an error running DeepView Predict"
+            )
         finally:
             return resp
-                
-
-        
-       
-        
 
     def measure_breakdown(self, nvml):
         # 1. Measure the breakdown entries
@@ -340,9 +353,11 @@ class AnalysisSession:
             if self._profiler is None:
                 self._initialize_iteration_profiler()
 
-            (self._batch_size_iteration_run_time_ms,
-             self._batch_size_peak_usage_bytes,
-             _) = self._profiler.measure_run_time_ms(self._batch_size)
+            (
+                self._batch_size_iteration_run_time_ms,
+                self._batch_size_peak_usage_bytes,
+                _,
+            ) = self._profiler.measure_run_time_ms(self._batch_size)
 
         # 3. Serialize the measured data
         bm = pm.BreakdownResponse()
@@ -354,9 +369,7 @@ class AnalysisSession:
         breakdown.weights.serialize_to_protobuf(bm.weight_tree)
 
         # 4. Bookkeeping for the throughput measurements
-        self._memory_usage_percentage = (
-            bm.peak_usage_bytes / bm.memory_capacity_bytes
-        )
+        self._memory_usage_percentage = bm.peak_usage_bytes / bm.memory_capacity_bytes
 
         return bm
 
@@ -381,9 +394,7 @@ class AnalysisSession:
 
         # 2. Begin filling in the throughput response
         logger.debug("sampling results", samples)
-        measured_throughput = (
-            samples[0].batch_size / samples[0].run_time_ms * 1000
-        )
+        measured_throughput = samples[0].batch_size / samples[0].run_time_ms * 1000
         throughput = pm.ThroughputResponse()
         throughput.samples_per_second = measured_throughput
         throughput.predicted_max_samples_per_second = math.nan
@@ -396,7 +407,8 @@ class AnalysisSession:
             throughput.batch_size_context.line_number = batch_info[0]
             throughput.can_manipulate_batch_size = batch_info[1]
             throughput.batch_size_context.file_path.components.extend(
-                self._entry_point.split(os.sep))
+                self._entry_point.split(os.sep)
+            )
 
         # 4. If we do not have enough throughput samples, we cannot build any
         #    prediction models so just return the message as-is
@@ -425,33 +437,30 @@ class AnalysisSession:
         throughput.peak_usage_bytes.bias = peak_usage_model[1]
 
         predicted_max_throughput = 1000.0 / run_time_model[0]
-        
+
         # Our prediction can be inaccurate due to sampling error or incorrect
         # assumptions. In these cases, we ignore our prediction. At the very
         # minimum, a good linear model has a positive slope and bias.
-        #if (run_time_model[0] < 1e-3 or run_time_model[1] < 1e-3 or
-        if (run_time_model[0] < 1e-3 or
-                measured_throughput > predicted_max_throughput):
+        # if (run_time_model[0] < 1e-3 or run_time_model[1] < 1e-3 or
+        if run_time_model[0] < 1e-3 or measured_throughput > predicted_max_throughput:
             return throughput
 
         throughput.predicted_max_samples_per_second = predicted_max_throughput
         throughput.run_time_ms.slope = run_time_model[0]
         throughput.run_time_ms.bias = run_time_model[1]
-        
+
         return throughput
 
     def measure_peak_usage_bytes(self):
         self._prepare_for_memory_profiling()
         # Run one iteration to initialize the gradients
-        with user_code_environment(
-                self._path_to_entry_point_dir, self._project_root):
+        with user_code_environment(self._path_to_entry_point_dir, self._project_root):
             model = self._model_provider()
             iteration = self._iteration_provider(model)
             iteration(*self._input_provider(batch_size=self._batch_size))
 
         torch.cuda.reset_max_memory_allocated()
-        with user_code_environment(
-                self._path_to_entry_point_dir, self._project_root):
+        with user_code_environment(self._path_to_entry_point_dir, self._project_root):
             # NOTE: It's important to run at least 2 iterations here. It turns
             #       out that >= 2 iterations is the number of iterations needed
             #       to get a stable measurement of the total memory
@@ -495,12 +504,11 @@ class AnalysisSession:
             iteration_provider=self._iteration_provider,
             input_provider=self._input_provider,
             project_root=self._project_root,
-            user_code_path=self._path_to_entry_point_dir
+            user_code_path=self._path_to_entry_point_dir,
         )
 
 
-def _run_entry_point(
-        path_to_entry_point, path_to_entry_point_dir, project_root):
+def _run_entry_point(path_to_entry_point, path_to_entry_point_dir, project_root):
     with open(path_to_entry_point) as file:
         code_str = file.read()
     with exceptions_as_analysis_errors(project_root):
@@ -525,9 +533,11 @@ def _validate_providers_signatures(
         ).with_file_context(entry_point)
 
     input_sig = inspect.signature(input_provider)
-    if (len(input_sig.parameters) != 1 or
-            BATCH_SIZE_ARG not in input_sig.parameters or
-            type(input_sig.parameters[BATCH_SIZE_ARG].default) is not int):
+    if (
+        len(input_sig.parameters) != 1
+        or BATCH_SIZE_ARG not in input_sig.parameters
+        or type(input_sig.parameters[BATCH_SIZE_ARG].default) is not int
+    ):
         raise AnalysisError(
             "The input provider function must have exactly one '{}' "
             "parameter with an integral default "
@@ -576,9 +586,9 @@ def _wrap_providers_with_validators(
             ).with_file_context(entry_point)
 
         try:
-            input_iter = iter(inputs)
+            iter(inputs)
             return inputs
-        except TypeError as ex:
+        except TypeError:
             raise AnalysisError(
                 "The input provider function must return an iterable that "
                 "contains the inputs for the model."
@@ -609,7 +619,8 @@ def _fit_linear_model(x, y):
     # Linear model: y = slope * x + bias
     return slope, bias
 
-def _convert_to_energy_responses(entries: list)-> List[pm.EnergyResponse]:
+
+def _convert_to_energy_responses(entries: list) -> List[pm.EnergyResponse]:
     energy_response_list = []
     for entry in entries:
         if EnergyTableInterface.is_valid_entry_with_timestamp(entry):
@@ -617,15 +628,17 @@ def _convert_to_energy_responses(entries: list)-> List[pm.EnergyResponse]:
             cpu_component = pm.EnergyConsumptionComponent()
             cpu_component.component_type = pm.ENERGY_CPU_DRAM
             cpu_component.consumption_joules = entry[1]
-                
+
             gpu_component = pm.EnergyConsumptionComponent()
             gpu_component.component_type = pm.ENERGY_NVIDIA
             gpu_component.consumption_joules = entry[2]
-            
-            energy_response.total_consumption = gpu_component.consumption_joules+cpu_component.consumption_joules 
+
+            energy_response.total_consumption = (
+                gpu_component.consumption_joules + cpu_component.consumption_joules
+            )
             energy_response.components.extend([cpu_component, gpu_component])
 
             energy_response.batch_size = entry[3]
             energy_response_list.append(energy_response)
-            
+
     return energy_response_list

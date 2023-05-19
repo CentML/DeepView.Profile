@@ -2,9 +2,7 @@ import os
 import logging
 import pynvml
 import platform
-from random import random
 
-from deepview_profile.config import Config
 from deepview_profile.exceptions import NoConnectionError
 
 import deepview_profile.protocol_gen.innpv_pb2 as pm
@@ -64,7 +62,7 @@ class MessageSender:
 
     def send_habitat_response(self, habitat_resp, context):
         self._send_message(habitat_resp, 'habitat', context)
-    
+
     def send_energy_response(self, energy_resp, context):
         self._send_message(energy_resp, 'energy', context)
 
