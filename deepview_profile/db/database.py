@@ -1,4 +1,4 @@
-import datetime 
+import datetime
 import os
 import sqlite3
 
@@ -7,7 +7,9 @@ DB_PATH = os.path.join(BASE_DIR, "deepview.sqlite3")
 
 class DatabaseInterface:
     def __init__(self, database_name=DB_PATH) -> None:
-        self.connection = sqlite3.connect(database_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
+        self.connection = sqlite3.connect(
+            database_name, detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES
+        )
         self.create_energy_table()
 
     def create_energy_table(self) -> None:
@@ -46,9 +48,9 @@ class EnergyTableInterface:
 
     def add_entry(self, entry: list) -> bool:
         '''
-        Validates an entry and then adds that entry into the Energy table. Note that current timestamp is added 
-        by this function. Returns False if the entry is not a valid format, or if the insertion failed. Else
-        returns True
+        Validates an entry and then adds that entry into the Energy table. Note that
+        current timestamp is added by this function. Returns False if the entry is
+        not a valid format, or if the insertion failed. Else returns True
         '''
         if self.is_valid_entry(entry):
             try:
@@ -69,5 +71,8 @@ class EnergyTableInterface:
         '''
         params = [entry_point, n]
         cursor = self.database_connection.cursor()
-        results = cursor.execute("SELECT * FROM ENERGY WHERE entry_point=? ORDER BY ts DESC LIMIT ?;", params).fetchall()
+        results = cursor.execute(
+            "SELECT * FROM ENERGY WHERE entry_point=? ORDER BY ts DESC LIMIT ?;",
+            params
+        ).fetchall()
         return results

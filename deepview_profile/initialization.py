@@ -1,5 +1,4 @@
 import logging
-import os
 import sys
 
 logger = logging.getLogger(__name__)
@@ -42,11 +41,11 @@ def _validate_dependencies():
     # NOTE: If you make a change here, make sure to update the INSTALL_REQUIRES
     #       list in setup.py as well.
     try:
-        import yaml # pyyaml on PyPI
-        import pynvml # nvidia-ml-py3 on PyPI
-        import google.protobuf # protobuf on PyPI
-        import numpy
-        import torch
+        import yaml # pyyaml on PyPI # noqa: F401
+        import pynvml # nvidia-ml-py3 on PyPI # noqa: F401
+        import google.protobuf # protobuf on PyPI # noqa: F401
+        import numpy # noqa: F401
+        import torch # noqa: F401
         return True
     except ImportError as ex:
         logger.error(

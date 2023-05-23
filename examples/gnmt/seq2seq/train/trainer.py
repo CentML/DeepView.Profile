@@ -13,7 +13,6 @@ from seq2seq.train.fp_optimizers import Fp16Optimizer
 from seq2seq.train.fp_optimizers import Fp32Optimizer
 from seq2seq.train.lr_scheduler import WarmupMultiStepLR
 from seq2seq.utils import AverageMeter
-from seq2seq.utils import gnmt_print
 from seq2seq.utils import sync_workers
 
 
