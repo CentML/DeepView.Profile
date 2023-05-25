@@ -1,17 +1,17 @@
 import torch
-import weakref
+import inspect
 
 from deepview_profile.tracking.base import TrackerBase
 from deepview_profile.tracking.call_stack import CallStack
 from deepview_profile.tracking.hook_manager import HookManager
 from deepview_profile.tracking.utils import tensor_size_bytes
-
+from deepview_profile.util_weak import WeakTensorKeyDictionary
 
 class WeightsTracker(TrackerBase):
     def __init__(self, project_root):
         super().__init__()
         self._hook_manager = HookManager()
-        self._module_parameters = weakref.WeakKeyDictionary()
+        self._module_parameters = WeakTensorKeyDictionary()
         self._project_root = project_root
 
     def start_tracking(self):
@@ -47,7 +47,7 @@ class WeightsTracker(TrackerBase):
             name = args[1]
             parameter = args[2]
             retval = func(*args, **kwargs)
-            if parameter is not None:
+            if parameter is not None and parameter not in self._module_parameters:
                 self._module_parameters[parameter] = (
                     name,
                     CallStack.from_here(self._project_root, start_from=2),
