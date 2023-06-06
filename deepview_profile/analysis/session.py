@@ -150,8 +150,13 @@ class AnalysisSession:
         resp = pm.EnergyResponse()
 
         try:
-            energy_measurer.begin_measurement()
             iterations = 20
+            # warmup
+            for _ in range(iterations):
+                iteration(*inputs)
+
+            # measure
+            energy_measurer.begin_measurement()
             for _ in range(iterations):
                 iteration(*inputs)
             energy_measurer.end_measurement()
