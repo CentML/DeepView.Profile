@@ -30,7 +30,9 @@ jobs:
 
       - name: Create release branch
         run: |
-          git branch release/${{ github.event.inputs.tag }}
+          git checkout -b release/${{ github.event.inputs.tag }}
+          git fetch
+          git branch --set-upstream-to=origin/main release/${{ github.event.inputs.tag }}
 
       - name: Update version number
         run: |
