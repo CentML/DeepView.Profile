@@ -246,7 +246,7 @@ class AnalysisSession:
                 habitat.Device.RTX3090,
                 habitat.Device.A40,
                 habitat.Device.A4000,
-                habitat.Device.RTX4000,
+                habitat.Device.RTX4000
             ]
 
             # Detect source GPU
@@ -264,7 +264,7 @@ class AnalysisSession:
                 None if logging.root.level > logging.DEBUG else habitat.Device.T4
             )
             for device in DEVICES:
-                if device.name in split_source_device_name:
+                if device.name in "".join(split_source_device_name):
                     source_device = device
             pynvml.nvmlShutdown()
             if not source_device:
@@ -331,7 +331,9 @@ class AnalysisSession:
             message = str(ex)
             logger.error(message)
             resp.analysis_error.error_message = message
-        except Exception:
+        except Exception as ex:
+            message = str(ex)
+            logger.error(message)
             logger.error("There was an error running DeepView Predict")
             resp.analysis_error.error_message = (
                 "There was an error running DeepView Predict"
