@@ -17,6 +17,8 @@ from deepview_profile.exceptions import AnalysisError, exceptions_as_analysis_er
 from deepview_profile.profiler.iteration import IterationProfiler
 from deepview_profile.tracking.tracker import Tracker
 from deepview_profile.user_code_utils import user_code_environment
+from deepview_profile.profiler.utilization import UtilizationProfiler
+import json
 
 from typing import List
 
@@ -72,6 +74,7 @@ class AnalysisSession:
         self._memory_usage_percentage = None
         self._batch_size_iteration_run_time_ms = None
         self._batch_size_peak_usage_bytes = None
+        self._utilization = None
         self._energy_table_interface = EnergyTableInterface(
             DatabaseInterface().connection
         )
@@ -140,6 +143,36 @@ class AnalysisSession:
             batch_size,
             StaticAnalyzer(entry_point_code, entry_point_ast),
         )
+    
+    def measure_utilization(self):
+        self._utilization = UtilizationProfiler.new_from(
+            self._model_provider,
+            self._input_provider,
+            self._iteration_provider,
+            self._path_to_entry_point_dir,
+            self._project_root,
+        )
+        resp = pm.UtilizationResponse()
+        try:
+            self._utilization.utilization_analysis(self._batch_size)
+            self._utilization.serialize_response(resp.rootNode)
+            # rootNode = self._utilization.serialize_response()
+            # rootNodeBytes = json.dumps(rootNode).encode('utf-8')
+            # resp.byteRepresentation = rootNodeBytes
+            
+        except AnalysisError as ex:
+            message = str(ex)
+            logger.error(message)
+            resp.analysis_error.error_message = message
+        except Exception as ex:
+            message = str(ex)
+            logger.error(message)
+            print(message)
+            resp.analysis_error.error_message = (
+                "There was an error obtaining device utilization"
+            )
+        finally:
+            return resp 
 
     def energy_compute(self) -> pm.EnergyResponse:
         energy_measurer = EnergyMeasurer()

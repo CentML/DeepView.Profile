@@ -33,6 +33,9 @@ nvidia-ml-py3 = "*"
 toml = "^0.10.2"
 pyRAPL = "^0.2.3"
 deepview-predict = "*"
+perfetto = "*"
+orjson = "*"
+torch-tb-profiler = "*"
 
 [tool.poetry.dev-dependencies]
 

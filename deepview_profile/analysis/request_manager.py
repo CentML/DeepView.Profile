@@ -89,6 +89,22 @@ class AnalysisRequestManager:
                 context,
             )
 
+            # send utilization data
+            if not context.state.connected:
+                logger.error(
+                    'Aborting request %d from (%s:%d) early '
+                    'because the client has disconnected.',
+                    context.sequence_number,
+                    *(context.address),
+                )
+                return
+            utilization_resp = next(analyzer)
+            self._enqueue_response(
+                self._send_utilization_response,
+                utilization_resp,
+                context
+            )
+            
             # send habitat response
             if not context.state.connected:
                 logger.error(
@@ -198,3 +214,23 @@ class AnalysisRequestManager:
         except Exception:
             logger.exception(
                 'Exception occurred when sending an energy response.')
+    
+    def _send_utilization_response(self, utilization_resp, context):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_utilization_response(utilization_resp, context)
+        except Exception:
+            logger.exception(
+                'Exception occurred when sending utilization response.')
+
+    def _early_disconnection_error(self,context):
+        if not context.state.connected:
+            logger.error(
+                'Aborting request %d from (%s:%d) early '
+                'because the client has disconnected.',
+                context.sequence_number,
+                *(context.address),
+            )
+            return True
+        
+        return False
