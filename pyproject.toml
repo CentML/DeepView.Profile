@@ -26,7 +26,7 @@ deepview = "deepview_profile.deepview_profile:main"
 [tool.poetry.dependencies]
 python = "^3.7"
 pyyaml = "*"
-protobuf = "3.18.3"
+protobuf = "3.19.6"
 numpy = "^1.15.2"
 torch = "*"
 nvidia-ml-py3 = "*"

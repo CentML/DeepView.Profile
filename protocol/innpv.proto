@@ -131,7 +131,7 @@ message EnergyConsumptionComponent {
 message UtilizationResponse {
   UtilizationNode rootNode = 1;
   AnalysisError analysis_error = 2;
-  bytes byteRepresentation = 3;
+  float tensor_utilization = 3;
 }
 
 // Records past experiments

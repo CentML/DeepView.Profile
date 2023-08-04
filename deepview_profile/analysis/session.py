@@ -155,11 +155,7 @@ class AnalysisSession:
         resp = pm.UtilizationResponse()
         try:
             self._utilization.utilization_analysis(self._batch_size)
-            self._utilization.serialize_response(resp.rootNode)
-            # rootNode = self._utilization.serialize_response()
-            # rootNodeBytes = json.dumps(rootNode).encode('utf-8')
-            # resp.byteRepresentation = rootNodeBytes
-            
+            resp.tensor_utilization = self._utilization.serialize_response(resp.rootNode)            
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
@@ -167,7 +163,6 @@ class AnalysisSession:
         except Exception as ex:
             message = str(ex)
             logger.error(message)
-            print(message)
             resp.analysis_error.error_message = (
                 "There was an error obtaining device utilization"
             )
@@ -237,7 +232,8 @@ class AnalysisSession:
             logger.error(message)
             resp.analysis_error.error_message = message
         except Exception:
-            logger.error("There was an error obtaining energy measurements")
+            message = str(ex)
+            logger.error(message)
             resp.analysis_error.error_message = (
                 "There was an error obtaining energy measurements"
             )
@@ -366,8 +362,8 @@ class AnalysisSession:
             resp.analysis_error.error_message = message
         except Exception as ex:
             message = str(ex)
-            logger.error(message)
             logger.error("There was an error running DeepView Predict")
+            logger.error(message)
             resp.analysis_error.error_message = (
                 "There was an error running DeepView Predict"
             )

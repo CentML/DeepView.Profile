@@ -12,6 +12,7 @@ from perfetto.trace_processor import TraceProcessor
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.user_code_utils import user_code_environment
 import deepview_profile.protocol_gen.innpv_pb2 as pm
+from torch_tb_profiler.profiler.tensor_core import TC_Allowlist
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,7 @@ class UtilizationProfiler:
         self._path_to_entry_point_dir = path_to_entry_point_dir
         self._project_root = project_root
         self._root_node = None
+        self._tensor_core_perc = None
 
     @classmethod
     def new_from(
@@ -350,6 +352,7 @@ class UtilizationProfiler:
 
     def serialize_response(self,respNode):
         self._serialize_node(respNode,self._root_node)
+        return self._tensor_core_perc
         # return self._serialize_node(respNode,self._root_node,0)
         # for ch in self._root_node.children:
         #     addRespNode = rootRespNode.children.add()
@@ -376,6 +379,23 @@ class UtilizationProfiler:
         #     return nodeList 
 
         # return respNodeCreation(self._root_node) # self._convert_node_to_dict(self._root_node)
+
+    def _calculate_tensor_core_utilization(self,filepath):
+        kernelDict = {"tensorTime":0,"noTensorTime":0,"totalTime":0}
+        with open(filepath,'r') as f:
+            data = orjson.loads(f.read())
+        for event in data["traceEvents"]:
+            if event.get("cat") and event["cat"] == "kernel":
+                if event["name"] in TC_Allowlist:
+                    kernelDict["tensorTime"] += event["dur"]
+                else:
+                    kernelDict["noTensorTime"] += event["dur"]
+                
+        totalTime = kernelDict["tensorTime"] + kernelDict["noTensorTime"]
+        print(f'Tensor time: {kernelDict["tensorTime"]} perc {round(kernelDict["tensorTime"]/totalTime*100,2)}')
+        print(f'No Tensor time: {kernelDict["noTensorTime"]} perc {round(kernelDict["noTensorTime"]/totalTime*100,2)}')
+        print(f'totalTime: {totalTime}')
+        return round(kernelDict["tensorTime"]/totalTime*100,2)
 
     def _deepview_analysis(self, filepath):
         startTime = time.time()
@@ -464,6 +484,7 @@ class UtilizationProfiler:
         endTime = time.time()
         print(f'Total elapsed time: {endTime - startTime}')
         self._root_node = rootNode
+        self._tensor_core_perc = self._calculate_tensor_core_utilization(filepath)
 
 
     def _trace_handler(self, p):

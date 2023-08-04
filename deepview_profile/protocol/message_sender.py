@@ -76,12 +76,6 @@ class MessageSender:
             enclosing_message = pm.FromServer()
             getattr(enclosing_message, payload_name).CopyFrom(message)
             enclosing_message.sequence_number = context.sequence_number 
-            if payload_name == "utilization":
-                import sys
-                print("=========== UTILIZATION START ==============")
-                tmp = enclosing_message.SerializeToString()
-                print(sys.getsizeof(tmp))
-                print("=========== UTILIZATION END ==============")
             connection.send_bytes(enclosing_message.SerializeToString())
         except NoConnectionError:
             logger.debug(
