@@ -1,3 +1,4 @@
+import subprocess
 import functools
 import orjson
 import io
@@ -202,7 +203,7 @@ class UtilizationProfiler:
     # operators executed.
     #
     # this function returns a list of tuples whose elements are in the form:
-    #  (forward_idx, backward_idx, forward_op_name, backward_op_name)
+    #  (forward, backward)
 
     def _lcs(self,forward,backward):
         N, M = len(forward), len(backward)
@@ -229,7 +230,7 @@ class UtilizationProfiler:
             else:
                 j -= 1
 
-        print(f"N = {N}, M = {M}, best matching: {len(matchings)}")
+        logger.debug(f"N = {N}, M = {M}, best matching: {len(matchings)}\n")
         return matchings
     
 
@@ -243,7 +244,7 @@ class UtilizationProfiler:
             if 'tid' in slice and isinstance(slice['tid'], int):
                 slice['tid'] = abs(slice['tid'])
 
-    def _remove_args(slices):
+    def _remove_args(self,slices):
         [slice.pop('args', None) for slice in slices]
 
     def _filter_traces(self, raw_slices):
@@ -267,8 +268,9 @@ class UtilizationProfiler:
             raw_slices['traceEvents']) if idx not in idx_to_filter]
         raw_slices['traceEvents'] = filtered_slices
 
-        with open("filtered_slices.json", 'wb') as f:
-            f.write(orjson.dumps(raw_slices))
+        if logging.root.level == logging.DEBUG:
+            with open("filtered_slices.json", 'wb') as f:
+                f.write(orjson.dumps(raw_slices))
 
     def _get_perfetto_object(self,filepath):
         with open(filepath, 'rb') as f:
@@ -283,7 +285,7 @@ class UtilizationProfiler:
         self._convert_ids_int_string(raw_slices)
         # Convert negative 'tid' values to positive. Without this perfetto combines together the slices with different tids into one track
         self._convert_negative_tids_to_positive(raw_slices)
-        # remove_args(raw_slices) # For speedup
+        self._remove_args(raw_slices) # For speedup
 
         slices_bytes = orjson.dumps(raw_slices)
         slices_bytes = io.BytesIO(slices_bytes)  # 4x speedup using orjson
@@ -353,32 +355,6 @@ class UtilizationProfiler:
     def serialize_response(self,respNode):
         self._serialize_node(respNode,self._root_node)
         return self._tensor_core_perc
-        # return self._serialize_node(respNode,self._root_node,0)
-        # for ch in self._root_node.children:
-        #     addRespNode = rootRespNode.children.add()
-        #     self._serialize_node(addRespNode,ch)
-        # def respNodeCreation(internalNode):
-        #     respNode = pm.UtilizationNode()
-        #     respNode.slice_id = internalNode.slice_id
-        #     respNode.name = internalNode.name
-        #     respNode.start = internalNode.start
-        #     respNode.end = internalNode.end
-        #     respNode.cpu_forward = internalNode.duration
-        #     respNode.cpu_forward_span = internalNode.duration
-        #     respNode.gpu_forward = internalNode.gpu_forward
-        #     respNode.gpu_forward_span = internalNode.gpu_forward_span
-        #     respNode.cpu_backward = internalNode.cpu_backward
-        #     respNode.cpu_backward_span = internalNode.cpu_backward_span
-        #     respNode.gpu_backward = internalNode.gpu_backward
-        #     respNode.gpu_backward_span = internalNode.gpu_backward_span
-
-        #     nodeList = [respNode]
-        #     for ch in internalNode.children:
-        #         nodeList.extend(respNodeCreation(ch))
-
-        #     return nodeList 
-
-        # return respNodeCreation(self._root_node) # self._convert_node_to_dict(self._root_node)
 
     def _calculate_tensor_core_utilization(self,filepath):
         kernelDict = {"tensorTime":0,"noTensorTime":0,"totalTime":0}
@@ -392,9 +368,9 @@ class UtilizationProfiler:
                     kernelDict["noTensorTime"] += event["dur"]
                 
         totalTime = kernelDict["tensorTime"] + kernelDict["noTensorTime"]
-        print(f'Tensor time: {kernelDict["tensorTime"]} perc {round(kernelDict["tensorTime"]/totalTime*100,2)}')
-        print(f'No Tensor time: {kernelDict["noTensorTime"]} perc {round(kernelDict["noTensorTime"]/totalTime*100,2)}')
-        print(f'totalTime: {totalTime}')
+        logger.debug(f'Tensor time: {kernelDict["tensorTime"]} perc {round(kernelDict["tensorTime"]/totalTime*100,2)}\n')
+        logger.debug(f'No Tensor time: {kernelDict["noTensorTime"]} perc {round(kernelDict["noTensorTime"]/totalTime*100,2)}\n')
+        logger.debug(f'totalTime: {totalTime}\n')
         return round(kernelDict["tensorTime"]/totalTime*100,2)
 
     def _deepview_analysis(self, filepath):
@@ -417,7 +393,7 @@ class UtilizationProfiler:
         rootNode = Node(rootQuery['name'], rootQuery['ts'], rootQuery['ts']+rootQuery['dur'],
                         rootQuery['dur'], rootQuery['track_id'], rootQuery['depth'], rootQuery['slice_id'], rootQuery['dur'], 0, 0, 0)
         self._calculate_gpu_forward_time(tp, rootNode)
-        print(rootNode)
+        logger.debug(rootNode,'\n')
 
         stack = deque([rootNode])
 
@@ -445,7 +421,7 @@ class UtilizationProfiler:
         lcsStart = time.time()
         matchings = self._lcs(ForwardPostOrderTraversal, backwardSlices)
         lcsEnd = time.time()
-        print(f'LCS elapsed time: {lcsEnd - lcsStart}')
+        logger.debug(f'LCS elapsed time: {lcsEnd - lcsStart}\n')
 
         countAccumulateGrad = 0
         for slice in backwardSlices:
@@ -453,8 +429,8 @@ class UtilizationProfiler:
                 countAccumulateGrad += 1
 
         numValidBackwardSlices = len(backwardSlices) - countAccumulateGrad
-        print(f'number of valid slices: {numValidBackwardSlices}\n')
-        print(
+        logger.debug(f'number of valid slices: {numValidBackwardSlices}\n')
+        logger.debug(
             f'Number of matched slices: {len(matchings)} percentage: {round(len(matchings)/numValidBackwardSlices*100,2)}\n')
 
         for match in matchings:
@@ -463,35 +439,41 @@ class UtilizationProfiler:
             node.cpu_backward_slices.append(backward_slice)
 
         ## DEBUGGING PROCESS BACKWARD SLICES MATCHING #############
-        matchings.sort(key=lambda x: x[1]['ts'])
-        with open('results.txt', 'w') as file:
-            file.write(f'Total number of backward slices: {len(backwardSlices)}\n')
-            file.write(f'number of valid slices: {numValidBackwardSlices}\n')
-            file.write(
-                f'Number of matched slices: {len(matchings)} percentage: {round(len(matchings)/numValidBackwardSlices*100,2)}\n')
-
-            for m in matchings:
+        if logging.root.level == logging.DEBUG:
+            matchings.sort(key=lambda x: x[1]['ts'])
+            with open('results.txt', 'w') as file:
+                file.write(f'Total number of backward slices: {len(backwardSlices)}\n')
+                file.write(f'number of valid slices: {numValidBackwardSlices}\n')
                 file.write(
-                    f"forward: {m[0].name} {m[0].slice_id} backward: {m[1]['name']} {m[1]['slice_id']}\n")
+                    f'Number of matched slices: {len(matchings)} percentage: {round(len(matchings)/numValidBackwardSlices*100,2)}\n')
+
+                for m in matchings:
+                    file.write(
+                        f"forward: {m[0].name} {m[0].slice_id} backward: {m[1]['name']} {m[1]['slice_id']}\n")
 
         self._accumulate_backward_slices_to_node(rootNode)
         self._populate_backward_data(rootNode)
 
-        profilingResult = self._convert_node_to_dict(rootNode)
-        with open('profiling_results.json', 'wb') as f:
-            f.write(orjson.dumps(profilingResult))
+        if logging.root.level == logging.DEBUG:
+            profilingResult = self._convert_node_to_dict(rootNode)
+            with open('profiling_results.json', 'wb') as f:
+                f.write(orjson.dumps(profilingResult))
 
         endTime = time.time()
-        print(f'Total elapsed time: {endTime - startTime}')
+        logger.debug(f'Total elapsed time: {endTime - startTime}')
         self._root_node = rootNode
         self._tensor_core_perc = self._calculate_tensor_core_utilization(filepath)
+
+        # DELETE PYTORCH PROFILER TRACE (except for debugging purposes)
+        if not (logging.root.level == logging.DEBUG):
+            subprocess.run(["rm",'-f',os.path.join(os.getcwd(),filepath)])
 
 
     def _trace_handler(self, p):
         filename = "raw_trace_file.json"
         p.export_chrome_trace(filename)
         path_to_file = os.path.join(os.getcwd(),filename)
-        print(path_to_file)
+        # print(path_to_file)
         self._deepview_analysis(path_to_file)
 
     def utilization_analysis(self,batch_size):
