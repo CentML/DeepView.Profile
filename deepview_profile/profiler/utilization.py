@@ -10,9 +10,7 @@ import os
 from collections import deque
 from torch.profiler import profile, schedule, ProfilerActivity
 from perfetto.trace_processor import TraceProcessor
-from deepview_profile.exceptions import AnalysisError
 from deepview_profile.user_code_utils import user_code_environment
-import deepview_profile.protocol_gen.innpv_pb2 as pm
 from torch_tb_profiler.profiler.tensor_core import TC_Allowlist
 
 logger = logging.getLogger(__name__)
@@ -473,7 +471,6 @@ class UtilizationProfiler:
         filename = "raw_trace_file.json"
         p.export_chrome_trace(filename)
         path_to_file = os.path.join(os.getcwd(),filename)
-        # print(path_to_file)
         self._deepview_analysis(path_to_file)
 
     def utilization_analysis(self,batch_size):

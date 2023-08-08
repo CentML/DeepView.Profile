@@ -18,7 +18,6 @@ from deepview_profile.profiler.iteration import IterationProfiler
 from deepview_profile.tracking.tracker import Tracker
 from deepview_profile.user_code_utils import user_code_environment
 from deepview_profile.profiler.utilization import UtilizationProfiler
-import json
 
 from typing import List
 
