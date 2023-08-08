@@ -318,5 +318,7 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/python,osx,pycharm,visualstudiocode
 
 *.sqlite3
-*.json
-*.txt
+raw_trace_file.json
+filtered_slices.json 
+profiling_results.json 
+matchin_results.txt

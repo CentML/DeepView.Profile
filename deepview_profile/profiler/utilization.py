@@ -441,7 +441,7 @@ class UtilizationProfiler:
         ## DEBUGGING PROCESS BACKWARD SLICES MATCHING #############
         if logging.root.level == logging.DEBUG:
             matchings.sort(key=lambda x: x[1]['ts'])
-            with open('results.txt', 'w') as file:
+            with open('matching_results.txt', 'w') as file:
                 file.write(f'Total number of backward slices: {len(backwardSlices)}\n')
                 file.write(f'number of valid slices: {numValidBackwardSlices}\n')
                 file.write(
