@@ -57,13 +57,7 @@ class AnalysisRequestManager:
                 connection.project_root, connection.entry_point, self._nvml)
 
             # Abort early if the connection has been closed
-            if not context.state.connected:
-                logger.error(
-                    'Aborting request %d from (%s:%d) early '
-                    'because the client has disconnected.',
-                    context.sequence_number,
-                    *(context.address),
-                )
+            if self._early_disconnection_error(context):
                 return
 
             breakdown = next(analyzer)
@@ -73,13 +67,7 @@ class AnalysisRequestManager:
                 context,
             )
 
-            if not context.state.connected:
-                logger.error(
-                    'Aborting request %d from (%s:%d) early '
-                    'because the client has disconnected.',
-                    context.sequence_number,
-                    *(context.address),
-                )
+            if self._early_disconnection_error(context):
                 return
 
             throughput = next(analyzer)
@@ -90,14 +78,9 @@ class AnalysisRequestManager:
             )
 
             # send utilization data
-            if not context.state.connected:
-                logger.error(
-                    'Aborting request %d from (%s:%d) early '
-                    'because the client has disconnected.',
-                    context.sequence_number,
-                    *(context.address),
-                )
+            if self._early_disconnection_error(context):
                 return
+            
             utilization_resp = next(analyzer)
             self._enqueue_response(
                 self._send_utilization_response,
@@ -106,13 +89,7 @@ class AnalysisRequestManager:
             )
             
             # send habitat response
-            if not context.state.connected:
-                logger.error(
-                    'Aborting request %d from (%s:%d) early '
-                    'because the client has disconnected.',
-                    context.sequence_number,
-                    *(context.address),
-                )
+            if self._early_disconnection_error(context):
                 return
 
             habitat_resp = next(analyzer)
@@ -123,13 +100,7 @@ class AnalysisRequestManager:
             )
 
             # send energy response
-            if not context.state.connected:
-                logger.error(
-                    'Aborting request %d from (%s:%d) early '
-                    'because the client has disconnected.',
-                    context.sequence_number,
-                    *(context.address),
-                )
+            if self._early_disconnection_error(context):
                 return
 
             energy_resp = next(analyzer)
