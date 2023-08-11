@@ -93,26 +93,40 @@ class UtilizationProfiler:
         # calculate the start of the gpu span for this node
         if cudaLaunchList:
             slice_id_origin = cudaLaunchList[0]['slice_id']
-            slice_id_destination = tp.query_dict(
-                f"""select * from flow where slice_out={slice_id_origin}""")
-            if slice_id_destination:
-                cuda_slice = tp.query_dict(
-                    f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
-                span_start = cuda_slice[0]['ts']
+            # slice_id_destination = tp.query_dict(
+            #     f"""select * from flow where slice_out={slice_id_origin}""")
+            # if slice_id_destination:
+            #     cuda_slice = tp.query_dict(
+            #         f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
+            #     span_start = cuda_slice[0]['ts']
+            span_start = self._calculate_gpu_start_end_span(tp,slice_id_origin,"start")
 
         # calculate the end of the gpu span for this node
         if cudaLaunchList and len(cudaLaunchList) > 1:
             slice_id_origin = cudaLaunchList[-1]['slice_id']
-            slice_id_destination = tp.query_dict(
-                f"""select * from flow where slice_out={slice_id_origin}""")
-            if slice_id_destination:
-                cuda_slice = tp.query_dict(
-                    f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
-                span_end = cuda_slice[0]['ts'] + cuda_slice[0]['dur']
+            # slice_id_destination = tp.query_dict(
+            #     f"""select * from flow where slice_out={slice_id_origin}""")
+            # if slice_id_destination:
+            #     cuda_slice = tp.query_dict(
+            #         f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
+            #     span_end = cuda_slice[0]['ts'] + cuda_slice[0]['dur']
+            span_end = self._calculate_gpu_start_end_span(tp,slice_id_origin,"end")
 
         # check if there is a span_end value otherwise set span to time
         node.gpu_forward_span = span_end - span_start if span_end != 0 else time
         node.gpu_forward = time
+
+    def _calculate_gpu_start_end_span(self,tp,slice,condition):
+        res = 0
+        slice_id_destination = tp.query_dict(
+            f"""select * from flow where slice_out={slice}""")
+        if slice_id_destination:
+            cuda_slice = tp.query_dict(
+                f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
+            res = cuda_slice[0]['ts'] if condition == "start" else cuda_slice[0]['ts'] + cuda_slice[0]['dur']
+
+        return res
+
 
     def _backward_slices(self,tp):
         res = []

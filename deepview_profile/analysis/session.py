@@ -230,7 +230,7 @@ class AnalysisSession:
             message = str(ex)
             logger.error(message)
             resp.analysis_error.error_message = message
-        except Exception:
+        except Exception as ex:
             message = str(ex)
             logger.error(message)
             resp.analysis_error.error_message = (
