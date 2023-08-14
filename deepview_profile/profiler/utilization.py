@@ -73,14 +73,31 @@ class UtilizationProfiler:
             iteration = iteration_provider(model)
         return cls(iteration,input_provider,path_to_entry_point_dir,project_root)
     
+    def _calculate_gpu_times(self,kernel_list):
+        # return (span, net time)
+        if not kernel_list:
+            return 0, 0
+        start, prev_end, netTime = kernel_list[0][0], kernel_list[0][1], kernel_list[0][1] - \
+                                    kernel_list[0][0]
+
+        for s, e in kernel_list[1:]:
+            if start <= s < prev_end and prev_end < e:
+                netTime += e - prev_end
+            elif prev_end <= s:
+                netTime += e - s
+            prev_end = max(prev_end, e)
+
+        return (prev_end - start), netTime
+
+    
     def _calculate_gpu_forward_time(self,tp,node):
-        span_start = 0
-        span_end = 0
+        span = 0
         time = 0
         cudaLaunchList = tp.query_dict(f"""select * from slices where name like '%CudaLaunchKernel%' and track_id={node.track}
                                     and depth>{node.depth} and ts between {node.start} and {node.end} ORDER BY ts ASC""")
 
-        # add individual kernel duration
+        # add individual kernels
+        kernel_list = []
         for cudaLaunch in cudaLaunchList:
             slice_id_origin = cudaLaunch['slice_id']
             slice_id_destination = tp.query_dict(
@@ -88,32 +105,14 @@ class UtilizationProfiler:
             if slice_id_destination:
                 cuda_slice = tp.query_dict(
                     f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
-                time += cuda_slice[0]['dur']
+                kernel_list.append((cuda_slice[0]['ts'], cuda_slice[0]['ts'] + cuda_slice[0]['dur']))
 
-        # calculate the start of the gpu span for this node
-        if cudaLaunchList:
-            slice_id_origin = cudaLaunchList[0]['slice_id']
-            span_start = self._calculate_gpu_start_end_span(tp,slice_id_origin,"start")
+        if kernel_list:
+            kernel_list.sort(key=lambda x: x[0])
+            span, time = self._calculate_gpu_times(kernel_list)
 
-        # calculate the end of the gpu span for this node
-        if cudaLaunchList and len(cudaLaunchList) > 1:
-            slice_id_origin = cudaLaunchList[-1]['slice_id']
-            span_end = self._calculate_gpu_start_end_span(tp,slice_id_origin,"end")
-
-        # check if there is a span_end value otherwise set span to time
-        node.gpu_forward_span = span_end - span_start if span_end != 0 else time
+        node.gpu_forward_span = span
         node.gpu_forward = time
-
-    def _calculate_gpu_start_end_span(self,tp,slice,condition):
-        res = 0
-        slice_id_destination = tp.query_dict(
-            f"""select * from flow where slice_out={slice}""")
-        if slice_id_destination:
-            cuda_slice = tp.query_dict(
-                f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
-            res = cuda_slice[0]['ts'] if condition == "start" else cuda_slice[0]['ts'] + cuda_slice[0]['dur']
-
-        return res
 
 
     def _backward_slices(self,tp):
@@ -145,22 +144,6 @@ class UtilizationProfiler:
             node.cpu_backward_slices.extend(self._accumulate_backward_slices_to_node(ch))
 
         return node.cpu_backward_slices
-    
-    def _calculate_backward_gpu_span(self,kernel_slices):
-        # return gpu_span, gpu_net_time
-        minTs = float('inf')
-        maxTs = float('-inf')
-        netTime = 0
-        if not kernel_slices:
-            return 0, 0
-        kernel_slices.sort(key=lambda x: x['ts'])
-        for kernel in kernel_slices:
-            minTs = min(minTs, kernel['ts'])
-            maxTs = max(maxTs, kernel['ts']+kernel['dur'])
-            netTime += kernel['dur']
-
-        span = maxTs - minTs
-        return span, netTime
 
     def _calculate_backward_cpu_span(self,node):
         backward_slices = node.cpu_backward_slices
@@ -175,11 +158,13 @@ class UtilizationProfiler:
             minTs = min(minTs, bw_slice['ts'])
             maxTs = max(maxTs, bw_slice['ts']+bw_slice['dur'])
             netTime += bw_slice['dur']
-            kernel_slices.extend(bw_slice['kernel_list'])
+            kernel_slices.extend([(kernel['ts'],kernel['ts']+kernel['dur']) for kernel in bw_slice['kernel_list']])
 
         node.cpu_backward_span = maxTs - minTs
         node.cpu_backward = netTime
-        node.gpu_backward_span, node.gpu_backward = self._calculate_backward_gpu_span(
+        if kernel_slices:
+            kernel_slices.sort(key=lambda x: x[0])
+            node.gpu_backward_span, node.gpu_backward = self._calculate_gpu_times(
             kernel_slices)
         
 
