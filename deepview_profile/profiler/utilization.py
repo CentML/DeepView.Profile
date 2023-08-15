@@ -77,17 +77,17 @@ class UtilizationProfiler:
         # return (span, net time)
         if not kernel_list:
             return 0, 0
-        start, prev_end, netTime = kernel_list[0][0], kernel_list[0][1], kernel_list[0][1] - \
+        start, end, netTime = kernel_list[0][0], kernel_list[0][1], kernel_list[0][1] - \
                                     kernel_list[0][0]
 
         for s, e in kernel_list[1:]:
-            if start <= s < prev_end and prev_end < e:
-                netTime += e - prev_end
-            elif prev_end <= s:
+            if start <= s < end and end < e:
+                netTime += e - end
+            elif end <= s:
                 netTime += e - s
-            prev_end = max(prev_end, e)
+            end = max(end, e)
 
-        return (prev_end - start), netTime
+        return (end - start), netTime
 
     
     def _calculate_gpu_forward_time(self,tp,node):
@@ -470,6 +470,16 @@ class UtilizationProfiler:
             totalIterations = skip_first + wait + warmup + active
             deepviewSchedule = schedule(skip_first=skip_first,wait=wait,warmup=warmup,active=active,repeat=1)
 
+            ## This step works as a "warm-up". This step is necesary to avoid some inconsistencies in the 
+            ## final result from pytorch profiler
+            with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+                         schedule=deepviewSchedule,
+                         with_stack=True) as p:
+                for _ in range(totalIterations):
+                    self._iteration(*inputs)
+                    p.step()
+
+            # Capture profiling results
             with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
                          schedule=deepviewSchedule,
                          on_trace_ready=self._trace_handler,
