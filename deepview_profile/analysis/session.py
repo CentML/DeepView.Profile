@@ -163,7 +163,7 @@ class AnalysisSession:
             message = str(ex)
             logger.error(message)
             resp.analysis_error.error_message = (
-                "There was an error obtaining device utilization"
+                f"There was an error obtaining device utilization: {message}"
             )
         finally:
             return resp 
@@ -234,7 +234,7 @@ class AnalysisSession:
             message = str(ex)
             logger.error(message)
             resp.analysis_error.error_message = (
-                "There was an error obtaining energy measurements"
+                f"There was an error obtaining energy measurements: {message}"
             )
         finally:
             return resp
@@ -364,7 +364,7 @@ class AnalysisSession:
             logger.error("There was an error running DeepView Predict")
             logger.error(message)
             resp.analysis_error.error_message = (
-                "There was an error running DeepView Predict"
+                f"There was an error running DeepView Predict: {message}"
             )
         finally:
             return resp
