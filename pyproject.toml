@@ -36,6 +36,7 @@ deepview-predict = "*"
 perfetto = "*"
 orjson = "*"
 torch-tb-profiler = "*"
+dill = "*"
 
 [tool.poetry.dev-dependencies]
 

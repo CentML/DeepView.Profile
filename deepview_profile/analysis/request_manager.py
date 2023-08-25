@@ -2,7 +2,7 @@ import logging
 import math
 import time
 from concurrent.futures import ThreadPoolExecutor
-
+import torch.multiprocessing as mp
 from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.nvml import NVML
@@ -24,6 +24,7 @@ class AnalysisRequestManager:
         self._message_sender = message_sender
         self._connection_manager = connection_manager
         self._nvml = NVML()
+        mp.set_start_method("spawn")
 
     def start(self):
         self._nvml.start()
@@ -52,7 +53,8 @@ class AnalysisRequestManager:
                 context.sequence_number,
                 *(context.address),
             )
-            connection = self._connection_manager.get_connection(context.address)
+            connection = self._connection_manager.get_connection(
+                context.address)
             analyzer = analyze_project(
                 connection.project_root, connection.entry_point, self._nvml)
 
@@ -77,17 +79,6 @@ class AnalysisRequestManager:
                 context,
             )
 
-            # send utilization data
-            if self._early_disconnection_error(context):
-                return
-            
-            utilization_resp = next(analyzer)
-            self._enqueue_response(
-                self._send_utilization_response,
-                utilization_resp,
-                context
-            )
-            
             # send habitat response
             if self._early_disconnection_error(context):
                 return
@@ -97,6 +88,17 @@ class AnalysisRequestManager:
                 self._send_habitat_response,
                 habitat_resp,
                 context,
+            )
+
+            # send utilization data
+            if self._early_disconnection_error(context):
+                return
+
+            utilization_resp = next(analyzer)
+            self._enqueue_response(
+                self._send_utilization_response,
+                utilization_resp,
+                context
             )
 
             # send energy response
@@ -185,16 +187,17 @@ class AnalysisRequestManager:
         except Exception:
             logger.exception(
                 'Exception occurred when sending an energy response.')
-    
+
     def _send_utilization_response(self, utilization_resp, context):
         # Called from the main executor. Do not call directly!
         try:
-            self._message_sender.send_utilization_response(utilization_resp, context)
+            self._message_sender.send_utilization_response(
+                utilization_resp, context)
         except Exception:
             logger.exception(
                 'Exception occurred when sending utilization response.')
 
-    def _early_disconnection_error(self,context):
+    def _early_disconnection_error(self, context):
         if not context.state.connected:
             logger.error(
                 'Aborting request %d from (%s:%d) early '
@@ -203,5 +206,5 @@ class AnalysisRequestManager:
                 *(context.address),
             )
             return True
-        
+
         return False

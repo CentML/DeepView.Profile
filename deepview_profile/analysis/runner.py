@@ -1,11 +1,10 @@
 import argparse
 import logging
 import os
-
-import torch
 from deepview_profile.analysis.session import AnalysisSession
 from deepview_profile.nvml import NVML
 from deepview_profile.utils import release_memory
+
 
 def analyze_project(project_root, entry_point, nvml):
     session = AnalysisSession.new_from(project_root, entry_point)
@@ -14,17 +13,17 @@ def analyze_project(project_root, entry_point, nvml):
     print("analyze_project: running measure_breakdown()")
     yield session.measure_breakdown(nvml)
     release_memory()
-    
+
     print("analyze_project: running measure_throughput()")
     yield session.measure_throughput()
-    release_memory()
-    
-    print("analyze_project: running measure_utilization()")
-    yield session.measure_utilization()
     release_memory()
 
     print("analyze_project: running deepview_predict()")
     yield session.habitat_predict()
+    release_memory()
+
+    print("analyze_project: running measure_utilization()")
+    yield session.measure_utilization()
     release_memory()
 
     print("analyze_project: running energy_compute()")

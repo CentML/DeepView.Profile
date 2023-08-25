@@ -8,12 +8,17 @@ import logging
 import time
 import os
 from collections import deque
-from torch.profiler import profile, schedule, ProfilerActivity
 from perfetto.trace_processor import TraceProcessor
 from deepview_profile.user_code_utils import user_code_environment
+from deepview_profile.exceptions import AnalysisError
 from torch_tb_profiler.profiler.tensor_core import TC_Allowlist
+import dill
+from torch.profiler import profile, schedule, ProfilerActivity
+import sys
+logger = logging.getLogger("utilization")
+logger.setLevel(logging.DEBUG)
+FILENAME = "raw_trace_file.json"
 
-logger = logging.getLogger(__name__)
 
 class Node:
     def __init__(self, name, start, end, duration, track, depth, slice_id, cpu_forward, gpu_forward, cpu_backward, gpu_backward):
@@ -45,40 +50,20 @@ class Node:
         ret.append(self)
 
         return ret
-    
+
+
 class UtilizationProfiler:
-    def __init__(self,
-                 iteration,
-                 input_provider,
-                 path_to_entry_point_dir,
-                 project_root):
-        self._iteration = iteration
-        self._input_provider = input_provider
-        self._path_to_entry_point_dir = path_to_entry_point_dir
-        self._project_root = project_root
+    def __init__(self, logging_level):
         self._root_node = None
         self._tensor_core_perc = None
+        self._logging_level = logging_level
 
-    @classmethod
-    def new_from(
-        cls,
-        model_provider,
-        input_provider,
-        iteration_provider,
-        path_to_entry_point_dir,
-        project_root
-    ):
-        with user_code_environment(path_to_entry_point_dir,project_root):
-            model = model_provider()
-            iteration = iteration_provider(model)
-        return cls(iteration,input_provider,path_to_entry_point_dir,project_root)
-    
-    def _calculate_gpu_times(self,kernel_list):
+    def _calculate_gpu_times(self, kernel_list):
         # return (span, net time)
         if not kernel_list:
             return 0, 0
         start, end, netTime = kernel_list[0][0], kernel_list[0][1], kernel_list[0][1] - \
-                                    kernel_list[0][0]
+            kernel_list[0][0]
 
         for s, e in kernel_list[1:]:
             if start <= s < end and end < e:
@@ -89,8 +74,7 @@ class UtilizationProfiler:
 
         return (end - start), netTime
 
-    
-    def _calculate_gpu_forward_time(self,tp,node):
+    def _calculate_gpu_forward_time(self, tp, node):
         span = 0
         time = 0
         cudaLaunchList = tp.query_dict(f"""select * from slices where name like '%CudaLaunchKernel%' and track_id={node.track}
@@ -105,7 +89,8 @@ class UtilizationProfiler:
             if slice_id_destination:
                 cuda_slice = tp.query_dict(
                     f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}")
-                kernel_list.append((cuda_slice[0]['ts'], cuda_slice[0]['ts'] + cuda_slice[0]['dur']))
+                kernel_list.append(
+                    (cuda_slice[0]['ts'], cuda_slice[0]['ts'] + cuda_slice[0]['dur']))
 
         if kernel_list:
             kernel_list.sort(key=lambda x: x[0])
@@ -114,8 +99,7 @@ class UtilizationProfiler:
         node.gpu_forward_span = span
         node.gpu_forward = time
 
-
-    def _backward_slices(self,tp):
+    def _backward_slices(self, tp):
         res = []
         backwardTopOps = tp.query_dict(
             "select * from slices where name like '%Autograd::engine%' and depth=0 ORDER BY ts ASC")
@@ -139,13 +123,14 @@ class UtilizationProfiler:
             res.append(bto)
         return res
 
-    def _accumulate_backward_slices_to_node(self,node):
+    def _accumulate_backward_slices_to_node(self, node):
         for ch in node.children:
-            node.cpu_backward_slices.extend(self._accumulate_backward_slices_to_node(ch))
+            node.cpu_backward_slices.extend(
+                self._accumulate_backward_slices_to_node(ch))
 
         return node.cpu_backward_slices
 
-    def _calculate_backward_cpu_span(self,node):
+    def _calculate_backward_cpu_span(self, node):
         backward_slices = node.cpu_backward_slices
         kernel_slices = []
         if not backward_slices:
@@ -158,23 +143,23 @@ class UtilizationProfiler:
             minTs = min(minTs, bw_slice['ts'])
             maxTs = max(maxTs, bw_slice['ts']+bw_slice['dur'])
             netTime += bw_slice['dur']
-            kernel_slices.extend([(kernel['ts'],kernel['ts']+kernel['dur']) for kernel in bw_slice['kernel_list']])
+            kernel_slices.extend([(kernel['ts'], kernel['ts']+kernel['dur'])
+                                 for kernel in bw_slice['kernel_list']])
 
         node.cpu_backward_span = maxTs - minTs
         node.cpu_backward = netTime
         if kernel_slices:
             kernel_slices.sort(key=lambda x: x[0])
             node.gpu_backward_span, node.gpu_backward = self._calculate_gpu_times(
-            kernel_slices)
-        
+                kernel_slices)
 
-    def _populate_backward_data(self,node):
+    def _populate_backward_data(self, node):
         self._calculate_backward_cpu_span(node)
         for ch in node.children:
             self._populate_backward_data(ch)
 
     @functools.cache
-    def _can_match(self,f,b):
+    def _can_match(self, f, b):
         if "aten" in f and "Backward0" in b:
             raw_f = f[len("aten::"):].lower().replace("_", "")
             raw_b = b[:-len("Backward0")].lower()
@@ -182,7 +167,7 @@ class UtilizationProfiler:
                 raw_f == 't' and raw_b == 'transpose'
 
         return False
-    
+
     # solves the longest common subsequence (LCS) problem, matching
     # the post-ordered model forward pass with the sequence of backward
     # operators executed.
@@ -190,12 +175,13 @@ class UtilizationProfiler:
     # this function returns a list of tuples whose elements are in the form:
     #  (forward, backward)
 
-    def _lcs(self,forward,backward):
+    def _lcs(self, forward, backward):
         N, M = len(forward), len(backward)
         dp = np.zeros((N, M))
         for i in range(N):
             for j in range(M):
-                dp[i, j] = int(self._can_match(forward[i].name, backward[j]['name']))
+                dp[i, j] = int(self._can_match(
+                    forward[i].name, backward[j]['name']))
                 if i > 0:
                     dp[i, j] = max(dp[i, j], dp[i-1, j])
                 if j > 0:
@@ -215,26 +201,27 @@ class UtilizationProfiler:
             else:
                 j -= 1
 
-        logger.debug(f"N = {N}, M = {M}, best matching: {len(matchings)}\n")
+        if self._logging_level == logging.DEBUG:
+            logger.debug(
+                f"N = {N}, M = {M}, best matching: {len(matchings)}\n")
         return matchings
-    
 
-    def _convert_ids_int_string(self,slices):
+    def _convert_ids_int_string(self, slices):
         for slice in slices:
             if 'id' in slice:
                 slice['id'] = str(slice['id'])
 
-    def _convert_negative_tids_to_positive(self,slices):
+    def _convert_negative_tids_to_positive(self, slices):
         for slice in slices:
             if 'tid' in slice and isinstance(slice['tid'], int):
                 slice['tid'] = abs(slice['tid'])
 
-    def _remove_args(self,slices):
+    def _remove_args(self, slices):
         [slice.pop('args', None) for slice in slices]
 
     def _filter_traces(self, raw_slices):
         names_to_filter = ['profiler.py', 'built-in', "torch/", "cudaDeviceSynchronize",
-                       "typing.py", "<module>", "os.py", "_collections", "enum.py", "numpy/", 'DataParallel', 'lib/', '.py']
+                           "typing.py", "<module>", "os.py", "_collections", "enum.py", "numpy/", 'DataParallel', 'lib/', '.py']
         idx_to_filter = []
         for idx, item in enumerate(raw_slices['traceEvents']):
             # SKIP HIGH LEVEL TRACE IDENTIFIER FOR BACKWARD PASS
@@ -253,11 +240,11 @@ class UtilizationProfiler:
             raw_slices['traceEvents']) if idx not in idx_to_filter]
         raw_slices['traceEvents'] = filtered_slices
 
-        if logging.root.level == logging.DEBUG:
+        if self._logging_level == logging.DEBUG:
             with open("filtered_slices.json", 'wb') as f:
                 f.write(orjson.dumps(raw_slices))
 
-    def _get_perfetto_object(self,filepath):
+    def _get_perfetto_object(self, filepath):
         with open(filepath, 'rb') as f:
             raw_slices = orjson.loads(f.read())
 
@@ -270,7 +257,7 @@ class UtilizationProfiler:
         self._convert_ids_int_string(raw_slices)
         # Convert negative 'tid' values to positive. Without this perfetto combines together the slices with different tids into one track
         self._convert_negative_tids_to_positive(raw_slices)
-        self._remove_args(raw_slices) # For speedup
+        self._remove_args(raw_slices)  # For speedup
 
         slices_bytes = orjson.dumps(raw_slices)
         slices_bytes = io.BytesIO(slices_bytes)  # 4x speedup using orjson
@@ -285,12 +272,11 @@ class UtilizationProfiler:
 
         def query_dict(query):
             query = query.lower().replace('select * from slice',
-                                        interesting_fields)  # gives a 15% speedup
+                                          interesting_fields)  # gives a 15% speedup
             try:
                 query_iterator = tp.query(query)
             except Exception as e:
                 print('[ERROR] Unable to run query: %s' % query)
-                # print('[ERROR] Unable to run query.')
                 print(traceback.format_exc())
                 print('\n\n')
                 raise e
@@ -299,51 +285,34 @@ class UtilizationProfiler:
         tp.query_dict = query_dict
 
         return tp
-    
 
-    def _convert_node_to_dict(self,node):
+    def _convert_node_to_dict(self, node):
         newEntry = {'slice_id': node.slice_id,
-                'name': node.name,
-                'start': node.start,
-                'end': node.end,
-                'cpu_forward': node.duration,
-                'cpu_forward_span': node.cpu_forward,
-                'gpu_forward': node.gpu_forward,
-                'gpu_forward_span': node.gpu_forward_span,
-                'cpu_backward': node.cpu_backward,
-                'cpu_backward_span': node.cpu_backward_span,
-                'gpu_backward': node.gpu_backward,
-                'gpu_backward_span': node.gpu_backward_span,
-                'children': list()}
+                    'name': node.name,
+                    'start': node.start,
+                    'end': node.end,
+                    'cpu_forward': node.duration,
+                    'cpu_forward_span': node.cpu_forward,
+                    'gpu_forward': node.gpu_forward,
+                    'gpu_forward_span': node.gpu_forward_span,
+                    'cpu_backward': node.cpu_backward,
+                    'cpu_backward_span': node.cpu_backward_span,
+                    'gpu_backward': node.gpu_backward,
+                    'gpu_backward_span': node.gpu_backward_span,
+                    'children': list()}
         for ch in node.children:
             newEntry['children'].append(self._convert_node_to_dict(ch))
         return newEntry
-    
-    def _serialize_node(self,respNode,internalNode):
-        respNode.slice_id = internalNode.slice_id
-        respNode.name = internalNode.name
-        respNode.start = internalNode.start
-        respNode.end = internalNode.end
-        respNode.cpu_forward = internalNode.duration
-        respNode.cpu_forward_span = internalNode.duration
-        respNode.gpu_forward = internalNode.gpu_forward
-        respNode.gpu_forward_span = internalNode.gpu_forward_span
-        respNode.cpu_backward = internalNode.cpu_backward
-        respNode.cpu_backward_span = internalNode.cpu_backward_span
-        respNode.gpu_backward = internalNode.gpu_backward
-        respNode.gpu_backward_span = internalNode.gpu_backward_span
 
-        for ch in internalNode.children:
-            addRespNode = respNode.children.add()
-            self._serialize_node(addRespNode,ch)
+    def output_to_json(self, path_save_file):
+        node_json = self._convert_node_to_dict(self._root_node)
+        output = {'node': node_json, 'tensor_core': self._tensor_core_perc}
+        with open(os.path.join(path_save_file, 'profiling_results.json'), 'wb') as f:
+            f.write(orjson.dumps(output))
 
-    def serialize_response(self,respNode):
-        self._serialize_node(respNode,self._root_node)
-        return self._tensor_core_perc
-
-    def _calculate_tensor_core_utilization(self,filepath):
-        kernelDict = {"tensorTime":0,"noTensorTime":0,"totalTime":0}
-        with open(filepath,'r') as f:
+    def _calculate_tensor_core_utilization(self, filepath):
+        kernelDict = {"tensorTime": 0, "noTensorTime": 0, "totalTime": 0}
+        with open(filepath, 'r') as f:
             data = orjson.loads(f.read())
         for event in data["traceEvents"]:
             if event.get("cat") and event["cat"] == "kernel":
@@ -351,12 +320,15 @@ class UtilizationProfiler:
                     kernelDict["tensorTime"] += event["dur"]
                 else:
                     kernelDict["noTensorTime"] += event["dur"]
-                
+
         totalTime = kernelDict["tensorTime"] + kernelDict["noTensorTime"]
-        logger.debug(f'Tensor time: {kernelDict["tensorTime"]} perc {round(kernelDict["tensorTime"]/totalTime*100,2)}\n')
-        logger.debug(f'No Tensor time: {kernelDict["noTensorTime"]} perc {round(kernelDict["noTensorTime"]/totalTime*100,2)}\n')
-        logger.debug(f'totalTime: {totalTime}\n')
-        return round(kernelDict["tensorTime"]/totalTime*100,2)
+        if self._logging_level == logging.DEBUG:
+            logger.debug(
+                f'Tensor time: {kernelDict["tensorTime"]} perc {round(kernelDict["tensorTime"]/totalTime*100,2)}\n')
+            logger.debug(
+                f'No Tensor time: {kernelDict["noTensorTime"]} perc {round(kernelDict["noTensorTime"]/totalTime*100,2)}\n')
+            logger.debug(f'totalTime: {totalTime}\n')
+        return round(kernelDict["tensorTime"]/totalTime*100, 2)
 
     def _deepview_analysis(self, filepath):
         startTime = time.time()
@@ -378,7 +350,7 @@ class UtilizationProfiler:
         rootNode = Node(rootQuery['name'], rootQuery['ts'], rootQuery['ts']+rootQuery['dur'],
                         rootQuery['dur'], rootQuery['track_id'], rootQuery['depth'], rootQuery['slice_id'], rootQuery['dur'], 0, 0, 0)
         self._calculate_gpu_forward_time(tp, rootNode)
-        logger.debug(rootNode,'\n')
+        logger.debug(f"{rootNode}\n")
 
         stack = deque([rootNode])
 
@@ -394,7 +366,7 @@ class UtilizationProfiler:
                                             and ts between {node.start} and {node.end}""")
                 for qr in queryResults:
                     newNode = Node(qr['name'], qr['ts'], qr['ts']+qr['dur'],
-                                qr['dur'], qr['track_id'], qr['depth'], qr['slice_id'], qr['dur'], 0, 0, 0)
+                                   qr['dur'], qr['track_id'], qr['depth'], qr['slice_id'], qr['dur'], 0, 0, 0)
                     self._calculate_gpu_forward_time(tp, newNode)
                     node.children.append(newNode)
                     stack.append(newNode)
@@ -403,10 +375,7 @@ class UtilizationProfiler:
             filter(lambda x: 'aten::' in x.name, rootNode.postorder()))
         ForwardPostOrderTraversal.sort(key=lambda x: x.start, reverse=True)
         backwardSlices = self._backward_slices(tp)
-        lcsStart = time.time()
         matchings = self._lcs(ForwardPostOrderTraversal, backwardSlices)
-        lcsEnd = time.time()
-        logger.debug(f'LCS elapsed time: {lcsEnd - lcsStart}\n')
 
         countAccumulateGrad = 0
         for slice in backwardSlices:
@@ -414,9 +383,10 @@ class UtilizationProfiler:
                 countAccumulateGrad += 1
 
         numValidBackwardSlices = len(backwardSlices) - countAccumulateGrad
-        logger.debug(f'number of valid slices: {numValidBackwardSlices}\n')
-        logger.debug(
-            f'Number of matched slices: {len(matchings)} percentage: {round(len(matchings)/numValidBackwardSlices*100,2)}\n')
+        if self._logging_level == logging.DEBUG:
+            logger.debug(f'number of valid slices: {numValidBackwardSlices}\n')
+            logger.debug(
+                f'Number of matched slices: {len(matchings)} percentage: {round(len(matchings)/numValidBackwardSlices*100,2)}\n')
 
         for match in matchings:
             node = match[0]
@@ -424,11 +394,13 @@ class UtilizationProfiler:
             node.cpu_backward_slices.append(backward_slice)
 
         ## DEBUGGING PROCESS BACKWARD SLICES MATCHING #############
-        if logging.root.level == logging.DEBUG:
+        if self._logging_level == logging.DEBUG:
             matchings.sort(key=lambda x: x[1]['ts'])
             with open('matching_results.txt', 'w') as file:
-                file.write(f'Total number of backward slices: {len(backwardSlices)}\n')
-                file.write(f'number of valid slices: {numValidBackwardSlices}\n')
+                file.write(
+                    f'Total number of backward slices: {len(backwardSlices)}\n')
+                file.write(
+                    f'number of valid slices: {numValidBackwardSlices}\n')
                 file.write(
                     f'Number of matched slices: {len(matchings)} percentage: {round(len(matchings)/numValidBackwardSlices*100,2)}\n')
 
@@ -439,7 +411,7 @@ class UtilizationProfiler:
         self._accumulate_backward_slices_to_node(rootNode)
         self._populate_backward_data(rootNode)
 
-        if logging.root.level == logging.DEBUG:
+        if self._logging_level == logging.DEBUG:
             profilingResult = self._convert_node_to_dict(rootNode)
             with open('profiling_results.json', 'wb') as f:
                 f.write(orjson.dumps(profilingResult))
@@ -447,43 +419,76 @@ class UtilizationProfiler:
         endTime = time.time()
         logger.debug(f'Total elapsed time: {endTime - startTime}')
         self._root_node = rootNode
-        self._tensor_core_perc = self._calculate_tensor_core_utilization(filepath)
+        self._tensor_core_perc = self._calculate_tensor_core_utilization(
+            filepath)
 
         # DELETE PYTORCH PROFILER TRACE (except for debugging purposes)
-        if not (logging.root.level == logging.DEBUG):
-            subprocess.run(["rm",'-f',os.path.join(os.getcwd(),filepath)])
+        if not (self._logging_level == logging.DEBUG):
+            subprocess.run(["rm", '-f', os.path.join(os.getcwd(), filepath)])
 
 
-    def _trace_handler(self, p):
-        filename = "raw_trace_file.json"
-        p.export_chrome_trace(filename)
-        path_to_file = os.path.join(os.getcwd(),filename)
-        self._deepview_analysis(path_to_file)
+def _trace_handler(p):
+    p.export_chrome_trace(FILENAME)
 
-    def utilization_analysis(self,batch_size):
-        with user_code_environment(self._path_to_entry_point_dir,self._project_root):
-            inputs = self._input_provider(batch_size=batch_size)
-            skip_first = 2
-            wait = 1
-            warmup = 1
-            active = 1
-            totalIterations = skip_first + wait + warmup + active
-            deepviewSchedule = schedule(skip_first=skip_first,wait=wait,warmup=warmup,active=active,repeat=1)
 
-            ## This step works as a "warm-up". This step is necesary to avoid some inconsistencies in the 
-            ## final result from pytorch profiler
-            with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-                         schedule=deepviewSchedule,
-                         with_stack=True) as p:
-                for _ in range(totalIterations):
-                    self._iteration(*inputs)
-                    p.step()
+def _serialize_node(respNode, internalNode):
+    respNode.slice_id = internalNode["slice_id"]
+    respNode.name = internalNode["name"]
+    respNode.start = int(internalNode["start"])
+    respNode.end = int(internalNode["end"])
+    respNode.cpu_forward = int(internalNode["cpu_forward"])
+    respNode.cpu_forward_span = int(internalNode["cpu_forward_span"])
+    respNode.gpu_forward = int(internalNode["gpu_forward"])
+    respNode.gpu_forward_span = int(internalNode["gpu_forward_span"])
+    respNode.cpu_backward = int(internalNode["cpu_backward"])
+    respNode.cpu_backward_span = int(internalNode["cpu_backward_span"])
+    respNode.gpu_backward = int(internalNode["gpu_backward"])
+    respNode.gpu_backward_span = int(internalNode["gpu_backward_span"])
 
-            # Capture profiling results
-            with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-                         schedule=deepviewSchedule,
-                         on_trace_ready=self._trace_handler,
-                         with_stack=True) as p:
-                for _ in range(totalIterations):
-                    self._iteration(*inputs)
-                    p.step()
+    for ch in internalNode["children"]:
+        addRespNode = respNode.children.add()
+        _serialize_node(addRespNode, ch)
+
+
+def serialize_response(respNode, rootNode):
+    _serialize_node(respNode, rootNode)
+
+
+def utilization_analysis(queue, payload, path_to_entry_point_dir):
+    sys.path.append(path_to_entry_point_dir)
+    try:
+        model_provider, input_provider, iteration_provider, logging_level = dill.loads(
+            payload)
+        model = model_provider()
+        inputs = input_provider()
+        iteration = iteration_provider(model)
+        skip_first = 2
+        wait = 1
+        warmup = 1
+        active = 1
+        totalIterations = skip_first + wait + warmup + active
+        deepviewSchedule = schedule(
+            skip_first=skip_first, wait=wait, warmup=warmup, active=active, repeat=1)
+
+        with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+                     schedule=deepviewSchedule,
+                     on_trace_ready=_trace_handler,
+                     with_stack=True) as p:
+            for _ in range(totalIterations):
+                iteration(*inputs)
+                p.step()
+
+        utilization = UtilizationProfiler(logging_level)
+        path_to_file = os.path.join(os.getcwd(), FILENAME)
+        utilization._deepview_analysis(path_to_file)
+        jsonFormat = {"root_node": utilization._convert_node_to_dict(
+            utilization._root_node), "tensor_core_perc": utilization._tensor_core_perc}
+        queue.put(jsonFormat)
+    except AnalysisError as ex:
+        message = str(ex)
+        logger.error(message)
+        queue.put({"error": message})
+    except Exception as ex:
+        message = str(ex)
+        logger.error(message)
+        queue.put({"error": message})
