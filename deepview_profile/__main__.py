@@ -1,3 +1,6 @@
+import warnings
+warnings.filterwarnings("ignore", message="'deepview_profile.__main__' found in sys.modules after import of package 'deepview_profile', but prior to execution of 'deepview_profile.__main__'; this may result in unpredictable behaviour")
+
 import argparse
 import sys
 

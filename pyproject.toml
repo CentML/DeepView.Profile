@@ -37,6 +37,7 @@ perfetto = "*"
 orjson = "*"
 torch-tb-profiler = "*"
 dill = "*"
+pymongo = "*"
 
 [tool.poetry.dev-dependencies]
 
