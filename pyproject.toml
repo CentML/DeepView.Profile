@@ -21,7 +21,7 @@ packages = [
 include = [ "pyproject.toml" ]
 
 [tool.poetry.scripts]
-deepview = "deepview_profile.deepview_profile:main"
+deepview = "deepview_profile:main"
 
 [tool.poetry.dependencies]
 python = "^3.7"
