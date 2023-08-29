@@ -90,7 +90,7 @@ class SkylineServer:
 
     def _submit_work(self, func, *args, **kwargs):
         print("submit_work", func)
-        #print("submit_work args:", args)
+        # print("submit_work args:", args)
         logger.debug("submit_work args:", args)
         print("submit_work kwargs:", kwargs)
         # Do not call directly - called by another thread to submit work

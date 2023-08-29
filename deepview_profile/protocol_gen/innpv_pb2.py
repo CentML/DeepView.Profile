@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0binnpv.proto\x12\x0einnpv.protocol\"\xcf\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x12/\n\x07generic\x18\x04 \x01(\x0b\x32\x1c.innpv.protocol.GenericEventH\x00\x42\t\n\x07payload\">\n\x0cGenericEvent\x12\x12\n\nevent_type\x18\x01 \x01(\t\x12\x1a\n\x12optional_arguments\x18\x02 \x01(\t\"X\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\x12\x14\n\x0cproject_root\x18\x02 \x01(\t\x12\x13\n\x0b\x65ntry_point\x18\x03 \x01(\t\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\xcf\x03\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x12\x32\n\x07habitat\x18\t \x01(\x0b\x32\x1f.innpv.protocol.HabitatResponseH\x00\x12\x30\n\x06\x65nergy\x18\n \x01(\x0b\x32\x1e.innpv.protocol.EnergyResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"B\n\x17HabitatDevicePrediction\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x12\n\nruntime_ms\x18\x02 \x01(\x02\"\x86\x01\n\x0fHabitatResponse\x12<\n\x0bpredictions\x18\x01 \x03(\x0b\x32\'.innpv.protocol.HabitatDevicePrediction\x12\x35\n\x0e\x61nalysis_error\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisError\"\xf1\x01\n\x0e\x45nergyResponse\x12\x19\n\x11total_consumption\x18\x01 \x01(\x02\x12>\n\ncomponents\x18\x02 \x03(\x0b\x32*.innpv.protocol.EnergyConsumptionComponent\x12\x12\n\nbatch_size\x18\x03 \x01(\x05\x12\x39\n\x11past_measurements\x18\x04 \x03(\x0b\x32\x1e.innpv.protocol.EnergyResponse\x12\x35\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisError\"\x80\x01\n\x1a\x45nergyConsumptionComponent\x12\x46\n\x0e\x63omponent_type\x18\x01 \x01(\x0e\x32..innpv.protocol.EnergyConsumptionComponentType\x12\x1a\n\x12\x63onsumption_joules\x18\x02 \x01(\x02\"\x8c\x01\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\x12.\n\x08hardware\x18\x03 \x01(\x0b\x32\x1c.innpv.protocol.HardwareInfo\"[\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\x12\x33\n\x0c\x66ile_context\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\xa1\x02\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\x12\x30\n\x0brun_time_ms\x18\x03 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x35\n\x10peak_usage_bytes\x18\x04 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x39\n\x12\x62\x61tch_size_context\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12!\n\x19\x63\x61n_manipulate_batch_size\x18\x06 \x01(\x08\"\xea\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x12\n\nbatch_size\x18\x06 \x01(\r\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"{\n\x0b\x43ontextInfo\x12.\n\x07\x63ontext\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x13\n\x0brun_time_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x13\n\x0binvocations\x18\x04 \x01(\r\"\x83\x01\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x35\n\x10\x63ontext_info_map\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.ContextInfo\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"*\n\x0bLinearModel\x12\r\n\x05slope\x18\x01 \x01(\x01\x12\x0c\n\x04\x62ias\x18\x02 \x01(\x01\":\n\x0cHardwareInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x0c\n\x04gpus\x18\x03 \x03(\t\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65*`\n\x1e\x45nergyConsumptionComponentType\x12\x16\n\x12\x45NERGY_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x45NERGY_CPU_DRAM\x10\x01\x12\x11\n\rENERGY_NVIDIA\x10\x02\x62\x06proto3'
+  serialized_pb=b'\n\x0binnpv.proto\x12\x0einnpv.protocol\"\xcf\x01\n\nFromClient\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12\x37\n\ninitialize\x18\x02 \x01(\x0b\x32!.innpv.protocol.InitializeRequestH\x00\x12\x33\n\x08\x61nalysis\x18\x03 \x01(\x0b\x32\x1f.innpv.protocol.AnalysisRequestH\x00\x12/\n\x07generic\x18\x04 \x01(\x0b\x32\x1c.innpv.protocol.GenericEventH\x00\x42\t\n\x07payload\">\n\x0cGenericEvent\x12\x12\n\nevent_type\x18\x01 \x01(\t\x12\x1a\n\x12optional_arguments\x18\x02 \x01(\t\"X\n\x11InitializeRequest\x12\x18\n\x10protocol_version\x18\x01 \x01(\r\x12\x14\n\x0cproject_root\x18\x02 \x01(\t\x12\x13\n\x0b\x65ntry_point\x18\x03 \x01(\t\"(\n\x0f\x41nalysisRequest\x12\x15\n\rmock_response\x18\x01 \x01(\x08\"\x8b\x04\n\nFromServer\x12\x17\n\x0fsequence_number\x18\x01 \x01(\r\x12.\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.ProtocolErrorH\x00\x12\x38\n\ninitialize\x18\x03 \x01(\x0b\x32\".innpv.protocol.InitializeResponseH\x00\x12\x37\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisErrorH\x00\x12\x38\n\nthroughput\x18\x06 \x01(\x0b\x32\".innpv.protocol.ThroughputResponseH\x00\x12\x36\n\tbreakdown\x18\x08 \x01(\x0b\x32!.innpv.protocol.BreakdownResponseH\x00\x12\x32\n\x07habitat\x18\t \x01(\x0b\x32\x1f.innpv.protocol.HabitatResponseH\x00\x12\x30\n\x06\x65nergy\x18\n \x01(\x0b\x32\x1e.innpv.protocol.EnergyResponseH\x00\x12:\n\x0butilization\x18\x0b \x01(\x0b\x32#.innpv.protocol.UtilizationResponseH\x00\x42\t\n\x07payloadJ\x04\x08\x04\x10\x05J\x04\x08\x07\x10\x08R\x0cmemory_usageR\x08run_time\"B\n\x17HabitatDevicePrediction\x12\x13\n\x0b\x64\x65vice_name\x18\x01 \x01(\t\x12\x12\n\nruntime_ms\x18\x02 \x01(\x02\"\x86\x01\n\x0fHabitatResponse\x12<\n\x0bpredictions\x18\x01 \x03(\x0b\x32\'.innpv.protocol.HabitatDevicePrediction\x12\x35\n\x0e\x61nalysis_error\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisError\"\xf1\x01\n\x0e\x45nergyResponse\x12\x19\n\x11total_consumption\x18\x01 \x01(\x02\x12>\n\ncomponents\x18\x02 \x03(\x0b\x32*.innpv.protocol.EnergyConsumptionComponent\x12\x12\n\nbatch_size\x18\x03 \x01(\x05\x12\x39\n\x11past_measurements\x18\x04 \x03(\x0b\x32\x1e.innpv.protocol.EnergyResponse\x12\x35\n\x0e\x61nalysis_error\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisError\"\x80\x01\n\x1a\x45nergyConsumptionComponent\x12\x46\n\x0e\x63omponent_type\x18\x01 \x01(\x0e\x32..innpv.protocol.EnergyConsumptionComponentType\x12\x1a\n\x12\x63onsumption_joules\x18\x02 \x01(\x02\"\x9b\x01\n\x13UtilizationResponse\x12\x31\n\x08rootNode\x18\x01 \x01(\x0b\x32\x1f.innpv.protocol.UtilizationNode\x12\x35\n\x0e\x61nalysis_error\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.AnalysisError\x12\x1a\n\x12tensor_utilization\x18\x03 \x01(\x02\"\x8c\x01\n\x12InitializeResponse\x12\x1b\n\x13server_project_root\x18\x01 \x01(\t\x12)\n\x0b\x65ntry_point\x18\x02 \x01(\x0b\x32\x14.innpv.protocol.Path\x12.\n\x08hardware\x18\x03 \x01(\x0b\x32\x1c.innpv.protocol.HardwareInfo\"[\n\rAnalysisError\x12\x15\n\rerror_message\x18\x01 \x01(\t\x12\x33\n\x0c\x66ile_context\x18\x02 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\"\xa1\x02\n\x12ThroughputResponse\x12\x1a\n\x12samples_per_second\x18\x01 \x01(\x02\x12(\n predicted_max_samples_per_second\x18\x02 \x01(\x02\x12\x30\n\x0brun_time_ms\x18\x03 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x35\n\x10peak_usage_bytes\x18\x04 \x01(\x0b\x32\x1b.innpv.protocol.LinearModel\x12\x39\n\x12\x62\x61tch_size_context\x18\x05 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12!\n\x19\x63\x61n_manipulate_batch_size\x18\x06 \x01(\x08\"\xea\x01\n\x11\x42reakdownResponse\x12\x18\n\x10peak_usage_bytes\x18\x01 \x01(\x04\x12\x1d\n\x15memory_capacity_bytes\x18\x02 \x01(\x04\x12\x1d\n\x15iteration_run_time_ms\x18\x03 \x01(\x02\x12\x12\n\nbatch_size\x18\x06 \x01(\r\x12\x35\n\x0eoperation_tree\x18\x04 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\x12\x32\n\x0bweight_tree\x18\x05 \x03(\x0b\x32\x1d.innpv.protocol.BreakdownNode\"\xca\x01\n\rProtocolError\x12;\n\nerror_code\x18\x01 \x01(\x0e\x32\'.innpv.protocol.ProtocolError.ErrorCode\"|\n\tErrorCode\x12\x0b\n\x07UNKNOWN\x10\x00\x12 \n\x1cUNSUPPORTED_PROTOCOL_VERSION\x10\x01\x12\x1c\n\x18UNINITIALIZED_CONNECTION\x10\x02\x12\"\n\x1e\x41LREADY_INITIALIZED_CONNECTION\x10\x03\"\x1a\n\x04Path\x12\x12\n\ncomponents\x18\x01 \x03(\t\"M\n\rFileReference\x12\'\n\tfile_path\x18\x01 \x01(\x0b\x32\x14.innpv.protocol.Path\x12\x13\n\x0bline_number\x18\x02 \x01(\r\"\xce\x01\n\rBreakdownNode\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x14\n\x0cnum_children\x18\x02 \x01(\r\x12/\n\x08\x63ontexts\x18\x03 \x03(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x32\n\toperation\x18\x04 \x01(\x0b\x32\x1d.innpv.protocol.OperationDataH\x00\x12,\n\x06weight\x18\x05 \x01(\x0b\x32\x1a.innpv.protocol.WeightDataH\x00\x42\x06\n\x04\x64\x61ta\"{\n\x0b\x43ontextInfo\x12.\n\x07\x63ontext\x18\x01 \x01(\x0b\x32\x1d.innpv.protocol.FileReference\x12\x13\n\x0brun_time_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x13\n\x0binvocations\x18\x04 \x01(\r\"\x83\x01\n\rOperationData\x12\x12\n\nforward_ms\x18\x01 \x01(\x02\x12\x13\n\x0b\x62\x61\x63kward_ms\x18\x02 \x01(\x02\x12\x12\n\nsize_bytes\x18\x03 \x01(\x04\x12\x35\n\x10\x63ontext_info_map\x18\x04 \x03(\x0b\x32\x1b.innpv.protocol.ContextInfo\"9\n\nWeightData\x12\x12\n\nsize_bytes\x18\x01 \x01(\x04\x12\x17\n\x0fgrad_size_bytes\x18\x02 \x01(\x04\"*\n\x0bLinearModel\x12\r\n\x05slope\x18\x01 \x01(\x01\x12\x0c\n\x04\x62ias\x18\x02 \x01(\x01\":\n\x0cHardwareInfo\x12\x10\n\x08hostname\x18\x01 \x01(\t\x12\n\n\x02os\x18\x02 \x01(\t\x12\x0c\n\x04gpus\x18\x03 \x03(\t\"\xc0\x02\n\x0fUtilizationNode\x12\x10\n\x08slice_id\x18\x01 \x01(\r\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\r\n\x05start\x18\x03 \x01(\x04\x12\x0b\n\x03\x65nd\x18\x04 \x01(\x04\x12\x13\n\x0b\x63pu_forward\x18\x05 \x01(\x04\x12\x18\n\x10\x63pu_forward_span\x18\x06 \x01(\x04\x12\x13\n\x0bgpu_forward\x18\x07 \x01(\x04\x12\x18\n\x10gpu_forward_span\x18\x08 \x01(\x04\x12\x14\n\x0c\x63pu_backward\x18\t \x01(\x04\x12\x19\n\x11\x63pu_backward_span\x18\n \x01(\x04\x12\x14\n\x0cgpu_backward\x18\x0b \x01(\x04\x12\x19\n\x11gpu_backward_span\x18\x0c \x01(\x04\x12\x31\n\x08\x63hildren\x18\r \x03(\x0b\x32\x1f.innpv.protocol.UtilizationNode\"\x1b\n\x13MemoryUsageResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0fRunTimeResponseJ\x04\x08\x01\x10\x65\"\x17\n\x0f\x41\x63tivationEntryJ\x04\x08\x01\x10\x65\"\x13\n\x0bWeightEntryJ\x04\x08\x01\x10\x65\"\x14\n\x0cRunTimeEntryJ\x04\x08\x01\x10\x65*`\n\x1e\x45nergyConsumptionComponentType\x12\x16\n\x12\x45NERGY_UNSPECIFIED\x10\x00\x12\x13\n\x0f\x45NERGY_CPU_DRAM\x10\x01\x12\x11\n\rENERGY_NVIDIA\x10\x02\x62\x06proto3'
 )
 
 _ENERGYCONSUMPTIONCOMPONENTTYPE = _descriptor.EnumDescriptor(
@@ -48,8 +48,8 @@ _ENERGYCONSUMPTIONCOMPONENTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=3313,
-  serialized_end=3409,
+  serialized_start=3854,
+  serialized_end=3950,
 )
 _sym_db.RegisterEnumDescriptor(_ENERGYCONSUMPTIONCOMPONENTTYPE)
 
@@ -89,8 +89,8 @@ _PROTOCOLERROR_ERRORCODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2327,
-  serialized_end=2451,
+  serialized_start=2545,
+  serialized_end=2669,
 )
 _sym_db.RegisterEnumDescriptor(_PROTOCOLERROR_ERRORCODE)
 
@@ -334,6 +334,13 @@ _FROMSERVER = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='utilization', full_name='innpv.protocol.FromServer.utilization', index=8,
+      number=11, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -352,7 +359,7 @@ _FROMSERVER = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=438,
-  serialized_end=901,
+  serialized_end=961,
 )
 
 
@@ -390,8 +397,8 @@ _HABITATDEVICEPREDICTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=903,
-  serialized_end=969,
+  serialized_start=963,
+  serialized_end=1029,
 )
 
 
@@ -429,8 +436,8 @@ _HABITATRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=972,
-  serialized_end=1106,
+  serialized_start=1032,
+  serialized_end=1166,
 )
 
 
@@ -489,8 +496,8 @@ _ENERGYRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1109,
-  serialized_end=1350,
+  serialized_start=1169,
+  serialized_end=1410,
 )
 
 
@@ -528,8 +535,54 @@ _ENERGYCONSUMPTIONCOMPONENT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1353,
-  serialized_end=1481,
+  serialized_start=1413,
+  serialized_end=1541,
+)
+
+
+_UTILIZATIONRESPONSE = _descriptor.Descriptor(
+  name='UtilizationResponse',
+  full_name='innpv.protocol.UtilizationResponse',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='rootNode', full_name='innpv.protocol.UtilizationResponse.rootNode', index=0,
+      number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='analysis_error', full_name='innpv.protocol.UtilizationResponse.analysis_error', index=1,
+      number=2, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='tensor_utilization', full_name='innpv.protocol.UtilizationResponse.tensor_utilization', index=2,
+      number=3, type=2, cpp_type=6, label=1,
+      has_default_value=False, default_value=float(0),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1544,
+  serialized_end=1699,
 )
 
 
@@ -574,8 +627,8 @@ _INITIALIZERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1484,
-  serialized_end=1624,
+  serialized_start=1702,
+  serialized_end=1842,
 )
 
 
@@ -613,8 +666,8 @@ _ANALYSISERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1626,
-  serialized_end=1717,
+  serialized_start=1844,
+  serialized_end=1935,
 )
 
 
@@ -680,8 +733,8 @@ _THROUGHPUTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1720,
-  serialized_end=2009,
+  serialized_start=1938,
+  serialized_end=2227,
 )
 
 
@@ -747,8 +800,8 @@ _BREAKDOWNRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2012,
-  serialized_end=2246,
+  serialized_start=2230,
+  serialized_end=2464,
 )
 
 
@@ -780,8 +833,8 @@ _PROTOCOLERROR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2249,
-  serialized_end=2451,
+  serialized_start=2467,
+  serialized_end=2669,
 )
 
 
@@ -812,8 +865,8 @@ _PATH = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2453,
-  serialized_end=2479,
+  serialized_start=2671,
+  serialized_end=2697,
 )
 
 
@@ -851,8 +904,8 @@ _FILEREFERENCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2481,
-  serialized_end=2558,
+  serialized_start=2699,
+  serialized_end=2776,
 )
 
 
@@ -916,8 +969,8 @@ _BREAKDOWNNODE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2561,
-  serialized_end=2767,
+  serialized_start=2779,
+  serialized_end=2985,
 )
 
 
@@ -969,8 +1022,8 @@ _CONTEXTINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2769,
-  serialized_end=2892,
+  serialized_start=2987,
+  serialized_end=3110,
 )
 
 
@@ -1022,8 +1075,8 @@ _OPERATIONDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2895,
-  serialized_end=3026,
+  serialized_start=3113,
+  serialized_end=3244,
 )
 
 
@@ -1061,8 +1114,8 @@ _WEIGHTDATA = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3028,
-  serialized_end=3085,
+  serialized_start=3246,
+  serialized_end=3303,
 )
 
 
@@ -1100,8 +1153,8 @@ _LINEARMODEL = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3087,
-  serialized_end=3129,
+  serialized_start=3305,
+  serialized_end=3347,
 )
 
 
@@ -1146,8 +1199,124 @@ _HARDWAREINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3131,
-  serialized_end=3189,
+  serialized_start=3349,
+  serialized_end=3407,
+)
+
+
+_UTILIZATIONNODE = _descriptor.Descriptor(
+  name='UtilizationNode',
+  full_name='innpv.protocol.UtilizationNode',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  create_key=_descriptor._internal_create_key,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='slice_id', full_name='innpv.protocol.UtilizationNode.slice_id', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='name', full_name='innpv.protocol.UtilizationNode.name', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='start', full_name='innpv.protocol.UtilizationNode.start', index=2,
+      number=3, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='end', full_name='innpv.protocol.UtilizationNode.end', index=3,
+      number=4, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='cpu_forward', full_name='innpv.protocol.UtilizationNode.cpu_forward', index=4,
+      number=5, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='cpu_forward_span', full_name='innpv.protocol.UtilizationNode.cpu_forward_span', index=5,
+      number=6, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='gpu_forward', full_name='innpv.protocol.UtilizationNode.gpu_forward', index=6,
+      number=7, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='gpu_forward_span', full_name='innpv.protocol.UtilizationNode.gpu_forward_span', index=7,
+      number=8, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='cpu_backward', full_name='innpv.protocol.UtilizationNode.cpu_backward', index=8,
+      number=9, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='cpu_backward_span', full_name='innpv.protocol.UtilizationNode.cpu_backward_span', index=9,
+      number=10, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='gpu_backward', full_name='innpv.protocol.UtilizationNode.gpu_backward', index=10,
+      number=11, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='gpu_backward_span', full_name='innpv.protocol.UtilizationNode.gpu_backward_span', index=11,
+      number=12, type=4, cpp_type=4, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='children', full_name='innpv.protocol.UtilizationNode.children', index=12,
+      number=13, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=3410,
+  serialized_end=3730,
 )
 
 
@@ -1171,8 +1340,8 @@ _MEMORYUSAGERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3191,
-  serialized_end=3218,
+  serialized_start=3732,
+  serialized_end=3759,
 )
 
 
@@ -1196,8 +1365,8 @@ _RUNTIMERESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3220,
-  serialized_end=3243,
+  serialized_start=3761,
+  serialized_end=3784,
 )
 
 
@@ -1221,8 +1390,8 @@ _ACTIVATIONENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3245,
-  serialized_end=3268,
+  serialized_start=3786,
+  serialized_end=3809,
 )
 
 
@@ -1246,8 +1415,8 @@ _WEIGHTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3270,
-  serialized_end=3289,
+  serialized_start=3811,
+  serialized_end=3830,
 )
 
 
@@ -1271,8 +1440,8 @@ _RUNTIMEENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3291,
-  serialized_end=3311,
+  serialized_start=3832,
+  serialized_end=3852,
 )
 
 _FROMCLIENT.fields_by_name['initialize'].message_type = _INITIALIZEREQUEST
@@ -1294,6 +1463,7 @@ _FROMSERVER.fields_by_name['throughput'].message_type = _THROUGHPUTRESPONSE
 _FROMSERVER.fields_by_name['breakdown'].message_type = _BREAKDOWNRESPONSE
 _FROMSERVER.fields_by_name['habitat'].message_type = _HABITATRESPONSE
 _FROMSERVER.fields_by_name['energy'].message_type = _ENERGYRESPONSE
+_FROMSERVER.fields_by_name['utilization'].message_type = _UTILIZATIONRESPONSE
 _FROMSERVER.oneofs_by_name['payload'].fields.append(
   _FROMSERVER.fields_by_name['error'])
 _FROMSERVER.fields_by_name['error'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
@@ -1315,12 +1485,17 @@ _FROMSERVER.fields_by_name['habitat'].containing_oneof = _FROMSERVER.oneofs_by_n
 _FROMSERVER.oneofs_by_name['payload'].fields.append(
   _FROMSERVER.fields_by_name['energy'])
 _FROMSERVER.fields_by_name['energy'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
+_FROMSERVER.oneofs_by_name['payload'].fields.append(
+  _FROMSERVER.fields_by_name['utilization'])
+_FROMSERVER.fields_by_name['utilization'].containing_oneof = _FROMSERVER.oneofs_by_name['payload']
 _HABITATRESPONSE.fields_by_name['predictions'].message_type = _HABITATDEVICEPREDICTION
 _HABITATRESPONSE.fields_by_name['analysis_error'].message_type = _ANALYSISERROR
 _ENERGYRESPONSE.fields_by_name['components'].message_type = _ENERGYCONSUMPTIONCOMPONENT
 _ENERGYRESPONSE.fields_by_name['past_measurements'].message_type = _ENERGYRESPONSE
 _ENERGYRESPONSE.fields_by_name['analysis_error'].message_type = _ANALYSISERROR
 _ENERGYCONSUMPTIONCOMPONENT.fields_by_name['component_type'].enum_type = _ENERGYCONSUMPTIONCOMPONENTTYPE
+_UTILIZATIONRESPONSE.fields_by_name['rootNode'].message_type = _UTILIZATIONNODE
+_UTILIZATIONRESPONSE.fields_by_name['analysis_error'].message_type = _ANALYSISERROR
 _INITIALIZERESPONSE.fields_by_name['entry_point'].message_type = _PATH
 _INITIALIZERESPONSE.fields_by_name['hardware'].message_type = _HARDWAREINFO
 _ANALYSISERROR.fields_by_name['file_context'].message_type = _FILEREFERENCE
@@ -1343,6 +1518,7 @@ _BREAKDOWNNODE.oneofs_by_name['data'].fields.append(
 _BREAKDOWNNODE.fields_by_name['weight'].containing_oneof = _BREAKDOWNNODE.oneofs_by_name['data']
 _CONTEXTINFO.fields_by_name['context'].message_type = _FILEREFERENCE
 _OPERATIONDATA.fields_by_name['context_info_map'].message_type = _CONTEXTINFO
+_UTILIZATIONNODE.fields_by_name['children'].message_type = _UTILIZATIONNODE
 DESCRIPTOR.message_types_by_name['FromClient'] = _FROMCLIENT
 DESCRIPTOR.message_types_by_name['GenericEvent'] = _GENERICEVENT
 DESCRIPTOR.message_types_by_name['InitializeRequest'] = _INITIALIZEREQUEST
@@ -1352,6 +1528,7 @@ DESCRIPTOR.message_types_by_name['HabitatDevicePrediction'] = _HABITATDEVICEPRED
 DESCRIPTOR.message_types_by_name['HabitatResponse'] = _HABITATRESPONSE
 DESCRIPTOR.message_types_by_name['EnergyResponse'] = _ENERGYRESPONSE
 DESCRIPTOR.message_types_by_name['EnergyConsumptionComponent'] = _ENERGYCONSUMPTIONCOMPONENT
+DESCRIPTOR.message_types_by_name['UtilizationResponse'] = _UTILIZATIONRESPONSE
 DESCRIPTOR.message_types_by_name['InitializeResponse'] = _INITIALIZERESPONSE
 DESCRIPTOR.message_types_by_name['AnalysisError'] = _ANALYSISERROR
 DESCRIPTOR.message_types_by_name['ThroughputResponse'] = _THROUGHPUTRESPONSE
@@ -1365,6 +1542,7 @@ DESCRIPTOR.message_types_by_name['OperationData'] = _OPERATIONDATA
 DESCRIPTOR.message_types_by_name['WeightData'] = _WEIGHTDATA
 DESCRIPTOR.message_types_by_name['LinearModel'] = _LINEARMODEL
 DESCRIPTOR.message_types_by_name['HardwareInfo'] = _HARDWAREINFO
+DESCRIPTOR.message_types_by_name['UtilizationNode'] = _UTILIZATIONNODE
 DESCRIPTOR.message_types_by_name['MemoryUsageResponse'] = _MEMORYUSAGERESPONSE
 DESCRIPTOR.message_types_by_name['RunTimeResponse'] = _RUNTIMERESPONSE
 DESCRIPTOR.message_types_by_name['ActivationEntry'] = _ACTIVATIONENTRY
@@ -1435,6 +1613,13 @@ EnergyConsumptionComponent = _reflection.GeneratedProtocolMessageType('EnergyCon
   # @@protoc_insertion_point(class_scope:innpv.protocol.EnergyConsumptionComponent)
   })
 _sym_db.RegisterMessage(EnergyConsumptionComponent)
+
+UtilizationResponse = _reflection.GeneratedProtocolMessageType('UtilizationResponse', (_message.Message,), {
+  'DESCRIPTOR' : _UTILIZATIONRESPONSE,
+  '__module__' : 'innpv_pb2'
+  # @@protoc_insertion_point(class_scope:innpv.protocol.UtilizationResponse)
+  })
+_sym_db.RegisterMessage(UtilizationResponse)
 
 InitializeResponse = _reflection.GeneratedProtocolMessageType('InitializeResponse', (_message.Message,), {
   'DESCRIPTOR' : _INITIALIZERESPONSE,
@@ -1526,6 +1711,13 @@ HardwareInfo = _reflection.GeneratedProtocolMessageType('HardwareInfo', (_messag
   # @@protoc_insertion_point(class_scope:innpv.protocol.HardwareInfo)
   })
 _sym_db.RegisterMessage(HardwareInfo)
+
+UtilizationNode = _reflection.GeneratedProtocolMessageType('UtilizationNode', (_message.Message,), {
+  'DESCRIPTOR' : _UTILIZATIONNODE,
+  '__module__' : 'innpv_pb2'
+  # @@protoc_insertion_point(class_scope:innpv.protocol.UtilizationNode)
+  })
+_sym_db.RegisterMessage(UtilizationNode)
 
 MemoryUsageResponse = _reflection.GeneratedProtocolMessageType('MemoryUsageResponse', (_message.Message,), {
   'DESCRIPTOR' : _MEMORYUSAGERESPONSE,

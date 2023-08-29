@@ -66,13 +66,16 @@ class MessageSender:
     def send_energy_response(self, energy_resp, context):
         self._send_message(energy_resp, 'energy', context)
 
+    def send_utilization_response(self, utilization_resp, context):
+        self._send_message(utilization_resp, 'utilization', context)
+
     def _send_message(self, message, payload_name, context):
         try:
             connection = self._connection_manager.get_connection(
                 context.address)
             enclosing_message = pm.FromServer()
             getattr(enclosing_message, payload_name).CopyFrom(message)
-            enclosing_message.sequence_number = context.sequence_number
+            enclosing_message.sequence_number = context.sequence_number 
             connection.send_bytes(enclosing_message.SerializeToString())
         except NoConnectionError:
             logger.debug(
