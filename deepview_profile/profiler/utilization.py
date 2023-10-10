@@ -158,7 +158,7 @@ class UtilizationProfiler:
         for ch in node.children:
             self._populate_backward_data(ch)
 
-    @functools.cache
+    @functools.lru_cache(maxsize=None)
     def _can_match(self, f, b):
         if "aten" in f and "Backward0" in b:
             raw_f = f[len("aten::"):].lower().replace("_", "")

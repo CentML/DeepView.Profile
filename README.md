@@ -25,6 +25,7 @@ To run DeepView.Profile, you need:
     The current PyTorch install supports CUDA capabilities sm_37 sm_50 sm_60 sm_70.
     If you want to use the NVIDIA GeForce RTX 3060 Ti GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
     ```
+- **For new RTX 4000 GPUs you need to install pytorch with cuda11.8 [pip install torch==2.0.1+cu118 torchvision==0.15.2+cu118 torchaudio==2.0.2 --index-url https://download.pytorch.org/whl/cu118] otherwise CUPTI will not initialize correctly**
 
 ### Installation from PyPi
 
