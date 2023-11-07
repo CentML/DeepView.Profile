@@ -8,6 +8,7 @@ import deepview_profile
 import deepview_profile.commands.interactive
 import deepview_profile.commands.memory
 import deepview_profile.commands.time
+import deepview_profile.commands.complete
 
 
 def main():
@@ -25,6 +26,7 @@ def main():
     deepview_profile.commands.interactive.register_command(subparsers)
     deepview_profile.commands.memory.register_command(subparsers)
     deepview_profile.commands.time.register_command(subparsers)
+    deepview_profile.commands.complete.register_command(subparsers)
     args = parser.parse_args()
 
     if args.version:
