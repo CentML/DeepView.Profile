@@ -65,14 +65,14 @@ def actual_main(args):
             }
         }
 
-        with NVML() as nvml:
-            analyzer = analyze_project(project_root, args.entry_point, nvml)
+        #with NVML() as nvml:
+        #    analyzer = analyze_project(project_root, args.entry_point, nvml)
 
-            data['analysisState']['breakdown'] = next(analyzer)
-            data['analysisState']['throughput'] = next(analyzer)
-            data['analysisState']['habitat'] = next(analyzer)
-            data['analysisState']['utilization'] = next(analyzer)
-            data['analysisState']['energy'] = next(analyzer)
+        #    data['analysisState']['breakdown'] = next(analyzer)
+        #    data['analysisState']['throughput'] = next(analyzer)
+        #    data['analysisState']['habitat'] = next(analyzer)
+        #    data['analysisState']['utilization'] = next(analyzer)
+        #    data['analysisState']['energy'] = next(analyzer)
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
