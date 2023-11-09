@@ -129,22 +129,22 @@ def actual_main(args):
         release_memory()
         message = None
 
-        is_return_all = args.all is not None
+        is_return_all = args.all
 
-        if args.measure_breakdown is not None or is_return_all: 
+        if args.measure_breakdown or is_return_all: 
             with NVML() as nvml:
                 data['analysisState']['breakdown'] = MessageToDict(next(measure_breakdown(session, nvml)))
 
-        if args.measure_throughput is not None or is_return_all:
+        if args.measure_throughput or is_return_all:
             data['analysisState']['throughput'] = MessageToDict(next(measure_throughput(session)))
 
-        if args.habitat_predict is not None or is_return_all:
+        if args.habitat_predict or is_return_all:
             data['analysisState']['habitat'] = MessageToDict(next(habitat_predict(session)))
 
-        if args.measure_utilization is not None or is_return_all:
+        if args.measure_utilization or is_return_all:
             data['analysisState']['utilization'] = MessageToDict(next(measure_utilization(session)))
 
-        if args.energy_compute is not None or is_return_all:
+        if args.energy_compute or is_return_all:
             data['analysisState']['energy'] = MessageToDict(next(energy_compute(session)))
 
         with open(args.output, "w") as json_file:
