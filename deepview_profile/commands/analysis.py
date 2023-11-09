@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 def register_command(subparsers):
     parser = subparsers.add_parser(
-        "complete",
-        help="Generate a complete time and memory usage report.",
+        "analysis",
+        help="Generate usage report for various analysis.",
     )
     parser.add_argument(
         "entry_point",
