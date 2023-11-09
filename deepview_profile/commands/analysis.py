@@ -117,24 +117,24 @@ def actual_main(args):
             }
         }
 
-        with AnalysisSession.new_from(project_root, args.entry_point) as session: 
-            release_memory()
+        session = AnalysisSession.new_from(project_root, args.entry_point) 
+        release_memory()
 
-            if args.measure_breakdown is not None or args.all is not None: 
-                with NVML() as nvml:
-                    data['analysisState']['breakdown'] = next(measure_breakdown(session, nvml))
+        if args.measure_breakdown is not None or args.all is not None: 
+            with NVML() as nvml:
+                data['analysisState']['breakdown'] = next(measure_breakdown(session, nvml))
 
-            if args.measure_throughput is not None or args.all is not None:
-                data['analysisState']['throughput'] = next(measure_throughput(session))
+        if args.measure_throughput is not None or args.all is not None:
+            data['analysisState']['throughput'] = next(measure_throughput(session))
 
-            if args.habitat_predict is not None or args.all is not None:
-                data['analysisState']['habitat'] = next(habitat_predict(session))
+        if args.habitat_predict is not None or args.all is not None:
+            data['analysisState']['habitat'] = next(habitat_predict(session))
 
-            if args.measure_utilization is not None or args.all is not None:
-                data['analysisState']['utilization'] = next(measure_utilization(session))
+        if args.measure_utilization is not None or args.all is not None:
+            data['analysisState']['utilization'] = next(measure_utilization(session))
 
-            if args.energy_compute is not None or args.all is not None:
-                data['analysisState']['energy'] = next(energy_compute(session))
+        if args.energy_compute is not None or args.all is not None:
+            data['analysisState']['energy'] = next(energy_compute(session))
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
