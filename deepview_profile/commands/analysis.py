@@ -30,26 +30,32 @@ def register_command(subparsers):
     )
     parser.add_argument(
         "--all",
+        action="store_true",
         help="The complete analysis of all methods"
     )
     parser.add_argument(
         "-breakdown", "--measure-breakdown",
+        action="store_true",
         help="Adds breakdown data to results"
     )
     parser.add_argument(
         "-throughput", "--measure-throughput",
+        action="store_true",
         help="Adds throughput data to results"
     )
     parser.add_argument(
         "-predict", "--habitat-predict",
+        action="store_true",
         help="Adds habitat data prediction to results"
     )
     parser.add_argument(
         "-utilization", "--measure-utilization",
+        action="store_true",
         help="Adds utilization data to results"
     )
     parser.add_argument(
         "-energy", "--energy-compute",
+        action="store_true",
         help="Adds energy use to results"
     )
     parser.add_argument(
@@ -123,20 +129,22 @@ def actual_main(args):
         release_memory()
         message = None
 
-        if args.measure_breakdown is not None or args.all is not None: 
+        is_return_all = args.all is not None
+
+        if args.measure_breakdown is not None or is_return_all: 
             with NVML() as nvml:
                 data['analysisState']['breakdown'] = MessageToDict(next(measure_breakdown(session, nvml)))
 
-        if args.measure_throughput is not None or args.all is not None:
+        if args.measure_throughput is not None or is_return_all:
             data['analysisState']['throughput'] = MessageToDict(next(measure_throughput(session)))
 
-        if args.habitat_predict is not None or args.all is not None:
+        if args.habitat_predict is not None or is_return_all:
             data['analysisState']['habitat'] = MessageToDict(next(habitat_predict(session)))
 
-        if args.measure_utilization is not None or args.all is not None:
+        if args.measure_utilization is not None or is_return_all:
             data['analysisState']['utilization'] = MessageToDict(next(measure_utilization(session)))
 
-        if args.energy_compute is not None or args.all is not None:
+        if args.energy_compute is not None or is_return_all:
             data['analysisState']['energy'] = MessageToDict(next(energy_compute(session)))
 
         with open(args.output, "w") as json_file:
