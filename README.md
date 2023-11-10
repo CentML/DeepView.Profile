@@ -73,6 +73,19 @@ You just need to use `deepview memory` instead of `deepview time`.
 python3 -m deepview_profile memory entry_point.py --output my_output_file.sqlite
 ```
 
+To export various available analysis to json file, you may use `deepview analysis --all` command for exact entry point and output file.
+It is also possible to run several optional analysis. There are such analysis available: `--measure-breakdown`, `--measure-throughput`, `--habitat-predict`, `--measure-utilization` , `--energy-compute`
+
+```zsh
+python3 -m deepview_profile analysis entry_point.py --all --output=complete_analysis.json
+```
+
+or various combinations of optional analysis  
+
+```zsh
+python3 -m deepview_profile analysis entry_point.py --measure-breakdown --measure-throughput --habitat-predict --measure-utilization --energy-compute --output=various_analysis.json
+```
+
 <h2 id="dev-setup">Development Environment Setup</h2>
 
 From the project root, do
