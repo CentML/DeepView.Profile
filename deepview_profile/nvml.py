@@ -19,3 +19,12 @@ class NVML:
         # TODO: Support multiple devices
         handle = pynvml.nvmlDeviceGetHandleByIndex(0)
         return pynvml.nvmlDeviceGetMemoryInfo(handle)
+
+    def get_device_names(self):
+        device_names = []
+        for i in range(pynvml.nvmlDeviceGetCount()):
+            handle = pynvml.nvmlDeviceGetHandleByIndex()
+            device_name = pynvml.nvmlDeviceGetName(handle).decode("utf-8")
+            device_names.append(device_name)
+        return device_names
+    
