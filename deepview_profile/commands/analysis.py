@@ -16,7 +16,6 @@ from deepview_profile.error_printing import print_analysis_error
 
 logger = logging.getLogger(__name__)
 
-
 def register_command(subparsers):
     parser = subparsers.add_parser(
         "analysis",
@@ -68,8 +67,6 @@ def register_command(subparsers):
     )
     parser.add_argument("--debug", action="store_true", help="Log debug messages.")
     parser.set_defaults(func=main)
-
-
 
 def measure_breakdown(session, nvml):
     print("analysis: running measure_breakdown()")
@@ -137,10 +134,10 @@ def actual_main(args):
         release_memory()
 
         is_return_all = args.all
-        
-        with NVML() as nvml: 
-            data['analysisState']['hardware_info'] = hardware_information()
-            if args.measure_breakdown or is_return_all: 
+
+        with NVML() as nvml:
+            data['analysisState']['hardware_info'] = hardware_information(nvml)
+            if args.measure_breakdown or is_return_all:
                 data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
 
         if args.measure_throughput or is_return_all:
