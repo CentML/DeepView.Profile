@@ -2,12 +2,11 @@ import logging
 import os
 import sys
 import json
+import platform
 
 from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.nvml import NVML
-from deepview_profile.utils import release_memory
-
-from google.protobuf.json_format import MessageToDict
+from deepview_profile.utils import release_memory, next_message_to_dict
 
 from deepview_profile.initialization import (
     check_skyline_preconditions,
@@ -97,6 +96,15 @@ def energy_compute(session):
     yield session.energy_compute()
     release_memory()
 
+def hardware_information(nvml):
+    
+    hardware_info = { 
+        'hostname': platform.node(),
+        'os': " ".join(list(platform.uname())),
+        'gpus': nvml.get_device_names()
+    }
+    return hardware_info
+
 def actual_main(args): 
     from deepview_profile.analysis.session import AnalysisSession
     from deepview_profile.exceptions import AnalysisError
@@ -125,27 +133,28 @@ def actual_main(args):
             }
         }
 
-        session = AnalysisSession.new_from(project_root, args.entry_point) 
+        session = AnalysisSession.new_from(project_root, args.entry_point)
         release_memory()
-        message = None
+
+        with NVML() as nvml: 
+            data['analysisState']['hardware_info'] = hardware_information()
 
         is_return_all = args.all
 
         if args.measure_breakdown or is_return_all: 
-            with NVML() as nvml:
-                data['analysisState']['breakdown'] = MessageToDict(next(measure_breakdown(session, nvml)))
+            data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
 
         if args.measure_throughput or is_return_all:
-            data['analysisState']['throughput'] = MessageToDict(next(measure_throughput(session)))
+            data['analysisState']['throughput'] = next_message_to_dict(measure_throughput(session))
 
         if args.habitat_predict or is_return_all:
-            data['analysisState']['habitat'] = MessageToDict(next(habitat_predict(session)))
+            data['analysisState']['habitat'] = next_message_to_dict(habitat_predict(session))
 
         if args.measure_utilization or is_return_all:
-            data['analysisState']['utilization'] = MessageToDict(next(measure_utilization(session)))
+            data['analysisState']['utilization'] = next_message_to_dict(measure_utilization(session))
 
         if args.energy_compute or is_return_all:
-            data['analysisState']['energy'] = MessageToDict(next(energy_compute(session)))
+            data['analysisState']['energy'] = next_message_to_dict(energy_compute(session))
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
@@ -153,7 +162,6 @@ def actual_main(args):
     except AnalysisError as ex: 
         print_analysis_error(ex)
         sys.exit(1)
-
 
 def main(args): 
     check_skyline_preconditions(args)
