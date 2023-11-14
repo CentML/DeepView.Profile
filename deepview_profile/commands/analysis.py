@@ -136,13 +136,12 @@ def actual_main(args):
         session = AnalysisSession.new_from(project_root, args.entry_point)
         release_memory()
 
+        is_return_all = args.all
+        
         with NVML() as nvml: 
             data['analysisState']['hardware_info'] = hardware_information()
-
-        is_return_all = args.all
-
-        if args.measure_breakdown or is_return_all: 
-            data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
+            if args.measure_breakdown or is_return_all: 
+                data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
 
         if args.measure_throughput or is_return_all:
             data['analysisState']['throughput'] = next_message_to_dict(measure_throughput(session))
