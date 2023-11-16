@@ -24,7 +24,7 @@ def files_encoded_content(path):
 
         for root, subFolders, files in os.walk(path):
             for file in files:
-                if os.path.splitext(file)[1] == ".py":
+                if os.path.splitext(file)[1] == ".py" and file != "entry_point.py":
                     file_dict = {
                         "name": file,
                         "content": ""
