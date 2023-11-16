@@ -34,7 +34,7 @@ def files_encoded_content(path):
 
                     with open(filename, "r") as f:
                         file_content = f.read()
-                        file_dict["content"] = base64.b64encode(file_content.encode("utf-8"))
+                        file_dict["content"] = base64.b64encode(file_content.encode("utf-8")).decode("utf-8")
                         encoded_files.append(file_dict)
 
     return encoded_files
