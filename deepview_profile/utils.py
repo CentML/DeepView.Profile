@@ -17,7 +17,7 @@ def next_message_to_dict(object):
     message = next(object)
     return MessageToDict(message)
 
-def recursive_files_encoded_content(path):
+def files_encoded_content(path):
     encoded_files = []
 
     if not os.path.isfile(path):
