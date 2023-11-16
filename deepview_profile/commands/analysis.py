@@ -6,7 +6,7 @@ import platform
 
 from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.nvml import NVML
-from deepview_profile.utils import release_memory, next_message_to_dict
+from deepview_profile.utils import release_memory, next_message_to_dict, files_encoded_content
 
 from deepview_profile.initialization import (
     check_skyline_preconditions,
@@ -127,7 +127,8 @@ def actual_main(args):
                 "additionalProviders": "",
                 "energy": {},
                 "utilization": {}
-            }
+            },
+            "encodedFiles": []
         }
 
         session = AnalysisSession.new_from(project_root, args.entry_point)
@@ -151,6 +152,9 @@ def actual_main(args):
 
         if args.energy_compute or is_return_all:
             data['analysisState']['energy'] = next_message_to_dict(energy_compute(session))
+
+        path = os.path.dirname(args.entry_point)
+        data['encodedFiles'] = files_encoded_content(path)
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
