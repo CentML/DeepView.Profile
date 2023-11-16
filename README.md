@@ -75,11 +75,13 @@ python3 -m deepview_profile memory entry_point.py --output my_output_file.sqlite
 
 To export various available analysis to json file, you may use `deepview analysis --all` command for exact entry point and output file. It is required to later view the analysis on the web viewer.
 
-It is also possible to run several optional analysis. There are such analysis available: `--measure-breakdown`, `--measure-throughput`, `--habitat-predict`, `--measure-utilization` , `--energy-compute`
+It is also possible to run several optional analysis. There are such analysis available: `--measure-breakdown`, `--measure-throughput`, `--habitat-predict`, `--measure-utilization` , `--energy-compute`, `--no-files`
 
 ```zsh
-python3 -m deepview_profile analysis entry_point.py --all --output=complete_analysis.json
+python3 -m deepview_profile analysis entry_point.py --all --no-files  --output=complete_analysis.json 
 ```
+
+`--no-files` option allows not adding `encodedFiles` section to output
 
 or various combinations of optional analysis  
 

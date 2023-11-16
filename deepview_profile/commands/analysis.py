@@ -65,6 +65,11 @@ def register_command(subparsers):
         "--log-file",
         help="The location of the log file",
     )
+    parser.add_argument(
+        "--no-files",
+        action="store_true",
+        help="Allows not adding encodedFiles section"
+    )
     parser.add_argument("--debug", action="store_true", help="Log debug messages.")
     parser.set_defaults(func=main)
 
@@ -153,8 +158,9 @@ def actual_main(args):
         if args.energy_compute or is_return_all:
             data['analysisState']['energy'] = next_message_to_dict(energy_compute(session))
 
-        path = os.path.dirname(args.entry_point)
-        data['encodedFiles'] = files_encoded_content(path)
+        if not args.no_files:
+            path = os.path.dirname(args.entry_point)
+            data['encodedFiles'] = files_encoded_content(path)
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
