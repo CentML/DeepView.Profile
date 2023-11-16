@@ -154,7 +154,9 @@ def actual_main(args):
             data['analysisState']['energy'] = next_message_to_dict(energy_compute(session))
 
         base_path = os.path.basename(args.entry_point)
-        data['encodedFiles'] = files_encoded_content(base_path)
+        print("Base path:", base_path)
+
+        #data['encodedFiles'] = files_encoded_content(base_path)
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
