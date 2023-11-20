@@ -20,22 +20,31 @@ def next_message_to_dict(object):
 def files_encoded_content(path):
     encoded_files = []
 
-    if not os.path.isfile(path):
+    if os.path.isfile(path):
+        return encoded_files
 
-        for root, subFolders, files in os.walk(path):
-            for file in files:
-                if os.path.splitext(file)[1] == ".py" and file != "entry_point.py":
-                    file_dict = {
-                        "name": file,
-                        "content": ""
-                    }
+    for root, subFolders, files in os.walk(path):
+        for file in files:
+            encoded_file = encode_file(root, file)
 
-                    filename = os.path.join(root, file)
-
-                    with open(filename, "r") as f:
-                        file_content = f.read()
-                        file_dict["content"] = base64.b64encode(file_content.encode("utf-8")).decode("utf-8")
-                        encoded_files.append(file_dict)
+            if encoded_file is not None:
+                encoded_files.append(encoded_file)
 
     return encoded_files
+
+def encode_file(root, file): 
+    file_dict = None
+    if os.path.splitext(file)[1] == ".py" and file != "entry_point.py":
+        file_dict = {
+            "name": file,
+            "content": ""
+        }
+
+        filename = os.path.join(root, file)
+
+        with open(filename, "r") as f:
+            file_content = f.read()
+            file_dict["content"] = base64.b64encode(file_content.encode("utf-8")).decode("utf-8")
+    return file_dict
+
 
