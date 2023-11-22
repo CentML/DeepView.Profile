@@ -13,9 +13,27 @@ def release_memory():
     gc.collect()
     torch.cuda.empty_cache()
 
-def next_message_to_dict(object): 
+def next_message_to_dict(object):
     message = next(object)
     return MessageToDict(message)
+
+def files_encoded_unique(operation_tree):
+    encoded_files = []
+
+    for analysis in operation_tree:
+        context_info_map = analysis['operation']['contextInfoMap']
+        if len(context_info_map) > 0:
+            filename = list(context_info_map[0]['context']['filePath']['components']).pop()
+
+            try: 
+                file_index = encoded_files.index(filename)
+            except:
+                file_path = os.path.join("", context_info_map[0]['context']['filePath']['components'])
+
+                encoded_file = encode_file("", file_path)
+                encoded_files.append(encoded_file)
+
+    return encoded_files
 
 def files_encoded_content(path):
     encoded_files = []
@@ -47,5 +65,3 @@ def encode_file(root, file):
             file_dict["content"] = base64.b64encode(file_content.encode("utf-8")).decode("utf-8")
 
     return file_dict
-
-

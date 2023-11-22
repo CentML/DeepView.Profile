@@ -6,7 +6,7 @@ import platform
 
 from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.nvml import NVML
-from deepview_profile.utils import release_memory, next_message_to_dict, files_encoded_content
+from deepview_profile.utils import release_memory, next_message_to_dict, files_encoded_unique
 
 from deepview_profile.initialization import (
     check_skyline_preconditions,
@@ -146,6 +146,10 @@ def actual_main(args):
             if args.measure_breakdown or is_return_all:
                 data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
 
+                operation_tree = data['analysisState']['breakdown']['operationTree']
+                if not args.no_files and operation_tree is not None:
+                    data['encodedFiles'] = files_encoded_unique(operation_tree)
+
         if args.measure_throughput or is_return_all:
             data['analysisState']['throughput'] = next_message_to_dict(measure_throughput(session))
 
@@ -157,10 +161,6 @@ def actual_main(args):
 
         if args.energy_compute or is_return_all:
             data['analysisState']['energy'] = next_message_to_dict(energy_compute(session))
-
-        if not args.no_files:
-            path = os.path.dirname(args.entry_point)
-            data['encodedFiles'] = files_encoded_content(path)
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
