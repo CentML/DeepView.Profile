@@ -66,7 +66,7 @@ def register_command(subparsers):
         help="The location of the log file",
     )
     parser.add_argument(
-        "--no-files",
+        "--exclude-source",
         action="store_true",
         help="Allows not adding encodedFiles section"
     )
@@ -147,7 +147,7 @@ def actual_main(args):
                 data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
 
                 operation_tree = data['analysisState']['breakdown']['operationTree']
-                if not args.no_files and operation_tree is not None:
+                if not args.exclude_source and operation_tree is not None:
                     data['encodedFiles'] = files_encoded_unique(operation_tree)
 
         if args.measure_throughput or is_return_all:
