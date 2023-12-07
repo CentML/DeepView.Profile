@@ -21,13 +21,13 @@ def files_encoded_unique(operation_tree):
     encoded_files = []
 
     for analysis in operation_tree:
-        context_info_map = analysis['operation']['contextInfoMap']
-        if len(context_info_map) > 0:
+        context_info_map = analysis['operation'].get('contextInfoMap', None)
+        if context_info_map is not None and len(context_info_map) > 0:
             filename = list(context_info_map[0]['context']['filePath']['components']).pop()
 
-            try: 
-                file_index = encoded_files.index(filename)
-            except:
+            already_in_list = next((item for item in encoded_files if item['name'] == filename), None)
+            if not already_in_list:
+                print(f"new file: {filename}")
                 file_path = os.path.join("", context_info_map[0]['context']['filePath']['components'])
 
                 encoded_file = encode_file("", file_path)

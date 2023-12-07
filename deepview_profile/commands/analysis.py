@@ -133,6 +133,8 @@ def actual_main(args):
                 "energy": {},
                 "utilization": {}
             },
+            "epochs": 50,
+            "iterPerEpoch": 1000,
             "encodedFiles": []
         }
 
