@@ -27,7 +27,6 @@ def files_encoded_unique(operation_tree):
 
             already_in_list = next((item for item in encoded_files if item['name'] == filename), None)
             if not already_in_list:
-                print(f"new file: {filename}")
                 file_path = os.path.join("", *list(context_info_map[0]['context']['filePath']['components']))
 
                 encoded_file = encode_file("", file_path)
