@@ -28,24 +28,9 @@ def files_encoded_unique(operation_tree):
             already_in_list = next((item for item in encoded_files if item['name'] == filename), None)
             if not already_in_list:
                 print(f"new file: {filename}")
-                file_path = os.path.join("", context_info_map[0]['context']['filePath']['components'])
+                file_path = os.path.join("", *list(context_info_map[0]['context']['filePath']['components']))
 
                 encoded_file = encode_file("", file_path)
-                encoded_files.append(encoded_file)
-
-    return encoded_files
-
-def files_encoded_content(path):
-    encoded_files = []
-
-    if os.path.isfile(path):
-        return encoded_files
-
-    for root, subFolders, files in os.walk(path):
-        for file in files:
-            encoded_file = encode_file(root, file)
-
-            if encoded_file is not None:
                 encoded_files.append(encoded_file)
 
     return encoded_files
