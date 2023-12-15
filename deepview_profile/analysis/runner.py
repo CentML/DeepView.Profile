@@ -30,6 +30,10 @@ def analyze_project(project_root, entry_point, nvml):
     yield session.energy_compute()
     release_memory()
 
+    print("analyze_project: running ddp_computation()")
+    yield session.ddp_computation()
+    release_memory()
+
 
 def main():
     # This is used for development and debugging purposes

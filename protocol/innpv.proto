@@ -61,6 +61,9 @@ message AnalysisRequest {
   // Set this to receive a mock response from the server.
   // This is useful when developing the UI to avoid waiting for the analysis.
   bool mock_response = 1;
+
+  // Send DDP analysis request
+  bool ddp_analysis_request = 2;
 }
 
 
@@ -79,6 +82,7 @@ message FromServer {
     HabitatResponse habitat = 9;
     EnergyResponse energy = 10;
     UtilizationResponse utilization = 11;
+    DdpResponse ddp = 12;
   }
 
   // Deprecated messages
@@ -132,6 +136,17 @@ message UtilizationResponse {
   UtilizationNode rootNode = 1;
   AnalysisError analysis_error = 2;
   float tensor_utilization = 3;
+}
+
+// DDP message
+// =====================================
+
+message DdpResponse {
+  float forward_time_ms = 1;
+  repeated float bucket_sizes = 2;
+  repeated float expected_max_2gpus = 3;
+  repeated float expected_max_4gpus = 4;
+  AnalysisError analysis_error = 5;
 }
 
 // Records past experiments

@@ -1,0 +1,214 @@
+from torch.utils._pytree import tree_map
+import torch.distributed as dist
+import traceback
+import orjson
+from perfetto.trace_processor import TraceProcessor
+import io
+
+def get_bucket_sizes(model, cap_size):
+    params = [p for p in model.parameters() if p.requires_grad]
+    bucket_cap_mb = cap_size
+    bucket_bytes_cap = int(bucket_cap_mb * 1024 * 1024)
+    bucket_size_limits = [
+        dist._DEFAULT_FIRST_BUCKET_BYTES,
+        bucket_bytes_cap,
+    ]
+
+    (
+        bucket_indices,
+        per_bucket_size_limits,
+    ) = dist._compute_bucket_assignment_by_size(
+        params, bucket_size_limits, [False] * len(params)
+    )
+    bucket_sizes = []
+    bucket_indices_backward = bucket_indices[::-1]
+    params_in_buckets = tree_map(
+        lambda idx: list(model.parameters())[idx], bucket_indices_backward
+    )
+    for bucket in params_in_buckets:
+        for p in bucket:
+            assert p.element_size() == 4, "element is not float 32"
+        size_bytes = sum(p.numel() * p.element_size() for p in bucket)
+        size_mb = round(size_bytes / 1024 / 1024, 3)
+        bucket_sizes.append(size_mb)
+
+    return bucket_sizes
+
+def convert_ids_int_string(slices):
+    for slice in slices:
+        if "id" in slice:
+            slice["id"] = str(slice["id"])
+
+
+def convert_negative_tids_to_positive(slices):
+    for slice in slices:
+        if "tid" in slice and isinstance(slice["tid"], int):
+            slice["tid"] = abs(slice["tid"])
+
+
+def remove_args(slices):
+    [slice.pop("args", None) for slice in slices]
+
+
+def get_perfetto_object(filepath):
+    with open(filepath, "rb") as f:
+        raw_slices = orjson.loads(f.read())
+
+    if isinstance(raw_slices, dict) and "traceEvents" in raw_slices:
+        # Perfetto doesn't want this format produced by PyTorch
+        raw_slices = raw_slices.pop("traceEvents", None)
+    # Convert IDs from int to string. Without this perfetto fails to JSON load trace with IDs stored as integers.
+    convert_ids_int_string(raw_slices)
+    # Convert negative 'tid' values to positive. Without this perfetto combines together the slices with different tids into one track
+    convert_negative_tids_to_positive(raw_slices)
+    remove_args(raw_slices)  # For speedup
+
+    slices_bytes = orjson.dumps(raw_slices)
+    slices_bytes = io.BytesIO(slices_bytes)  # 4x speedup using orjson
+
+    try:
+        tp = TraceProcessor(slices_bytes)
+    except ConnectionResetError as e:
+        # This happens sometimes so retry once
+        tp = TraceProcessor(slices_bytes)
+
+    interesting_fields = "SELECT ts, dur, track_id, category, name, depth, cat, slice_id, id, arg_set_id FROM slice"
+
+    def query_dict(query):
+        query = query.lower().replace(
+            "select * from slice", interesting_fields
+        )  # gives a 15% speedup
+        try:
+            query_iterator = tp.query(query)
+        except Exception as e:
+            print("[ERROR] Unable to run query: %s" % query)
+            print(traceback.format_exc())
+            print("\n\n")
+            raise e
+        return [item.__dict__ for item in query_iterator]
+
+    tp.query_dict = query_dict
+
+    return tp
+
+
+def read_gpu_slice(tp, cpu_input_slice):
+    cuda_slice = None
+    slice_id_origin = cpu_input_slice["slice_id"]
+    slice_id_destination = tp.query_dict(
+        f"""select * from flow where slice_out={slice_id_origin}"""
+    )
+
+    if slice_id_destination:
+        cuda_slice = tp.query_dict(
+            f"select * from slice where slice_id={slice_id_destination[0]['slice_in']}"
+        )[0]
+
+    return cuda_slice
+
+
+def get_first_last_step(filepath):
+    tp = get_perfetto_object(filepath)
+    steps_arr = tp.query_dict(f"select * from slices where name like '%ProfilerStep#%'")
+    first_step = int(steps_arr[0]["name"].split("#")[1])
+    last_step = int(steps_arr[-1]["name"].split("#")[1])
+
+    return first_step, last_step
+
+
+def get_single_gpu_backward_info(filepath, step):
+    """
+    READ INFORMATION FROM PYTORCH PROFILER WITH ONLY A SINGLE GPU
+    """
+    tp = get_perfetto_object(filepath)
+    profiler_step = tp.query_dict(
+        f"select * from slices where name like '%ProfilerStep#{step}%'"
+    )[0]
+    start_step = profiler_step["ts"]
+    end_step = profiler_step["ts"] + profiler_step["dur"]
+
+    backward_track = tp.query_dict(
+        f"""
+                                    SELECT track_id from slices
+                                    WHERE name like '%autograd::%'
+                                    AND ts> {start_step} and ts < {end_step}
+                                    """
+    )[0]["track_id"]
+
+    ## ==================== GET TOTAL BACKWARD TIME =================== ##
+
+    backward_slices = tp.query_dict(
+        f"""
+                                        select * from slices where track_id={backward_track}
+                                        AND ts > {start_step} AND ts < {end_step}
+                                        """
+    )
+    # print("start backward\n", backward_slices[0])
+    start_backward, end_backward = (
+        backward_slices[0]["ts"],
+        backward_slices[-1]["ts"] + backward_slices[-1]["dur"],
+    )
+    backward_cuda_calls = tp.query_dict(
+        f"""
+                                        select * from slices where track_id={backward_track}
+                                        AND ts > {start_backward} AND ts < {end_backward}
+                                        AND (name like '%cudaLaunchKernel%')
+                                        """
+    )
+    backward_device_start = 0
+    if backward_cuda_calls:
+        cuda_slice_start = read_gpu_slice(tp, backward_cuda_calls[0])
+        backward_device_start = cuda_slice_start["ts"] if cuda_slice_start else 0
+
+    ## ==================== GET BUCKET TIMES =================== ##
+    find_c10_all_reduce_calls = f"""
+                                SELECT * from slice main
+                                WHERE main.track_id={backward_track}
+                                AND main.ts > {start_backward} AND main.ts < {end_backward}
+                                AND main.name like '%autograd::engine::evaluate_function: torch::autograd::AccumulateGrad%'
+                                AND 'c10d::allreduce_' IN (SELECT submain.name FROM slice submain WHERE submain.ts > main.ts AND submain.ts < main.ts + main.dur AND submain.track_id={backward_track} )    
+                                """
+    all_reduce_calls = tp.query_dict(find_c10_all_reduce_calls)
+    prev_ts = start_step
+    bucket_comp_times = []
+    for idx, item in enumerate(all_reduce_calls):
+        # ================== COMPUTATION ======================================#
+        end_ts = item["ts"]
+        slices_in_bucket = tp.query_dict(
+            f"""
+                                         select * from slice
+                                         where track_id={backward_track}
+                                         and ts > {prev_ts} and ts < {end_ts}                
+                                        """
+        )
+        start_cpu_time = slices_in_bucket[0]["ts"]
+        end_cpu_time = slices_in_bucket[-1]["ts"] + slices_in_bucket[-1]["dur"]
+
+        device_ts_start = 0
+        device_ts_end = 0
+
+        cuda_launch_list = tp.query_dict(
+            f"""
+                                        select * from slice
+                                        where ts > {start_cpu_time} and ts < {end_cpu_time} and track_id={backward_track}
+                                        and name like '%cudaLaunchKernel%'
+                                        """
+        )
+        if cuda_launch_list:
+            cuda_slice_start = read_gpu_slice(tp, cuda_launch_list[0])
+            device_ts_start = cuda_slice_start["ts"] if cuda_slice_start else 0
+
+            cuda_slice_end = read_gpu_slice(tp, cuda_launch_list[-1])
+            device_ts_end = (
+                cuda_slice_end["ts"] + cuda_slice_end["dur"] if cuda_slice_end else 0
+            )
+
+        netCompTime = max(0, device_ts_end - device_ts_start)
+
+        bucket_comp_times.append(round(netCompTime * 1e-6, 3))
+
+        prev_ts = item["ts"] + item["dur"]
+
+    forward_time = round(max(0, backward_device_start - start_step) * 1e-6, 3)
+
+    return forward_time, bucket_comp_times

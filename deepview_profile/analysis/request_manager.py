@@ -46,6 +46,7 @@ class AnalysisRequestManager:
 
     def _handle_analysis_request(self, analysis_request, context):
         print("handle_analysis_request: begin")
+        print("DDP request", analysis_request.ddp_analysis_request)
         start_time = time.perf_counter()
         try:
             logger.debug(
@@ -112,6 +113,18 @@ class AnalysisRequestManager:
                 context,
             )
 
+            # send ddp analysis
+            if self._early_disconnection_error(context):
+                return
+            if analysis_request.ddp_analysis_request:
+                ddp_resp = next(analyzer)
+                self._enqueue_response(
+                    self._send_ddp_response,
+                    ddp_resp,
+                    context,
+                )
+
+            # execution time
             elapsed_time = time.perf_counter() - start_time
             logger.debug(
                 'Processed analysis request %d from (%s:%d) in %.4f seconds.',
@@ -119,6 +132,7 @@ class AnalysisRequestManager:
                 *(context.address),
                 elapsed_time,
             )
+
 
         except AnalysisError as ex:
             self._enqueue_response(self._send_analysis_error, ex, context)
@@ -196,6 +210,15 @@ class AnalysisRequestManager:
         except Exception:
             logger.exception(
                 'Exception occurred when sending utilization response.')
+            
+    def _send_ddp_response(self, ddp_response, context):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_ddp_response(
+                ddp_response, context)
+        except Exception:
+            logger.exception(
+                'Exception occurred when sending ddp response.')
 
     def _early_disconnection_error(self, context):
         if not context.state.connected:

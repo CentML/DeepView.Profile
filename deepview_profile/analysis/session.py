@@ -16,6 +16,7 @@ from deepview_profile.profiler.iteration import IterationProfiler
 from deepview_profile.tracking.tracker import Tracker
 from deepview_profile.user_code_utils import user_code_environment
 from deepview_profile.profiler.utilization import utilization_analysis, serialize_response
+from deepview_profile.profiler.ddp import ddp_analysis
 from typing import List
 import dill
 import torch.multiprocessing as mp
@@ -154,6 +155,22 @@ class AnalysisSession:
             return resp
         serialize_response(resp.rootNode, analysis_results["root_node"])
         resp.tensor_utilization = float(analysis_results["tensor_core_perc"])
+
+        return resp
+    
+    def ddp_computation(self):
+        resp = pm.DdpResponse()
+        payload = dill.dumps((self._model_provider, self._input_provider,
+                             self._iteration_provider, logging.root.level))
+        analysis_results = dispatch_process(ddp_analysis, payload,
+                                            self._path_to_entry_point_dir)
+        if analysis_results.get("error"):
+            resp.analysis_error.error_message = analysis_results["error"]
+            return resp
+        resp.forward_time_ms = float(analysis_results["forward_time_ms"])
+        resp.bucket_sizes.extend(analysis_results["bucket_sizes"])
+        resp.expected_max_2gpus.extend(analysis_results["expected_max_2gpus"])
+        resp.expected_max_4gpus.extend(analysis_results["expected_max_4gpus"])
 
         return resp
 
