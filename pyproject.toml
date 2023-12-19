@@ -38,6 +38,7 @@ orjson = "*"
 torch-tb-profiler = "*"
 dill = "*"
 pymongo = "*"
+scipy = "*"
 
 [tool.poetry.dev-dependencies]
 
