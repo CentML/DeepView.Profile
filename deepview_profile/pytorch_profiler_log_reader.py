@@ -148,17 +148,39 @@ def get_single_gpu_backward_info(filepath, step):
         backward_slices[0]["ts"],
         backward_slices[-1]["ts"] + backward_slices[-1]["dur"],
     )
-    backward_cuda_calls = tp.query_dict(
+
+    ## ==================== GET DEVICE FORWARD TIME =================== ##
+    forward_slices = tp.query_dict(f"""
+                                    select * from slices
+                                    where ts > {start_step} AND ts < {start_backward}
+                                    """)
+    start_forward, end_forward = (
+        forward_slices[0]["ts"],
+        forward_slices[-1]["ts"] + forward_slices[-1]["dur"],
+    )
+
+    forward_cuda_calls = tp.query_dict(
         f"""
-                                        select * from slices where track_id={backward_track}
-                                        AND ts > {start_backward} AND ts < {end_backward}
-                                        AND (name like '%cudaLaunchKernel%')
+                                        select * from slices where ts > {start_forward} AND ts < {end_forward}
+                                        AND name like '%cudaLaunchKernel%'
                                         """
     )
-    backward_device_start = 0
-    if backward_cuda_calls:
-        cuda_slice_start = read_gpu_slice(tp, backward_cuda_calls[0])
-        backward_device_start = cuda_slice_start["ts"] if cuda_slice_start else 0
+
+    forward_first_cuda_call = forward_cuda_calls[0]
+    forward_last_cuda_call = forward_cuda_calls[-1]
+    forward_device_start = 0
+    forward_device_ends = 0
+    if forward_first_cuda_call:
+        cuda_slice_start = read_gpu_slice(tp, forward_first_cuda_call)
+        forward_device_start = cuda_slice_start["ts"] if cuda_slice_start else 0
+    if forward_last_cuda_call:
+        cuda_slice_end = read_gpu_slice(tp, forward_last_cuda_call)
+        forward_device_ends = cuda_slice_end["ts"] + cuda_slice_end['dur'] if cuda_slice_end else 0
+
+    forward_start_ts = (
+        forward_device_start if forward_device_start != 0 else start_forward
+    )
+    forward_end_ts = forward_device_ends if forward_device_ends !=0 else end_forward
 
     ## ==================== GET BUCKET TIMES =================== ##
     find_c10_all_reduce_calls = f"""
@@ -209,6 +231,6 @@ def get_single_gpu_backward_info(filepath, step):
 
         prev_ts = item["ts"] + item["dur"]
 
-    forward_time = round(max(0, backward_device_start - start_step) * 1e-6, 3)
+    forward_time = round((forward_end_ts - forward_start_ts) * 1e-6, 3)
 
     return forward_time, bucket_comp_times
