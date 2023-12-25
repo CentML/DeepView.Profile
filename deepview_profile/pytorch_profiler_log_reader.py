@@ -5,6 +5,7 @@ import orjson
 from perfetto.trace_processor import TraceProcessor
 import io
 
+
 def get_bucket_sizes(model, cap_size):
     params = [p for p in model.parameters() if p.requires_grad]
     bucket_cap_mb = cap_size
@@ -33,6 +34,7 @@ def get_bucket_sizes(model, cap_size):
         bucket_sizes.append(size_mb)
 
     return bucket_sizes
+
 
 def convert_ids_int_string(slices):
     for slice in slices:
@@ -126,7 +128,7 @@ def get_single_gpu_backward_info(filepath, step):
     )[0]
     start_step = profiler_step["ts"]
     end_step = profiler_step["ts"] + profiler_step["dur"]
-
+    forward_track = profiler_step["track_id"]
     backward_track = tp.query_dict(
         f"""
                                     SELECT track_id from slices
@@ -150,10 +152,13 @@ def get_single_gpu_backward_info(filepath, step):
     )
 
     ## ==================== GET DEVICE FORWARD TIME =================== ##
-    forward_slices = tp.query_dict(f"""
+    forward_slices = tp.query_dict(
+        f"""
                                     select * from slices
                                     where ts > {start_step} AND ts < {start_backward}
-                                    """)
+                                    AND track_id={forward_track}
+                                    """
+    )
     start_forward, end_forward = (
         forward_slices[0]["ts"],
         forward_slices[-1]["ts"] + forward_slices[-1]["dur"],
@@ -175,12 +180,14 @@ def get_single_gpu_backward_info(filepath, step):
         forward_device_start = cuda_slice_start["ts"] if cuda_slice_start else 0
     if forward_last_cuda_call:
         cuda_slice_end = read_gpu_slice(tp, forward_last_cuda_call)
-        forward_device_ends = cuda_slice_end["ts"] + cuda_slice_end['dur'] if cuda_slice_end else 0
+        forward_device_ends = (
+            cuda_slice_end["ts"] + cuda_slice_end["dur"] if cuda_slice_end else 0
+        )
 
     forward_start_ts = (
         forward_device_start if forward_device_start != 0 else start_forward
     )
-    forward_end_ts = forward_device_ends if forward_device_ends !=0 else end_forward
+    forward_end_ts = forward_device_ends if forward_device_ends != 0 else end_forward
 
     ## ==================== GET BUCKET TIMES =================== ##
     find_c10_all_reduce_calls = f"""
