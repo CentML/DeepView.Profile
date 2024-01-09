@@ -49,8 +49,8 @@ class Tracker:
     def track_memory(self):
         if self._tracker_state != _TrackerState.CREATED:
             raise RuntimeError(
-                'Memory tracking must be the first operation performed '
-                'on a new Tracker.'
+                "Memory tracking must be the first operation performed "
+                "on a new Tracker."
             )
 
         self._tracker_state = _TrackerState.MEMORY_TRACKED
@@ -60,8 +60,7 @@ class Tracker:
         initial_memory_bytes = torch.cuda.memory_allocated()
         if initial_memory_bytes != 0:
             logger.debug(
-                'Non-zero initial memory usage during memory tracking: '
-                '%d bytes',
+                "Non-zero initial memory usage during memory tracking: " "%d bytes",
                 initial_memory_bytes,
             )
 
@@ -77,7 +76,8 @@ class Tracker:
         # 2. Track and record memory usage associated with stored activations
         self._activations_tracker = ActivationsTracker(self._project_root)
         self._activations_tracker.track_memory_usage(
-            iteration, self._input_provider, self._user_code_path)
+            iteration, self._input_provider, self._user_code_path
+        )
 
         # 3. Record peak memory usage
         torch.cuda.reset_max_memory_allocated()
@@ -91,7 +91,7 @@ class Tracker:
                     self._user_code_path, self._project_root):
                 self._model = self._model_provider()
         elif self._tracker_state != _TrackerState.MEMORY_TRACKED:
-            raise RuntimeError('Run time tracking has already been performed.')
+            raise RuntimeError("Run time tracking has already been performed.")
 
         self._tracker_state = _TrackerState.RUN_TIME_TRACKED
 
@@ -106,48 +106,57 @@ class Tracker:
         with self._operation_tracker.track():
             with backward_interceptor.intercept():
                 with user_code_environment(
-                        self._user_code_path, self._project_root):
+                         self._user_code_path, self._project_root):
                     inputs = self._input_provider()
                     iteration(*inputs)
 
     def get_memory_report(self, report_file=None):
-        if (self._weight_tracker is None or
-                self._activations_tracker is None or
-                self._peak_usage_bytes is None):
-            raise RuntimeError('Memory tracking has not been performed yet.')
+        if (
+            self._weight_tracker is None
+            or self._activations_tracker is None
+            or self._peak_usage_bytes is None
+        ):
+            raise RuntimeError("Memory tracking has not been performed yet.")
 
-        return (MemoryReportBuilder(report_file)
-                .process_tracker(self._weight_tracker)
-                .process_tracker(self._activations_tracker)
-                .add_misc_entry(
-                    MiscSizeType.PeakUsageBytes, self._peak_usage_bytes)
-                .build())
+        return (
+            MemoryReportBuilder(report_file)
+            .process_tracker(self._weight_tracker)
+            .process_tracker(self._activations_tracker)
+            .add_misc_entry(MiscSizeType.PeakUsageBytes, self._peak_usage_bytes)
+            .build()
+        )
 
     def get_run_time_report(self, report_file=None):
         if self._operation_tracker is None:
-            raise RuntimeError('Run time tracking has not been performed yet.')
+            raise RuntimeError("Run time tracking has not been performed yet.")
 
-        return (OperationRunTimeReportBuilder(report_file)
-                .process_tracker(self._operation_tracker)
-                .build())
+        return (
+            OperationRunTimeReportBuilder(report_file)
+            .process_tracker(self._operation_tracker)
+            .build()
+        )
 
     def get_hierarchical_breakdown(self):
-        if (self._weight_tracker is None or
-                self._activations_tracker is None or
-                self._peak_usage_bytes is None or
-                self._operation_tracker is None):
+        if (
+            self._weight_tracker is None
+            or self._activations_tracker is None
+            or self._peak_usage_bytes is None
+            or self._operation_tracker is None
+        ):
             raise RuntimeError(
-                'Memory tracking and run time tracking have not both been '
-                'performed yet.'
+                "Memory tracking and run time tracking have not both been "
+                "performed yet."
             )
 
-        return (HierarchicalBreakdownBuilder()
-                .for_model(self._model)
-                .set_peak_usage_bytes(self._peak_usage_bytes)
-                .process_tracker(self._operation_tracker)
-                .process_tracker(self._activations_tracker)
-                .process_tracker(self._weight_tracker)
-                .build())
+        return (
+            HierarchicalBreakdownBuilder()
+            .for_model(self._model)
+            .set_peak_usage_bytes(self._peak_usage_bytes)
+            .process_tracker(self._operation_tracker)
+            .process_tracker(self._activations_tracker)
+            .process_tracker(self._weight_tracker)
+            .build()
+        )
 
 
 class _TrackerState(enum.Enum):

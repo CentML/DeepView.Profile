@@ -127,41 +127,26 @@ def run_profiler(model_provider, input_provider, iteration_provider):
             iteration(*inputs)
             p.step()
 
+    cleanup()
 
-def ddp_analysis(queue, payload, path_to_entry_point_dir):
-    sys.path.append(path_to_entry_point_dir)
-    try:
-        model_provider, input_provider, iteration_provider, logging_level = dill.loads(
-            payload
-        )
 
-        run_profiler(model_provider, input_provider, iteration_provider)
+def ddp_analysis(model_provider, input_provider, iteration_provider):
+    run_profiler(model_provider, input_provider, iteration_provider)
 
-        path_to_file = os.path.join(os.getcwd(), FILENAME)
+    path_to_file = os.path.join(os.getcwd(), FILENAME)
 
-        fw_avg_msec, bucket_comp_times = _bucket_comp_times(path_to_file)
-        bucket_sizes_arr = get_bucket_sizes(model_provider(), DEFAULT_BUCKET_SIZE)
+    fw_avg_msec, bucket_comp_times = _bucket_comp_times(path_to_file)
+    bucket_sizes_arr = get_bucket_sizes(model_provider(), DEFAULT_BUCKET_SIZE)
 
-        expected_max_2gpus = _bucket_expected_max(bucket_comp_times, 2)
-        expected_max_4gpus = _bucket_expected_max(bucket_comp_times, 4)
+    expected_max_2gpus = _bucket_expected_max(bucket_comp_times, 2)
+    expected_max_4gpus = _bucket_expected_max(bucket_comp_times, 4)
 
-        jsonFormat = {
-            "forward_time_ms": fw_avg_msec,
-            "bucket_sizes": bucket_sizes_arr,
-            "expected_max_2gpus": expected_max_2gpus,
-            "expected_max_4gpus": expected_max_4gpus,
-        }
-        queue.put(jsonFormat)
+    jsonFormat = {
+        "forward_time_ms": fw_avg_msec,
+        "bucket_sizes": bucket_sizes_arr,
+        "expected_max_2gpus": expected_max_2gpus,
+        "expected_max_4gpus": expected_max_4gpus,
+    }
 
-    except AnalysisError as ex:
-        message = str(ex)
-        logger.error(message)
-        queue.put({"error": message})
-    except Exception as ex:
-        message = str(ex)
-        logger.error(message)
-        queue.put({"error": message})
-
-    finally:
-        # delete pytorch logs
-        subprocess.run(["rm", "-f", os.path.join(os.getcwd(), FILENAME)])
+    subprocess.run(["rm", "-f", os.path.join(os.getcwd(), FILENAME)])
+    return jsonFormat

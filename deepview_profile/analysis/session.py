@@ -15,12 +15,12 @@ from deepview_profile.exceptions import AnalysisError, exceptions_as_analysis_er
 from deepview_profile.profiler.iteration import IterationProfiler
 from deepview_profile.tracking.tracker import Tracker
 from deepview_profile.user_code_utils import user_code_environment
-from deepview_profile.profiler.utilization import utilization_analysis, serialize_response
+from deepview_profile.profiler.utilization import (
+    utilization_analysis,
+    serialize_response,
+)
 from deepview_profile.profiler.ddp import ddp_analysis
 from typing import List
-import dill
-import torch.multiprocessing as mp
-import sys
 
 logger = logging.getLogger(__name__)
 
@@ -146,33 +146,50 @@ class AnalysisSession:
 
     def measure_utilization(self):
         resp = pm.UtilizationResponse()
-        payload = dill.dumps((self._model_provider, self._input_provider,
-                             self._iteration_provider, logging.root.level))
-        analysis_results = dispatch_process(utilization_analysis, payload,
-                                            self._path_to_entry_point_dir)
-        if analysis_results.get("error"):
-            resp.analysis_error.error_message = analysis_results["error"]
+        try:
+            analysis_results = utilization_analysis(
+                self._model_provider, self._input_provider, self._iteration_provider
+            )
+            serialize_response(resp.rootNode, analysis_results["root_node"])
+            resp.tensor_utilization = float(analysis_results["tensor_core_perc"])
+        except AnalysisError as ex:
+            message = str(ex)
+            logger.error(message)
+            resp.analysis_error.error_message = message
+        except Exception as ex:
+            message = str(ex)
+            logger.error(message)
+            logger.error("There was an error measuring utilization")
+            resp.analysis_error.error_message = (
+                "There was an error measuring utilization"
+            )
+        finally:
             return resp
-        serialize_response(resp.rootNode, analysis_results["root_node"])
-        resp.tensor_utilization = float(analysis_results["tensor_core_perc"])
 
-        return resp
-    
     def ddp_computation(self):
         resp = pm.DdpResponse()
-        payload = dill.dumps((self._model_provider, self._input_provider,
-                             self._iteration_provider, logging.root.level))
-        analysis_results = dispatch_process(ddp_analysis, payload,
-                                            self._path_to_entry_point_dir)
-        if analysis_results.get("error"):
-            resp.analysis_error.error_message = analysis_results["error"]
-            return resp
-        resp.forward_time_ms = float(analysis_results["forward_time_ms"])
-        resp.bucket_sizes.extend(analysis_results["bucket_sizes"])
-        resp.expected_max_2gpus.extend(analysis_results["expected_max_2gpus"])
-        resp.expected_max_4gpus.extend(analysis_results["expected_max_4gpus"])
 
-        return resp
+        try:
+            analysis_results = ddp_analysis(
+                self._model_provider, self._input_provider, self._iteration_provider
+            )
+            resp.forward_time_ms = float(analysis_results["forward_time_ms"])
+            resp.bucket_sizes.extend(analysis_results["bucket_sizes"])
+            resp.expected_max_2gpus.extend(analysis_results["expected_max_2gpus"])
+            resp.expected_max_4gpus.extend(analysis_results["expected_max_4gpus"])
+        except AnalysisError as ex:
+            message = str(ex)
+            logger.error(message)
+            resp.analysis_error.error_message = message
+        except Exception as ex:
+            message = str(ex)
+            logger.error(message)
+            logger.error("There was an error measuring ddp throughput")
+            resp.analysis_error.error_message = (
+                "There was an error measuring ddp throughput"
+            )
+        finally:
+            return resp
 
     def energy_compute(self) -> pm.EnergyResponse:
         energy_measurer = EnergyMeasurer()
@@ -220,15 +237,13 @@ class AnalysisSession:
             resp.components.extend(components)
 
             # get last 10 runs if they exist
-            path_to_entry_point = os.path.join(
-                self._project_root, self._entry_point)
+            path_to_entry_point = os.path.join(self._project_root, self._entry_point)
             past_runs = (
                 self._energy_table_interface.get_latest_n_entries_of_entry_point(
                     10, path_to_entry_point
                 )
             )
-            resp.past_measurements.extend(
-                _convert_to_energy_responses(past_runs))
+            resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
 
             # add current run to database
             current_entry = [path_to_entry_point] + components_joules
@@ -247,23 +262,137 @@ class AnalysisSession:
         finally:
             return resp
 
+    def habitat_compute_threshold(self, runnable, context):
+        tracker = habitat.OperationTracker(context.origin_device)
+        with tracker.track():
+            runnable()
+
+        run_times = []
+        trace = tracker.get_tracked_trace()
+        for op in trace.operations:
+            if op.name in SPECIAL_OPERATIONS:
+                continue
+            run_times.append(op.forward.run_time_ms)
+            if op.backward is not None:
+                run_times.append(op.backward.run_time_ms)
+
+        return np.percentile(run_times, context.percentile)
+
     def habitat_predict(self):
         resp = pm.HabitatResponse()
-
-        payload = dill.dumps((self._model_provider, self._input_provider,
-                             self._iteration_provider, logging.root.level))
-        analysis_results = dispatch_process(habitat_workload, payload,
-                                            self._path_to_entry_point_dir)
-        if analysis_results.get("error"):
-            resp.analysis_error.error_message = analysis_results["error"]
+        if not habitat_found:
+            logger.debug("Skipping deepview predictions, returning empty response.")
             return resp
-        for res in analysis_results["data"]:
-            pred = pm.HabitatDevicePrediction()
-            pred.device_name = res["device_name"]
-            pred.runtime_ms = res["runtime_ms"]
-            resp.predictions.append(pred)
 
-        return resp
+        try:
+            print("deepview_predict: begin")
+            DEVICES = [
+                habitat.Device.P100,
+                habitat.Device.P4000,
+                habitat.Device.RTX2070,
+                habitat.Device.RTX2080Ti,
+                habitat.Device.T4,
+                habitat.Device.V100,
+                habitat.Device.A100,
+                habitat.Device.RTX3090,
+                habitat.Device.A40,
+                habitat.Device.A4000,
+                habitat.Device.RTX4000,
+            ]
+
+            # Detect source GPU
+            pynvml.nvmlInit()
+            if pynvml.nvmlDeviceGetCount() == 0:
+                raise Exception(
+                    "NVML failed to find a GPU. Please ensure that you \
+                have a NVIDIA GPU installed and that the drivers are functioning \
+                correctly."
+                )
+
+            # TODO: Consider profiling on not only the first detected GPU
+            nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
+            source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
+            split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
+            source_device = (
+                None if logging.root.level > logging.DEBUG else habitat.Device.T4
+            )
+            for device in DEVICES:
+                if device.name in "".join(split_source_device_name):
+                    source_device = device
+            pynvml.nvmlShutdown()
+            if not source_device:
+                logger.debug(
+                    "Skipping DeepView predictions,\
+                    source not in list of supported GPUs."
+                )
+                src = pm.HabitatDevicePrediction()
+                src.device_name = "unavailable"
+                src.runtime_ms = -1
+                resp.predictions.append(src)
+                return resp
+
+            print("deepview_predict: detected source device", source_device.name)
+
+            # get model
+            model = self._model_provider()
+            inputs = self._input_provider()
+            iteration = self._iteration_provider(model)
+
+            def runnable():
+                iteration(*inputs)
+
+            profiler = RunTimeProfiler()
+
+            context = Context(
+                origin_device=source_device, profiler=profiler, percentile=99.5
+            )
+
+            threshold = self.habitat_compute_threshold(runnable, context)
+
+            tracker = habitat.OperationTracker(
+                device=context.origin_device,
+                metrics=[
+                    habitat.Metric.SinglePrecisionFLOPEfficiency,
+                    habitat.Metric.DRAMReadBytes,
+                    habitat.Metric.DRAMWriteBytes,
+                ],
+                metrics_threshold_ms=threshold,
+            )
+
+            with tracker.track():
+                iteration(*inputs)
+
+            print("deepview_predict: tracing on origin device")
+            trace = tracker.get_tracked_trace()
+
+            src = pm.HabitatDevicePrediction()
+            src.device_name = "source"
+            src.runtime_ms = trace.run_time_ms
+            resp.predictions.append(src)
+
+            for device in DEVICES:
+                print("deepview_predict: predicting for", device)
+                predicted_trace = trace.to_device(device)
+
+                pred = pm.HabitatDevicePrediction()
+                pred.device_name = device.name
+                pred.runtime_ms = predicted_trace.run_time_ms
+                resp.predictions.append(pred)
+
+            print(f"returning {len(resp.predictions)} predictions.")
+        except AnalysisError as ex:
+            message = str(ex)
+            logger.error(message)
+            resp.analysis_error.error_message = message
+        except Exception as ex:
+            message = str(ex)
+            logger.error(message)
+            logger.error("There was an error running DeepView Predict")
+            resp.analysis_error.error_message = (
+                "There was an error running DeepView Predict"
+            )
+        finally:
+            return resp
 
     def measure_breakdown(self, nvml):
         # 1. Measure the breakdown entries
@@ -320,8 +449,7 @@ class AnalysisSession:
 
         # 2. Begin filling in the throughput response
         logger.debug("sampling results \n %r" % str(samples))
-        measured_throughput = samples[0].batch_size / \
-            samples[0].run_time_ms * 1000
+        measured_throughput = samples[0].batch_size / samples[0].run_time_ms * 1000
         throughput = pm.ThroughputResponse()
         throughput.samples_per_second = measured_throughput
         throughput.predicted_max_samples_per_second = math.nan
@@ -381,20 +509,20 @@ class AnalysisSession:
     def measure_peak_usage_bytes(self):
         self._prepare_for_memory_profiling()
         # Run one iteration to initialize the gradients
-        with user_code_environment(self._path_to_entry_point_dir, self._project_root):
-            model = self._model_provider()
-            iteration = self._iteration_provider(model)
-            iteration(*self._input_provider(batch_size=self._batch_size))
+        # with user_code_environment(self._path_to_entry_point_dir, self._project_root):
+        model = self._model_provider()
+        iteration = self._iteration_provider(model)
+        iteration(*self._input_provider(batch_size=self._batch_size))
 
         torch.cuda.reset_max_memory_allocated()
-        with user_code_environment(self._path_to_entry_point_dir, self._project_root):
-            # NOTE: It's important to run at least 2 iterations here. It turns
-            #       out that >= 2 iterations is the number of iterations needed
-            #       to get a stable measurement of the total memory
-            #       consumption. When using Adam, if you run one iteration, the
-            #       memory usage ends up being too low by a constant factor.
-            for _ in range(2):
-                iteration(*(self._input_provider(batch_size=self._batch_size)))
+        # with user_code_environment(self._path_to_entry_point_dir, self._project_root):
+        # NOTE: It's important to run at least 2 iterations here. It turns
+        #       out that >= 2 iterations is the number of iterations needed
+        #       to get a stable measurement of the total memory
+        #       consumption. When using Adam, if you run one iteration, the
+        #       memory usage ends up being too low by a constant factor.
+        for _ in range(2):
+            iteration(*(self._input_provider(batch_size=self._batch_size)))
         return torch.cuda.max_memory_allocated()
 
     def generate_memory_usage_report(self, save_report_to):
@@ -569,153 +697,3 @@ def _convert_to_energy_responses(entries: list) -> List[pm.EnergyResponse]:
             energy_response_list.append(energy_response)
 
     return energy_response_list
-
-
-def dispatch_process(func, payload, path_to_entry_point_dir):
-    ctx = mp.get_context('spawn')
-    queue = ctx.Queue()
-    p = ctx.Process(target=func, args=(
-        queue, payload, path_to_entry_point_dir), daemon=True)
-    p.start()
-    results = queue.get()
-    p.join()
-    return results
-
-
-def habitat_workload(queue, payload, path_to_entry_point_dir):
-    sys.path.append(path_to_entry_point_dir)
-
-    def habitat_compute_threshold(runnable, context):
-        tracker = habitat.OperationTracker(context.origin_device)
-        with tracker.track():
-            runnable()
-
-        run_times = []
-        trace = tracker.get_tracked_trace()
-        for op in trace.operations:
-            if op.name in SPECIAL_OPERATIONS:
-                continue
-            run_times.append(op.forward.run_time_ms)
-            if op.backward is not None:
-                run_times.append(op.backward.run_time_ms)
-
-        return np.percentile(run_times, context.percentile)
-
-    try:
-        model_provider, input_provider, iteration_provider, logging_level = dill.loads(
-            payload)
-        resp = []
-
-        if not habitat_found:
-            logger.debug(
-                "Skipping deepview predictions, returning empty response.")
-            queue.put("habitat not found")
-            return
-
-        print("deepview_predict: begin")
-        DEVICES = [
-            habitat.Device.P100,
-            habitat.Device.P4000,
-            habitat.Device.RTX2070,
-            habitat.Device.RTX2080Ti,
-            habitat.Device.T4,
-            habitat.Device.V100,
-            habitat.Device.A100,
-            habitat.Device.RTX3090,
-            habitat.Device.A40,
-            habitat.Device.A4000,
-            habitat.Device.RTX4000
-        ]
-
-        # Detect source GPU
-        pynvml.nvmlInit()
-        if pynvml.nvmlDeviceGetCount() == 0:
-            raise Exception("NVML failed to find a GPU. Please ensure that you \
-            have a NVIDIA GPU installed and that the drivers are functioning \
-            correctly.")
-
-        # TODO: Consider profiling on not only the first detected GPU
-        nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-        source_device_name = pynvml.nvmlDeviceGetName(
-            nvml_handle).decode("utf-8")
-        split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
-        source_device = (
-            None if logging_level > logging.DEBUG else habitat.Device.T4
-        )
-        for device in DEVICES:
-            if device.name in "".join(split_source_device_name):
-                source_device = device
-        pynvml.nvmlShutdown()
-        if not source_device:
-            logger.debug(
-                "Skipping DeepView predictions,\
-                source not in list of supported GPUs."
-            )
-            src = {}
-            src["device_name"] = "unavailable"
-            src["runtime_ms"] = -1
-            resp.append(src)
-            print(
-                f"\ndevice_name:{src['device_name']}\ttime:{src['runtime_ms']}")
-            queue.put({"data": resp})
-            return
-
-        print("deepview_predict: detected source device", source_device.name)
-
-        # get model
-        model = model_provider()
-        inputs = input_provider()
-        iteration = iteration_provider(model)
-
-        def runnable():
-            iteration(*inputs)
-
-        profiler = RunTimeProfiler()
-
-        context = Context(
-            origin_device=source_device, profiler=profiler, percentile=99.5
-        )
-
-        threshold = habitat_compute_threshold(runnable, context)
-
-        tracker = habitat.OperationTracker(
-            device=context.origin_device,
-            metrics=[
-                habitat.Metric.SinglePrecisionFLOPEfficiency,
-                habitat.Metric.DRAMReadBytes,
-                habitat.Metric.DRAMWriteBytes,
-            ],
-            metrics_threshold_ms=threshold,
-        )
-
-        with tracker.track():
-            iteration(*inputs)
-
-        print("deepview_predict: tracing on origin device")
-        trace = tracker.get_tracked_trace()
-
-        src = {}
-        src["device_name"] = "source"
-        src["runtime_ms"] = trace.run_time_ms
-        resp.append(src)
-        print(f"\ndevice_name:{src['device_name']}\ttime:{src['runtime_ms']}")
-        for device in DEVICES:
-            print("deepview_predict: predicting for", device)
-            predicted_trace = trace.to_device(device)
-
-            pred = {}
-            pred["device_name"] = device.name
-            pred["runtime_ms"] = predicted_trace.run_time_ms
-            resp.append(pred)
-            print(
-                f"\ndevice_name:{pred['device_name']}\ttime:{pred['runtime_ms']}")
-
-        queue.put({"data": resp})
-    except AnalysisError as ex:
-        message = str(ex)
-        logger.error(message)
-        queue.put({"error": message})
-    except Exception as ex:
-        message = str(ex)
-        logger.error(message)
-        queue.put({"error": message})

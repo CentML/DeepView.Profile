@@ -2,7 +2,6 @@ import logging
 import math
 import time
 from concurrent.futures import ThreadPoolExecutor
-import torch.multiprocessing as mp
 from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.nvml import NVML
@@ -24,7 +23,7 @@ class AnalysisRequestManager:
         self._message_sender = message_sender
         self._connection_manager = connection_manager
         self._nvml = NVML()
-        mp.set_start_method("spawn")
+        # mp.set_start_method("spawn")
 
     def start(self):
         self._nvml.start()
