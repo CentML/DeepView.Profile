@@ -9,16 +9,10 @@ import time
 import os
 from collections import deque
 from perfetto.trace_processor import TraceProcessor
-from deepview_profile.user_code_utils import user_code_environment
-from deepview_profile.exceptions import AnalysisError
 from torch_tb_profiler.profiler.tensor_core import TC_Allowlist
-import dill
 from torch.profiler import profile, schedule, ProfilerActivity
-import sys
 
 logger = logging.getLogger(__name__)
-# logger = logging.getLogger("utilization")
-# logger.setLevel(logging.DEBUG)
 FILENAME = "raw_trace_file.json"
 
 

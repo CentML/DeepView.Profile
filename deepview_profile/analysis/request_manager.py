@@ -23,7 +23,6 @@ class AnalysisRequestManager:
         self._message_sender = message_sender
         self._connection_manager = connection_manager
         self._nvml = NVML()
-        # mp.set_start_method("spawn")
 
     def start(self):
         self._nvml.start()

@@ -2,23 +2,19 @@ from scipy.stats import gaussian_kde
 import numpy as np
 import os
 import logging
-from deepview_profile.user_code_utils import user_code_environment
-from deepview_profile.exceptions import AnalysisError
 from deepview_profile.pytorch_profiler_log_reader import (
     get_first_last_step,
     get_bucket_sizes,
     get_single_gpu_backward_info,
 )
-import dill
 import time
 from torch.profiler import profile, schedule, ProfilerActivity
 import torch.distributed as dist
 from torch.nn.parallel import DistributedDataParallel as DDP
-import sys
 import subprocess
 
-logger = logging.getLogger("ddp")
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 FILENAME = "pytorch_profiler.json"
 RANK = 0
 WORLD_SIZE = 1

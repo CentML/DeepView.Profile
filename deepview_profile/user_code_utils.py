@@ -11,7 +11,7 @@ def user_code_environment(script_root_path, project_root):
     used when running user code.
     """
     with sys_path_root(script_root_path):
-        with prevent_module_caching():
+        # with prevent_module_caching():
             with exceptions_as_analysis_errors(project_root):
                 yield
 
