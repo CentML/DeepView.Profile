@@ -11,13 +11,13 @@ from deepview_profile.tracking.utils import remove_dunder
 from deepview_profile.user_code_utils import user_code_environment
 
 OperationContext = collections.namedtuple(
-    "OperationContext",
-    ["operation_name", "stack"],
+    'OperationContext',
+    ['operation_name', 'stack'],
 )
 
 ActivationEntry = collections.namedtuple(
-    "ActivationEntry",
-    ["operation_name", "stack", "size_bytes"],
+    'ActivationEntry',
+    ['operation_name', 'stack', 'size_bytes'],
 )
 
 
@@ -29,19 +29,16 @@ class ActivationsTracker:
     def track_memory_usage(self, iteration, input_provider, user_code_path):
         # 1. Run the forward pass of the model with the given inputs. We keep
         #    track of all the operations that contribute to the autograd graph.
-        model_output, grad_function_contexts = self._get_grad_function_contexts(
-            iteration, input_provider, user_code_path
-        )
+        model_output, grad_function_contexts = \
+            self._get_grad_function_contexts(
+                iteration, input_provider, user_code_path)
 
         # 2. Traverse the autograd graph and get a topological ordering. Filter
         #    the function contexts by the gradient functions in our topological
         #    ordering.
-        (
-            gradient_functions_topo_order,
-            grad_function_contexts,
-        ) = self._extract_relevant_gradient_functions(
-            model_output, grad_function_contexts
-        )
+        gradient_functions_topo_order, grad_function_contexts = \
+            self._extract_relevant_gradient_functions(
+                model_output, grad_function_contexts)
 
         # 3. Associate activation sizes with each gradient function by
         #    effectively "freeing" them one after the other and tracking the
@@ -63,12 +60,10 @@ class ActivationsTracker:
             gc.collect()
             mem_after = torch.cuda.memory_allocated()
             delta = mem_after - mem_before
-            self._activations.append(
-                ActivationEntry(
-                    *context,
-                    size_bytes=-delta,
-                )
-            )
+            self._activations.append(ActivationEntry(
+                *context,
+                size_bytes=-delta,
+            ))
 
     def populate_report(self, builder):
         for entry in self._activations:
@@ -83,25 +78,25 @@ class ActivationsTracker:
         # the MemoryReportBuilder
         self.populate_report(builder)
 
-    def _get_grad_function_contexts(self, iteration, input_provider, user_code_path):
+    def _get_grad_function_contexts(
+            self, iteration, input_provider, user_code_path):
         grad_function_tracker = GradFunctionTracker(self._project_root)
         backward_interceptor = BackwardInterceptor()
-        with grad_function_tracker.track(), backward_interceptor.intercept(), \
-            user_code_environment(user_code_path, self._project_root):
-                iteration(*input_provider())
+        with grad_function_tracker.track(), \
+                backward_interceptor.intercept(), \
+                user_code_environment(user_code_path, self._project_root):
+            iteration(*input_provider())
         return (
             backward_interceptor.backward_root,
             grad_function_tracker.grad_function_contexts,
         )
 
     def _extract_relevant_gradient_functions(
-        self, model_output, grad_function_contexts
-    ):
+            self, model_output, grad_function_contexts):
         # 1. Get the gradient functions associated with the model output in
         #    topological order
-        gradient_functions = _extract_gradient_functions_in_topological_order(
-            model_output
-        )
+        gradient_functions = \
+            _extract_gradient_functions_in_topological_order(model_output)
 
         # 2. Filter the gradient functions: we only want to keep the ones we
         #    know about
@@ -148,15 +143,12 @@ class GradFunctionTracker(TrackerBase):
 
             # Early return for tensor-producing operations that are not
             # involved in the backward pass
-            if (
-                not isinstance(retval, torch.Tensor)
-                and not isinstance(retval, tuple)
-                and not isinstance(retval, list)
-            ):
+            if (not isinstance(retval, torch.Tensor) and
+                    not isinstance(retval, tuple) and
+                    not isinstance(retval, list)):
                 return retval
-            if isinstance(retval, torch.Tensor) and (
-                not retval.is_cuda or retval.grad_fn is None
-            ):
+            if (isinstance(retval, torch.Tensor) and
+                    (not retval.is_cuda or retval.grad_fn is None)):
                 return retval
 
             stack = CallStack.from_here(self._project_root, start_from=2)
@@ -188,7 +180,8 @@ def _extract_gradient_functions_in_topological_order(model_output):
     """
     if isinstance(model_output, tuple) or isinstance(model_output, list):
         tensors = _flatten_and_filter_tensors(model_output)
-    elif isinstance(model_output, torch.Tensor) and model_output.grad_fn is not None:
+    elif (isinstance(model_output, torch.Tensor) and
+          model_output.grad_fn is not None):
         tensors = [model_output]
     else:
         return []
@@ -219,11 +212,10 @@ def _extract_gradient_functions_in_topological_order(model_output):
 def _flatten_and_filter_tensors(tensor_iterable):
     flattened = []
     for iterable_element in tensor_iterable:
-        if (
-            isinstance(iterable_element, torch.Tensor)
-            and iterable_element.grad_fn is not None
-        ):
+        if (isinstance(iterable_element, torch.Tensor) and
+                iterable_element.grad_fn is not None):
             flattened.append(iterable_element)
-        elif isinstance(iterable_element, tuple) or isinstance(iterable_element, list):
+        elif (isinstance(iterable_element, tuple) or
+              isinstance(iterable_element, list)):
             flattened.extend(_flatten_and_filter_tensors(iterable_element))
     return flattened
