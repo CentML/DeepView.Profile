@@ -7,8 +7,13 @@ import torch
 SourceLocation = collections.namedtuple(
     'SourceLocation', ['file_path', 'line_number', 'module_id'])
 
-transformers_pattern = "./transformers/models[/\w+/]+\w+.py"
-diffusers_pattern = "./diffusers/models[/\w+/]+\w+.py"
+pattern_list = ["./transformers/models[/\w+/]+\w+.py","./diffusers/models[/\w+/]+\w+.py"]
+
+def find_pattern_match(filename):
+    for pattern in pattern_list:
+        if re.search(pattern, filename):
+            return True 
+    return False
 
 class CallStack:
     def __init__(self, frames):
@@ -23,12 +28,11 @@ class CallStack:
         context = []
         try:
             for frame_info in stack[start_from:]:
-                # Only track source locations that are within the project 
-                # or transformer model and
+                # Only track source locations that are within the project model (or transformers, diffusers, etc)
                 # that are within a torch.nn.Module. Note that we assume the
                 # user uses "self" to refer to the current class instance.        
                 
-                if not (frame_info.filename.startswith(project_root) or re.search(transformers_pattern,frame_info.filename) or re.search(diffusers_pattern,frame_info.filename)):
+                if not (frame_info.filename.startswith(project_root) or find_pattern_match(frame_info.filename)):
                     continue
                 if 'self' not in frame_info.frame.f_locals:
                     continue
