@@ -1,12 +1,13 @@
 import collections
 import inspect
 import os
-
+import re
 import torch
 
 SourceLocation = collections.namedtuple(
     'SourceLocation', ['file_path', 'line_number', 'module_id'])
 
+transformers_pattern = "./transformers/models[/\w+/]+\w+.py"
 
 class CallStack:
     def __init__(self, frames):
@@ -21,17 +22,18 @@ class CallStack:
         context = []
         try:
             for frame_info in stack[start_from:]:
-                # Only track source locations that are within the project and
+                # Only track source locations that are within the project 
+                # or transformer model and
                 # that are within a torch.nn.Module. Note that we assume the
-                # user uses "self" to refer to the current class instance.
-                if not frame_info.filename.startswith(project_root):
+                # user uses "self" to refer to the current class instance.        
+                
+                if not (frame_info.filename.startswith(project_root) or re.search(transformers_pattern,frame_info.filename)):
                     continue
                 if 'self' not in frame_info.frame.f_locals:
                     continue
                 if not isinstance(
                         frame_info.frame.f_locals['self'], torch.nn.Module):
                     continue
-
                 context.append(SourceLocation(
                     file_path=os.path.relpath(
                         frame_info.filename, start=project_root),
