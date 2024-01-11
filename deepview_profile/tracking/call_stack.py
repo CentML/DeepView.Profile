@@ -8,6 +8,7 @@ SourceLocation = collections.namedtuple(
     'SourceLocation', ['file_path', 'line_number', 'module_id'])
 
 transformers_pattern = "./transformers/models[/\w+/]+\w+.py"
+diffusers_pattern = "./diffusers/models[/\w+/]+\w+.py"
 
 class CallStack:
     def __init__(self, frames):
@@ -27,7 +28,7 @@ class CallStack:
                 # that are within a torch.nn.Module. Note that we assume the
                 # user uses "self" to refer to the current class instance.        
                 
-                if not (frame_info.filename.startswith(project_root) or re.search(transformers_pattern,frame_info.filename)):
+                if not (frame_info.filename.startswith(project_root) or re.search(transformers_pattern,frame_info.filename) or re.search(diffusers_pattern,frame_info.filename)):
                     continue
                 if 'self' not in frame_info.frame.f_locals:
                     continue
