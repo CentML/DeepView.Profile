@@ -6,7 +6,7 @@ from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.nvml import NVML
 import deepview_profile.protocol_gen.innpv_pb2 as pm
-
+import sys
 logger = logging.getLogger(__name__)
 
 
@@ -35,6 +35,10 @@ class AnalysisRequestManager:
         if analysis_request.mock_response:
             self._handle_mock_analysis_request(analysis_request, context)
             return
+        
+        # with open("/home/john/Documents/centml/deepview-with-changes/before.txt",'w') as f:
+        #     for k in sys.modules.keys():
+        #         f.write(f"\n{k}")
 
         self._executor.submit(
             self._handle_analysis_request,
@@ -77,6 +81,15 @@ class AnalysisRequestManager:
                 context,
             )
 
+            # send utilization data
+            if self._early_disconnection_error(context):
+                return
+
+            utilization_resp = next(analyzer)
+            self._enqueue_response(
+                self._send_utilization_response, utilization_resp, context
+            )
+
             # send habitat response
             if self._early_disconnection_error(context):
                 return
@@ -86,15 +99,6 @@ class AnalysisRequestManager:
                 self._send_habitat_response,
                 habitat_resp,
                 context,
-            )
-
-            # send utilization data
-            if self._early_disconnection_error(context):
-                return
-
-            utilization_resp = next(analyzer)
-            self._enqueue_response(
-                self._send_utilization_response, utilization_resp, context
             )
 
             # send energy response
