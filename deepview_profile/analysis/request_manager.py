@@ -57,7 +57,7 @@ class AnalysisRequestManager:
             )
             connection = self._connection_manager.get_connection(context.address)
             analyzer = analyze_project(
-                connection.project_root, connection.entry_point, self._nvml
+                connection.project_root, connection.entry_point, self._nvml,analysis_request.ddp_analysis_request
             )
 
             # Abort early if the connection has been closed
@@ -81,15 +81,6 @@ class AnalysisRequestManager:
                 context,
             )
 
-            # send utilization data
-            if self._early_disconnection_error(context):
-                return
-
-            utilization_resp = next(analyzer)
-            self._enqueue_response(
-                self._send_utilization_response, utilization_resp, context
-            )
-
             # send habitat response
             if self._early_disconnection_error(context):
                 return
@@ -99,6 +90,15 @@ class AnalysisRequestManager:
                 self._send_habitat_response,
                 habitat_resp,
                 context,
+            )
+
+            # send utilization data
+            if self._early_disconnection_error(context):
+                return
+
+            utilization_resp = next(analyzer)
+            self._enqueue_response(
+                self._send_utilization_response, utilization_resp, context
             )
 
             # send energy response
@@ -122,6 +122,8 @@ class AnalysisRequestManager:
                     ddp_resp,
                     context,
                 )
+            else:
+                next(analyzer)
 
             # execution time
             elapsed_time = time.perf_counter() - start_time

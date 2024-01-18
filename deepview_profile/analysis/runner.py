@@ -6,7 +6,7 @@ from deepview_profile.nvml import NVML
 from deepview_profile.utils import release_memory
 import weakref
 
-def analyze_project(project_root, entry_point, nvml):
+def analyze_project(project_root, entry_point, nvml, ddp_request):
     session = AnalysisSession.new_from(project_root, entry_point)
     
     release_memory()
@@ -18,17 +18,32 @@ def analyze_project(project_root, entry_point, nvml):
     yield session.measure_throughput()
     
     release_memory()
+    print("analyze_project: running deepview_predict()")
+    yield session.habitat_predict()
+    
+    release_memory()
     print("analyze_project: running measure_utilization()")
     yield session.measure_utilization()
 
     release_memory()
-    print("analyze_project: running deepview_predict()")
-    yield session.habitat_predict()
+    print("analyze_project: running energy_compute()")
+    yield session.energy_compute()
 
-    # release object session (less gpu memory consumption)
-    release_memory()
-    weakref.finalize(session,print,"session object destroyed")
-    del session
+    if ddp_request:
+        release_memory()
+        print("analyze_project: running ddp_computation()")
+        resp = session.ddp_computation()
+        # release object session (less gpu memory consumption)
+        release_memory()
+        weakref.finalize(session,print,"session object destroyed")
+        del session 
+        yield resp
+    else:
+        # release object session (less gpu memory consumption)
+        release_memory()
+        weakref.finalize(session,print,"session object destroyed")
+        del session
+        yield None
 
 def main():
     # This is used for development and debugging purposes

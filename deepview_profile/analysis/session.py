@@ -153,7 +153,6 @@ class AnalysisSession:
             )
             serialize_response(resp.rootNode, analysis_results["root_node"])
             resp.tensor_utilization = float(analysis_results["tensor_core_perc"])
-            hc.release_cupti_hook()
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
@@ -179,7 +178,6 @@ class AnalysisSession:
             resp.bucket_sizes.extend(analysis_results["bucket_sizes"])
             resp.expected_max_2gpus.extend(analysis_results["expected_max_2gpus"])
             resp.expected_max_4gpus.extend(analysis_results["expected_max_4gpus"])
-            hc.release_cupti_hook()
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
@@ -289,6 +287,8 @@ class AnalysisSession:
 
         try:
             print("deepview_predict: begin")
+            # clear any cupti activity before running Deepview.Predict
+            hc.release_cupti_hook()
             DEVICES = [
                 habitat.Device.P100,
                 habitat.Device.P4000,
@@ -383,6 +383,7 @@ class AnalysisSession:
                 resp.predictions.append(pred)
 
             print(f"returning {len(resp.predictions)} predictions.")
+            # clear cupti after habitat
             hc.release_cupti_hook()
         except AnalysisError as ex:
             message = str(ex)
