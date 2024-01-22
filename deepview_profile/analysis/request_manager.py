@@ -35,10 +35,6 @@ class AnalysisRequestManager:
         if analysis_request.mock_response:
             self._handle_mock_analysis_request(analysis_request, context)
             return
-        
-        # with open("/home/john/Documents/centml/deepview-with-changes/before.txt",'w') as f:
-        #     for k in sys.modules.keys():
-        #         f.write(f"\n{k}")
 
         self._executor.submit(
             self._handle_analysis_request,
@@ -115,6 +111,7 @@ class AnalysisRequestManager:
             # send ddp analysis
             if self._early_disconnection_error(context):
                 return
+            
             if analysis_request.ddp_analysis_request:
                 ddp_resp = next(analyzer)
                 self._enqueue_response(
@@ -122,8 +119,8 @@ class AnalysisRequestManager:
                     ddp_resp,
                     context,
                 )
-            else:
-                next(analyzer)
+            
+            next(analyzer)
 
             # execution time
             elapsed_time = time.perf_counter() - start_time

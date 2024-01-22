@@ -27,8 +27,6 @@ def get_bucket_sizes(model, cap_size):
         lambda idx: list(model.parameters())[idx], bucket_indices_backward
     )
     for bucket in params_in_buckets:
-        for p in bucket:
-            assert p.element_size() == 4, "element is not float 32"
         size_bytes = sum(p.numel() * p.element_size() for p in bucket)
         size_mb = round(size_bytes / 1024 / 1024, 3)
         bucket_sizes.append(size_mb)

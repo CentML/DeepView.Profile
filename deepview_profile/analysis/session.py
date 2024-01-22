@@ -383,7 +383,7 @@ class AnalysisSession:
                 resp.predictions.append(pred)
 
             print(f"returning {len(resp.predictions)} predictions.")
-            # clear cupti after habitat
+            # clear cupti after Deepview.Predict
             hc.release_cupti_hook()
         except AnalysisError as ex:
             message = str(ex)

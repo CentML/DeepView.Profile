@@ -32,18 +32,13 @@ def analyze_project(project_root, entry_point, nvml, ddp_request):
     if ddp_request:
         release_memory()
         print("analyze_project: running ddp_computation()")
-        resp = session.ddp_computation()
-        # release object session (less gpu memory consumption)
-        release_memory()
-        weakref.finalize(session,print,"session object destroyed")
-        del session 
-        yield resp
-    else:
-        # release object session (less gpu memory consumption)
-        release_memory()
-        weakref.finalize(session,print,"session object destroyed")
-        del session
-        yield None
+        yield session.ddp_computation()
+    
+    # release object session (less gpu memory consumption)
+    release_memory()
+    weakref.finalize(session,print,"session object destroyed")
+    del session
+    yield None
 
 def main():
     # This is used for development and debugging purposes
