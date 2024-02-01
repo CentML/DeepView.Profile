@@ -82,7 +82,7 @@ message FromServer {
     HabitatResponse habitat = 9;
     EnergyResponse energy = 10;
     UtilizationResponse utilization = 11;
-    DdpResponse ddp = 12;
+    DDPBucketSizesComputationTimes ddp = 12;
   }
 
   // Deprecated messages
@@ -141,12 +141,16 @@ message UtilizationResponse {
 // DDP message
 // =====================================
 
-message DdpResponse {
+message DDPBucketSizesComputationTimes {
   float forward_time_ms = 1;
   repeated float bucket_sizes = 2;
-  repeated float expected_max_2gpus = 3;
-  repeated float expected_max_4gpus = 4;
-  AnalysisError analysis_error = 5;
+  repeated DDPExpectedMaximumComputationTimes computation_times = 3;
+  AnalysisError analysis_error = 4;
+}
+
+message DDPExpectedMaximumComputationTimes {
+  int32 ngpus = 1;
+  repeated float expected_max_times = 2;
 }
 
 // Records past experiments

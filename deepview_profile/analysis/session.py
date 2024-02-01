@@ -168,7 +168,7 @@ class AnalysisSession:
             return resp
 
     def ddp_computation(self):
-        resp = pm.DdpResponse()
+        resp = pm.DDPBucketSizesComputationTimes()
 
         try:
             analysis_results = ddp_analysis(
@@ -176,8 +176,11 @@ class AnalysisSession:
             )
             resp.forward_time_ms = float(analysis_results["forward_time_ms"])
             resp.bucket_sizes.extend(analysis_results["bucket_sizes"])
-            resp.expected_max_2gpus.extend(analysis_results["expected_max_2gpus"])
-            resp.expected_max_4gpus.extend(analysis_results["expected_max_4gpus"])
+            for computation_time_item in analysis_results["expected_computation_times"]:
+                add_item_to_resp = resp.computation_times.add()
+                add_item_to_resp.ngpus = int(computation_time_item["ngpus"])
+                add_item_to_resp.expected_max_times.extend(computation_time_item["expected_max_times"])
+                
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)

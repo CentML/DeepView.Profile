@@ -53,7 +53,10 @@ class AnalysisRequestManager:
             )
             connection = self._connection_manager.get_connection(context.address)
             analyzer = analyze_project(
-                connection.project_root, connection.entry_point, self._nvml,analysis_request.ddp_analysis_request
+                connection.project_root, 
+                connection.entry_point, 
+                self._nvml,
+                analysis_request.ddp_analysis_request
             )
 
             # Abort early if the connection has been closed

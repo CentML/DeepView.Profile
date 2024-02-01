@@ -3,17 +3,18 @@ import inspect
 import os
 import re
 import torch
+from deepview_profile.utils import model_location_patterns
 
 SourceLocation = collections.namedtuple(
     'SourceLocation', ['file_path', 'line_number', 'module_id'])
 
-pattern_list = ["./transformers/models[/\w+/]+\w+.py","./diffusers/models[/\w+/]+\w+.py"]
-
 def find_pattern_match(filename):
-    for pattern in pattern_list:
-        if re.search(pattern, filename):
-            return True 
-    return False
+    pattern_list = model_location_patterns()
+    # for pattern in pattern_list:
+    #     if re.search(pattern, filename):
+    #         return True 
+    # return False
+    return any(re.search(pattern,filename) for pattern in pattern_list)
 
 class CallStack:
     def __init__(self, frames):

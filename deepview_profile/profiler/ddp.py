@@ -5,7 +5,7 @@ import logging
 from deepview_profile.pytorch_profiler_log_reader import (
     get_first_last_step,
     get_bucket_sizes,
-    get_single_gpu_backward_info,
+    get_ddp_forward_backward_times,
 )
 import time
 from torch.profiler import profile, schedule, ProfilerActivity
@@ -55,7 +55,7 @@ def _bucket_comp_times(path_to_file):
     NUM_STEPS = 25
     forward_time_acc = 0
     for step in range(first_step + 1, first_step + NUM_STEPS + 1):
-        fw_time, bucket_comp_times = get_single_gpu_backward_info(path_to_file, step)
+        fw_time, bucket_comp_times = get_ddp_forward_backward_times(path_to_file, step)
         forward_time_acc += fw_time
         """
         storing as:
@@ -140,8 +140,10 @@ def ddp_analysis(model_provider, input_provider, iteration_provider):
     jsonFormat = {
         "forward_time_ms": fw_avg_msec,
         "bucket_sizes": bucket_sizes_arr,
-        "expected_max_2gpus": expected_max_2gpus,
-        "expected_max_4gpus": expected_max_4gpus,
+        "expected_computation_times": [
+            {"ngpus": 2, "expected_max_times": expected_max_2gpus},
+            {"ngpus": 4, "expected_max_times": expected_max_4gpus},
+        ],
     }
 
     subprocess.run(["rm", "-f", os.path.join(os.getcwd(), FILENAME)])

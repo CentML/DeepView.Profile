@@ -3,7 +3,7 @@ import logging
 import gc
 import os
 import base64
-
+import re
 from google.protobuf.json_format import MessageToDict
 
 logger = logging.getLogger(__name__)
@@ -49,3 +49,6 @@ def encode_file(root, file):
             file_dict["content"] = base64.b64encode(file_content.encode("utf-8")).decode("utf-8")
 
     return file_dict
+
+def model_location_patterns():
+    return ["./transformers/models[/\w+/]+\w+.py","./diffusers/models[/\w+/]+\w+.py"]

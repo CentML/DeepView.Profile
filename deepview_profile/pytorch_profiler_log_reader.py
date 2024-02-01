@@ -4,9 +4,14 @@ import traceback
 import orjson
 from perfetto.trace_processor import TraceProcessor
 import io
+import torch
+from typing import List, Tuple, Any
 
-
-def get_bucket_sizes(model, cap_size):
+def get_bucket_sizes(model: torch.nn.Module, cap_size: int) -> List[int]:
+    """
+    Inputs: Pytorch model and a bucket size cap
+    Outputs: list of bucket sizes in Megabytes.
+    """
     params = [p for p in model.parameters() if p.requires_grad]
     bucket_cap_mb = cap_size
     bucket_bytes_cap = int(bucket_cap_mb * 1024 * 1024)
@@ -34,23 +39,42 @@ def get_bucket_sizes(model, cap_size):
     return bucket_sizes
 
 
-def convert_ids_int_string(slices):
+def _convert_ids_int_string(slices: List[Any]) -> None:
+    """
+    Used by get_perfetto_object to convert ids to str
+    Inputs: List of slices
+    Outputs: None
+    """
     for slice in slices:
         if "id" in slice:
             slice["id"] = str(slice["id"])
 
 
-def convert_negative_tids_to_positive(slices):
+def _convert_negative_tids_to_positive(slices: List[Any]) -> None:
+    """
+    Used by get_perfetto_object to change ids from neg to pos
+    Inputs: List of slices
+    Outputs: None
+    """
     for slice in slices:
         if "tid" in slice and isinstance(slice["tid"], int):
             slice["tid"] = abs(slice["tid"])
 
 
-def remove_args(slices):
+def _remove_args(slices: List[Any]) -> None:
+    """
+    Used by get_perfetto_object to remove unused args
+    Inputs: List of slices
+    Outputs: None
+    """
     [slice.pop("args", None) for slice in slices]
 
 
-def get_perfetto_object(filepath):
+def get_perfetto_object(filepath: str) -> TraceProcessor:
+    """
+    Input: Pytorch profiler trace
+    Output: Handler to run SQL-like queries on trace. 
+    """
     with open(filepath, "rb") as f:
         raw_slices = orjson.loads(f.read())
 
@@ -58,10 +82,10 @@ def get_perfetto_object(filepath):
         # Perfetto doesn't want this format produced by PyTorch
         raw_slices = raw_slices.pop("traceEvents", None)
     # Convert IDs from int to string. Without this perfetto fails to JSON load trace with IDs stored as integers.
-    convert_ids_int_string(raw_slices)
+    _convert_ids_int_string(raw_slices)
     # Convert negative 'tid' values to positive. Without this perfetto combines together the slices with different tids into one track
-    convert_negative_tids_to_positive(raw_slices)
-    remove_args(raw_slices)  # For speedup
+    _convert_negative_tids_to_positive(raw_slices)
+    _remove_args(raw_slices)  # For speedup
 
     slices_bytes = orjson.dumps(raw_slices)
     slices_bytes = io.BytesIO(slices_bytes)  # 4x speedup using orjson
@@ -92,7 +116,11 @@ def get_perfetto_object(filepath):
     return tp
 
 
-def read_gpu_slice(tp, cpu_input_slice):
+def read_gpu_slice(tp: TraceProcessor, cpu_input_slice: dict) -> dict:
+    """
+    Input: Perfetto handler and CPU slice
+    Output: GPU kernel slice
+    """
     cuda_slice = None
     slice_id_origin = cpu_input_slice["slice_id"]
     slice_id_destination = tp.query_dict(
@@ -107,7 +135,11 @@ def read_gpu_slice(tp, cpu_input_slice):
     return cuda_slice
 
 
-def get_first_last_step(filepath):
+def get_first_last_step(filepath: str) -> Tuple[int, int]:
+    """
+    Input: Pytorch profiler trace
+    Output: First and last step of the trace.
+    """
     tp = get_perfetto_object(filepath)
     steps_arr = tp.query_dict(f"select * from slices where name like '%ProfilerStep#%'")
     first_step = int(steps_arr[0]["name"].split("#")[1])
@@ -116,9 +148,10 @@ def get_first_last_step(filepath):
     return first_step, last_step
 
 
-def get_single_gpu_backward_info(filepath, step):
+def get_ddp_forward_backward_times(filepath, step) -> Tuple[float, List[float]]:
     """
-    READ INFORMATION FROM PYTORCH PROFILER WITH ONLY A SINGLE GPU
+    Inputs: Pytorch profiler trace and step number
+    Outputs: Forward runtime and list of ddp-bucket computation times
     """
     tp = get_perfetto_object(filepath)
     profiler_step = tp.query_dict(
