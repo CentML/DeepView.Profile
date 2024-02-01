@@ -176,7 +176,7 @@ def get_ddp_forward_backward_times(filepath, step) -> Tuple[float, List[float]]:
                                         AND ts > {start_step} AND ts < {end_step}
                                         """
     )
-    # print("start backward\n", backward_slices[0])
+    
     start_backward, end_backward = (
         backward_slices[0]["ts"],
         backward_slices[-1]["ts"] + backward_slices[-1]["dur"],
