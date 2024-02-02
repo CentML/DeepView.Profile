@@ -179,8 +179,10 @@ class AnalysisSession:
             for computation_time_item in analysis_results["expected_computation_times"]:
                 add_item_to_resp = resp.computation_times.add()
                 add_item_to_resp.ngpus = int(computation_time_item["ngpus"])
-                add_item_to_resp.expected_max_times.extend(computation_time_item["expected_max_times"])
-                
+                add_item_to_resp.expected_max_times.extend(
+                    computation_time_item["expected_max_times"]
+                )
+
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
@@ -394,10 +396,15 @@ class AnalysisSession:
             resp.analysis_error.error_message = message
         except Exception as ex:
             message = str(ex)
-            logger.error(message)
             logger.error("There was an error running DeepView Predict")
+            logger.error(message)
+            cupti_context_error = ""
+            if "CUPTI_ERROR_MULTIPLE_SUBSCRIBERS_NOT_SUPPORTED" in message:
+                cupti_context_error = """We have detected that cuda versions <= 11.8 maybe not close CUPTI context properly between each execution.
+                Please try with a version of pytorch that includes cuda version >= 12.1. Or you may close this window and open a new one."""
+                print(cupti_context_error)
             resp.analysis_error.error_message = (
-                "There was an error running DeepView Predict"
+                "There was an error running DeepView Predict\n" + cupti_context_error
             )
         finally:
             return resp
