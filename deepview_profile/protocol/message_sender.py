@@ -69,6 +69,9 @@ class MessageSender:
     def send_utilization_response(self, utilization_resp, context):
         self._send_message(utilization_resp, 'utilization', context)
 
+    def send_ddp_response(self, ddp_resp, context):
+        self._send_message(ddp_resp, 'ddp', context)
+
     def _send_message(self, message, payload_name, context):
         try:
             connection = self._connection_manager.get_connection(

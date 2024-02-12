@@ -2,12 +2,11 @@ import logging
 import math
 import time
 from concurrent.futures import ThreadPoolExecutor
-import torch.multiprocessing as mp
 from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.exceptions import AnalysisError
 from deepview_profile.nvml import NVML
 import deepview_profile.protocol_gen.innpv_pb2 as pm
-
+import sys
 logger = logging.getLogger(__name__)
 
 
@@ -24,7 +23,6 @@ class AnalysisRequestManager:
         self._message_sender = message_sender
         self._connection_manager = connection_manager
         self._nvml = NVML()
-        mp.set_start_method("spawn")
 
     def start(self):
         self._nvml.start()
@@ -49,14 +47,17 @@ class AnalysisRequestManager:
         start_time = time.perf_counter()
         try:
             logger.debug(
-                'Processing request %d from (%s:%d).',
+                "Processing request %d from (%s:%d).",
                 context.sequence_number,
                 *(context.address),
             )
-            connection = self._connection_manager.get_connection(
-                context.address)
+            connection = self._connection_manager.get_connection(context.address)
             analyzer = analyze_project(
-                connection.project_root, connection.entry_point, self._nvml)
+                connection.project_root, 
+                connection.entry_point, 
+                self._nvml,
+                analysis_request.ddp_analysis_request
+            )
 
             # Abort early if the connection has been closed
             if self._early_disconnection_error(context):
@@ -96,9 +97,7 @@ class AnalysisRequestManager:
 
             utilization_resp = next(analyzer)
             self._enqueue_response(
-                self._send_utilization_response,
-                utilization_resp,
-                context
+                self._send_utilization_response, utilization_resp, context
             )
 
             # send energy response
@@ -112,9 +111,24 @@ class AnalysisRequestManager:
                 context,
             )
 
+            # send ddp analysis
+            if self._early_disconnection_error(context):
+                return
+            
+            if analysis_request.ddp_analysis_request:
+                ddp_resp = next(analyzer)
+                self._enqueue_response(
+                    self._send_ddp_response,
+                    ddp_resp,
+                    context,
+                )
+            
+            next(analyzer)
+
+            # execution time
             elapsed_time = time.perf_counter() - start_time
             logger.debug(
-                'Processed analysis request %d from (%s:%d) in %.4f seconds.',
+                "Processed analysis request %d from (%s:%d) in %.4f seconds.",
                 context.sequence_number,
                 *(context.address),
                 elapsed_time,
@@ -124,13 +138,12 @@ class AnalysisRequestManager:
             self._enqueue_response(self._send_analysis_error, ex, context)
 
         except Exception:
-            logger.exception(
-                'Exception occurred when handling analysis request.')
+            logger.exception("Exception occurred when handling analysis request.")
             self._enqueue_response(
                 self._send_analysis_error,
                 AnalysisError(
-                    'An unexpected error occurred when analyzing your model. '
-                    'Please file a bug report and then restart DeepView.'
+                    "An unexpected error occurred when analyzing your model. "
+                    "Please file a bug report and then restart DeepView."
                 ),
                 context,
             )
@@ -153,24 +166,21 @@ class AnalysisRequestManager:
         try:
             self._message_sender.send_breakdown_response(breakdown, context)
         except Exception:
-            logger.exception(
-                'Exception occurred when sending a breakdown response.')
+            logger.exception("Exception occurred when sending a breakdown response.")
 
     def _send_analysis_error(self, exception, context):
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_analysis_error(exception, context)
         except Exception:
-            logger.exception(
-                'Exception occurred when sending an analysis error.')
+            logger.exception("Exception occurred when sending an analysis error.")
 
     def _send_throughput_response(self, throughput, context):
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_throughput_response(throughput, context)
         except Exception:
-            logger.exception(
-                'Exception occurred when sending a throughput response.')
+            logger.exception("Exception occurred when sending a throughput response.")
 
     def _send_habitat_response(self, habitat_resp, context):
         # Called from the main executor. Do not call directly!
@@ -178,30 +188,35 @@ class AnalysisRequestManager:
             self._message_sender.send_habitat_response(habitat_resp, context)
         except Exception:
             logger.exception(
-                'Exception occurred when sending a DeepView.Predict response.')
+                "Exception occurred when sending a DeepView.Predict response."
+            )
 
     def _send_energy_response(self, energy_resp, context):
         # Called from the main executor. Do not call directly!
         try:
             self._message_sender.send_energy_response(energy_resp, context)
         except Exception:
-            logger.exception(
-                'Exception occurred when sending an energy response.')
+            logger.exception("Exception occurred when sending an energy response.")
 
     def _send_utilization_response(self, utilization_resp, context):
         # Called from the main executor. Do not call directly!
         try:
-            self._message_sender.send_utilization_response(
-                utilization_resp, context)
+            self._message_sender.send_utilization_response(utilization_resp, context)
         except Exception:
-            logger.exception(
-                'Exception occurred when sending utilization response.')
+            logger.exception("Exception occurred when sending utilization response.")
+
+    def _send_ddp_response(self, ddp_response, context):
+        # Called from the main executor. Do not call directly!
+        try:
+            self._message_sender.send_ddp_response(ddp_response, context)
+        except Exception:
+            logger.exception("Exception occurred when sending ddp response.")
 
     def _early_disconnection_error(self, context):
         if not context.state.connected:
             logger.error(
-                'Aborting request %d from (%s:%d) early '
-                'because the client has disconnected.',
+                "Aborting request %d from (%s:%d) early "
+                "because the client has disconnected.",
                 context.sequence_number,
                 *(context.address),
             )

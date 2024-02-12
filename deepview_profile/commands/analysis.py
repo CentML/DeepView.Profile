@@ -57,6 +57,11 @@ def register_command(subparsers):
         help="Adds energy use to results"
     )
     parser.add_argument(
+        "--include-ddp",
+        action="store_true",
+        help="Adds ddp analysis to results"
+    )
+    parser.add_argument(
         "-o", "--output",
         help="The location where the complete report should be stored",
         required=True
@@ -98,6 +103,11 @@ def energy_compute(session):
     yield session.energy_compute()
     release_memory()
 
+def ddp_analysis(session):
+    print("analysis: running ddp_computation()")
+    yield session.ddp_computation()
+    release_memory()
+
 def hardware_information(nvml):
     
     hardware_info = { 
@@ -131,7 +141,8 @@ def actual_main(args):
                 "habitat": {},
                 "additionalProviders": "",
                 "energy": {},
-                "utilization": {}
+                "utilization": {},
+                "ddp": {}
             },
             "epochs": 50,
             "iterPerEpoch": 1000,
@@ -163,6 +174,9 @@ def actual_main(args):
 
         if args.energy_compute or is_return_all:
             data['analysisState']['energy'] = next_message_to_dict(energy_compute(session))
+
+        if args.include_ddp:
+            data['analysisState']['ddp'] = next_message_to_dict(ddp_analysis(session))
 
         with open(args.output, "w") as json_file:
             json.dump(data, json_file, indent=4)
