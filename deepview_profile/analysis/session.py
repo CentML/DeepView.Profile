@@ -293,7 +293,7 @@ class AnalysisSession:
         try:
             print("deepview_predict: begin")
             # clear any cupti activity before running Deepview.Predict
-            hc.release_cupti_hook()
+            # hc.release_cupti_hook()
             DEVICES = [
                 habitat.Device.P100,
                 habitat.Device.P4000,
@@ -400,8 +400,8 @@ class AnalysisSession:
             logger.error(message)
             cupti_context_error = ""
             if "CUPTI_ERROR_MULTIPLE_SUBSCRIBERS_NOT_SUPPORTED" in message:
-                cupti_context_error = """We have detected that cuda versions <= 11.8 maybe not close CUPTI context properly between each execution.
-                Please try with a version of pytorch that includes cuda version >= 12.1. Or you may close this window and open a new one."""
+                cupti_context_error = """We have detected a CUPTI_ERROR_MULTIPLE_SUBSCRIBERS_NOT_SUPPORTED error
+                                        you may need to install pytorch version >= 2.2.1"""
                 print(cupti_context_error)
             resp.analysis_error.error_message = (
                 "There was an error running DeepView Predict\n" + cupti_context_error
