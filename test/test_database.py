@@ -2,7 +2,8 @@ import os
 import random
 import deepview_profile.db.database as database
 
-
+LOWER_BOUND_RAND_INT = 1
+UPPER_BOUND_RAND_INT = 10
 class MockDatabaseInterface(database.DatabaseInterface):
     def __del__(self):
         if os.path.exists("test.sqlite"):
@@ -37,10 +38,15 @@ class TestSkylineDatabase:
         )
 
     def test_adding_valid_entry(self):
-        params = ["entry_point", random.random(), random.random(), random.randint()]
+        params = [
+            "entry_point",
+            random.random(),
+            random.random(),
+            random.randint(LOWER_BOUND_RAND_INT, UPPER_BOUND_RAND_INT),
+        ]
         self.energy_table_interface.add_entry(params)
         query_result = self.test_database.connection.execute(
-            "SELECT * FROM ENERGY;"
+            "SELECT * FROM ENERGY ORDER BY ts DESC;"
         ).fetchone()
         # params is passed in by reference so it have the timestamp in it
         assert query_result == tuple(params)
@@ -48,19 +54,29 @@ class TestSkylineDatabase:
     # add 10 valid entries and get top 3
     def test_get_latest_n_entries_of_entry_point(self):
         for _ in range(10):
-            params = ["entry_point", random.random(), random.random(), random.randint()]
+            params = [
+                "entry_point",
+                random.random(),
+                random.random(),
+                random.randint(LOWER_BOUND_RAND_INT, UPPER_BOUND_RAND_INT),
+            ]
             self.energy_table_interface.add_entry(params)
         for _ in range(20):
             params = [
                 "other_entry_point",
                 random.random(),
                 random.random(),
-                random.randint(),
+                random.randint(LOWER_BOUND_RAND_INT, UPPER_BOUND_RAND_INT),
             ]
             self.energy_table_interface.add_entry(params)
         entries = []
         for _ in range(3):
-            params = ["entry_point", random.random(), random.random(), random.randint()]
+            params = [
+                "entry_point",
+                random.random(),
+                random.random(),
+                random.randint(LOWER_BOUND_RAND_INT, UPPER_BOUND_RAND_INT),
+            ]
             entries.insert(0, params)
             self.energy_table_interface.add_entry(params)
         latest_n_entries = (

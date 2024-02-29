@@ -1,7 +1,0 @@
-{
-    "skyline_bin": "/home/ubuntu/habitat-a100/centml/venv/bin/deepview",
-    "entry_points": [
-        "/home/ubuntu/habitat-a100/centml/deepview_profile/examples/resnet/entry_point.py",
-        "/home/ubuntu/habitat-a100/centml/deepview_profile/examples/testnet/entry_point.py"
-    ]
-}
