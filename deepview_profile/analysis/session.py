@@ -292,8 +292,7 @@ class AnalysisSession:
 
         try:
             print("deepview_predict: begin")
-            # clear any cupti activity before running Deepview.Predict
-            # hc.release_cupti_hook()
+
             DEVICES = [
                 habitat.Device.P100,
                 habitat.Device.P4000,
