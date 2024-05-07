@@ -8,6 +8,7 @@ import re
 import torch
 import numpy as np
 import deepview_profile.protocol_gen.innpv_pb2 as pm
+from google.protobuf.json_format import ParseDict
 from deepview_profile.analysis.static import StaticAnalyzer
 from deepview_profile.db.database import DatabaseInterface, EnergyTableInterface
 from deepview_profile.energy.measurer import EnergyMeasurer
@@ -21,35 +22,14 @@ from deepview_profile.profiler.utilization import (
 )
 from deepview_profile.profiler.ddp import ddp_analysis
 from typing import List
-
+from deepview_profile.data.mock_data import MOCK_DATA_ALL
 logger = logging.getLogger(__name__)
-
-# habitat imports
-try:
-    import collections
-    import habitat
-    import habitat.habitat_cuda as hc
-    from habitat.analysis import SPECIAL_OPERATIONS
-    from habitat.profiling.run_time import RunTimeProfiler
-
-    habitat_found = True
-except ImportError:
-    logger.debug("DeepView.Predict not found, GPU predictions not available")
-    habitat_found = False
-
 
 MODEL_PROVIDER_NAME = "deepview_model_provider"
 INPUT_PROVIDER_NAME = "deepview_input_provider"
 ITERATION_PROVIDER_NAME = "deepview_iteration_provider"
 BATCH_SIZE_ARG = "batch_size"
-
-
-# Habitat variables
-Context = collections.namedtuple(
-    "Context",
-    ["origin_device", "profiler", "percentile"],
-)
-
+MOCK_DATA = MOCK_DATA_ALL["analysisState"]
 
 class AnalysisSession:
     def __init__(
@@ -147,12 +127,9 @@ class AnalysisSession:
 
     def measure_utilization(self):
         resp = pm.UtilizationResponse()
-        try:
-            analysis_results = utilization_analysis(
-                self._model_provider, self._input_provider, self._iteration_provider
-            )
-            serialize_response(resp.rootNode, analysis_results["root_node"])
-            resp.tensor_utilization = float(analysis_results["tensor_core_perc"])
+        try: 
+            serialize_response(resp.rootNode, MOCK_DATA["utilization"]["rootNode"])
+            resp.tensor_utilization = 10.5
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
@@ -171,16 +148,14 @@ class AnalysisSession:
         resp = pm.DDPBucketSizesComputationTimes()
 
         try:
-            analysis_results = ddp_analysis(
-                self._model_provider, self._input_provider, self._iteration_provider
-            )
-            resp.forward_time_ms = float(analysis_results["forward_time_ms"])
-            resp.bucket_sizes.extend(analysis_results["bucket_sizes"])
-            for computation_time_item in analysis_results["expected_computation_times"]:
+            
+            resp.forward_time_ms = float(MOCK_DATA["ddp"]["forwardTimeMs"])
+            resp.bucket_sizes.extend(MOCK_DATA["ddp"]["bucketSizes"])
+            for computation_time_item in MOCK_DATA["ddp"]["computationTimes"]:
                 add_item_to_resp = resp.computation_times.add()
                 add_item_to_resp.ngpus = int(computation_time_item["ngpus"])
                 add_item_to_resp.expected_max_times.extend(
-                    computation_time_item["expected_max_times"]
+                    computation_time_item["expectedMaxTimes"]
                 )
 
         except AnalysisError as ex:
@@ -198,198 +173,64 @@ class AnalysisSession:
             return resp
 
     def energy_compute(self) -> pm.EnergyResponse:
-        energy_measurer = EnergyMeasurer()
-
-        model = self._model_provider()
-        inputs = self._input_provider()
-        iteration = self._iteration_provider(model)
+        import traceback
         resp = pm.EnergyResponse()
 
         try:
-            energy_measurer.begin_measurement()
-            iterations = 20
-            for _ in range(iterations):
-                iteration(*inputs)
-            energy_measurer.end_measurement()
-            resp.total_consumption = energy_measurer.total_energy() / float(iterations)
-            resp.batch_size = self._batch_size
+            
+            resp.total_consumption = MOCK_DATA["energy"]["totalConsumption"]
+            resp.batch_size = MOCK_DATA["energy"]["batchSize"]
 
             components = []
             components_joules = []
 
-            if energy_measurer.cpu_energy() is not None:
-                cpu_component = pm.EnergyConsumptionComponent()
-                cpu_component.component_type = pm.ENERGY_CPU_DRAM
-                cpu_component.consumption_joules = energy_measurer.cpu_energy() / float(
-                    iterations
-                )
-                components.append(cpu_component)
-                components_joules.append(cpu_component.consumption_joules)
-            else:
-                cpu_component = pm.EnergyConsumptionComponent()
-                cpu_component.component_type = pm.ENERGY_CPU_DRAM
-                cpu_component.consumption_joules = 0.0
-                components.append(cpu_component)
-                components_joules.append(cpu_component.consumption_joules)
+            
+            cpu_component = pm.EnergyConsumptionComponent()
+            cpu_component.component_type = pm.ENERGY_CPU_DRAM
+            cpu_component.consumption_joules = MOCK_DATA["energy"]["components"][0].get("consumptionJoules",0)
+            components.append(cpu_component)
+            components_joules.append(cpu_component.consumption_joules)
+            
 
             gpu_component = pm.EnergyConsumptionComponent()
             gpu_component.component_type = pm.ENERGY_NVIDIA
-            gpu_component.consumption_joules = energy_measurer.gpu_energy() / float(
-                iterations
-            )
+            gpu_component.consumption_joules =MOCK_DATA["energy"]["components"][1].get("consumptionJoules",0) 
             components.append(gpu_component)
             components_joules.append(gpu_component.consumption_joules)
 
             resp.components.extend(components)
 
-            # get last 10 runs if they exist
-            path_to_entry_point = os.path.join(self._project_root, self._entry_point)
-            past_runs = (
-                self._energy_table_interface.get_latest_n_entries_of_entry_point(
-                    10, path_to_entry_point
-                )
-            )
+            past_runs = MOCK_DATA["energy"]["pastMeasurements"] 
             resp.past_measurements.extend(_convert_to_energy_responses(past_runs))
 
-            # add current run to database
-            current_entry = [path_to_entry_point] + components_joules
-            current_entry.append(self._batch_size)
-            self._energy_table_interface.add_entry(current_entry)
+            
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
+            print(traceback.format_exc())
             resp.analysis_error.error_message = message
         except Exception as ex:
             message = str(ex)
             logger.error(message)
+            print(traceback.format_exc())
+
             resp.analysis_error.error_message = (
                 f"There was an error obtaining energy measurements: {message}"
             )
         finally:
             return resp
 
-    def habitat_compute_threshold(self, runnable, context):
-        tracker = habitat.OperationTracker(context.origin_device)
-        with tracker.track():
-            runnable()
-
-        run_times = []
-        trace = tracker.get_tracked_trace()
-        for op in trace.operations:
-            if op.name in SPECIAL_OPERATIONS:
-                continue
-            run_times.append(op.forward.run_time_ms)
-            if op.backward is not None:
-                run_times.append(op.backward.run_time_ms)
-
-        return np.percentile(run_times, context.percentile)
-
     def habitat_predict(self):
         resp = pm.HabitatResponse()
-        if not habitat_found:
-            logger.debug("Skipping deepview predictions, returning empty response.")
-            return resp
-
-        try:
-            print("deepview_predict: begin")
-            # clear any cupti activity before running Deepview.Predict
-            hc.release_cupti_hook()
-            DEVICES = [
-                habitat.Device.P100,
-                habitat.Device.P4000,
-                habitat.Device.RTX2070,
-                habitat.Device.RTX2080Ti,
-                habitat.Device.T4,
-                habitat.Device.V100,
-                habitat.Device.A100,
-                habitat.Device.RTX3090,
-                habitat.Device.A40,
-                habitat.Device.A4000,
-                habitat.Device.RTX4000,
-            ]
-
-            # Detect source GPU
-            pynvml.nvmlInit()
-            if pynvml.nvmlDeviceGetCount() == 0:
-                raise Exception(
-                    "NVML failed to find a GPU. Please ensure that you \
-                have a NVIDIA GPU installed and that the drivers are functioning \
-                correctly."
-                )
-
-            # TODO: Consider profiling on not only the first detected GPU
-            nvml_handle = pynvml.nvmlDeviceGetHandleByIndex(0)
-            source_device_name = pynvml.nvmlDeviceGetName(nvml_handle).decode("utf-8")
-            split_source_device_name = re.split(r"-|\s|_|\\|/", source_device_name)
-            source_device = (
-                None if logging.root.level > logging.DEBUG else habitat.Device.T4
-            )
-            for device in DEVICES:
-                if device.name in "".join(split_source_device_name):
-                    source_device = device
-            pynvml.nvmlShutdown()
-            if not source_device:
-                logger.debug(
-                    "Skipping DeepView predictions,\
-                    source not in list of supported GPUs."
-                )
-                src = pm.HabitatDevicePrediction()
-                src.device_name = "unavailable"
-                src.runtime_ms = -1
-                resp.predictions.append(src)
-                return resp
-
-            print("deepview_predict: detected source device", source_device.name)
-
-            # get model
-            model = self._model_provider()
-            inputs = self._input_provider()
-            iteration = self._iteration_provider(model)
-
-            def runnable():
-                iteration(*inputs)
-
-            profiler = RunTimeProfiler()
-
-            context = Context(
-                origin_device=source_device, profiler=profiler, percentile=99.5
-            )
-
-            threshold = self.habitat_compute_threshold(runnable, context)
-
-            tracker = habitat.OperationTracker(
-                device=context.origin_device,
-                metrics=[
-                    habitat.Metric.SinglePrecisionFLOPEfficiency,
-                    habitat.Metric.DRAMReadBytes,
-                    habitat.Metric.DRAMWriteBytes,
-                ],
-                metrics_threshold_ms=threshold,
-            )
-
-            with tracker.track():
-                iteration(*inputs)
-
-            print("deepview_predict: tracing on origin device")
-            trace = tracker.get_tracked_trace()
-
-            src = pm.HabitatDevicePrediction()
-            src.device_name = "source"
-            src.runtime_ms = trace.run_time_ms
-            resp.predictions.append(src)
-
-            for device in DEVICES:
-                print("deepview_predict: predicting for", device)
-                predicted_trace = trace.to_device(device)
+        try: 
+            for item in MOCK_DATA['habitat']['predictions']:
+                print("deepview_predict: predicting for", item['deviceName'])
 
                 pred = pm.HabitatDevicePrediction()
-                pred.device_name = device.name
-                pred.runtime_ms = predicted_trace.run_time_ms
+                pred.device_name = item['deviceName']
+                pred.runtime_ms = item['runtimeMs']
                 resp.predictions.append(pred)
 
-            print(f"returning {len(resp.predictions)} predictions.")
-            # clear cupti after Deepview.Predict
-            hc.release_cupti_hook()
         except AnalysisError as ex:
             message = str(ex)
             logger.error(message)
@@ -405,120 +246,140 @@ class AnalysisSession:
                 print(cupti_context_error)
             resp.analysis_error.error_message = (
                 "There was an error running DeepView Predict\n" + cupti_context_error
-            )
-        finally:
+            ) 
+        finally:           
             return resp
 
     def measure_breakdown(self, nvml):
-        # 1. Measure the breakdown entries
-        self._prepare_for_memory_profiling()
-        tracker = self._get_tracker_instance()
-        tracker.track_memory()
-        tracker.track_run_time()
-        breakdown = tracker.get_hierarchical_breakdown()
-        del tracker
+        # # 1. Measure the breakdown entries
+        # self._prepare_for_memory_profiling()
+        # tracker = self._get_tracker_instance()
+        # tracker.track_memory()
+        # tracker.track_run_time()
+        # breakdown = tracker.get_hierarchical_breakdown()
+        # del tracker
 
-        # 2. Measure the overall iteration run time
-        if self._batch_size_iteration_run_time_ms is None:
-            if self._profiler is None:
-                self._initialize_iteration_profiler()
+        # # 2. Measure the overall iteration run time
+        # if self._batch_size_iteration_run_time_ms is None:
+        #     if self._profiler is None:
+        #         self._initialize_iteration_profiler()
 
-            (
-                self._batch_size_iteration_run_time_ms,
-                self._batch_size_peak_usage_bytes,
-                _,
-            ) = self._profiler.measure_run_time_ms(self._batch_size)
+        #     (
+        #         self._batch_size_iteration_run_time_ms,
+        #         self._batch_size_peak_usage_bytes,
+        #         _,
+        #     ) = self._profiler.measure_run_time_ms(self._batch_size)
 
-        # 3. Serialize the measured data
-        bm = pm.BreakdownResponse()
-        bm.batch_size = self._batch_size
-        bm.peak_usage_bytes = breakdown.peak_usage_bytes
-        bm.memory_capacity_bytes = nvml.get_memory_capacity().total
-        bm.iteration_run_time_ms = self._batch_size_iteration_run_time_ms
-        breakdown.operations.serialize_to_protobuf(bm.operation_tree)
-        breakdown.weights.serialize_to_protobuf(bm.weight_tree)
+        # # 3. Serialize the measured data
+        # bm = pm.BreakdownResponse()
+        # bm.batch_size = self._batch_size
+        # bm.peak_usage_bytes = breakdown.peak_usage_bytes
+        # bm.memory_capacity_bytes = nvml.get_memory_capacity().total
+        # bm.iteration_run_time_ms = self._batch_size_iteration_run_time_ms
+        # breakdown.operations.serialize_to_protobuf(bm.operation_tree)
+        # breakdown.weights.serialize_to_protobuf(bm.weight_tree)
 
-        # 4. Bookkeeping for the throughput measurements
-        self._memory_usage_percentage = bm.peak_usage_bytes / bm.memory_capacity_bytes
+        # # 4. Bookkeeping for the throughput measurements
+        # self._memory_usage_percentage = bm.peak_usage_bytes / bm.memory_capacity_bytes
 
+
+        breakdown_dict = {
+            "peak_usage_bytes": MOCK_DATA["breakdown"]["peakUsageBytes"],
+            "memory_capacity_bytes": MOCK_DATA["breakdown"]["memoryCapacityBytes"],
+            "iteration_run_time_ms": MOCK_DATA["breakdown"]["iterationRunTimeMs"],
+            "operation_tree": MOCK_DATA["breakdown"]["operationTree"],
+            "weight_tree": MOCK_DATA["breakdown"]["weightTree"],
+            "batch_size": MOCK_DATA["breakdown"]["batchSize"],
+        }
+        bm = ParseDict(breakdown_dict, pm.BreakdownResponse())   
         return bm
 
     def measure_throughput(self):
-        if self._profiler is None:
-            self._initialize_iteration_profiler()
+        # if self._profiler is None:
+        #     self._initialize_iteration_profiler()
 
-        # 1. Measure the throughput at several spots to be able to build a
-        #    prediction model
-        num_samples = 3
-        samples = self._profiler.sample_run_time_ms_by_batch_size(
-            start_batch_size=self._batch_size,
-            memory_usage_percentage=self._memory_usage_percentage,
-            start_batch_size_run_time_ms=self._batch_size_iteration_run_time_ms,
-            num_samples=num_samples,
-        )
-        if len(samples) == 0 or samples[0].batch_size != self._batch_size:
-            raise AnalysisError(
-                "Something went wrong with DeepView.Profile when measuring your "
-                "model's throughput. Please file a bug."
-            )
+        # # 1. Measure the throughput at several spots to be able to build a
+        # #    prediction model
+        # num_samples = 3
+        # samples = self._profiler.sample_run_time_ms_by_batch_size(
+        #     start_batch_size=self._batch_size,
+        #     memory_usage_percentage=self._memory_usage_percentage,
+        #     start_batch_size_run_time_ms=self._batch_size_iteration_run_time_ms,
+        #     num_samples=num_samples,
+        # )
+        # if len(samples) == 0 or samples[0].batch_size != self._batch_size:
+        #     raise AnalysisError(
+        #         "Something went wrong with DeepView.Profile when measuring your "
+        #         "model's throughput. Please file a bug."
+        #     )
 
-        # 2. Begin filling in the throughput response
-        logger.debug("sampling results \n %r" % str(samples))
-        measured_throughput = samples[0].batch_size / samples[0].run_time_ms * 1000
-        throughput = pm.ThroughputResponse()
-        throughput.samples_per_second = measured_throughput
-        throughput.predicted_max_samples_per_second = math.nan
-        throughput.can_manipulate_batch_size = False
+        # # 2. Begin filling in the throughput response
+        # logger.debug("sampling results \n %r" % str(samples))
+        # measured_throughput = samples[0].batch_size / samples[0].run_time_ms * 1000
+        # throughput = pm.ThroughputResponse()
+        # throughput.samples_per_second = measured_throughput
+        # throughput.predicted_max_samples_per_second = math.nan
+        # throughput.can_manipulate_batch_size = False
 
-        # 3. Determine whether we have information about the batch size
-        #    location in the code
-        batch_info = self._entry_point_static_analyzer.batch_size_location()
-        if batch_info is not None:
-            throughput.batch_size_context.line_number = batch_info[0]
-            throughput.can_manipulate_batch_size = batch_info[1]
-            throughput.batch_size_context.file_path.components.extend(
-                self._entry_point.split(os.sep)
-            )
+        # # 3. Determine whether we have information about the batch size
+        # #    location in the code
+        # batch_info = self._entry_point_static_analyzer.batch_size_location()
+        # if batch_info is not None:
+        #     throughput.batch_size_context.line_number = batch_info[0]
+        #     throughput.can_manipulate_batch_size = batch_info[1]
+        #     throughput.batch_size_context.file_path.components.extend(
+        #         self._entry_point.split(os.sep)
+        #     )
 
-        # 4. If we do not have enough throughput samples, we cannot build any
-        #    prediction models so just return the message as-is
-        if len(samples) != num_samples:
-            return throughput
+        # # 4. If we do not have enough throughput samples, we cannot build any
+        # #    prediction models so just return the message as-is
+        # if len(samples) != num_samples:
+        #     return throughput
 
-        # 5. Build and validate the prediction models for run time (throughput)
-        #    and memory
-        batches = list(map(lambda sample: sample.batch_size, samples))
-        run_times = list(map(lambda sample: sample.run_time_ms, samples))
-        usages = list(map(lambda sample: sample.peak_usage_bytes, samples))
+        # # 5. Build and validate the prediction models for run time (throughput)
+        # #    and memory
+        # batches = list(map(lambda sample: sample.batch_size, samples))
+        # run_times = list(map(lambda sample: sample.run_time_ms, samples))
+        # usages = list(map(lambda sample: sample.peak_usage_bytes, samples))
 
-        run_time_model = _fit_linear_model(batches, run_times)
-        peak_usage_model = _fit_linear_model(batches, usages)
+        # run_time_model = _fit_linear_model(batches, run_times)
+        # peak_usage_model = _fit_linear_model(batches, usages)
 
-        logger.debug(
-            "Run time model - Slope: %f, Bias: %f (ms)",
-            *run_time_model,
-        )
-        logger.debug(
-            "Peak usage model - Slope: %f, Bias: %f (bytes)",
-            *peak_usage_model,
-        )
+        # logger.debug(
+        #     "Run time model - Slope: %f, Bias: %f (ms)",
+        #     *run_time_model,
+        # )
+        # logger.debug(
+        #     "Peak usage model - Slope: %f, Bias: %f (bytes)",
+        #     *peak_usage_model,
+        # )
 
-        throughput.peak_usage_bytes.slope = peak_usage_model[0]
-        throughput.peak_usage_bytes.bias = peak_usage_model[1]
+        # throughput.peak_usage_bytes.slope = peak_usage_model[0]
+        # throughput.peak_usage_bytes.bias = peak_usage_model[1]
 
-        predicted_max_throughput = 1000.0 / run_time_model[0]
+        # predicted_max_throughput = 1000.0 / run_time_model[0]
 
-        # Our prediction can be inaccurate due to sampling error or incorrect
-        # assumptions. In these cases, we ignore our prediction. At the very
-        # minimum, a good linear model has a positive slope and bias.
-        # if (run_time_model[0] < 1e-3 or run_time_model[1] < 1e-3 or
-        if run_time_model[0] < 1e-3 or measured_throughput > predicted_max_throughput:
-            return throughput
+        # # Our prediction can be inaccurate due to sampling error or incorrect
+        # # assumptions. In these cases, we ignore our prediction. At the very
+        # # minimum, a good linear model has a positive slope and bias.
+        # # if (run_time_model[0] < 1e-3 or run_time_model[1] < 1e-3 or
+        # if run_time_model[0] < 1e-3 or measured_throughput > predicted_max_throughput:
+        #     return throughput
 
-        throughput.predicted_max_samples_per_second = predicted_max_throughput
-        throughput.run_time_ms.slope = run_time_model[0]
-        throughput.run_time_ms.bias = run_time_model[1]
+        # throughput.predicted_max_samples_per_second = predicted_max_throughput
+        # throughput.run_time_ms.slope = run_time_model[0]
+        # throughput.run_time_ms.bias = run_time_model[1]
 
+        throughput_dict = {
+            "samples_per_second": MOCK_DATA["throughput"]["samplesPerSecond"],
+            "predicted_max_samples_per_second": MOCK_DATA["throughput"]["predictedMaxSamplesPerSecond"],
+            "run_time_ms": MOCK_DATA["throughput"]["runTimeMs"],
+            "peak_usage_bytes": MOCK_DATA["throughput"]["peakUsageBytes"],
+            "batch_size_context": MOCK_DATA["throughput"]["batchSizeContext"],
+            "can_manipulate_batch_size": MOCK_DATA["throughput"]["canManipulateBatchSize"],
+
+        }
+        throughput = ParseDict(throughput_dict, pm.ThroughputResponse())
         return throughput
 
     def measure_peak_usage_bytes(self):
@@ -693,22 +554,21 @@ def _fit_linear_model(x, y):
 def _convert_to_energy_responses(entries: list) -> List[pm.EnergyResponse]:
     energy_response_list = []
     for entry in entries:
-        if EnergyTableInterface.is_valid_entry_with_timestamp(entry):
-            energy_response = pm.EnergyResponse()
-            cpu_component = pm.EnergyConsumptionComponent()
-            cpu_component.component_type = pm.ENERGY_CPU_DRAM
-            cpu_component.consumption_joules = entry[1]
+        energy_response = pm.EnergyResponse()
+        cpu_component = pm.EnergyConsumptionComponent()
+        cpu_component.component_type = pm.ENERGY_CPU_DRAM
+        cpu_component.consumption_joules = entry["components"][0].get("consumptionJoules",0)
 
-            gpu_component = pm.EnergyConsumptionComponent()
-            gpu_component.component_type = pm.ENERGY_NVIDIA
-            gpu_component.consumption_joules = entry[2]
+        gpu_component = pm.EnergyConsumptionComponent()
+        gpu_component.component_type = pm.ENERGY_NVIDIA
+        gpu_component.consumption_joules = entry["components"][1].get("consumptionJoules",0)
 
-            energy_response.total_consumption = (
-                gpu_component.consumption_joules + cpu_component.consumption_joules
-            )
-            energy_response.components.extend([cpu_component, gpu_component])
+        energy_response.total_consumption = (
+            gpu_component.consumption_joules + cpu_component.consumption_joules
+        )
+        energy_response.components.extend([cpu_component, gpu_component])
 
-            energy_response.batch_size = entry[3]
-            energy_response_list.append(energy_response)
+        energy_response.batch_size = entry["batchSize"]
+        energy_response_list.append(energy_response)
 
     return energy_response_list

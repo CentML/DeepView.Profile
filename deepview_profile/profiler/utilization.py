@@ -523,20 +523,20 @@ def _trace_handler(p):
 
 
 def _serialize_node(respNode, internalNode):
-    respNode.slice_id = internalNode["slice_id"]
+    respNode.slice_id = internalNode["sliceId"]
     respNode.name = internalNode["name"]
     respNode.start = int(internalNode["start"])
     respNode.end = int(internalNode["end"])
-    respNode.cpu_forward = int(internalNode["cpu_forward"])
-    respNode.cpu_forward_span = int(internalNode["cpu_forward_span"])
-    respNode.gpu_forward = int(internalNode["gpu_forward"])
-    respNode.gpu_forward_span = int(internalNode["gpu_forward_span"])
-    respNode.cpu_backward = int(internalNode["cpu_backward"])
-    respNode.cpu_backward_span = int(internalNode["cpu_backward_span"])
-    respNode.gpu_backward = int(internalNode["gpu_backward"])
-    respNode.gpu_backward_span = int(internalNode["gpu_backward_span"])
+    respNode.cpu_forward = int(internalNode.get("cpuForward",0))
+    respNode.cpu_forward_span = int(internalNode.get("cpuForwardSpan",0))
+    respNode.gpu_forward = int(internalNode.get("gpuForward",0))
+    respNode.gpu_forward_span = int(internalNode.get("gpuForwardSpan",0))
+    respNode.cpu_backward = int(internalNode.get("cpuBackward",0))
+    respNode.cpu_backward_span = int(internalNode.get("cpuBackwardSpan",0))
+    respNode.gpu_backward = int(internalNode.get("gpuBackward",0))
+    respNode.gpu_backward_span = int(internalNode.get("gpuBackwardSpan",0))
 
-    for ch in internalNode["children"]:
+    for ch in internalNode.get("children",[]):
         addRespNode = respNode.children.add()
         _serialize_node(addRespNode, ch)
 

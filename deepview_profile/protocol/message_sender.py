@@ -1,6 +1,6 @@
 import os
 import logging
-import pynvml
+# import pynvml
 import platform
 
 from deepview_profile.exceptions import NoConnectionError
@@ -23,12 +23,13 @@ class MessageSender:
         # Populate hardware info
         message.hardware.hostname = platform.node()
         message.hardware.os = " ".join(list(platform.uname()))
-        pynvml.nvmlInit()
-        for i in range(pynvml.nvmlDeviceGetCount()):
-            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-            device_name = pynvml.nvmlDeviceGetName(handle).decode("utf-8")
-            message.hardware.gpus.append(device_name)
-        pynvml.nvmlShutdown()
+        message.hardware.gpus.append("RTX 4090")
+        # pynvml.nvmlInit()
+        # for i in range(pynvml.nvmlDeviceGetCount()):
+        #     handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+        #     device_name = pynvml.nvmlDeviceGetName(handle).decode("utf-8")
+        #     message.hardware.gpus.append(device_name)
+        # pynvml.nvmlShutdown()
 
         self._send_message(message, 'initialize', context)
 
