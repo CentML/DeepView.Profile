@@ -42,7 +42,6 @@ def _validate_dependencies():
     #       list in setup.py as well.
     try:
         import yaml # pyyaml on PyPI # noqa: F401
-        import pynvml # nvidia-ml-py3 on PyPI # noqa: F401
         import google.protobuf # protobuf on PyPI # noqa: F401
         import numpy # noqa: F401
         import torch # noqa: F401

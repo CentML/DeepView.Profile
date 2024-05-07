@@ -2,7 +2,7 @@ import time
 from threading import Thread
 import numpy as np
 
-import pynvml as N
+# import pynvml as N
 from pyRAPL import Sensor
 
 class CPUMeasurer:
@@ -64,15 +64,18 @@ class GPUMeasurer:
         self.power = []
 
     def measurer_init(self):
-        N.nvmlInit()
-        self.device_handle = N.nvmlDeviceGetHandleByIndex(0)
+        # N.nvmlInit()
+        # self.device_handle = N.nvmlDeviceGetHandleByIndex(0)
+        pass
 
     def measurer_measure(self):
-        power = N.nvmlDeviceGetPowerUsage(self.device_handle)
-        self.power.append(power)
+        # power = N.nvmlDeviceGetPowerUsage(self.device_handle)
+        # self.power.append(power)
+        pass
 
     def measurer_deallocate(self):
-        N.nvmlShutdown()
+        # N.nvmlShutdown()
+        pass
 
     def total_energy(self):
         # J = W * s,    1W = 1000 mW

@@ -4,7 +4,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from deepview_profile.analysis.runner import analyze_project
 from deepview_profile.exceptions import AnalysisError
-from deepview_profile.nvml import NVML
+# from deepview_profile.nvml import NVML
 import deepview_profile.protocol_gen.innpv_pb2 as pm
 import sys
 logger = logging.getLogger(__name__)
@@ -22,13 +22,14 @@ class AnalysisRequestManager:
         self._enqueue_response = enqueue_response
         self._message_sender = message_sender
         self._connection_manager = connection_manager
-        self._nvml = NVML()
+        # self._nvml = NVML()
 
     def start(self):
-        self._nvml.start()
+        # self._nvml.start()
+        pass
 
     def stop(self):
-        self._nvml.stop()
+        # self._nvml.stop()
         self._executor.shutdown()
 
     def submit_request(self, analysis_request, context):
@@ -55,7 +56,6 @@ class AnalysisRequestManager:
             analyzer = analyze_project(
                 connection.project_root, 
                 connection.entry_point, 
-                self._nvml,
                 analysis_request.ddp_analysis_request
             )
 

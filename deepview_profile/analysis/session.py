@@ -3,7 +3,7 @@ import inspect
 import logging
 import math
 import os
-import pynvml
+# import pynvml
 import re
 import torch
 import numpy as np
@@ -250,7 +250,7 @@ class AnalysisSession:
         finally:           
             return resp
 
-    def measure_breakdown(self, nvml):
+    def measure_breakdown(self):
         # # 1. Measure the breakdown entries
         # self._prepare_for_memory_profiling()
         # tracker = self._get_tracker_instance()

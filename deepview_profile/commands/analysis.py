@@ -5,7 +5,7 @@ import json
 import platform
 
 from deepview_profile.analysis.runner import analyze_project
-from deepview_profile.nvml import NVML
+# from deepview_profile.nvml import NVML
 from deepview_profile.utils import release_memory, next_message_to_dict, files_encoded_unique
 
 from deepview_profile.initialization import (
@@ -78,9 +78,9 @@ def register_command(subparsers):
     parser.add_argument("--debug", action="store_true", help="Log debug messages.")
     parser.set_defaults(func=main)
 
-def measure_breakdown(session, nvml):
+def measure_breakdown(session):
     print("analysis: running measure_breakdown()")
-    yield session.measure_breakdown(nvml)
+    yield session.measure_breakdown()
     release_memory()
 
 def measure_throughput(session):
@@ -108,12 +108,12 @@ def ddp_analysis(session):
     yield session.ddp_computation()
     release_memory()
 
-def hardware_information(nvml):
+def hardware_information():
     
     hardware_info = { 
         'hostname': platform.node(),
         'os': " ".join(list(platform.uname())),
-        'gpus': nvml.get_device_names()
+        'gpus': "RTX 4090"
     }
     return hardware_info
 
@@ -154,14 +154,14 @@ def actual_main(args):
 
         is_return_all = args.all
 
-        with NVML() as nvml:
-            data['analysisState']['hardware_info'] = hardware_information(nvml)
-            if args.measure_breakdown or is_return_all:
-                data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
+        # with NVML() as nvml:
+        #     data['analysisState']['hardware_info'] = hardware_information(nvml)
+        #     if args.measure_breakdown or is_return_all:
+        #         data['analysisState']['breakdown'] = next_message_to_dict(measure_breakdown(session, nvml))
 
-                operation_tree = data['analysisState']['breakdown']['operationTree']
-                if not args.exclude_source and operation_tree is not None:
-                    data['encodedFiles'] = files_encoded_unique(operation_tree)
+        #         operation_tree = data['analysisState']['breakdown']['operationTree']
+        #         if not args.exclude_source and operation_tree is not None:
+        #             data['encodedFiles'] = files_encoded_unique(operation_tree)
 
         if args.measure_throughput or is_return_all:
             data['analysisState']['throughput'] = next_message_to_dict(measure_throughput(session))
