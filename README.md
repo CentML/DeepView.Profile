@@ -18,7 +18,7 @@ DeepView.Profile works with *GPU-based* neural networks that are implemented in 
 
 To run DeepView.Profile, you need:
 - A system equipped with an NVIDIA GPU
-- Python 3.7+
+- Python 3.9+
 - PyTorch 1.1.0+ with CUDA
   - **NOTE:**  We assume you have the correct version of PyTorch installed for their GPU. Default PyTorch installation on Linux distros might not have CUDA support. If you see error similar to below, your PyTorch version is incompatible with your version of CUDA. You can download the appropriate version from the [PyTorch site](https://pytorch.org/get-started/locally/)
     ```NVIDIA GeForce RTX 3060 Ti with CUDA capability sm_86 is not compatible with the current PyTorch installation.
