@@ -306,6 +306,8 @@ class AnalysisSession:
                 habitat.Device.A40,
                 habitat.Device.A4000,
                 habitat.Device.RTX4000,
+                habitat.Device.L4,
+                habitat.Device.H100
             ]
 
             # Detect source GPU
