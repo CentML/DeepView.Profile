@@ -25,24 +25,26 @@ class DeepviewLightning(Profiler):
                 inputs, _ = next(iter(self._batch_generator))
                 batch_size = inputs.shape[0]
 
-                def model_provider():
-                    return self._lightning_module()
+                # def model_provider():
+                #     return self._lightning_module()
                 
-                def input_provider(batch_size=1):
-                    return next(iter(self._batch_generator))
+                # def input_provider(batch_size=1):
+                #     return next(iter(self._batch_generator))
 
-                def iterator_provider(model):
-                    def iteration(inputs):
-                        model.training_step(inputs)
-                    return iteration
+                # def iterator_provider(model):
+                #     def iteration(inputs, targets):
+                #         model.training_step(zip(inputs, targets))
+                #     return iteration
 
-                analizer = AnalysisSession(
-                    model_provider=model_provider, 
-                    input_provider=input_provider, 
-                    iteration_provider=iterator_provider,
-                    batch_size=batch_size)
+                # analizer = AnalysisSession(
+                #     model_provider=model_provider, 
+                #     input_provider=input_provider, 
+                #     iteration_provider=iterator_provider,
+                #     batch_size=batch_size)
                 
-                analizer.measure_throughput()
+                # analizer.measure_throughput()
+
+                self._lightning_module().training_step(next(iter(self._batch_generator)))
 
     @override
     def stop(self, action_name: str) -> None:

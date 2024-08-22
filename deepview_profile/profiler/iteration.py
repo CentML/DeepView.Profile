@@ -50,12 +50,12 @@ class IterationProfiler:
               memory to run the iteration.
         """
 
-        with user_code_environment(
-                self._path_to_entry_point_dir, self._project_root):
-            inputs = self._input_provider(batch_size=batch_size)
+        # with user_code_environment(
+        #         self._path_to_entry_point_dir, self._project_root):
+        inputs = self._input_provider(batch_size=batch_size)
             # Warm up - 10 iterations
-            for _ in range(10):
-                self._iteration(*inputs)
+        for _ in range(10):
+            self._iteration(*inputs)
 
         torch.cuda.synchronize()
 
