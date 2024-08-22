@@ -36,9 +36,9 @@ class IterationProfiler:
         path_to_entry_point_dir,
         project_root,
     ):
-        with user_code_environment(path_to_entry_point_dir, project_root):
-            model = model_provider()
-            iteration = iteration_provider(model)
+        #with user_code_environment(path_to_entry_point_dir, project_root):
+        model = model_provider()
+        iteration = iteration_provider(model)
         return cls(
             iteration, input_provider, path_to_entry_point_dir, project_root)
 
@@ -60,12 +60,12 @@ class IterationProfiler:
         torch.cuda.synchronize()
 
         def measure(iterations):
-            with user_code_environment(
-                    self._path_to_entry_point_dir, self._project_root):
-                self._start_event.record()
-                for _ in range(iterations):
-                    self._iteration(*inputs)
-                self._end_event.record()
+            #with user_code_environment(
+            #        self._path_to_entry_point_dir, self._project_root):
+            self._start_event.record()
+            for _ in range(iterations):
+                self._iteration(*inputs)
+            self._end_event.record()
             torch.cuda.synchronize()
             return self._start_event.elapsed_time(self._end_event)
 

@@ -54,14 +54,14 @@ Context = collections.namedtuple(
 class AnalysisSession:
     def __init__(
         self,
-        project_root,
-        entry_point,
-        path_to_entry_point_dir,
         model_provider,
         input_provider,
         iteration_provider,
         batch_size,
-        entry_point_static_analyzer,
+        path_to_entry_point_dir = None,
+        entry_point = None,
+        project_root = None,
+        entry_point_static_analyzer = None,
     ):
         self._project_root = project_root
         self._entry_point = entry_point
