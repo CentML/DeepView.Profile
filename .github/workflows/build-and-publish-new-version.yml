@@ -51,7 +51,7 @@ jobs:
           poetry build
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.inputs.tag }}
           path: dist/*${{ github.event.inputs.tag }}*
@@ -82,7 +82,7 @@ jobs:
 
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.inputs.tag }}
           path: dist
