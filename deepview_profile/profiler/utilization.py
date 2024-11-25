@@ -395,19 +395,11 @@ class UtilizationProfiler:
         startTime = time.time()
         tp = self._get_perfetto_object(filepath)
 
-        profilerStepStart = tp.query_dict(
-            "select * from slices where name like '%ProfilerStep%'"
-        )
-        main_track = profilerStepStart[0]["track_id"]
-        start = profilerStepStart[0]["ts"]
-        end = start + profilerStepStart[0]["dur"]
-        profilerStartDepth = profilerStepStart[0]["depth"]
-
         rootQuery = tp.query_dict(
             f"""
                                 select * from slices where name like '%nn.Module:%' 
                                 and depth = 
-                                (SELECT MIN(depth) from slices where name like '%nn.Module%' and depth>{profilerStartDepth} and ts between {start} and {end} and track_id = {main_track})                
+                                (SELECT MIN(depth) from slices where name like '%nn.Module%')                
                                 """
         )[0]
 
@@ -545,7 +537,9 @@ def serialize_response(respNode, rootNode):
     _serialize_node(respNode, rootNode)
 
 
-def utilization_analysis(model_provider, input_provider, iteration_provider):
+def utilization_analysis(
+    model_provider, input_provider, iteration_provider
+):
     model = model_provider()
     inputs = input_provider()
     iteration = iteration_provider(model)
