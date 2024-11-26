@@ -67,7 +67,11 @@ def convert(message):
             for c in a["children"]:
                 fix(c)
 
-    fix(new_message["utilization"]["rootNode"]) if new_message["utilization"].get('rootNode', None) else None
+    (
+        fix(new_message["utilization"]["rootNode"])
+        if new_message["utilization"].get("rootNode", None)
+        else None
+    )
     try:
         new_message["utilization"]["tensor_core_usage"] = message["utilization"][
             "tensor_utilization"
@@ -143,11 +147,12 @@ def convert(message):
             "components": message["energy"]["components"],
             "batch_size": 48,
         },
-        "past_measurements": message["energy"]["past_measurements"],
+        "past_measurements": message["energy"].get("past_measurements", None),
     }
 
     fix_components(new_message["energy"]["current"])
-    for m in new_message["energy"]["past_measurements"]:
-        fix_components(m)
+    if new_message["energy"].get("past_measurements", None):
+        for m in new_message["energy"]["past_measurements"]:
+            fix_components(m)
 
     return new_message
