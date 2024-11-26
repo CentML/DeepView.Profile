@@ -38,6 +38,7 @@ orjson = "*"
 torch-tb-profiler = "*"
 pymongo = "*"
 scipy = "*"
+termcolor = "*"
 
 [tool.poetry.dev-dependencies]
 
