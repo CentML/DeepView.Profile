@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "deepview-profile"
-version = "0.14.2"
+version = "0.14.4"
 description = "Interactive performance profiling and debugging tool for PyTorch neural networks."
 authors = ["CentML <support@centml.ai>"]
 license = "Apache-2.0"
