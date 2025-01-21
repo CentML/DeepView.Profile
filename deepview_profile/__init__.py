@@ -1,13 +1,14 @@
 import os
+from importlib.metadata import version, PackageNotFoundError
 
-import toml
+try:
+    package_name = "deepview_profile"
+    __name__ = package_name
+    __version__ = version(package_name)
+    __description__ = "Interactive performance profiling and debugging tool for PyTorch neural networks."
 
-file_path = os.path.abspath(__file__)
-dir_path = os.path.dirname(file_path)
-package = toml.load(os.path.join(dir_path, "..", "pyproject.toml"))
-
-__name__ = package["tool"]["poetry"]["name"]
-__version__ = package["tool"]["poetry"]["version"]
-__description__ = package["tool"]["poetry"]["description"]
+except PackageNotFoundError:
+    __version__ = "unknown"
+    __description__ = "unknown"
 
 from .__main__ import main
